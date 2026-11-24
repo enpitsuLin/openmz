@@ -4,7 +4,8 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "build:pixi": "esbuild vendor/lib-entries/pixi.js --bundle --format=iife --outfile=dist/js/libs/pixi.js"
+    "build:pixi": "esbuild vendor/lib-entries/pixi.js --bundle --platform=browser --format=iife --global-name=PIXI --outfile=src/js/libs/pixi.js",
+    "typecheck": "tsc --noEmit"
   },
   "keywords": [],
   "author": "",

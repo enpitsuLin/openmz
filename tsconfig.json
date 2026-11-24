@@ -14,13 +14,12 @@
     "allowImportingTsExtensions": true,
     "strict": true,
     "noUnusedLocals": true,
-    "declaration": true,
-    "emitDeclarationOnly": true,
     "esModuleInterop": true,
     "isolatedModules": true,
     "verbatimModuleSyntax": true,
     "skipLibCheck": true,
-    "allowJs": true
+    "allowJs": true,
+    "noEmit": true
   },
   "include": [
     "src"
