@@ -12,6 +12,7 @@
   "packageManager": "pnpm@12.23.0",
   "type": "module",
   "devDependencies": {
+    "@ast-grep/napi": "^0.51.3",
     "pixi.js": "^8.23.0",
     "typescript": "^7.0.2"
   }
