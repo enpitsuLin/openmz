@@ -4,7 +4,7 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "build:pixi": "esbuild vendor/lib-entries/pixi.js --bundle --format=iife --outfile=dist/js/libs/pixi.js"
   },
   "keywords": [],
   "author": "",
@@ -13,6 +13,7 @@
   "type": "module",
   "devDependencies": {
     "@ast-grep/napi": "^0.51.3",
+    "esbuild": "^0.28.2",
     "pixi.js": "^8.23.0",
     "typescript": "^7.0.2"
   }
