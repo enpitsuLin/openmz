@@ -1,18 +1,20 @@
 {
   "compilerOptions": {
     "target": "es2021",
-    "lib": [
-      "DOM",
-      "DOM.AsyncIterable",
-      "DOM.Iterable",
-      "ES2021"
-    ],
+    "lib": [],
     "moduleDetection": "force",
     "module": "preserve",
     "moduleResolution": "bundler",
     "resolveJsonModule": true,
     "allowImportingTsExtensions": true,
     "strict": true,
+    "types": [
+      "./src/env.d.ts",
+      "typescript/lib/lib.es2021",
+      "typescript/lib/lib.dom",
+      "typescript/lib/lib.dom.iterable",
+      "typescript/lib/lib.dom.asynciterable"
+    ],
     "noUnusedLocals": true,
     "esModuleInterop": true,
     "isolatedModules": true,
