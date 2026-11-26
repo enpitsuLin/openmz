@@ -5,10 +5,13 @@
   "main": "index.js",
   "scripts": {
     "build:pixi": "rolldown -c",
+    "build:release": "node scripts/build-release.mjs",
     "build:types": "node scripts/build-dts.mjs",
     "check:types": "node scripts/build-dts.mjs --check",
+    "serve:manifest": "node scripts/serve-manifest.mjs",
     "typecheck": "tsc --noEmit",
-    "test:plugin-compat": "vitest run tests/plugin-compat"
+    "test:plugin-compat": "vitest run tests/plugin-compat",
+    "test:release": "node --test tests/release.test.mjs"
   },
   "keywords": [],
   "author": "",

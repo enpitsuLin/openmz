@@ -1,6 +1,5 @@
 /*!
 * pixi.js - v8.23.0
-* Compiled Thu, 26 Nov 2026 05:56:54 UTC
 *
 * pixi.js is licensed under the MIT License.
 * http://www.opensource.org/licenses/mit-license

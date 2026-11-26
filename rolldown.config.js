@@ -9,9 +9,8 @@ export default defineConfig({
   input: 'vendor/lib-entries/pixi.js',
   platform: 'browser',
   output: {
-    banner: () => `/*!
+    banner: `/*!
  * ${pixiPackage.name} - v${pixiPackage.version}
- * Compiled ${new Date().toUTCString().replace('GMT', 'UTC')}
  *
  * ${pixiPackage.name} is licensed under the ${pixiPackage.license} License.
  * http://www.opensource.org/licenses/mit-license
