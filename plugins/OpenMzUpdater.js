@@ -549,20 +549,21 @@
     const getTexts = () =>
         isChineseLocale()
             ? {
-                  title: "OpenMZ 核心引擎升级",
-                  confirmLine1: "是否通过 Manifest 升级 RPG Maker MZ 核心引擎？",
-                  confirmSource: (url) => `Manifest: ${url}`,
-                  confirmBackup: "替换前会自动备份原有 js 脚本到 js_backup/ 目录。",
-                  fetchingManifest: "正在获取 Manifest 清单...",
-                  downloading: (file) => `正在下载核心引擎包 (${file})...`,
-                  verifying: "正在校验并解包...",
-                  applying: (total) => `正在备份原脚本并写入 ${total} 个文件...`,
-                  doneTitle: "核心引擎升级完成",
-                  doneCount: (name, version, count) =>
-                      `已更新 ${count} 个核心文件 (${name}${version ? ` v${version}` : ""})`,
-                  doneBackup: (dir) => `原文件已备份至: ${dir}`,
-                  doneHint: "已自动关闭本插件，请重新加载以启用新的核心引擎。",
-                  errorTitle: "核心引擎升级失败",
+                  title: "升级 OpenMZ 核心引擎",
+                  confirmAction: "将下载新版并替换工程的核心脚本。",
+                  confirmBackup: "原脚本将备份到 js_backup/。",
+                  confirmSource: (source) => `来源：${source}`,
+                  confirmVersion: (version) => `目标版本：${version}`,
+                  latestRelease: "最新版",
+                  fetchingManifest: "读取更新清单",
+                  downloading: (file) => `下载更新包：${file}`,
+                  verifying: "校验并解压更新包",
+                  applying: (total) => `备份原脚本并替换 ${total} 个文件`,
+                  doneTitle: "升级完成",
+                  doneCount: (name, version, count) => `已更新至 ${name} v${version}（${count} 个文件）`,
+                  doneBackup: (dir) => `原脚本备份至：${dir}`,
+                  doneHint: "升级插件已自动关闭，重启后启用新版引擎。",
+                  errorTitle: "升级失败",
                   btnUpgrade: "确认升级",
                   btnSkip: "暂不升级",
                   btnReload: "立即重启",
@@ -570,26 +571,43 @@
                   btnBack: "返回标题",
               }
             : {
-                  title: "OpenMZ Core Engine Upgrade",
-                  confirmLine1: "Upgrade RPG Maker MZ core engine via manifest?",
-                  confirmSource: (url) => `Manifest: ${url}`,
-                  confirmBackup: "Existing scripts will be backed up to js_backup/ first.",
-                  fetchingManifest: "Fetching manifest...",
-                  downloading: (file) => `Downloading core engine archive (${file})...`,
-                  verifying: "Verifying and extracting the archive...",
-                  applying: (total) => `Backing up and writing ${total} files...`,
-                  doneTitle: "Core Engine Upgraded",
-                  doneCount: (name, version, count) =>
-                      `Updated ${count} files (${name}${version ? ` v${version}` : ""})`,
-                  doneBackup: (dir) => `Backup saved to: ${dir}`,
-                  doneHint: "Plugin disabled. Reload to launch the upgraded engine.",
-                  errorTitle: "Core Engine Upgrade Failed",
+                  title: "Upgrade the OpenMZ engine",
+                  confirmAction: "The upgrade will replace this project's core scripts.",
+                  confirmBackup: "Original scripts will be backed up to js_backup/.",
+                  confirmSource: (source) => `Source: ${source}`,
+                  confirmVersion: (version) => `Target version: ${version}`,
+                  latestRelease: "Latest release",
+                  fetchingManifest: "Reading update manifest",
+                  downloading: (file) => `Downloading update: ${file}`,
+                  verifying: "Verifying and extracting the update",
+                  applying: (total) => `Backing up and replacing ${total} files`,
+                  doneTitle: "Upgrade complete",
+                  doneCount: (name, version, count) => `Updated to ${name} v${version} (${count} files)`,
+                  doneBackup: (dir) => `Original scripts backed up to: ${dir}`,
+                  doneHint: "The updater is disabled. Restart to use the new engine.",
+                  errorTitle: "Upgrade failed",
                   btnUpgrade: "Upgrade",
-                  btnSkip: "Cancel",
-                  btnReload: "Reload Now",
+                  btnSkip: "Skip",
+                  btnReload: "Restart now",
                   btnRetry: "Retry",
-                  btnBack: "Back to Title",
+                  btnBack: "Back to title",
               };
+
+    const getManifestSourceLines = (texts) => {
+        const lines = [texts.confirmSource(configuredManifestUrl)];
+        try {
+            const url = new URL(configuredManifestUrl);
+            const release = url.hostname === "github.com" &&
+                url.pathname.match(/^\/[^/]+\/[^/]+\/releases\/(?:download\/([^/]+)|latest\/download)\//);
+            if (release) {
+                const tag = release[1];
+                lines.push(texts.confirmVersion(tag ? decodeURIComponent(tag) : texts.latestRelease));
+            }
+        } catch {
+            // Keep the configured address visible even if it cannot be parsed.
+        }
+        return lines;
+    };
 
     const reloadApplication = () => {
         if (typeof nw === "object" && nw.Window && typeof nw.Window.get === "function") {
@@ -605,36 +623,64 @@
     class Window_OpenMzMessage extends Window_Base {
         initialize(rect) {
             super.initialize(rect);
-            this._titleText = "";
-            this._bodyLines = [];
-            this._titleColor = null;
             this.openness = 0;
         }
 
         setMessage(titleText, bodyLines, titleColor = null) {
-            this._titleText = titleText;
-            this._bodyLines = bodyLines;
-            this._titleColor = titleColor;
-            this.refresh();
+            const inset = this.itemPadding();
+            const width = this.innerWidth - inset * 2;
+            const title = this.wrapLine(titleText, width);
+            const body = bodyLines.flatMap((text) =>
+                String(text).split(/\r?\n/).flatMap((line) => this.wrapLine(line, width))
+            );
+            const height = this.fittingHeight(title.length + body.length);
+            if (this.height !== height) {
+                this.height = height;
+                this.createContents();
+            } else {
+                this.contents.clear();
+            }
+
+            const lineHeight = this.lineHeight();
+            let lineY = 0;
+            this.changeTextColor(titleColor || ColorManager.systemColor());
+            for (const line of title) {
+                this.drawText(line, inset, lineY, width, "center");
+                lineY += lineHeight;
+            }
+            this.resetTextColor();
+            for (const line of body) {
+                this.drawText(line, inset, lineY, width, "left");
+                lineY += lineHeight;
+            }
         }
 
-        refresh() {
-            this.contents.clear();
-            const lineHeight = this.lineHeight();
-            const maxWidth = this.innerWidth;
-            let lineY = 0;
+        wrapLine(text, width) {
+            const lines = [];
+            let line = "";
+            for (const token of text.match(/(?:[^/\s]+\/*|\/+)\s*/g) || []) {
+                const word = token.trimEnd();
+                if (line && this.textWidth(line + word) > width) {
+                    lines.push(line.trimEnd());
+                    line = "";
+                }
+                if (this.textWidth(word) <= width) {
+                    line += token;
+                    continue;
+                }
 
-            if (this._titleText) {
-                this.changeTextColor(this._titleColor || ColorManager.systemColor());
-                this.drawText(this._titleText, 0, lineY, maxWidth, "center");
-                this.resetTextColor();
-                lineY += lineHeight;
+                // Split words without spaces, such as Chinese text and file paths.
+                for (const character of word) {
+                    if (line && this.textWidth(line + character) > width) {
+                        lines.push(line);
+                        line = "";
+                    }
+                    line += character;
+                }
+                line += token.slice(word.length);
             }
-
-            for (const line of this._bodyLines) {
-                this.drawText(String(line), 0, lineY, maxWidth, "left");
-                lineY += lineHeight;
-            }
+            lines.push(line.trimEnd());
+            return lines;
         }
     }
 
@@ -721,15 +767,13 @@
         this._commandWindow.deactivate();
         this._commandWindow.close();
 
-        const width = Math.min(640, Graphics.boxWidth - 48);
-        const messageHeight = this.calcWindowHeight(5, false);
+        const width = Math.min(540, Graphics.boxWidth - 48);
+        const messageHeight = this.calcWindowHeight(1, false);
         const confirmHeight = this.calcWindowHeight(1, true);
-        const totalHeight = messageHeight + confirmHeight;
         const x = Math.floor((Graphics.boxWidth - width) / 2);
-        const y = Math.floor((Graphics.boxHeight - totalHeight) / 2);
 
-        const messageRect = new Rectangle(x, y, width, messageHeight);
-        const confirmRect = new Rectangle(x, y + messageHeight, width, confirmHeight);
+        const messageRect = new Rectangle(x, 0, width, messageHeight);
+        const confirmRect = new Rectangle(x, 0, width, confirmHeight);
 
         this._openMzMessageWindow = new Window_OpenMzMessage(messageRect);
         this._openMzConfirmWindow = new Window_OpenMzConfirm(confirmRect);
@@ -739,14 +783,22 @@
         this._openMzConfirmWindow.setHandler("cancel", this.onOpenMzUpgradeClose.bind(this));
 
         const texts = getTexts();
-        this._openMzMessageWindow.setMessage(texts.title, [
-            texts.confirmLine1,
-            texts.confirmSource(configuredManifestUrl),
+        this.showOpenMzMessage(texts.title, [
+            texts.confirmAction,
+            ...getManifestSourceLines(texts),
             texts.confirmBackup,
         ]);
 
         this.addWindow(this._openMzMessageWindow);
         this.addWindow(this._openMzConfirmWindow);
+    };
+
+    Scene_Title.prototype.showOpenMzMessage = function(title, lines, color) {
+        const messageWindow = this._openMzMessageWindow;
+        const confirmWindow = this._openMzConfirmWindow;
+        messageWindow.setMessage(title, lines, color);
+        messageWindow.y = Math.floor((Graphics.boxHeight - messageWindow.height - confirmWindow.height) / 2);
+        confirmWindow.y = messageWindow.y + messageWindow.height;
     };
 
     Scene_Title.prototype.onOpenMzUpgradeConfirm = async function() {
@@ -757,7 +809,6 @@
         this._openMzUpgrading = true;
         this._openMzConfirmWindow.deactivate();
         this._openMzConfirmWindow.close();
-        this._openMzMessageWindow.setMessage(texts.title, [texts.fetchingManifest]);
 
         try {
             const result = await upgradeCoreEngine({
@@ -768,16 +819,16 @@
                 onProgress: async ({ phase, file, total }) => {
                     switch (phase) {
                         case "manifest":
-                            this._openMzMessageWindow.setMessage(texts.title, [texts.fetchingManifest]);
+                            this.showOpenMzMessage(texts.title, [texts.fetchingManifest]);
                             break;
                         case "download":
-                            this._openMzMessageWindow.setMessage(texts.title, [texts.downloading(file)]);
+                            this.showOpenMzMessage(texts.title, [texts.downloading(file)]);
                             break;
                         case "verify":
-                            this._openMzMessageWindow.setMessage(texts.title, [texts.verifying]);
+                            this.showOpenMzMessage(texts.title, [texts.verifying]);
                             break;
                         case "apply":
-                            this._openMzMessageWindow.setMessage(texts.title, [texts.applying(total)]);
+                            this.showOpenMzMessage(texts.title, [texts.applying(total)]);
                             break;
                     }
                     if (phase === "verify" || phase === "apply") {
@@ -787,14 +838,14 @@
                 },
             });
             promptHandledInSession = true;
-            this._openMzMessageWindow.setMessage(texts.doneTitle, [
+            this.showOpenMzMessage(texts.doneTitle, [
                 texts.doneCount(result.name, result.version, result.updatedFiles.length),
                 texts.doneBackup(result.backupRelativeDir),
                 texts.doneHint,
             ]);
             this._openMzConfirmWindow.setMode("done");
         } catch (error) {
-            this._openMzMessageWindow.setMessage(
+            this.showOpenMzMessage(
                 texts.errorTitle,
                 [error.message || String(error)],
                 ColorManager.deathColor()
