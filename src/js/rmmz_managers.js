@@ -1,12 +1,8 @@
-//=============================================================================
 // rmmz_managers.js v1.10.0
-//=============================================================================
 
-//-----------------------------------------------------------------------------
-// DataManager
-//
-// The static class that manages the database and game objects.
-
+/**
+ * The static class that manages the database and game objects.
+ */
 class DataManager {
     constructor() {
         throw new Error("This is a static class");
@@ -422,11 +418,9 @@ $gameMap = null;
 $gamePlayer = null;
 $testEvent = null;
 
-//-----------------------------------------------------------------------------
-// ConfigManager
-//
-// The static class that manages the configuration data.
-
+/**
+ * The static class that manages the configuration data.
+ */
 class ConfigManager {
     constructor() {
         throw new Error("This is a static class");
@@ -526,11 +520,9 @@ class ConfigManager {
     }
 }
 
-//-----------------------------------------------------------------------------
-// StorageManager
-//
-// The static class that manages storage for saving game data.
-
+/**
+ * The static class that manages storage for saving game data.
+ */
 class StorageManager {
     constructor() {
         throw new Error("This is a static class");
@@ -778,11 +770,9 @@ class StorageManager {
     }
 }
 
-//-----------------------------------------------------------------------------
-// FontManager
-//
-// The static class that loads font files.
-
+/**
+ * The static class that loads font files.
+ */
 class FontManager {
     constructor() {
         throw new Error("This is a static class");
@@ -844,11 +834,9 @@ class FontManager {
     }
 }
 
-//-----------------------------------------------------------------------------
-// ImageManager
-//
-// The static class that loads images, creates bitmap objects and retains them.
-
+/**
+ * The static class that loads images, creates bitmap objects and retains them.
+ */
 class ImageManager {
     constructor() {
         throw new Error("This is a static class");
@@ -1016,11 +1004,9 @@ class ImageManager {
     }
 }
 
-//-----------------------------------------------------------------------------
-// EffectManager
-//
-// The static class that loads Effekseer effects.
-
+/**
+ * The static class that loads Effekseer effects.
+ */
 class EffectManager {
     constructor() {
         throw new Error("This is a static class");
@@ -1095,11 +1081,9 @@ class EffectManager {
     }
 }
 
-//-----------------------------------------------------------------------------
-// AudioManager
-//
-// The static class that handles BGM, BGS, ME and SE.
-
+/**
+ * The static class that handles BGM, BGS, ME and SE.
+ */
 class AudioManager {
     constructor() {
         throw new Error("This is a static class");
@@ -1485,11 +1469,9 @@ class AudioManager {
     }
 }
 
-//-----------------------------------------------------------------------------
-// SoundManager
-//
-// The static class that plays sound effects defined in the database.
-
+/**
+ * The static class that plays sound effects defined in the database.
+ */
 class SoundManager {
     constructor() {
         throw new Error("This is a static class");
@@ -1611,11 +1593,9 @@ class SoundManager {
     }
 }
 
-//-----------------------------------------------------------------------------
-// TextManager
-//
-// The static class that handles terms and messages.
-
+/**
+ * The static class that handles terms and messages.
+ */
 class TextManager {
     constructor() {
         throw new Error("This is a static class");
@@ -1741,11 +1721,9 @@ Object.defineProperties(TextManager, {
     actionFailure: TextManager.getter("message", "actionFailure")
 });
 
-//-----------------------------------------------------------------------------
-// ColorManager
-//
-// The static class that handles the window colors.
-
+/**
+ * The static class that handles the window colors.
+ */
 class ColorManager {
     constructor() {
         throw new Error("This is a static class");
@@ -1899,11 +1877,9 @@ class ColorManager {
     }
 }
 
-//-----------------------------------------------------------------------------
-// SceneManager
-//
-// The static class that manages scene transitions.
-
+/**
+ * The static class that manages scene transitions.
+ */
 class SceneManager {
     constructor() {
         throw new Error("This is a static class");
@@ -2004,9 +1980,12 @@ class SceneManager {
         }
     }
 
+    /**
+     * Determines how many game updates to run for this frame.
+     * The calculation accounts for refresh rates above 60 Hz and smooths
+     * sudden changes in deltaTime.
+     */
     static determineRepeatNumber(deltaTime) {
-        // [Note] We consider environments where the refresh rate is higher than
-        //   60Hz, but ignore sudden irregular deltaTime.
         this._smoothDeltaTime *= 0.8;
         this._smoothDeltaTime += Math.min(deltaTime, 2) * 0.2;
         if (this._smoothDeltaTime >= 0.9) {
@@ -2279,11 +2258,9 @@ class SceneManager {
     }
 }
 
-//-----------------------------------------------------------------------------
-// BattleManager
-//
-// The static class that manages battle progress.
-
+/**
+ * The static class that manages battle progress.
+ */
 class BattleManager {
     constructor() {
         throw new Error("This is a static class");
@@ -3109,11 +3086,9 @@ class BattleManager {
     }
 }
 
-//-----------------------------------------------------------------------------
-// PluginManager
-//
-// The static class that manages the plugins.
-
+/**
+ * The static class that manages the plugins.
+ */
 class PluginManager {
     constructor() {
         throw new Error("This is a static class");
@@ -3190,8 +3165,6 @@ class PluginManager {
         }
     }
 }
-
-//-----------------------------------------------------------------------------
 
 // Class declarations are lexical bindings, while plugins and JsonEx resolve
 // constructors through the global object, so expose them as global properties.

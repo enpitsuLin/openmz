@@ -1,12 +1,8 @@
-//=============================================================================
 // rmmz_sprites.js v1.10.0
-//=============================================================================
 
-//-----------------------------------------------------------------------------
-// Sprite_Clickable
-//
-// The sprite class with click handling functions.
-
+/**
+ * The sprite class with click handling functions.
+ */
 class Sprite_Clickable extends Sprite {
     constructor(...args) {
         super(...args);
@@ -92,11 +88,9 @@ class Sprite_Clickable extends Sprite {
     }
 }
 
-//-----------------------------------------------------------------------------
-// Sprite_Button
-//
-// The sprite for displaying a button.
-
+/**
+ * The sprite for displaying a button.
+ */
 class Sprite_Button extends Sprite_Clickable {
     constructor(...args) {
         super(...args);
@@ -197,11 +191,9 @@ class Sprite_Button extends Sprite_Clickable {
     }
 }
 
-//-----------------------------------------------------------------------------
-// Sprite_Character
-//
-// The sprite for displaying a character.
-
+/**
+ * The sprite for displaying a character.
+ */
 class Sprite_Character extends Sprite {
     constructor(...args) {
         super(...args);
@@ -425,11 +417,9 @@ class Sprite_Character extends Sprite {
     }
 }
 
-//-----------------------------------------------------------------------------
-// Sprite_Battler
-//
-// The superclass of Sprite_Actor and Sprite_Enemy.
-
+/**
+ * The superclass of Sprite_Actor and Sprite_Enemy.
+ */
 class Sprite_Battler extends Sprite_Clickable {
     constructor(...args) {
         super(...args);
@@ -634,11 +624,9 @@ class Sprite_Battler extends Sprite_Clickable {
     }
 }
 
-//-----------------------------------------------------------------------------
-// Sprite_Actor
-//
-// The sprite for displaying an actor.
-
+/**
+ * The sprite for displaying an actor.
+ */
 class Sprite_Actor extends Sprite_Battler {
     constructor(...args) {
         super(...args);
@@ -913,11 +901,9 @@ class Sprite_Actor extends Sprite_Battler {
     }
 }
 
-//-----------------------------------------------------------------------------
-// Sprite_Enemy
-//
-// The sprite for displaying an enemy.
-
+/**
+ * The sprite for displaying an enemy.
+ */
 class Sprite_Enemy extends Sprite_Battler {
     constructor(...args) {
         super(...args);
@@ -1180,11 +1166,9 @@ class Sprite_Enemy extends Sprite_Battler {
     }
 }
 
-//-----------------------------------------------------------------------------
-// Sprite_Animation
-//
-// The sprite for displaying an animation.
-
+/**
+ * The sprite for displaying an animation.
+ */
 class Sprite_Animation extends Sprite {
     constructor(...args) {
         super(...args);
@@ -1276,9 +1260,12 @@ class Sprite_Animation extends Sprite {
         }
     }
 
+    /**
+     * Allows the animation to start before the previous one finishes.
+     * Waiting was a workaround for older versions of Effekseer that
+     * were very heavy on some mobile devices.
+     */
     shouldWaitForPrevious() {
-        // [Note] Older versions of Effekseer were very heavy on some mobile
-        //   devices. We don't need this anymore.
         return false;
     }
 
@@ -1440,11 +1427,9 @@ class Sprite_Animation extends Sprite {
     }
 }
 
-//-----------------------------------------------------------------------------
-// Sprite_AnimationMV
-//
-// The sprite for displaying an old format animation.
-
+/**
+ * The sprite for displaying an old format animation.
+ */
 class Sprite_AnimationMV extends Sprite {
     constructor(...args) {
         super(...args);
@@ -1751,11 +1736,9 @@ class Sprite_AnimationMV extends Sprite {
     }
 }
 
-//-----------------------------------------------------------------------------
-// Sprite_Battleback
-//
-// The sprite for displaying a background image in battle.
-
+/**
+ * The sprite for displaying a background image in battle.
+ */
 class Sprite_Battleback extends TilingSprite {
     constructor(...args) {
         super(...args);
@@ -1930,11 +1913,9 @@ class Sprite_Battleback extends TilingSprite {
     }
 }
 
-//-----------------------------------------------------------------------------
-// Sprite_Damage
-//
-// The sprite for displaying a popup damage.
-
+/**
+ * The sprite for displaying a popup damage.
+ */
 class Sprite_Damage extends Sprite {
     constructor(...args) {
         super(...args);
@@ -2081,11 +2062,9 @@ class Sprite_Damage extends Sprite {
     }
 }
 
-//-----------------------------------------------------------------------------
-// Sprite_Gauge
-//
-// The sprite for displaying a status gauge.
-
+/**
+ * The sprite for displaying a status gauge.
+ */
 class Sprite_Gauge extends Sprite {
     constructor(...args) {
         super(...args);
@@ -2449,11 +2428,9 @@ class Sprite_Gauge extends Sprite {
     }
 }
 
-//-----------------------------------------------------------------------------
-// Sprite_Name
-//
-// The sprite for displaying a status gauge.
-
+/**
+ * The sprite for displaying a battler's name.
+ */
 class Sprite_Name extends Sprite {
     constructor(...args) {
         super(...args);
@@ -2552,11 +2529,9 @@ class Sprite_Name extends Sprite {
     }
 }
 
-//-----------------------------------------------------------------------------
-// Sprite_StateIcon
-//
-// The sprite for displaying state icons.
-
+/**
+ * The sprite for displaying state icons.
+ */
 class Sprite_StateIcon extends Sprite {
     constructor(...args) {
         super(...args);
@@ -2634,11 +2609,9 @@ class Sprite_StateIcon extends Sprite {
     }
 }
 
-//-----------------------------------------------------------------------------
-// Sprite_StateOverlay
-//
-// The sprite for displaying an overlay image for a state.
-
+/**
+ * The sprite for displaying an overlay image for a state.
+ */
 class Sprite_StateOverlay extends Sprite {
     constructor(...args) {
         super(...args);
@@ -2705,11 +2678,9 @@ class Sprite_StateOverlay extends Sprite {
     }
 }
 
-//-----------------------------------------------------------------------------
-// Sprite_Weapon
-//
-// The sprite for displaying a weapon image for attacking.
-
+/**
+ * The sprite for displaying a weapon image for attacking.
+ */
 class Sprite_Weapon extends Sprite {
     constructor(...args) {
         super(...args);
@@ -2785,11 +2756,9 @@ class Sprite_Weapon extends Sprite {
     }
 }
 
-//-----------------------------------------------------------------------------
-// Sprite_Balloon
-//
-// The sprite for displaying a balloon icon.
-
+/**
+ * The sprite for displaying a balloon icon.
+ */
 class Sprite_Balloon extends Sprite {
     constructor(...args) {
         super(...args);
@@ -2863,11 +2832,9 @@ class Sprite_Balloon extends Sprite {
     }
 }
 
-//-----------------------------------------------------------------------------
-// Sprite_Picture
-//
-// The sprite for displaying a picture.
-
+/**
+ * The sprite for displaying a picture.
+ */
 class Sprite_Picture extends Sprite_Clickable {
     constructor(...args) {
         super(...args);
@@ -2956,11 +2923,9 @@ class Sprite_Picture extends Sprite_Clickable {
     }
 }
 
-//-----------------------------------------------------------------------------
-// Sprite_Timer
-//
-// The sprite for displaying the timer.
-
+/**
+ * The sprite for displaying the timer.
+ */
 class Sprite_Timer extends Sprite {
     constructor(...args) {
         super(...args);
@@ -3031,11 +2996,9 @@ class Sprite_Timer extends Sprite {
     }
 }
 
-//-----------------------------------------------------------------------------
-// Sprite_Destination
-//
-// The sprite for displaying the destination place of the touch input.
-
+/**
+ * The sprite for displaying the destination place of the touch input.
+ */
 class Sprite_Destination extends Sprite {
     constructor(...args) {
         super(...args);
@@ -3094,11 +3057,9 @@ class Sprite_Destination extends Sprite {
     }
 }
 
-//-----------------------------------------------------------------------------
-// Spriteset_Base
-//
-// The superclass of Spriteset_Map and Spriteset_Battle.
-
+/**
+ * The superclass of Spriteset_Map and Spriteset_Battle.
+ */
 class Spriteset_Base extends Sprite {
     constructor(...args) {
         super(...args);
@@ -3317,11 +3278,9 @@ class Spriteset_Base extends Sprite {
     }
 }
 
-//-----------------------------------------------------------------------------
-// Spriteset_Map
-//
-// The set of sprites on the map screen.
-
+/**
+ * The set of sprites on the map screen.
+ */
 class Spriteset_Map extends Spriteset_Base {
     constructor(...args) {
         super(...args);
@@ -3533,11 +3492,9 @@ class Spriteset_Map extends Spriteset_Base {
     }
 }
 
-//-----------------------------------------------------------------------------
-// Spriteset_Battle
-//
-// The set of sprites on the battle screen.
-
+/**
+ * The set of sprites on the battle screen.
+ */
 class Spriteset_Battle extends Spriteset_Base {
     constructor(...args) {
         super(...args);
@@ -3671,8 +3628,6 @@ class Spriteset_Battle extends Spriteset_Base {
         return this.isAnimationPlaying() || this.isAnyoneMoving();
     }
 }
-
-//-----------------------------------------------------------------------------
 
 // Class declarations are lexical bindings, while plugins and JsonEx resolve
 // constructors through the global object, so expose them as global properties.

@@ -1,12 +1,8 @@
-//=============================================================================
 // rmmz_windows.js v1.10.0
-//=============================================================================
 
-//-----------------------------------------------------------------------------
-// Window_Base
-//
-// The superclass of all windows within the game.
-
+/**
+ * The superclass of all windows within the game.
+ */
 class Window_Base extends Window {
     constructor(...args) {
         super(...args);
@@ -581,11 +577,9 @@ class Window_Base extends Window {
     }
 }
 
-//-----------------------------------------------------------------------------
-// Window_Scrollable
-//
-// The window class with scroll functions.
-
+/**
+ * The window class with scroll functions.
+ */
 class Window_Scrollable extends Window_Base {
     constructor(...args) {
         super(...args);
@@ -826,11 +820,9 @@ class Window_Scrollable extends Window_Base {
     }
 }
 
-//-----------------------------------------------------------------------------
-// Window_Selectable
-//
-// The window class with cursor movement functions.
-
+/**
+ * The window class with cursor movement functions.
+ */
 class Window_Selectable extends Window_Scrollable {
     constructor(...args) {
         super(...args);
@@ -1436,11 +1428,9 @@ class Window_Selectable extends Window_Scrollable {
     }
 }
 
-//-----------------------------------------------------------------------------
-// Window_Command
-//
-// The superclass of windows for selecting a command.
-
+/**
+ * The superclass of windows for selecting a command.
+ */
 class Window_Command extends Window_Selectable {
     constructor(...args) {
         super(...args);
@@ -1560,11 +1550,9 @@ class Window_Command extends Window_Selectable {
     }
 }
 
-//-----------------------------------------------------------------------------
-// Window_HorzCommand
-//
-// The command window for the horizontal selection format.
-
+/**
+ * The command window for the horizontal selection format.
+ */
 class Window_HorzCommand extends Window_Command {
     constructor(...args) {
         super(...args);
@@ -1583,11 +1571,9 @@ class Window_HorzCommand extends Window_Command {
     }
 }
 
-//-----------------------------------------------------------------------------
-// Window_Help
-//
-// The window for displaying the description of the selected item.
-
+/**
+ * The window for displaying the description of the selected item.
+ */
 class Window_Help extends Window_Base {
     constructor(...args) {
         super(...args);
@@ -1620,11 +1606,9 @@ class Window_Help extends Window_Base {
     }
 }
 
-//-----------------------------------------------------------------------------
-// Window_Gold
-//
-// The window for displaying the party's gold.
-
+/**
+ * The window for displaying the party's gold.
+ */
 class Window_Gold extends Window_Selectable {
     constructor(...args) {
         super(...args);
@@ -1662,11 +1646,9 @@ class Window_Gold extends Window_Selectable {
     }
 }
 
-//-----------------------------------------------------------------------------
-// Window_StatusBase
-//
-// The superclass of windows for displaying actor status.
-
+/**
+ * The superclass of windows for displaying actor status.
+ */
 class Window_StatusBase extends Window_Selectable {
     constructor(...args) {
         super(...args);
@@ -1813,11 +1795,9 @@ class Window_StatusBase extends Window_Selectable {
     }
 }
 
-//-----------------------------------------------------------------------------
-// Window_MenuCommand
-//
-// The window for selecting a command on the menu screen.
-
+/**
+ * The window for selecting a command on the menu screen.
+ */
 class Window_MenuCommand extends Window_Command {
     constructor(...args) {
         super(...args);
@@ -1929,11 +1909,9 @@ class Window_MenuCommand extends Window_Command {
     }
 }
 
-//-----------------------------------------------------------------------------
-// Window_MenuStatus
-//
-// The window for displaying party member status on the menu screen.
-
+/**
+ * The window for displaying party member status on the menu screen.
+ */
 class Window_MenuStatus extends Window_StatusBase {
     constructor(...args) {
         super(...args);
@@ -2035,11 +2013,9 @@ class Window_MenuStatus extends Window_StatusBase {
     }
 }
 
-//-----------------------------------------------------------------------------
-// Window_MenuActor
-//
-// The window for selecting a target actor on the item and skill screens.
-
+/**
+ * The window for selecting a target actor on the item and skill screens.
+ */
 class Window_MenuActor extends Window_MenuStatus {
     constructor(...args) {
         super(...args);
@@ -2083,11 +2059,9 @@ class Window_MenuActor extends Window_MenuStatus {
     }
 }
 
-//-----------------------------------------------------------------------------
-// Window_ItemCategory
-//
-// The window for selecting a category of items on the item and shop screens.
-
+/**
+ * The window for selecting a category of items on the item and shop screens.
+ */
 class Window_ItemCategory extends Window_HorzCommand {
     constructor(...args) {
         super(...args);
@@ -2141,11 +2115,9 @@ class Window_ItemCategory extends Window_HorzCommand {
     }
 }
 
-//-----------------------------------------------------------------------------
-// Window_ItemList
-//
-// The window for selecting an item on the item screen.
-
+/**
+ * The window for selecting an item on the item screen.
+ */
 class Window_ItemList extends Window_Selectable {
     constructor(...args) {
         super(...args);
@@ -2261,11 +2233,9 @@ class Window_ItemList extends Window_Selectable {
     }
 }
 
-//-----------------------------------------------------------------------------
-// Window_SkillType
-//
-// The window for selecting a skill type on the skill screen.
-
+/**
+ * The window for selecting a skill type on the skill screen.
+ */
 class Window_SkillType extends Window_Command {
     constructor(...args) {
         super(...args);
@@ -2315,11 +2285,9 @@ class Window_SkillType extends Window_Command {
     }
 }
 
-//-----------------------------------------------------------------------------
-// Window_SkillStatus
-//
-// The window for displaying the skill user's status on the skill screen.
-
+/**
+ * The window for displaying the skill user's status on the skill screen.
+ */
 class Window_SkillStatus extends Window_StatusBase {
     constructor(...args) {
         super(...args);
@@ -2349,11 +2317,9 @@ class Window_SkillStatus extends Window_StatusBase {
     }
 }
 
-//-----------------------------------------------------------------------------
-// Window_SkillList
-//
-// The window for selecting a skill on the skill screen.
-
+/**
+ * The window for selecting a skill on the skill screen.
+ */
 class Window_SkillList extends Window_Selectable {
     constructor(...args) {
         super(...args);
@@ -2463,11 +2429,9 @@ class Window_SkillList extends Window_Selectable {
     }
 }
 
-//-----------------------------------------------------------------------------
-// Window_EquipStatus
-//
-// The window for displaying parameter changes on the equipment screen.
-
+/**
+ * The window for displaying parameter changes on the equipment screen.
+ */
 class Window_EquipStatus extends Window_StatusBase {
     constructor(...args) {
         super(...args);
@@ -2577,11 +2541,9 @@ class Window_EquipStatus extends Window_StatusBase {
     }
 }
 
-//-----------------------------------------------------------------------------
-// Window_EquipCommand
-//
-// The window for selecting a command on the equipment screen.
-
+/**
+ * The window for selecting a command on the equipment screen.
+ */
 class Window_EquipCommand extends Window_HorzCommand {
     constructor(...args) {
         super(...args);
@@ -2602,11 +2564,9 @@ class Window_EquipCommand extends Window_HorzCommand {
     }
 }
 
-//-----------------------------------------------------------------------------
-// Window_EquipSlot
-//
-// The window for selecting an equipment slot on the equipment screen.
-
+/**
+ * The window for selecting an equipment slot on the equipment screen.
+ */
 class Window_EquipSlot extends Window_StatusBase {
     constructor(...args) {
         super(...args);
@@ -2689,11 +2649,9 @@ class Window_EquipSlot extends Window_StatusBase {
     }
 }
 
-//-----------------------------------------------------------------------------
-// Window_EquipItem
-//
-// The window for selecting an equipment item on the equipment screen.
-
+/**
+ * The window for selecting an equipment item on the equipment screen.
+ */
 class Window_EquipItem extends Window_ItemList {
     constructor(...args) {
         super(...args);
@@ -2775,11 +2733,9 @@ class Window_EquipItem extends Window_ItemList {
     }
 }
 
-//-----------------------------------------------------------------------------
-// Window_Status
-//
-// The window for displaying full status on the status screen.
-
+/**
+ * The window for displaying full status on the status screen.
+ */
 class Window_Status extends Window_StatusBase {
     constructor(...args) {
         super(...args);
@@ -2868,11 +2824,9 @@ class Window_Status extends Window_StatusBase {
     }
 }
 
-//-----------------------------------------------------------------------------
-// Window_StatusParams
-//
-// The window for displaying parameters on the status screen.
-
+/**
+ * The window for displaying parameters on the status screen.
+ */
 class Window_StatusParams extends Window_StatusBase {
     constructor(...args) {
         super(...args);
@@ -2914,11 +2868,9 @@ class Window_StatusParams extends Window_StatusBase {
     }
 }
 
-//-----------------------------------------------------------------------------
-// Window_StatusEquip
-//
-// The window for displaying equipment items on the status screen.
-
+/**
+ * The window for displaying equipment items on the status screen.
+ */
 class Window_StatusEquip extends Window_StatusBase {
     constructor(...args) {
         super(...args);
@@ -2960,11 +2912,9 @@ class Window_StatusEquip extends Window_StatusBase {
     }
 }
 
-//-----------------------------------------------------------------------------
-// Window_Options
-//
-// The window for changing various settings on the options screen.
-
+/**
+ * The window for changing various settings on the options screen.
+ */
 class Window_Options extends Window_Command {
     constructor(...args) {
         super(...args);
@@ -3093,11 +3043,9 @@ class Window_Options extends Window_Command {
     }
 }
 
-//-----------------------------------------------------------------------------
-// Window_SavefileList
-//
-// The window for selecting a save file on the save and load screens.
-
+/**
+ * The window for selecting a save file on the save and load screens.
+ */
 class Window_SavefileList extends Window_Selectable {
     constructor(...args) {
         super(...args);
@@ -3207,11 +3155,9 @@ class Window_SavefileList extends Window_Selectable {
     }
 }
 
-//-----------------------------------------------------------------------------
-// Window_ShopCommand
-//
-// The window for selecting buy/sell on the shop screen.
-
+/**
+ * The window for selecting buy/sell on the shop screen.
+ */
 class Window_ShopCommand extends Window_HorzCommand {
     constructor(...args) {
         super(...args);
@@ -3237,11 +3183,9 @@ class Window_ShopCommand extends Window_HorzCommand {
     }
 }
 
-//-----------------------------------------------------------------------------
-// Window_ShopBuy
-//
-// The window for selecting an item to buy on the shop screen.
-
+/**
+ * The window for selecting an item to buy on the shop screen.
+ */
 class Window_ShopBuy extends Window_Selectable {
     constructor(...args) {
         super(...args);
@@ -3349,11 +3293,9 @@ class Window_ShopBuy extends Window_Selectable {
     }
 }
 
-//-----------------------------------------------------------------------------
-// Window_ShopSell
-//
-// The window for selecting an item to sell on the shop screen.
-
+/**
+ * The window for selecting an item to sell on the shop screen.
+ */
 class Window_ShopSell extends Window_ItemList {
     constructor(...args) {
         super(...args);
@@ -3368,12 +3310,10 @@ class Window_ShopSell extends Window_ItemList {
     }
 }
 
-//-----------------------------------------------------------------------------
-// Window_ShopNumber
-//
-// The window for inputting quantity of items to buy or sell on the shop
-// screen.
-
+/**
+ * The window for inputting quantity of items to buy or sell on the shop
+ * screen.
+ */
 class Window_ShopNumber extends Window_Selectable {
     constructor(...args) {
         super(...args);
@@ -3609,12 +3549,10 @@ class Window_ShopNumber extends Window_Selectable {
     }
 }
 
-//-----------------------------------------------------------------------------
-// Window_ShopStatus
-//
-// The window for displaying number of items in possession and the actor's
-// equipment on the shop screen.
-
+/**
+ * The window for displaying number of items in possession and the actor's
+ * equipment on the shop screen.
+ */
 class Window_ShopStatus extends Window_StatusBase {
     constructor(...args) {
         super(...args);
@@ -3764,11 +3702,9 @@ class Window_ShopStatus extends Window_StatusBase {
     }
 }
 
-//-----------------------------------------------------------------------------
-// Window_NameEdit
-//
-// The window for editing an actor's name on the name input screen.
-
+/**
+ * The window for editing an actor's name on the name input screen.
+ */
 class Window_NameEdit extends Window_StatusBase {
     constructor(...args) {
         super(...args);
@@ -3890,11 +3826,9 @@ class Window_NameEdit extends Window_StatusBase {
     }
 }
 
-//-----------------------------------------------------------------------------
-// Window_NameInput
-//
-// The window for selecting text characters on the name input screen.
-
+/**
+ * The window for selecting text characters on the name input screen.
+ */
 class Window_NameInput extends Window_Selectable {
     constructor(...args) {
         super(...args);
@@ -4168,11 +4102,9 @@ class Window_NameInput extends Window_Selectable {
     }
 }
 
-//-----------------------------------------------------------------------------
-// Window_NameBox
-//
-// The window for displaying a speaker name above the message window.
-
+/**
+ * The window for displaying a speaker name above the message window.
+ */
 class Window_NameBox extends Window_Base {
     constructor(...args) {
         super(...args);
@@ -4248,11 +4180,9 @@ class Window_NameBox extends Window_Base {
     }
 }
 
-//-----------------------------------------------------------------------------
-// Window_ChoiceList
-//
-// The window used for the event command [Show Choices].
-
+/**
+ * The window used for the event command [Show Choices].
+ */
 class Window_ChoiceList extends Window_Command {
     constructor(...args) {
         super(...args);
@@ -4424,11 +4354,9 @@ class Window_ChoiceList extends Window_Command {
     }
 }
 
-//-----------------------------------------------------------------------------
-// Window_NumberInput
-//
-// The window used for the event command [Input Number].
-
+/**
+ * The window used for the event command [Input Number].
+ */
 class Window_NumberInput extends Window_Selectable {
     constructor(...args) {
         super(...args);
@@ -4626,11 +4554,9 @@ class Window_NumberInput extends Window_Selectable {
     }
 }
 
-//-----------------------------------------------------------------------------
-// Window_EventItem
-//
-// The window used for the event command [Select Item].
-
+/**
+ * The window used for the event command [Select Item].
+ */
 class Window_EventItem extends Window_ItemList {
     constructor(...args) {
         super(...args);
@@ -4740,11 +4666,9 @@ class Window_EventItem extends Window_ItemList {
     }
 }
 
-//-----------------------------------------------------------------------------
-// Window_Message
-//
-// The window for displaying text messages.
-
+/**
+ * The window for displaying text messages.
+ */
 class Window_Message extends Window_Base {
     constructor(...args) {
         super(...args);
@@ -5137,12 +5061,10 @@ class Window_Message extends Window_Base {
     }
 }
 
-//-----------------------------------------------------------------------------
-// Window_ScrollText
-//
-// The window for displaying scrolling text. No frame is displayed, but it
-// is handled as a window for convenience.
-
+/**
+ * The window for displaying scrolling text. No frame is displayed, but it
+ * is handled as a window for convenience.
+ */
 class Window_ScrollText extends Window_Base {
     constructor(...args) {
         super(...args);
@@ -5254,11 +5176,9 @@ class Window_ScrollText extends Window_Base {
     }
 }
 
-//-----------------------------------------------------------------------------
-// Window_MapName
-//
-// The window for displaying the map name on the map screen.
-
+/**
+ * The window for displaying the map name on the map screen.
+ */
 class Window_MapName extends Window_Base {
     constructor(...args) {
         super(...args);
@@ -5317,12 +5237,10 @@ class Window_MapName extends Window_Base {
     }
 }
 
-//-----------------------------------------------------------------------------
-// Window_BattleLog
-//
-// The window for displaying battle progress. No frame is displayed, but it is
-// handled as a window for convenience.
-
+/**
+ * The window for displaying battle progress. No frame is displayed, but it is
+ * handled as a window for convenience.
+ */
 class Window_BattleLog extends Window_Base {
     constructor(...args) {
         super(...args);
@@ -5901,11 +5819,9 @@ class Window_BattleLog extends Window_Base {
     }
 }
 
-//-----------------------------------------------------------------------------
-// Window_PartyCommand
-//
-// The window for selecting whether to fight or escape on the battle screen.
-
+/**
+ * The window for selecting whether to fight or escape on the battle screen.
+ */
 class Window_PartyCommand extends Window_Command {
     constructor(...args) {
         super(...args);
@@ -5930,11 +5846,9 @@ class Window_PartyCommand extends Window_Command {
     }
 }
 
-//-----------------------------------------------------------------------------
-// Window_ActorCommand
-//
-// The window for selecting an actor's action on the battle screen.
-
+/**
+ * The window for selecting an actor's action on the battle screen.
+ */
 class Window_ActorCommand extends Window_Command {
     constructor(...args) {
         super(...args);
@@ -6014,11 +5928,9 @@ class Window_ActorCommand extends Window_Command {
     }
 }
 
-//-----------------------------------------------------------------------------
-// Window_BattleStatus
-//
-// The window for displaying the status of party members on the battle screen.
-
+/**
+ * The window for displaying the status of party members on the battle screen.
+ */
 class Window_BattleStatus extends Window_StatusBase {
     constructor(...args) {
         super(...args);
@@ -6148,11 +6060,9 @@ class Window_BattleStatus extends Window_StatusBase {
     }
 }
 
-//-----------------------------------------------------------------------------
-// Window_BattleActor
-//
-// The window for selecting a target actor on the battle screen.
-
+/**
+ * The window for selecting a target actor on the battle screen.
+ */
 class Window_BattleActor extends Window_BattleStatus {
     constructor(...args) {
         super(...args);
@@ -6198,11 +6108,9 @@ class Window_BattleActor extends Window_BattleStatus {
     }
 }
 
-//-----------------------------------------------------------------------------
-// Window_BattleEnemy
-//
-// The window for selecting a target enemy on the battle screen.
-
+/**
+ * The window for selecting a target enemy on the battle screen.
+ */
 class Window_BattleEnemy extends Window_Selectable {
     constructor(...args) {
         super(...args);
@@ -6278,11 +6186,9 @@ class Window_BattleEnemy extends Window_Selectable {
     }
 }
 
-//-----------------------------------------------------------------------------
-// Window_BattleSkill
-//
-// The window for selecting a skill to use on the battle screen.
-
+/**
+ * The window for selecting a skill to use on the battle screen.
+ */
 class Window_BattleSkill extends Window_SkillList {
     constructor(...args) {
         super(...args);
@@ -6305,11 +6211,9 @@ class Window_BattleSkill extends Window_SkillList {
     }
 }
 
-//-----------------------------------------------------------------------------
-// Window_BattleItem
-//
-// The window for selecting an item to use on the battle screen.
-
+/**
+ * The window for selecting an item to use on the battle screen.
+ */
 class Window_BattleItem extends Window_ItemList {
     constructor(...args) {
         super(...args);
@@ -6336,11 +6240,9 @@ class Window_BattleItem extends Window_ItemList {
     }
 }
 
-//-----------------------------------------------------------------------------
-// Window_TitleCommand
-//
-// The window for selecting New Game/Continue on the title screen.
-
+/**
+ * The window for selecting New Game/Continue on the title screen.
+ */
 class Window_TitleCommand extends Window_Command {
     constructor(...args) {
         super(...args);
@@ -6383,11 +6285,9 @@ class Window_TitleCommand extends Window_Command {
     }
 }
 
-//-----------------------------------------------------------------------------
-// Window_GameEnd
-//
-// The window for selecting "Go to Title" on the game end screen.
-
+/**
+ * The window for selecting "Go to Title" on the game end screen.
+ */
 class Window_GameEnd extends Window_Command {
     constructor(...args) {
         super(...args);
@@ -6405,11 +6305,9 @@ class Window_GameEnd extends Window_Command {
     }
 }
 
-//-----------------------------------------------------------------------------
-// Window_DebugRange
-//
-// The window for selecting a block of switches/variables on the debug screen.
-
+/**
+ * The window for selecting a block of switches/variables on the debug screen.
+ */
 class Window_DebugRange extends Window_Selectable {
     constructor(...args) {
         super(...args);
@@ -6485,11 +6383,9 @@ class Window_DebugRange extends Window_Selectable {
     }
 }
 
-//-----------------------------------------------------------------------------
-// Window_DebugEdit
-//
-// The window for displaying switches and variables on the debug screen.
-
+/**
+ * The window for displaying switches and variables on the debug screen.
+ */
 class Window_DebugEdit extends Window_Selectable {
     constructor(...args) {
         super(...args);
@@ -6602,8 +6498,6 @@ class Window_DebugEdit extends Window_Selectable {
         return 0;
     }
 }
-
-//-----------------------------------------------------------------------------
 
 // Class declarations are lexical bindings, while plugins and JsonEx resolve
 // constructors through the global object, so expose them as global properties.

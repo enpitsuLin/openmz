@@ -1,6 +1,4 @@
-//=============================================================================
 // main.js v1.10.0
-//=============================================================================
 
 const scriptUrls = [
     "js/libs/pixi.js",
@@ -55,9 +53,11 @@ class Main {
         xhr.send();
     }
 
+    /**
+     * Quits NW.js explicitly when its window closes, since the process
+     * sometimes does not terminate properly on its own.
+     */
     hookNwjsClose() {
-        // [Note] When closing the window, the NW.js process sometimes does
-        //   not terminate properly. This code is a workaround for that.
         if (typeof nw === "object") {
             nw.Window.get().on("close", () => nw.App.quit());
         }
@@ -130,9 +130,11 @@ class Main {
         }
     }
 
+    /**
+     * Checks for Gatekeeper Path Randomization, which prevents the game
+     * from saving properly.
+     */
     isPathRandomized() {
-        // [Note] We cannot save the game properly when Gatekeeper Path
-        //   Randomization is in effect.
         return (
             typeof process === "object" &&
             process.mainModule.filename.startsWith("/private/var")
@@ -157,5 +159,3 @@ class Main {
 
 const main = new Main();
 main.run();
-
-//-----------------------------------------------------------------------------

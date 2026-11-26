@@ -1,12 +1,8 @@
-//=============================================================================
 // rmmz_scenes.js v1.10.0
-//=============================================================================
 
-//-----------------------------------------------------------------------------
-// Scene_Base
-//
-// The superclass of all scenes within the game.
-
+/**
+ * The superclass of all scenes within the game.
+ */
 class Scene_Base extends Stage {
     constructor(...args) {
         super(...args);
@@ -246,11 +242,9 @@ class Scene_Base extends Stage {
     }
 }
 
-//-----------------------------------------------------------------------------
-// Scene_Boot
-//
-// The scene class for initializing the entire game.
-
+/**
+ * The scene class for initializing the entire game.
+ */
 class Scene_Boot extends Scene_Base {
     constructor(...args) {
         super(...args);
@@ -388,11 +382,9 @@ class Scene_Boot extends Scene_Base {
     }
 }
 
-//-----------------------------------------------------------------------------
-// Scene_Splash
-//
-// The scene class of the splash screen.
-
+/**
+ * The scene class of the splash screen.
+ */
 class Scene_Splash extends Scene_Base {
     constructor(...args) {
         super(...args);
@@ -477,11 +469,9 @@ class Scene_Splash extends Scene_Base {
     }
 }
 
-//-----------------------------------------------------------------------------
-// Scene_Title
-//
-// The scene class of the title screen.
-
+/**
+ * The scene class of the title screen.
+ */
 class Scene_Title extends Scene_Base {
     constructor(...args) {
         super(...args);
@@ -615,11 +605,9 @@ class Scene_Title extends Scene_Base {
     }
 }
 
-//-----------------------------------------------------------------------------
-// Scene_Message
-//
-// The superclass of Scene_Map and Scene_Battle.
-
+/**
+ * The superclass of Scene_Map and Scene_Battle.
+ */
 class Scene_Message extends Scene_Base {
     constructor(...args) {
         super(...args);
@@ -734,11 +722,9 @@ class Scene_Message extends Scene_Base {
     }
 }
 
-//-----------------------------------------------------------------------------
-// Scene_Map
-//
-// The scene class of the map screen.
-
+/**
+ * The scene class of the map screen.
+ */
 class Scene_Map extends Scene_Message {
     constructor(...args) {
         super(...args);
@@ -1166,11 +1152,9 @@ class Scene_Map extends Scene_Message {
     }
 }
 
-//-----------------------------------------------------------------------------
-// Scene_MenuBase
-//
-// The superclass of all the menu-type scenes.
-
+/**
+ * The superclass of all the menu-type scenes.
+ */
 class Scene_MenuBase extends Scene_Base {
     constructor(...args) {
         super(...args);
@@ -1333,11 +1317,9 @@ class Scene_MenuBase extends Scene_Base {
     }
 }
 
-//-----------------------------------------------------------------------------
-// Scene_Menu
-//
-// The scene class of the menu screen.
-
+/**
+ * The scene class of the menu screen.
+ */
 class Scene_Menu extends Scene_MenuBase {
     constructor(...args) {
         super(...args);
@@ -1490,11 +1472,9 @@ class Scene_Menu extends Scene_MenuBase {
     }
 }
 
-//-----------------------------------------------------------------------------
-// Scene_ItemBase
-//
-// The superclass of Scene_Item and Scene_Skill.
-
+/**
+ * The superclass of Scene_Item and Scene_Skill.
+ */
 class Scene_ItemBase extends Scene_MenuBase {
     constructor(...args) {
         super(...args);
@@ -1636,11 +1616,9 @@ class Scene_ItemBase extends Scene_MenuBase {
     }
 }
 
-//-----------------------------------------------------------------------------
-// Scene_Item
-//
-// The scene class of the item screen.
-
+/**
+ * The scene class of the item screen.
+ */
 class Scene_Item extends Scene_ItemBase {
     constructor(...args) {
         super(...args);
@@ -1737,11 +1715,9 @@ class Scene_Item extends Scene_ItemBase {
     }
 }
 
-//-----------------------------------------------------------------------------
-// Scene_Skill
-//
-// The scene class of the skill screen.
-
+/**
+ * The scene class of the skill screen.
+ */
 class Scene_Skill extends Scene_ItemBase {
     constructor(...args) {
         super(...args);
@@ -1868,11 +1844,9 @@ class Scene_Skill extends Scene_ItemBase {
     }
 }
 
-//-----------------------------------------------------------------------------
-// Scene_Equip
-//
-// The scene class of the equipment screen.
-
+/**
+ * The scene class of the equipment screen.
+ */
 class Scene_Equip extends Scene_MenuBase {
     constructor(...args) {
         super(...args);
@@ -2051,11 +2025,9 @@ class Scene_Equip extends Scene_MenuBase {
     }
 }
 
-//-----------------------------------------------------------------------------
-// Scene_Status
-//
-// The scene class of the status screen.
-
+/**
+ * The scene class of the status screen.
+ */
 class Scene_Status extends Scene_MenuBase {
     constructor(...args) {
         super(...args);
@@ -2172,11 +2144,9 @@ class Scene_Status extends Scene_MenuBase {
     }
 }
 
-//-----------------------------------------------------------------------------
-// Scene_Options
-//
-// The scene class of the options screen.
-
+/**
+ * The scene class of the options screen.
+ */
 class Scene_Options extends Scene_MenuBase {
     constructor(...args) {
         super(...args);
@@ -2222,11 +2192,9 @@ class Scene_Options extends Scene_MenuBase {
     }
 }
 
-//-----------------------------------------------------------------------------
-// Scene_File
-//
-// The superclass of Scene_Save and Scene_Load.
-
+/**
+ * The superclass of Scene_Save and Scene_Load.
+ */
 class Scene_File extends Scene_MenuBase {
     constructor(...args) {
         super(...args);
@@ -2319,11 +2287,9 @@ class Scene_File extends Scene_MenuBase {
     }
 }
 
-//-----------------------------------------------------------------------------
-// Scene_Save
-//
-// The scene class of the save screen.
-
+/**
+ * The scene class of the save screen.
+ */
 class Scene_Save extends Scene_File {
     constructor(...args) {
         super(...args);
@@ -2374,11 +2340,9 @@ class Scene_Save extends Scene_File {
     }
 }
 
-//-----------------------------------------------------------------------------
-// Scene_Load
-//
-// The scene class of the load screen.
-
+/**
+ * The scene class of the load screen.
+ */
 class Scene_Load extends Scene_File {
     constructor(...args) {
         super(...args);
@@ -2449,11 +2413,9 @@ class Scene_Load extends Scene_File {
     }
 }
 
-//-----------------------------------------------------------------------------
-// Scene_GameEnd
-//
-// The scene class of the game end screen.
-
+/**
+ * The scene class of the game end screen.
+ */
 class Scene_GameEnd extends Scene_MenuBase {
     constructor(...args) {
         super(...args);
@@ -2501,11 +2463,9 @@ class Scene_GameEnd extends Scene_MenuBase {
     }
 }
 
-//-----------------------------------------------------------------------------
-// Scene_Shop
-//
-// The scene class of the shop screen.
-
+/**
+ * The scene class of the shop screen.
+ */
 class Scene_Shop extends Scene_MenuBase {
     constructor(...args) {
         super(...args);
@@ -2846,11 +2806,9 @@ class Scene_Shop extends Scene_MenuBase {
     }
 }
 
-//-----------------------------------------------------------------------------
-// Scene_Name
-//
-// The scene class of the name input screen.
-
+/**
+ * The scene class of the name input screen.
+ */
 class Scene_Name extends Scene_MenuBase {
     constructor(...args) {
         super(...args);
@@ -2916,11 +2874,9 @@ class Scene_Name extends Scene_MenuBase {
     }
 }
 
-//-----------------------------------------------------------------------------
-// Scene_Debug
-//
-// The scene class of the debug screen.
-
+/**
+ * The scene class of the debug screen.
+ */
 class Scene_Debug extends Scene_MenuBase {
     constructor(...args) {
         super(...args);
@@ -3020,11 +2976,9 @@ class Scene_Debug extends Scene_MenuBase {
     }
 }
 
-//-----------------------------------------------------------------------------
-// Scene_Battle
-//
-// The scene class of the battle screen.
-
+/**
+ * The scene class of the battle screen.
+ */
 class Scene_Battle extends Scene_Message {
     constructor(...args) {
         super(...args);
@@ -3599,11 +3553,9 @@ class Scene_Battle extends Scene_Message {
     }
 }
 
-//-----------------------------------------------------------------------------
-// Scene_Gameover
-//
-// The scene class of the game over screen.
-
+/**
+ * The scene class of the game over screen.
+ */
 class Scene_Gameover extends Scene_Base {
     constructor(...args) {
         super(...args);
@@ -3667,8 +3619,6 @@ class Scene_Gameover extends Scene_Base {
         SceneManager.goto(Scene_Title);
     }
 }
-
-//-----------------------------------------------------------------------------
 
 // Class declarations are lexical bindings, while plugins and JsonEx resolve
 // constructors through the global object, so expose them as global properties.

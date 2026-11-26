@@ -1,12 +1,8 @@
-//=============================================================================
 // rmmz_objects.js v1.10.0
-//=============================================================================
 
-//-----------------------------------------------------------------------------
-// Game_Temp
-//
-// The game object class for temporary data that is not included in save data.
-
+/**
+ * The game object class for temporary data that is not included in save data.
+ */
 class Game_Temp {
     constructor(...args) {
         this.initialize(...args);
@@ -167,11 +163,9 @@ class Game_Temp {
     }
 }
 
-//-----------------------------------------------------------------------------
-// Game_System
-//
-// The game object class for the system data.
-
+/**
+ * The game object class for the system data.
+ */
 class Game_System {
     constructor(...args) {
         this.initialize(...args);
@@ -421,11 +415,9 @@ class Game_System {
     }
 }
 
-//-----------------------------------------------------------------------------
-// Game_Timer
-//
-// The game object class for the timer.
-
+/**
+ * The game object class for the timer.
+ */
 class Game_Timer {
     constructor(...args) {
         this.initialize(...args);
@@ -471,12 +463,10 @@ class Game_Timer {
     }
 }
 
-//-----------------------------------------------------------------------------
-// Game_Message
-//
-// The game object class for the state of the message window that displays text
-// or selections, etc.
-
+/**
+ * The game object class for the state of the message window that displays text
+ * or selections, etc.
+ */
 class Game_Message {
     constructor(...args) {
         this.initialize(...args);
@@ -678,11 +668,9 @@ class Game_Message {
     }
 }
 
-//-----------------------------------------------------------------------------
-// Game_Switches
-//
-// The game object class for switches.
-
+/**
+ * The game object class for switches.
+ */
 class Game_Switches {
     constructor(...args) {
         this.initialize(...args);
@@ -712,11 +700,9 @@ class Game_Switches {
     }
 }
 
-//-----------------------------------------------------------------------------
-// Game_Variables
-//
-// The game object class for variables.
-
+/**
+ * The game object class for variables.
+ */
 class Game_Variables {
     constructor(...args) {
         this.initialize(...args);
@@ -749,11 +735,9 @@ class Game_Variables {
     }
 }
 
-//-----------------------------------------------------------------------------
-// Game_SelfSwitches
-//
-// The game object class for self switches.
-
+/**
+ * The game object class for self switches.
+ */
 class Game_SelfSwitches {
     constructor(...args) {
         this.initialize(...args);
@@ -785,12 +769,10 @@ class Game_SelfSwitches {
     }
 }
 
-//-----------------------------------------------------------------------------
-// Game_Screen
-//
-// The game object class for screen effect data, such as changes in color tone
-// and flashes.
-
+/**
+ * The game object class for screen effect data, such as changes in color tone
+ * and flashes.
+ */
 class Game_Screen {
     constructor(...args) {
         this.initialize(...args);
@@ -1119,11 +1101,9 @@ class Game_Screen {
     }
 }
 
-//-----------------------------------------------------------------------------
-// Game_Picture
-//
-// The game object class for a picture.
-
+/**
+ * The game object class for a picture.
+ */
 class Game_Picture {
     constructor(...args) {
         this.initialize(...args);
@@ -1332,12 +1312,10 @@ class Game_Picture {
     }
 }
 
-//-----------------------------------------------------------------------------
-// Game_Item
-//
-// The game object class for handling skills, items, weapons, and armor. It is
-// required because save data should not include the database object itself.
-
+/**
+ * The game object class for handling skills, items, weapons, and armor. It is
+ * required because save data should not include the database object itself.
+ */
 class Game_Item {
     constructor(...args) {
         this.initialize(...args);
@@ -1418,11 +1396,9 @@ class Game_Item {
     }
 }
 
-//-----------------------------------------------------------------------------
-// Game_Action
-//
-// The game object class for a battle action.
-
+/**
+ * The game object class for a battle action.
+ */
 class Game_Action {
     constructor(...args) {
         this.initialize(...args);
@@ -2311,12 +2287,10 @@ class Game_Action {
     }
 }
 
-//-----------------------------------------------------------------------------
-// Game_ActionResult
-//
-// The game object class for a result of a battle action. For convinience, all
-// member variables in this class are public.
-
+/**
+ * The game object class for a result of a battle action. For convinience, all
+ * member variables in this class are public.
+ */
 class Game_ActionResult {
     constructor(...args) {
         this.initialize(...args);
@@ -2418,11 +2392,9 @@ class Game_ActionResult {
     }
 }
 
-//-----------------------------------------------------------------------------
-// Game_BattlerBase
-//
-// The superclass of Game_Battler. It mainly contains parameters calculation.
-
+/**
+ * The superclass of Game_Battler. It mainly contains parameters calculation.
+ */
 class Game_BattlerBase {
     constructor(...args) {
         this.initialize(...args);
@@ -3271,12 +3243,10 @@ class Game_BattlerBase {
     }
 }
 
-//-----------------------------------------------------------------------------
-// Game_Battler
-//
-// The superclass of Game_Actor and Game_Enemy. It contains methods for sprites
-// and actions.
-
+/**
+ * The superclass of Game_Actor and Game_Enemy. It contains methods for sprites
+ * and actions.
+ */
 class Game_Battler extends Game_BattlerBase {
     constructor(...args) {
         super(...args);
@@ -3998,11 +3968,9 @@ class Game_Battler extends Game_BattlerBase {
     }
 }
 
-//-----------------------------------------------------------------------------
-// Game_Actor
-//
-// The game object class for an actor.
-
+/**
+ * The game object class for an actor.
+ */
 class Game_Actor extends Game_Battler {
     constructor(...args) {
         super(...args);
@@ -4899,11 +4867,9 @@ class Game_Actor extends Game_Battler {
     }
 }
 
-//-----------------------------------------------------------------------------
-// Game_Enemy
-//
-// The game object class for an enemy.
-
+/**
+ * The game object class for an enemy.
+ */
 class Game_Enemy extends Game_Battler {
     constructor(...args) {
         super(...args);
@@ -5186,11 +5152,9 @@ class Game_Enemy extends Game_Battler {
     }
 }
 
-//-----------------------------------------------------------------------------
-// Game_Actors
-//
-// The wrapper class for an actor array.
-
+/**
+ * The wrapper class for an actor array.
+ */
 class Game_Actors {
     constructor(...args) {
         this.initialize(...args);
@@ -5211,11 +5175,9 @@ class Game_Actors {
     }
 }
 
-//-----------------------------------------------------------------------------
-// Game_Unit
-//
-// The superclass of Game_Party and Game_Troop.
-
+/**
+ * The superclass of Game_Party and Game_Troop.
+ */
 class Game_Unit {
     constructor(...args) {
         this.initialize(...args);
@@ -5353,12 +5315,10 @@ class Game_Unit {
     }
 }
 
-//-----------------------------------------------------------------------------
-// Game_Party
-//
-// The game object class for the party. Information such as gold and items is
-// included.
-
+/**
+ * The game object class for the party. Information such as gold and items is
+ * included.
+ */
 class Game_Party extends Game_Unit {
     constructor(...args) {
         super(...args);
@@ -5822,11 +5782,9 @@ class Game_Party extends Game_Unit {
     }
 }
 
-//-----------------------------------------------------------------------------
-// Game_Troop
-//
-// The game object class for a troop and the battle-related data.
-
+/**
+ * The game object class for a troop and the battle-related data.
+ */
 class Game_Troop extends Game_Unit {
     constructor(...args) {
         super(...args);
@@ -6039,12 +5997,10 @@ class Game_Troop extends Game_Unit {
     }
 }
 
-//-----------------------------------------------------------------------------
-// Game_Map
-//
-// The game object class for a map. It contains scrolling and passage
-// determination functions.
-
+/**
+ * The game object class for a map. It contains scrolling and passage
+ * determination functions.
+ */
 class Game_Map {
     constructor(...args) {
         this.initialize(...args);
@@ -6846,12 +6802,10 @@ class Game_Map {
     }
 }
 
-//-----------------------------------------------------------------------------
-// Game_CommonEvent
-//
-// The game object class for a common event. It contains functionality for
-// running parallel process events.
-
+/**
+ * The game object class for a common event. It contains functionality for
+ * running parallel process events.
+ */
 class Game_CommonEvent {
     constructor(...args) {
         this.initialize(...args);
@@ -6895,12 +6849,10 @@ class Game_CommonEvent {
     }
 }
 
-//-----------------------------------------------------------------------------
-// Game_CharacterBase
-//
-// The superclass of Game_Character. It handles basic information, such as
-// coordinates and images, shared by all characters.
-
+/**
+ * The superclass of Game_Character. It handles basic information, such as
+ * coordinates and images, shared by all characters.
+ */
 class Game_CharacterBase {
     constructor(...args) {
         this.initialize(...args);
@@ -7486,11 +7438,9 @@ class Game_CharacterBase {
     }
 }
 
-//-----------------------------------------------------------------------------
-// Game_Character
-//
-// The superclass of Game_Player, Game_Follower, GameVehicle, and Game_Event.
-
+/**
+ * The superclass of Game_Player, Game_Follower, GameVehicle, and Game_Event.
+ */
 class Game_Character extends Game_CharacterBase {
     constructor(...args) {
         super(...args);
@@ -8094,12 +8044,10 @@ class Game_Character extends Game_CharacterBase {
     }
 }
 
-//-----------------------------------------------------------------------------
-// Game_Player
-//
-// The game object class for the player. It contains event starting
-// determinants and map scrolling functions.
-
+/**
+ * The game object class for the player. It contains event starting
+ * determinants and map scrolling functions.
+ */
 class Game_Player extends Game_Character {
     constructor(...args) {
         super(...args);
@@ -8732,12 +8680,10 @@ class Game_Player extends Game_Character {
     }
 }
 
-//-----------------------------------------------------------------------------
-// Game_Follower
-//
-// The game object class for a follower. A follower is an allied character,
-// other than the front character, displayed in the party.
-
+/**
+ * The game object class for a follower. A follower is an allied character,
+ * other than the front character, displayed in the party.
+ */
 class Game_Follower extends Game_Character {
     constructor(...args) {
         super(...args);
@@ -8793,11 +8739,9 @@ class Game_Follower extends Game_Character {
     }
 }
 
-//-----------------------------------------------------------------------------
-// Game_Followers
-//
-// The wrapper class for a follower array.
-
+/**
+ * The wrapper class for a follower array.
+ */
 class Game_Followers {
     constructor(...args) {
         this.initialize(...args);
@@ -8910,11 +8854,9 @@ class Game_Followers {
     }
 }
 
-//-----------------------------------------------------------------------------
-// Game_Vehicle
-//
-// The game object class for a vehicle.
-
+/**
+ * The game object class for a vehicle.
+ */
 class Game_Vehicle extends Game_Character {
     constructor(...args) {
         super(...args);
@@ -9143,12 +9085,10 @@ class Game_Vehicle extends Game_Character {
     }
 }
 
-//-----------------------------------------------------------------------------
-// Game_Event
-//
-// The game object class for an event. It contains functionality for event page
-// switching and running parallel process events.
-
+/**
+ * The game object class for an event. It contains functionality for event page
+ * switching and running parallel process events.
+ */
 class Game_Event extends Game_Character {
     constructor(...args) {
         super(...args);
@@ -9492,11 +9432,9 @@ class Game_Event extends Game_Character {
     }
 }
 
-//-----------------------------------------------------------------------------
-// Game_Interpreter
-//
-// The interpreter for running event commands.
-
+/**
+ * The interpreter for running event commands.
+ */
 class Game_Interpreter {
     constructor(...args) {
         this.initialize(...args);
@@ -9538,9 +9476,12 @@ class Game_Interpreter {
         this.loadImages();
     }
 
+    /**
+     * Preloads face and picture images referenced by upcoming event commands.
+     * This is usually sufficient compared with the more complicated preload
+     * scheme in certain versions of MV.
+     */
     loadImages() {
-        // [Note] The certain versions of MV had a more complicated preload scheme.
-        //   However it is usually sufficient to preload face and picture images.
         const list = this._list.slice(0, 200);
         for (const command of list) {
             switch (command.code) {
@@ -11341,8 +11282,6 @@ class Game_Interpreter {
         return true;
     }
 }
-
-//-----------------------------------------------------------------------------
 
 // Class declarations are lexical bindings, while plugins and JsonEx resolve
 // constructors through the global object, so expose them as global properties.

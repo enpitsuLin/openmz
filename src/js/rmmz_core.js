@@ -1,8 +1,5 @@
-//=============================================================================
 // rmmz_core.js v1.10.0
-//=============================================================================
 
-//-----------------------------------------------------------------------------
 /**
  * This section contains some methods that will be added to the standard
  * Javascript objects.
@@ -168,7 +165,6 @@ String.prototype.padZero = function(length) {
     return this.padStart(length, "0");
 };
 
-//-----------------------------------------------------------------------------
 /**
  * The static class that defines utility methods.
  *
@@ -464,7 +460,6 @@ class Utils {
     }
 }
 
-//-----------------------------------------------------------------------------
 /**
  * The static class that carries out graphics processing.
  *
@@ -1044,12 +1039,10 @@ class Graphics {
     }
 }
 
-//:::::::::::::::::::::::::::::::::::::::::::::::::::::::::
-// FPSCounter
-//
-// This is based on Darsain's FPSMeter which is under the MIT license.
-// The original can be found at https://github.com/Darsain/fpsmeter.
-
+/**
+ * This is based on Darsain's FPSMeter which is under the MIT license.
+ * The original can be found at https://github.com/Darsain/fpsmeter.
+ */
 Graphics.FPSCounter = class FPSCounter {
     constructor(...args) {
         this.initialize(...args);
@@ -1115,7 +1108,6 @@ Graphics.FPSCounter = class FPSCounter {
     }
 };
 
-//-----------------------------------------------------------------------------
 /**
  * The point class.
  *
@@ -1130,7 +1122,6 @@ class Point extends PIXI.Point {
     }
 }
 
-//-----------------------------------------------------------------------------
 /**
  * The rectangle class.
  *
@@ -1147,7 +1138,6 @@ class Rectangle extends PIXI.Rectangle {
     }
 }
 
-//-----------------------------------------------------------------------------
 /**
  * The basic object that represents an image.
  *
@@ -1793,7 +1783,6 @@ class Bitmap {
     }
 }
 
-//-----------------------------------------------------------------------------
 /**
  * The basic object that is rendered to the game screen.
  *
@@ -2112,9 +2101,19 @@ class Sprite extends PIXI.Sprite {
     }
 }
 
-//-----------------------------------------------------------------------------
 /**
  * The tilemap which displays 2D tile-based game map.
+ *
+ * Child z coordinates, from back to front:
+ * - 0: Lower tiles
+ * - 1: Lower characters
+ * - 3: Normal characters
+ * - 4: Upper tiles
+ * - 5: Upper characters
+ * - 6: Airship shadow
+ * - 7: Balloon
+ * - 8: Animation
+ * - 9: Destination
  *
  * @class
  * @extends PIXI.Container
@@ -2262,12 +2261,13 @@ class Tilemap extends PIXI.Container {
     /**
      * Sets the bitmaps used as a tileset.
      *
+     * We wait for the images to finish loading. Creating textures
+     * from bitmaps that are not yet loaded here brings some maintenance
+     * difficulties. For example, PIXI overwrites img.onload internally.
+     *
      * @param {array} bitmaps - The array of the tileset bitmaps.
      */
     setBitmaps(bitmaps) {
-        // [Note] We wait for the images to finish loading. Creating textures
-        //   from bitmaps that are not yet loaded here brings some maintenance
-        //   difficulties. e.g. PIXI overwrites img.onload internally.
         this._bitmaps = bitmaps;
         const listener = this._updateBitmaps.bind(this);
         for (const bitmap of this._bitmaps) {
@@ -2315,18 +2315,6 @@ class Tilemap extends PIXI.Container {
     }
 
     _createLayers() {
-        /*
-         * [Z coordinate]
-         *  0 : Lower tiles
-         *  1 : Lower characters
-         *  3 : Normal characters
-         *  4 : Upper tiles
-         *  5 : Upper characters
-         *  6 : Airship shadow
-         *  7 : Balloon
-         *  8 : Animation
-         *  9 : Destination
-         */
         this._lowerLayer = new Tilemap.CombinedLayer();
         this._lowerLayer.z = 0;
         this._upperLayer = new Tilemap.CombinedLayer();
@@ -2586,7 +2574,6 @@ class Tilemap extends PIXI.Container {
         }
     }
 
-    //:::::::::::::::::::::::::::::::::::::::::::::::::::::::::
     // Tile type checkers
     static TILE_ID_B = 0;
 
@@ -2719,7 +2706,6 @@ class Tilemap extends PIXI.Container {
         return this.isWaterfallTile(tileId);
     }
 
-    //:::::::::::::::::::::::::::::::::::::::::::::::::::::::::
     // Autotile shape number to coordinates of tileset images
     // prettier-ignore
     static FLOOR_AUTOTILE_TABLE = [
@@ -2802,7 +2788,6 @@ class Tilemap extends PIXI.Container {
     ];
 }
 
-//:::::::::::::::::::::::::::::::::::::::::::::::::::::::::
 // Internal classes
 
 Tilemap.Layer = class Layer extends PIXI.Container {
@@ -3152,7 +3137,6 @@ Tilemap.Renderer = class Renderer extends PIXI.ObjectRenderer {
 
 PIXI.Renderer.registerPlugin("rpgtilemap", Tilemap.Renderer);
 
-//-----------------------------------------------------------------------------
 /**
  * The sprite object for a tiling image.
  *
@@ -3310,7 +3294,6 @@ class TilingSprite extends PIXI.TilingSprite {
     }
 }
 
-//-----------------------------------------------------------------------------
 /**
  * The sprite which covers the entire game screen.
  *
@@ -3387,7 +3370,6 @@ class ScreenSprite extends PIXI.Container {
     }
 }
 
-//-----------------------------------------------------------------------------
 /**
  * The window in the game.
  *
@@ -4120,7 +4102,6 @@ class Window extends PIXI.Container {
     }
 }
 
-//-----------------------------------------------------------------------------
 /**
  * The layer which contains game windows.
  *
@@ -4195,7 +4176,6 @@ class WindowLayer extends PIXI.Container {
     }
 }
 
-//-----------------------------------------------------------------------------
 /**
  * The weather effect which displays rain, storm, or snow.
  *
@@ -4347,7 +4327,6 @@ class Weather extends PIXI.Container {
     }
 }
 
-//-----------------------------------------------------------------------------
 /**
  * The color filter for WebGL.
  *
@@ -4493,7 +4472,6 @@ class ColorFilter extends PIXI.Filter {
     }
 }
 
-//-----------------------------------------------------------------------------
 /**
  * The root object of the display tree.
  *
@@ -4518,7 +4496,6 @@ class Stage extends PIXI.Container {
     }
 }
 
-//-----------------------------------------------------------------------------
 /**
  * The audio object of Web Audio API.
  *
@@ -5343,7 +5320,6 @@ class WebAudio {
     }
 }
 
-//-----------------------------------------------------------------------------
 /**
  * The static class that handles video playback.
  *
@@ -5479,7 +5455,6 @@ class Video {
     }
 }
 
-//-----------------------------------------------------------------------------
 /**
  * The static class that handles input data from the keyboard and gamepads.
  *
@@ -5841,7 +5816,6 @@ class Input {
     }
 }
 
-//-----------------------------------------------------------------------------
 /**
  * The static class that handles input data from the mouse and touchscreen.
  *
@@ -6223,7 +6197,6 @@ class TouchInput {
     }
 }
 
-//-----------------------------------------------------------------------------
 /**
  * The static class that handles JSON with object information.
  *
@@ -6272,9 +6245,12 @@ class JsonEx {
         return this.parse(this.stringify(object));
     }
 
+    /**
+     * Encodes constructor names for serialization. Circular references
+     * are unsupported because handling them in MV was too complicated
+     * and expensive.
+     */
     static _encode(value, depth) {
-        // [Note] The handling code for circular references in certain versions of
-        //   MV has been removed because it was too complicated and expensive.
         if (depth >= this.maxDepth) {
             throw new Error("Object too deep");
         }
@@ -6307,8 +6283,6 @@ class JsonEx {
         return value;
     }
 }
-
-//-----------------------------------------------------------------------------
 
 // Class declarations are lexical bindings, while plugins and JsonEx resolve
 // constructors through the global object, so expose them as global properties.
