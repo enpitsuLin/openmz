@@ -1379,11 +1379,11 @@ class Bitmap {
      * The rectangle of the bitmap.
      *
      * @readonly
-     * @type Rectangle
+     * @type PIXI.Rectangle
      * @name Bitmap#rect
      */
     get rect() {
-        return new Rectangle(0, 0, this.width, this.height);
+        return new PIXI.Rectangle(0, 0, this.width, this.height);
     }
 
     /**
@@ -1821,7 +1821,7 @@ class Sprite {
             Sprite._emptyBaseTexture = new PIXI.BaseTexture();
             Sprite._emptyBaseTexture.setSize(1, 1);
         }
-        const frame = new Rectangle();
+        const frame = new PIXI.Rectangle();
         const texture = new PIXI.Texture(Sprite._emptyBaseTexture, frame);
         PIXI.Sprite.call(this, texture);
         this.spriteId = Sprite._counter++;
@@ -2061,7 +2061,7 @@ class Sprite {
             this._bitmap.addLoadListener(this._onBitmapLoad.bind(this));
         } else {
             this._refreshFrame = false;
-            this.texture.frame = new Rectangle();
+            this.texture.frame = new PIXI.Rectangle();
         }
     }
 
@@ -2089,7 +2089,7 @@ class Sprite {
         const realY = frameY.clamp(0, baseTextureH);
         const realW = (frameW - realX + frameX).clamp(0, baseTextureW - realX);
         const realH = (frameH - realY + frameY).clamp(0, baseTextureH - realY);
-        const frame = new Rectangle(realX, realY, realW, realH);
+        const frame = new PIXI.Rectangle(realX, realY, realW, realH);
         if (texture) {
             this.pivot.x = frameX - realX;
             this.pivot.y = frameY - realY;
@@ -2098,7 +2098,7 @@ class Sprite {
                 try {
                     texture.frame = frame;
                 } catch (e) {
-                    texture.frame = new Rectangle();
+                    texture.frame = new PIXI.Rectangle();
                 }
             }
             texture._updateID++;
@@ -2164,9 +2164,9 @@ class Tilemap {
         /**
          * The origin point of the tilemap for scrolling.
          *
-         * @type Point
+         * @type PIXI.Point
          */
-        this.origin = new Point();
+        this.origin = new PIXI.Point();
 
         /**
          * The tileset flags.
@@ -3202,7 +3202,7 @@ class TilingSprite {
             TilingSprite._emptyBaseTexture = new PIXI.BaseTexture();
             TilingSprite._emptyBaseTexture.setSize(1, 1);
         }
-        const frame = new Rectangle();
+        const frame = new PIXI.Rectangle();
         const texture = new PIXI.Texture(TilingSprite._emptyBaseTexture, frame);
         PIXI.TilingSprite.call(this, texture);
         this._bitmap = bitmap;
@@ -3213,9 +3213,9 @@ class TilingSprite {
         /**
          * The origin point of the tiling sprite for scrolling.
          *
-         * @type Point
+         * @type PIXI.Point
          */
-        this.origin = new Point();
+        this.origin = new PIXI.Point();
 
         this._onBitmapChange();
     }
@@ -3314,7 +3314,7 @@ class TilingSprite {
         if (this._bitmap) {
             this._bitmap.addLoadListener(this._onBitmapLoad.bind(this));
         } else {
-            this.texture.frame = new Rectangle();
+            this.texture.frame = new PIXI.Rectangle();
         }
     }
 
@@ -3335,7 +3335,7 @@ class TilingSprite {
                 try {
                     texture.frame = frame;
                 } catch (e) {
-                    texture.frame = new Rectangle();
+                    texture.frame = new PIXI.Rectangle();
                 }
             }
             texture._updateID++;
@@ -3445,7 +3445,7 @@ class Window {
         this._windowskin = null;
         this._width = 0;
         this._height = 0;
-        this._cursorRect = new Rectangle();
+        this._cursorRect = new PIXI.Rectangle();
         this._openness = 255;
         this._animationCount = 0;
 
@@ -3469,9 +3469,9 @@ class Window {
         /**
          * The origin point of the window for scrolling.
          *
-         * @type Point
+         * @type PIXI.Point
          */
-        this.origin = new Point();
+        this.origin = new PIXI.Point();
 
         /**
          * The active state for the window.
@@ -3696,11 +3696,11 @@ class Window {
      * The rectangle of the content area.
      *
      * @readonly
-     * @type Rectangle
+     * @type PIXI.Rectangle
      * @name Window#innerRect
      */
     get innerRect() {
-        return new Rectangle(
+        return new PIXI.Rectangle(
             this._padding,
             this._padding,
             this.innerWidth,
@@ -3911,7 +3911,7 @@ class Window {
     _createClientArea() {
         this._clientArea = new Sprite();
         this._clientArea.filters = [new PIXI.filters.AlphaFilter()];
-        this._clientArea.filterArea = new Rectangle();
+        this._clientArea.filterArea = new PIXI.Rectangle();
         this._clientArea.move(this._padding, this._padding);
         this.addChild(this._clientArea);
     }
@@ -4151,7 +4151,7 @@ class Window {
     }
 
     _updateFilterArea() {
-        const pos = this._clientArea.worldTransform.apply(new Point(0, 0));
+        const pos = this._clientArea.worldTransform.apply(new PIXI.Point(0, 0));
         const filterArea = this._clientArea.filterArea;
         filterArea.x = pos.x + this.origin.x;
         filterArea.y = pos.y + this.origin.y;
@@ -4280,9 +4280,9 @@ class Weather {
         /**
          * The origin point of the weather for scrolling.
          *
-         * @type Point
+         * @type PIXI.Point
          */
-        this.origin = new Point();
+        this.origin = new PIXI.Point();
     }
 
     /**

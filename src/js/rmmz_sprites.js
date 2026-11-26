@@ -60,13 +60,13 @@ class Sprite_Clickable extends Sprite {
     }
 
     isBeingTouched() {
-        const touchPos = new Point(TouchInput.x, TouchInput.y);
+        const touchPos = new PIXI.Point(TouchInput.x, TouchInput.y);
         const localPos = this.worldTransform.applyInverse(touchPos);
         return this.hitTest(localPos.x, localPos.y);
     }
 
     hitTest(x, y) {
-        const rect = new Rectangle(
+        const rect = new PIXI.Rectangle(
             -this.anchor.x * this.width,
             -this.anchor.y * this.height,
             this.width,
@@ -177,11 +177,11 @@ class Sprite_Button extends Sprite_Clickable {
     }
 
     setColdFrame(x, y, width, height) {
-        this._coldFrame = new Rectangle(x, y, width, height);
+        this._coldFrame = new PIXI.Rectangle(x, y, width, height);
     }
 
     setHotFrame(x, y, width, height) {
-        this._hotFrame = new Rectangle(x, y, width, height);
+        this._hotFrame = new PIXI.Rectangle(x, y, width, height);
     }
 
     setClickHandler(method) {
@@ -1397,7 +1397,7 @@ class Sprite_Animation extends Sprite {
     }
 
     targetPosition(renderer) {
-        const pos = new Point();
+        const pos = new PIXI.Point();
         if (this._animation.displayType === 2) {
             pos.x = renderer.view.width / 2;
             pos.y = renderer.view.height / 2;
@@ -1414,7 +1414,7 @@ class Sprite_Animation extends Sprite {
     }
 
     targetSpritePosition(sprite) {
-        const point = new Point(0, -sprite.height / 2);
+        const point = new PIXI.Point(0, -sprite.height / 2);
         if (this._animation.alignBottom) {
             point.y = 0;
         }
@@ -3166,7 +3166,7 @@ class Spriteset_Base extends Sprite {
     }
 
     pictureContainerRect() {
-        return new Rectangle(0, 0, Graphics.width, Graphics.height);
+        return new PIXI.Rectangle(0, 0, Graphics.width, Graphics.height);
     }
 
     createTimer() {

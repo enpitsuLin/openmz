@@ -58,7 +58,7 @@ class Window_Base extends Window {
     }
 
     baseTextRect() {
-        const rect = new Rectangle(0, 0, this.innerWidth, this.innerHeight);
+        const rect = new PIXI.Rectangle(0, 0, this.innerWidth, this.innerHeight);
         rect.pad(-this.itemPadding(), 0);
         return rect;
     }
@@ -743,7 +743,7 @@ class Window_Scrollable extends Window_Base {
     }
 
     isTouchedInsideFrame() {
-        const touchPos = new Point(TouchInput.x, TouchInput.y);
+        const touchPos = new PIXI.Point(TouchInput.x, TouchInput.y);
         const localPos = this.worldTransform.applyInverse(touchPos);
         return this.innerRect.contains(localPos.x, localPos.y);
     }
@@ -989,7 +989,7 @@ class Window_Selectable extends Window_Scrollable {
         const y = row * itemHeight + rowSpacing / 2 - this.scrollBaseY();
         const width = itemWidth - colSpacing;
         const height = itemHeight - rowSpacing;
-        return new Rectangle(x, y, width, height);
+        return new PIXI.Rectangle(x, y, width, height);
     }
 
     itemRectWithPadding(index) {
@@ -1218,7 +1218,7 @@ class Window_Selectable extends Window_Scrollable {
     }
 
     hitIndex() {
-        const touchPos = new Point(TouchInput.x, TouchInput.y);
+        const touchPos = new PIXI.Point(TouchInput.x, TouchInput.y);
         const localPos = this.worldTransform.applyInverse(touchPos);
         return this.hitTest(localPos.x, localPos.y);
     }
@@ -3576,7 +3576,7 @@ class Window_ShopNumber extends Window_Selectable {
     }
 
     itemRect() {
-        const rect = new Rectangle();
+        const rect = new PIXI.Rectangle();
         rect.x = this.cursorX();
         rect.y = this.itemNameY();
         rect.width = this.cursorWidth();
@@ -3846,7 +3846,7 @@ class Window_NameEdit extends Window_StatusBase {
         const y = 54;
         const width = this.charWidth();
         const height = this.lineHeight();
-        return new Rectangle(x, y, width, height);
+        return new PIXI.Rectangle(x, y, width, height);
     }
 
     underlineRect(index) {
@@ -4034,7 +4034,7 @@ class Window_NameInput extends Window_Selectable {
         const y = Math.floor(index / 10) * itemHeight + rowSpacing / 2;
         const width = itemWidth - colSpacing;
         const height = itemHeight - rowSpacing;
-        return new Rectangle(x, y, width, height);
+        return new PIXI.Rectangle(x, y, width, height);
     }
 
     drawItem(index) {
@@ -4179,7 +4179,7 @@ class Window_NameBox extends Window_Base {
     }
 
     initialize() {
-        Window_Base.prototype.initialize.call(this, new Rectangle());
+        Window_Base.prototype.initialize.call(this, new PIXI.Rectangle());
         this.openness = 0;
         this._name = "";
     }
@@ -4259,7 +4259,7 @@ class Window_ChoiceList extends Window_Command {
     }
 
     initialize() {
-        Window_Command.prototype.initialize.call(this, new Rectangle());
+        Window_Command.prototype.initialize.call(this, new PIXI.Rectangle());
         this.createCancelButton();
         this.openness = 0;
         this.deactivate();
@@ -4435,7 +4435,7 @@ class Window_NumberInput extends Window_Selectable {
     }
 
     initialize() {
-        Window_Selectable.prototype.initialize.call(this, new Rectangle());
+        Window_Selectable.prototype.initialize.call(this, new PIXI.Rectangle());
         this._number = 0;
         this._maxDigits = 1;
         this.openness = 0;
@@ -5153,7 +5153,7 @@ class Window_ScrollText extends Window_Base {
     }
 
     initialize(rect) {
-        Window_Base.prototype.initialize.call(this, new Rectangle());
+        Window_Base.prototype.initialize.call(this, new PIXI.Rectangle());
         this.opacity = 0;
         this.hide();
         this._reservedRect = rect;
@@ -5591,7 +5591,7 @@ class Window_BattleLog extends Window_Base {
 
     backRect() {
         const height = this.numLines() * this.itemHeight();
-        return new Rectangle(0, 0, this.innerWidth, height);
+        return new PIXI.Rectangle(0, 0, this.innerWidth, height);
     }
 
     lineRect(index) {
@@ -5601,7 +5601,7 @@ class Window_BattleLog extends Window_Base {
         const y = index * itemHeight;
         const width = this.innerWidth - padding * 2;
         const height = itemHeight;
-        return new Rectangle(x, y, width, height);
+        return new PIXI.Rectangle(x, y, width, height);
     }
 
     backColor() {

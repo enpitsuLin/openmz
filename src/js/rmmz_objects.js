@@ -10750,7 +10750,7 @@ class Game_Interpreter {
     }
 
     picturePoint(params) {
-        const point = new Point();
+        const point = new PIXI.Point();
         if (params[3] === 0) {
             // Direct designation
             point.x = params[4];

@@ -588,7 +588,7 @@ class Scene_Title extends Scene_Base {
         const wh = this.calcWindowHeight(3, true);
         const wx = (Graphics.boxWidth - ww) / 2 + offsetX;
         const wy = Graphics.boxHeight - wh - 96 + offsetY;
-        return new Rectangle(wx, wy, ww, wh);
+        return new PIXI.Rectangle(wx, wy, ww, wh);
     }
 
     commandNewGame() {
@@ -655,7 +655,7 @@ class Scene_Message extends Scene_Base {
         const wh = this.calcWindowHeight(4, false) + 8;
         const wx = (Graphics.boxWidth - ww) / 2;
         const wy = 0;
-        return new Rectangle(wx, wy, ww, wh);
+        return new PIXI.Rectangle(wx, wy, ww, wh);
     }
 
     createScrollTextWindow() {
@@ -669,7 +669,7 @@ class Scene_Message extends Scene_Base {
         const wy = 0;
         const ww = Graphics.boxWidth;
         const wh = Graphics.boxHeight;
-        return new Rectangle(wx, wy, ww, wh);
+        return new PIXI.Rectangle(wx, wy, ww, wh);
     }
 
     createGoldWindow() {
@@ -684,7 +684,7 @@ class Scene_Message extends Scene_Base {
         const wh = this.calcWindowHeight(1, true);
         const wx = Graphics.boxWidth - ww;
         const wy = 0;
-        return new Rectangle(wx, wy, ww, wh);
+        return new PIXI.Rectangle(wx, wy, ww, wh);
     }
 
     createNameBoxWindow() {
@@ -713,7 +713,7 @@ class Scene_Message extends Scene_Base {
         const wy = 0;
         const ww = Graphics.boxWidth;
         const wh = this.calcWindowHeight(4, true);
-        return new Rectangle(wx, wy, ww, wh);
+        return new PIXI.Rectangle(wx, wy, ww, wh);
     }
 
     associateWindows() {
@@ -1018,7 +1018,7 @@ class Scene_Map extends Scene_Message {
         const wy = 0;
         const ww = 360;
         const wh = this.calcWindowHeight(1, false);
-        return new Rectangle(wx, wy, ww, wh);
+        return new PIXI.Rectangle(wx, wy, ww, wh);
     }
 
     createButtons() {
@@ -1261,7 +1261,7 @@ class Scene_MenuBase extends Scene_Base {
         const wy = this.helpAreaTop();
         const ww = Graphics.boxWidth;
         const wh = this.helpAreaHeight();
-        return new Rectangle(wx, wy, ww, wh);
+        return new PIXI.Rectangle(wx, wy, ww, wh);
     }
 
     createButtons() {
@@ -1384,7 +1384,7 @@ class Scene_Menu extends Scene_MenuBase {
         const wh = this.mainAreaHeight() - this.goldWindowRect().height;
         const wx = this.isRightInputMode() ? Graphics.boxWidth - ww : 0;
         const wy = this.mainAreaTop();
-        return new Rectangle(wx, wy, ww, wh);
+        return new PIXI.Rectangle(wx, wy, ww, wh);
     }
 
     createGoldWindow() {
@@ -1398,7 +1398,7 @@ class Scene_Menu extends Scene_MenuBase {
         const wh = this.calcWindowHeight(1, true);
         const wx = this.isRightInputMode() ? Graphics.boxWidth - ww : 0;
         const wy = this.mainAreaBottom() - wh;
-        return new Rectangle(wx, wy, ww, wh);
+        return new PIXI.Rectangle(wx, wy, ww, wh);
     }
 
     createStatusWindow() {
@@ -1412,7 +1412,7 @@ class Scene_Menu extends Scene_MenuBase {
         const wh = this.mainAreaHeight();
         const wx = this.isRightInputMode() ? 0 : Graphics.boxWidth - ww;
         const wy = this.mainAreaTop();
-        return new Rectangle(wx, wy, ww, wh);
+        return new PIXI.Rectangle(wx, wy, ww, wh);
     }
 
     commandItem() {
@@ -1521,7 +1521,7 @@ class Scene_ItemBase extends Scene_MenuBase {
         const wy = Math.min(this.mainAreaTop(), this.helpAreaTop());
         const ww = Graphics.boxWidth - this.mainCommandWidth();
         const wh = this.mainAreaHeight() + this.helpAreaHeight();
-        return new Rectangle(wx, wy, ww, wh);
+        return new PIXI.Rectangle(wx, wy, ww, wh);
     }
 
     item() {
@@ -1672,7 +1672,7 @@ class Scene_Item extends Scene_ItemBase {
         const wy = this.mainAreaTop();
         const ww = Graphics.boxWidth;
         const wh = this.calcWindowHeight(1, true);
-        return new Rectangle(wx, wy, ww, wh);
+        return new PIXI.Rectangle(wx, wy, ww, wh);
     }
 
     createItemWindow() {
@@ -1699,7 +1699,7 @@ class Scene_Item extends Scene_ItemBase {
         const wy = this._categoryWindow.y + this._categoryWindow.height;
         const ww = Graphics.boxWidth;
         const wh = this.mainAreaBottom() - wy;
-        return new Rectangle(wx, wy, ww, wh);
+        return new PIXI.Rectangle(wx, wy, ww, wh);
     }
 
     user() {
@@ -1781,7 +1781,7 @@ class Scene_Skill extends Scene_ItemBase {
         const wh = this.calcWindowHeight(3, true);
         const wx = this.isRightInputMode() ? Graphics.boxWidth - ww : 0;
         const wy = this.mainAreaTop();
-        return new Rectangle(wx, wy, ww, wh);
+        return new PIXI.Rectangle(wx, wy, ww, wh);
     }
 
     createStatusWindow() {
@@ -1795,7 +1795,7 @@ class Scene_Skill extends Scene_ItemBase {
         const wh = this._skillTypeWindow.height;
         const wx = this.isRightInputMode() ? 0 : Graphics.boxWidth - ww;
         const wy = this.mainAreaTop();
-        return new Rectangle(wx, wy, ww, wh);
+        return new PIXI.Rectangle(wx, wy, ww, wh);
     }
 
     createItemWindow() {
@@ -1813,7 +1813,7 @@ class Scene_Skill extends Scene_ItemBase {
         const wy = this._statusWindow.y + this._statusWindow.height;
         const ww = Graphics.boxWidth;
         const wh = this.mainAreaHeight() - this._statusWindow.height;
-        return new Rectangle(wx, wy, ww, wh);
+        return new PIXI.Rectangle(wx, wy, ww, wh);
     }
 
     needsPageButtons() {
@@ -1903,7 +1903,7 @@ class Scene_Equip extends Scene_MenuBase {
         const wy = this.mainAreaTop();
         const ww = this.statusWidth();
         const wh = this.mainAreaHeight();
-        return new Rectangle(wx, wy, ww, wh);
+        return new PIXI.Rectangle(wx, wy, ww, wh);
     }
 
     createCommandWindow() {
@@ -1924,7 +1924,7 @@ class Scene_Equip extends Scene_MenuBase {
         const wy = this.mainAreaTop();
         const ww = Graphics.boxWidth - this.statusWidth();
         const wh = this.calcWindowHeight(1, true);
-        return new Rectangle(wx, wy, ww, wh);
+        return new PIXI.Rectangle(wx, wy, ww, wh);
     }
 
     createSlotWindow() {
@@ -1943,7 +1943,7 @@ class Scene_Equip extends Scene_MenuBase {
         const wy = commandWindowRect.y + commandWindowRect.height;
         const ww = Graphics.boxWidth - this.statusWidth();
         const wh = this.mainAreaHeight() - commandWindowRect.height;
-        return new Rectangle(wx, wy, ww, wh);
+        return new PIXI.Rectangle(wx, wy, ww, wh);
     }
 
     createItemWindow() {
@@ -2088,7 +2088,7 @@ class Scene_Status extends Scene_MenuBase {
         const wh = this.profileHeight();
         const wx = 0;
         const wy = this.mainAreaBottom() - wh;
-        return new Rectangle(wx, wy, ww, wh);
+        return new PIXI.Rectangle(wx, wy, ww, wh);
     }
 
     createStatusWindow() {
@@ -2105,7 +2105,7 @@ class Scene_Status extends Scene_MenuBase {
         const wy = this.mainAreaTop();
         const ww = Graphics.boxWidth;
         const wh = this.statusParamsWindowRect().y - wy;
-        return new Rectangle(wx, wy, ww, wh);
+        return new PIXI.Rectangle(wx, wy, ww, wh);
     }
 
     createStatusParamsWindow() {
@@ -2119,7 +2119,7 @@ class Scene_Status extends Scene_MenuBase {
         const wh = this.statusParamsHeight();
         const wx = 0;
         const wy = this.mainAreaBottom() - this.profileHeight() - wh;
-        return new Rectangle(wx, wy, ww, wh);
+        return new PIXI.Rectangle(wx, wy, ww, wh);
     }
 
     createStatusEquipWindow() {
@@ -2133,7 +2133,7 @@ class Scene_Status extends Scene_MenuBase {
         const wh = this.statusParamsHeight();
         const wx = this.statusParamsWidth();
         const wy = this.mainAreaBottom() - this.profileHeight() - wh;
-        return new Rectangle(wx, wy, ww, wh);
+        return new PIXI.Rectangle(wx, wy, ww, wh);
     }
 
     statusParamsWidth() {
@@ -2209,7 +2209,7 @@ class Scene_Options extends Scene_MenuBase {
         const wh = this.calcWindowHeight(n, true);
         const wx = (Graphics.boxWidth - ww) / 2;
         const wy = (Graphics.boxHeight - wh) / 2;
-        return new Rectangle(wx, wy, ww, wh);
+        return new PIXI.Rectangle(wx, wy, ww, wh);
     }
 
     maxCommands() {
@@ -2272,7 +2272,7 @@ class Scene_File extends Scene_MenuBase {
         const wy = this.mainAreaTop();
         const ww = Graphics.boxWidth;
         const wh = this.calcWindowHeight(1, false);
-        return new Rectangle(wx, wy, ww, wh);
+        return new PIXI.Rectangle(wx, wy, ww, wh);
     }
 
     createListWindow() {
@@ -2291,7 +2291,7 @@ class Scene_File extends Scene_MenuBase {
         const wy = this.mainAreaTop() + this._helpWindow.height;
         const ww = Graphics.boxWidth;
         const wh = this.mainAreaHeight() - this._helpWindow.height;
-        return new Rectangle(wx, wy, ww, wh);
+        return new PIXI.Rectangle(wx, wy, ww, wh);
     }
 
     mode() {
@@ -2491,7 +2491,7 @@ class Scene_GameEnd extends Scene_MenuBase {
         const wh = this.calcWindowHeight(2, true);
         const wx = (Graphics.boxWidth - ww) / 2;
         const wy = (Graphics.boxHeight - wh) / 2;
-        return new Rectangle(wx, wy, ww, wh);
+        return new PIXI.Rectangle(wx, wy, ww, wh);
     }
 
     commandToTitle() {
@@ -2545,7 +2545,7 @@ class Scene_Shop extends Scene_MenuBase {
         const wh = this.calcWindowHeight(1, true);
         const wx = Graphics.boxWidth - ww;
         const wy = this.mainAreaTop();
-        return new Rectangle(wx, wy, ww, wh);
+        return new PIXI.Rectangle(wx, wy, ww, wh);
     }
 
     createCommandWindow() {
@@ -2564,7 +2564,7 @@ class Scene_Shop extends Scene_MenuBase {
         const wy = this.mainAreaTop();
         const ww = this._goldWindow.x;
         const wh = this.calcWindowHeight(1, true);
-        return new Rectangle(wx, wy, ww, wh);
+        return new PIXI.Rectangle(wx, wy, ww, wh);
     }
 
     createDummyWindow() {
@@ -2578,7 +2578,7 @@ class Scene_Shop extends Scene_MenuBase {
         const wy = this._commandWindow.y + this._commandWindow.height;
         const ww = Graphics.boxWidth;
         const wh = this.mainAreaHeight() - this._commandWindow.height;
-        return new Rectangle(wx, wy, ww, wh);
+        return new PIXI.Rectangle(wx, wy, ww, wh);
     }
 
     createNumberWindow() {
@@ -2595,7 +2595,7 @@ class Scene_Shop extends Scene_MenuBase {
         const wy = this._dummyWindow.y;
         const ww = Graphics.boxWidth - this.statusWidth();
         const wh = this._dummyWindow.height;
-        return new Rectangle(wx, wy, ww, wh);
+        return new PIXI.Rectangle(wx, wy, ww, wh);
     }
 
     createStatusWindow() {
@@ -2610,7 +2610,7 @@ class Scene_Shop extends Scene_MenuBase {
         const wh = this._dummyWindow.height;
         const wx = Graphics.boxWidth - ww;
         const wy = this._dummyWindow.y;
-        return new Rectangle(wx, wy, ww, wh);
+        return new PIXI.Rectangle(wx, wy, ww, wh);
     }
 
     createBuyWindow() {
@@ -2630,7 +2630,7 @@ class Scene_Shop extends Scene_MenuBase {
         const wy = this._dummyWindow.y;
         const ww = Graphics.boxWidth - this.statusWidth();
         const wh = this._dummyWindow.height;
-        return new Rectangle(wx, wy, ww, wh);
+        return new PIXI.Rectangle(wx, wy, ww, wh);
     }
 
     createCategoryWindow() {
@@ -2649,7 +2649,7 @@ class Scene_Shop extends Scene_MenuBase {
         const wy = this._dummyWindow.y;
         const ww = Graphics.boxWidth;
         const wh = this.calcWindowHeight(1, true);
-        return new Rectangle(wx, wy, ww, wh);
+        return new PIXI.Rectangle(wx, wy, ww, wh);
     }
 
     createSellWindow() {
@@ -2676,7 +2676,7 @@ class Scene_Shop extends Scene_MenuBase {
             this.mainAreaHeight() -
             this._commandWindow.height -
             this._categoryWindow.height;
-        return new Rectangle(wx, wy, ww, wh);
+        return new PIXI.Rectangle(wx, wy, ww, wh);
     }
 
     statusWidth() {
@@ -2891,7 +2891,7 @@ class Scene_Name extends Scene_MenuBase {
         const wh = ImageManager.standardFaceHeight + padding * 2;
         const wx = (Graphics.boxWidth - ww) / 2;
         const wy = (Graphics.boxHeight - (wh + inputWindowHeight + 8)) / 2;
-        return new Rectangle(wx, wy, ww, wh);
+        return new PIXI.Rectangle(wx, wy, ww, wh);
     }
 
     createInputWindow() {
@@ -2907,7 +2907,7 @@ class Scene_Name extends Scene_MenuBase {
         const wy = this._editWindow.y + this._editWindow.height + 8;
         const ww = this._editWindow.width;
         const wh = this.calcWindowHeight(9, true);
-        return new Rectangle(wx, wy, ww, wh);
+        return new PIXI.Rectangle(wx, wy, ww, wh);
     }
 
     onInputOk() {
@@ -2954,7 +2954,7 @@ class Scene_Debug extends Scene_MenuBase {
         const wy = 0;
         const ww = 246;
         const wh = Graphics.boxHeight;
-        return new Rectangle(wx, wy, ww, wh);
+        return new PIXI.Rectangle(wx, wy, ww, wh);
     }
 
     createEditWindow() {
@@ -2970,7 +2970,7 @@ class Scene_Debug extends Scene_MenuBase {
         const wy = 0;
         const ww = Graphics.boxWidth - wx;
         const wh = this.calcWindowHeight(10, true);
-        return new Rectangle(wx, wy, ww, wh);
+        return new PIXI.Rectangle(wx, wy, ww, wh);
     }
 
     createDebugHelpWindow() {
@@ -2984,7 +2984,7 @@ class Scene_Debug extends Scene_MenuBase {
         const wy = this._editWindow.height;
         const ww = this._editWindow.width;
         const wh = Graphics.boxHeight - wy;
-        return new Rectangle(wx, wy, ww, wh);
+        return new PIXI.Rectangle(wx, wy, ww, wh);
     }
 
     onRangeOk() {
@@ -3238,7 +3238,7 @@ class Scene_Battle extends Scene_Message {
         const wy = 0;
         const ww = Graphics.boxWidth;
         const wh = this.calcWindowHeight(10, false);
-        return new Rectangle(wx, wy, ww, wh);
+        return new PIXI.Rectangle(wx, wy, ww, wh);
     }
 
     createStatusWindow() {
@@ -3254,7 +3254,7 @@ class Scene_Battle extends Scene_Message {
         const wh = this.windowAreaHeight() + extra;
         const wx = this.isRightInputMode() ? 0 : Graphics.boxWidth - ww;
         const wy = Graphics.boxHeight - wh + extra - 4;
-        return new Rectangle(wx, wy, ww, wh);
+        return new PIXI.Rectangle(wx, wy, ww, wh);
     }
 
     createPartyCommandWindow() {
@@ -3272,7 +3272,7 @@ class Scene_Battle extends Scene_Message {
         const wh = this.windowAreaHeight();
         const wx = this.isRightInputMode() ? Graphics.boxWidth - ww : 0;
         const wy = Graphics.boxHeight - wh;
-        return new Rectangle(wx, wy, ww, wh);
+        return new PIXI.Rectangle(wx, wy, ww, wh);
     }
 
     createActorCommandWindow() {
@@ -3293,7 +3293,7 @@ class Scene_Battle extends Scene_Message {
         const wh = this.windowAreaHeight();
         const wx = this.isRightInputMode() ? Graphics.boxWidth - ww : 0;
         const wy = Graphics.boxHeight - wh;
-        return new Rectangle(wx, wy, ww, wh);
+        return new PIXI.Rectangle(wx, wy, ww, wh);
     }
 
     createHelpWindow() {
@@ -3308,7 +3308,7 @@ class Scene_Battle extends Scene_Message {
         const wy = this.helpAreaTop();
         const ww = Graphics.boxWidth;
         const wh = this.helpAreaHeight();
-        return new Rectangle(wx, wy, ww, wh);
+        return new PIXI.Rectangle(wx, wy, ww, wh);
     }
 
     createSkillWindow() {
@@ -3325,7 +3325,7 @@ class Scene_Battle extends Scene_Message {
         const wh = this.windowAreaHeight();
         const wx = 0;
         const wy = Graphics.boxHeight - wh;
-        return new Rectangle(wx, wy, ww, wh);
+        return new PIXI.Rectangle(wx, wy, ww, wh);
     }
 
     createItemWindow() {
@@ -3366,7 +3366,7 @@ class Scene_Battle extends Scene_Message {
         const ww = this._statusWindow.width;
         const wh = this.windowAreaHeight();
         const wy = Graphics.boxHeight - wh;
-        return new Rectangle(wx, wy, ww, wh);
+        return new PIXI.Rectangle(wx, wy, ww, wh);
     }
 
     helpAreaTop() {
