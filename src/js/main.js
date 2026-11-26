@@ -1,5 +1,6 @@
 // main.js v1.10.0
 
+/** @type {string[]} */
 const scriptUrls = [
     "js/libs/pixi.js",
     "js/libs/pako.min.js",
@@ -14,15 +15,20 @@ const scriptUrls = [
     "js/rmmz_windows.js",
     "js/plugins.js"
 ];
+/** @type {string} */
 const effekseerWasmUrl = "js/libs/effekseer.wasm";
 
 class Main {
     constructor() {
+        /** @type {boolean} */
         this.xhrSucceeded = false;
+        /** @type {number} */
         this.loadCount = 0;
+        /** @type {unknown} */
         this.error = null;
     }
 
+    /** @returns {void} */
     run() {
         this.showLoadingSpinner();
         this.testXhr();
@@ -30,6 +36,7 @@ class Main {
         this.loadMainScripts();
     }
 
+    /** @returns {void} */
     showLoadingSpinner() {
         const loadingSpinner = document.createElement("div");
         const loadingSpinnerImage = document.createElement("div");
@@ -39,6 +46,7 @@ class Main {
         document.body.appendChild(loadingSpinner);
     }
 
+    /** @returns {void} */
     eraseLoadingSpinner() {
         const loadingSpinner = document.getElementById("loadingSpinner");
         if (loadingSpinner) {
@@ -46,6 +54,7 @@ class Main {
         }
     }
 
+    /** @returns {void} */
     testXhr() {
         const xhr = new XMLHttpRequest();
         xhr.open("GET", document.currentScript.src);
@@ -56,6 +65,8 @@ class Main {
     /**
      * Quits NW.js explicitly when its window closes, since the process
      * sometimes does not terminate properly on its own.
+     *
+     * @returns {void}
      */
     hookNwjsClose() {
         if (typeof nw === "object") {
@@ -63,6 +74,7 @@ class Main {
         }
     }
 
+    /** @returns {void} */
     loadMainScripts() {
         for (const url of scriptUrls) {
             const script = document.createElement("script");
@@ -80,16 +92,26 @@ class Main {
         window.addEventListener("error", this.onWindowError.bind(this));
     }
 
+    /** @returns {void} */
     onScriptLoad() {
         if (++this.loadCount === this.numScripts) {
             PluginManager.setup($plugins);
         }
     }
 
+    /**
+     * @param {Event} e
+     * @returns {void}
+     */
     onScriptError(e) {
         this.printError("Failed to load", e.target._url);
     }
 
+    /**
+     * @param {string} name
+     * @param {string} message
+     * @returns {void}
+     */
     printError(name, message) {
         this.eraseLoadingSpinner();
         if (!document.getElementById("errorPrinter")) {
@@ -100,6 +122,11 @@ class Main {
         }
     }
 
+    /**
+     * @param {string} name
+     * @param {string} message
+     * @returns {string}
+     */
     makeErrorHtml(name, message) {
         const nameDiv = document.createElement("div");
         const messageDiv = document.createElement("div");
@@ -110,6 +137,7 @@ class Main {
         return nameDiv.outerHTML + messageDiv.outerHTML;
     }
 
+    /** @returns {void} */
     onWindowLoad() {
         if (!this.xhrSucceeded) {
             const message = "Your browser does not allow to read local files.";
@@ -124,6 +152,10 @@ class Main {
         }
     }
 
+    /**
+     * @param {ErrorEvent} event
+     * @returns {void}
+     */
     onWindowError(event) {
         if (!this.error) {
             this.error = event.error;
@@ -133,6 +165,8 @@ class Main {
     /**
      * Checks for Gatekeeper Path Randomization, which prevents the game
      * from saving properly.
+     *
+     * @returns {boolean}
      */
     isPathRandomized() {
         return (
@@ -141,21 +175,25 @@ class Main {
         );
     }
 
+    /** @returns {void} */
     initEffekseerRuntime() {
         const onLoad = this.onEffekseerLoad.bind(this);
         const onError = this.onEffekseerError.bind(this);
         effekseer.initRuntime(effekseerWasmUrl, onLoad, onError);
     }
 
+    /** @returns {void} */
     onEffekseerLoad() {
         this.eraseLoadingSpinner();
         SceneManager.run(Scene_Boot);
     }
 
+    /** @returns {void} */
     onEffekseerError() {
         this.printError("Failed to load", effekseerWasmUrl);
     }
 }
 
+/** @type {Main} */
 const main = new Main();
 main.run();

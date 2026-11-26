@@ -5,6 +5,8 @@
   "main": "index.js",
   "scripts": {
     "build:pixi": "rolldown -c",
+    "build:types": "node scripts/build-dts.mjs",
+    "check:types": "node scripts/build-dts.mjs --check",
     "typecheck": "tsc --noEmit",
     "test:plugin-compat": "vitest run tests/plugin-compat"
   },

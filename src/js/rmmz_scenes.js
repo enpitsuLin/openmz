@@ -4,29 +4,39 @@
  * The superclass of all scenes within the game.
  */
 class Scene_Base extends Stage {
+    /** @param {[]} args */
     constructor(...args) {
         super(...args);
     }
 
     initialize() {
         super.initialize();
+        /** @type {boolean} */
         this._started = false;
+        /** @type {boolean} */
         this._active = false;
+        /** @type {number} */
         this._fadeSign = 0;
+        /** @type {number} */
         this._fadeDuration = 0;
+        /** @type {number | boolean} */
         this._fadeWhite = 0;
+        /** @type {number} */
         this._fadeOpacity = 0;
         this.createColorFilter();
     }
 
+    /** @returns {void} */
     create() {
         //
     }
 
+    /** @returns {boolean} */
     isActive() {
         return this._active;
     }
 
+    /** @returns {boolean} */
     isReady() {
         return (
             ImageManager.isReady() &&
@@ -35,11 +45,13 @@ class Scene_Base extends Stage {
         );
     }
 
+    /** @returns {void} */
     start() {
         this._started = true;
         this._active = true;
     }
 
+    /** @returns {void} */
     update() {
         this.updateFade();
         this.updateColorFilter();
@@ -47,26 +59,32 @@ class Scene_Base extends Stage {
         AudioManager.checkErrors();
     }
 
+    /** @returns {void} */
     stop() {
         this._active = false;
     }
 
+    /** @returns {boolean} */
     isStarted() {
         return this._started;
     }
 
+    /** @returns {boolean} */
     isBusy() {
         return this.isFading();
     }
 
+    /** @returns {boolean} */
     isFading() {
         return this._fadeDuration > 0;
     }
 
+    /** @returns {void} */
     terminate() {
         //
     }
 
+    /** @returns {void} */
     createWindowLayer() {
         this._windowLayer = new WindowLayer();
         this._windowLayer.x = (Graphics.width - Graphics.boxWidth) / 2;
@@ -74,10 +92,19 @@ class Scene_Base extends Stage {
         this.addChild(this._windowLayer);
     }
 
+    /**
+     * @param {import("pixi.js").Container} window
+     * @returns {void}
+     */
     addWindow(window) {
         this._windowLayer.addWindow(window);
     }
 
+    /**
+     * @param {number} duration
+     * @param {number | boolean} [white]
+     * @returns {void}
+     */
     startFadeIn(duration, white) {
         this._fadeSign = 1;
         this._fadeDuration = duration || 30;
@@ -86,6 +113,11 @@ class Scene_Base extends Stage {
         this.updateColorFilter();
     }
 
+    /**
+     * @param {number} duration
+     * @param {number | boolean} [white]
+     * @returns {void}
+     */
     startFadeOut(duration, white) {
         this._fadeSign = -1;
         this._fadeDuration = duration || 30;
@@ -94,17 +126,20 @@ class Scene_Base extends Stage {
         this.updateColorFilter();
     }
 
+    /** @returns {void} */
     createColorFilter() {
         this._colorFilter = new ColorFilter();
         this.filters = [this._colorFilter];
     }
 
+    /** @returns {void} */
     updateColorFilter() {
         const c = this._fadeWhite ? 255 : 0;
         const blendColor = [c, c, c, this._fadeOpacity];
         this._colorFilter.setBlendColor(blendColor);
     }
 
+    /** @returns {void} */
     updateFade() {
         if (this._fadeDuration > 0) {
             const d = this._fadeDuration;
@@ -117,6 +152,7 @@ class Scene_Base extends Stage {
         }
     }
 
+    /** @returns {void} */
     updateChildren() {
         for (const child of this.children) {
             if (child.update) {
@@ -125,16 +161,19 @@ class Scene_Base extends Stage {
         }
     }
 
+    /** @returns {void} */
     popScene() {
         SceneManager.pop();
     }
 
+    /** @returns {void} */
     checkGameover() {
         if ($gameParty.isAllDead()) {
             SceneManager.goto(Scene_Gameover);
         }
     }
 
+    /** @returns {void} */
     fadeOutAll() {
         const time = this.slowFadeSpeed() / 60;
         AudioManager.fadeOutBgm(time);
@@ -143,14 +182,20 @@ class Scene_Base extends Stage {
         this.startFadeOut(this.slowFadeSpeed());
     }
 
+    /** @returns {number} */
     fadeSpeed() {
         return 24;
     }
 
+    /** @returns {number} */
     slowFadeSpeed() {
         return this.fadeSpeed() * 2;
     }
 
+    /**
+     * @param {Sprite} sprite
+     * @returns {void}
+     */
     scaleSprite(sprite) {
         const ratioX = Graphics.width / sprite.bitmap.width;
         const ratioY = Graphics.height / sprite.bitmap.height;
@@ -159,6 +204,10 @@ class Scene_Base extends Stage {
         sprite.scale.y = scale;
     }
 
+    /**
+     * @param {Sprite} sprite
+     * @returns {void}
+     */
     centerSprite(sprite) {
         sprite.x = Graphics.width / 2;
         sprite.y = Graphics.height / 2;
@@ -166,22 +215,27 @@ class Scene_Base extends Stage {
         sprite.anchor.y = 0.5;
     }
 
+    /** @returns {boolean} */
     isBottomHelpMode() {
         return true;
     }
 
+    /** @returns {boolean} */
     isBottomButtonMode() {
         return false;
     }
 
+    /** @returns {boolean} */
     isRightInputMode() {
         return true;
     }
 
+    /** @returns {number} */
     mainCommandWidth() {
         return 240;
     }
 
+    /** @returns {number} */
     buttonAreaTop() {
         if (this.isBottomButtonMode()) {
             return Graphics.boxHeight - this.buttonAreaHeight();
@@ -190,19 +244,27 @@ class Scene_Base extends Stage {
         }
     }
 
+    /** @returns {number} */
     buttonAreaBottom() {
         return this.buttonAreaTop() + this.buttonAreaHeight();
     }
 
+    /** @returns {number} */
     buttonAreaHeight() {
         return 52;
     }
 
+    /** @returns {number} */
     buttonY() {
         const offsetY = Math.floor((this.buttonAreaHeight() - 48) / 2);
         return this.buttonAreaTop() + offsetY;
     }
 
+    /**
+     * @param {number} numLines
+     * @param {boolean} selectable
+     * @returns {number}
+     */
     calcWindowHeight(numLines, selectable) {
         if (selectable) {
             return Window_Selectable.prototype.fittingHeight(numLines);
@@ -211,12 +273,14 @@ class Scene_Base extends Stage {
         }
     }
 
+    /** @returns {void} */
     requestAutosave() {
         if (this.isAutosaveEnabled()) {
             this.executeAutosave();
         }
     }
 
+    /** @returns {boolean} */
     isAutosaveEnabled() {
         return (
             !DataManager.isBattleTest() &&
@@ -226,6 +290,7 @@ class Scene_Base extends Stage {
         );
     }
 
+    /** @returns {void} */
     executeAutosave() {
         $gameSystem.onBeforeSave();
         DataManager.saveGame(0)
@@ -233,10 +298,12 @@ class Scene_Base extends Stage {
             .catch(() => this.onAutosaveFailure());
     }
 
+    /** @returns {void} */
     onAutosaveSuccess() {
         //
     }
 
+    /** @returns {void} */
     onAutosaveFailure() {
         //
     }
@@ -252,15 +319,18 @@ class Scene_Boot extends Scene_Base {
 
     initialize() {
         super.initialize();
+        /** @type {boolean} */
         this._databaseLoaded = false;
     }
 
+    /** @returns {void} */
     create() {
         super.create();
         DataManager.loadDatabase();
         StorageManager.updateForageKeys();
     }
 
+    /** @returns {boolean} */
     isReady() {
         if (!this._databaseLoaded) {
             if (
@@ -275,6 +345,7 @@ class Scene_Boot extends Scene_Base {
         return super.isReady() && this.isPlayerDataLoaded();
     }
 
+    /** @returns {void} */
     onDatabaseLoaded() {
         this.setEncryptionInfo();
         this.loadSystemImages();
@@ -282,6 +353,7 @@ class Scene_Boot extends Scene_Base {
         this.loadGameFonts();
     }
 
+    /** @returns {void} */
     setEncryptionInfo() {
         const hasImages = $dataSystem.hasEncryptedImages;
         const hasAudio = $dataSystem.hasEncryptedAudio;
@@ -289,26 +361,31 @@ class Scene_Boot extends Scene_Base {
         Utils.setEncryptionInfo(hasImages, hasAudio, key);
     }
 
+    /** @returns {void} */
     loadSystemImages() {
         ColorManager.loadWindowskin();
         ImageManager.loadSystem("IconSet");
     }
 
+    /** @returns {void} */
     loadPlayerData() {
         DataManager.loadGlobalInfo();
         ConfigManager.load();
     }
 
+    /** @returns {void} */
     loadGameFonts() {
         const advanced = $dataSystem.advanced;
         FontManager.load("rmmz-mainfont", advanced.mainFontFilename);
         FontManager.load("rmmz-numberfont", advanced.numberFontFilename);
     }
 
+    /** @returns {boolean} */
     isPlayerDataLoaded() {
         return DataManager.isGlobalInfoLoaded() && ConfigManager.isLoaded();
     }
 
+    /** @returns {void} */
     start() {
         super.start();
         SoundManager.preloadImportantSounds();
@@ -329,6 +406,7 @@ class Scene_Boot extends Scene_Base {
         this.updateDocumentTitle();
     }
 
+    /** @returns {void} */
     startNormalGame() {
         this.checkPlayerLocation();
         DataManager.setupNewGame();
@@ -336,6 +414,7 @@ class Scene_Boot extends Scene_Base {
         SceneManager.goto(Scene_Splash);
     }
 
+    /** @returns {void} */
     resizeScreen() {
         const screenWidth = $dataSystem.advanced.screenWidth;
         const screenHeight = $dataSystem.advanced.screenHeight;
@@ -345,6 +424,7 @@ class Scene_Boot extends Scene_Base {
         this.adjustWindow();
     }
 
+    /** @returns {void} */
     adjustBoxSize() {
         const uiAreaWidth = $dataSystem.advanced.uiAreaWidth;
         const uiAreaHeight = $dataSystem.advanced.uiAreaHeight;
@@ -353,6 +433,7 @@ class Scene_Boot extends Scene_Base {
         Graphics.boxHeight = uiAreaHeight - boxMargin * 2;
     }
 
+    /** @returns {void} */
     adjustWindow() {
         if (Utils.isNwjs()) {
             const scale = this.screenScale();
@@ -363,6 +444,7 @@ class Scene_Boot extends Scene_Base {
         }
     }
 
+    /** @returns {number} */
     screenScale() {
         if ("screenScale" in $dataSystem.advanced) {
             return $dataSystem.advanced.screenScale;
@@ -371,10 +453,12 @@ class Scene_Boot extends Scene_Base {
         }
     }
 
+    /** @returns {void} */
     updateDocumentTitle() {
         document.title = $dataSystem.gameTitle;
     }
 
+    /** @returns {void} */
     checkPlayerLocation() {
         if ($dataSystem.startMapId === 0) {
             throw new Error("Player's starting position is not set");
@@ -390,11 +474,13 @@ class Scene_Splash extends Scene_Base {
         super(...args);
     }
 
+    /** @returns {void} */
     initialize() {
         super.initialize();
         this.initWaitCount();
     }
 
+    /** @returns {void} */
     create() {
         super.create();
         if (this.isEnabled()) {
@@ -402,6 +488,7 @@ class Scene_Splash extends Scene_Base {
         }
     }
 
+    /** @returns {void} */
     start() {
         super.start();
         if (this.isEnabled()) {
@@ -410,6 +497,7 @@ class Scene_Splash extends Scene_Base {
         }
     }
 
+    /** @returns {void} */
     update() {
         super.update();
         if (this.isActive()) {
@@ -420,6 +508,7 @@ class Scene_Splash extends Scene_Base {
         }
     }
 
+    /** @returns {void} */
     stop() {
         super.stop();
         if (this.isEnabled()) {
@@ -427,21 +516,25 @@ class Scene_Splash extends Scene_Base {
         }
     }
 
+    /** @returns {void} */
     createBackground() {
         this._backSprite = new Sprite();
         this._backSprite.bitmap = ImageManager.loadSystem("Splash");
         this.addChild(this._backSprite);
     }
 
+    /** @returns {void} */
     adjustBackground() {
         this.scaleSprite(this._backSprite);
         this.centerSprite(this._backSprite);
     }
 
+    /** @returns {boolean} */
     isEnabled() {
         return $dataSystem.optSplashScreen;
     }
 
+    /** @returns {void} */
     initWaitCount() {
         if (this.isEnabled()) {
             this._waitCount = 120;
@@ -450,6 +543,7 @@ class Scene_Splash extends Scene_Base {
         }
     }
 
+    /** @returns {boolean} */
     updateWaitCount() {
         if (this._waitCount > 0) {
             this._waitCount--;
@@ -458,12 +552,14 @@ class Scene_Splash extends Scene_Base {
         return false;
     }
 
+    /** @returns {void} */
     checkSkip() {
         if (Input.isTriggered("ok") || TouchInput.isTriggered()) {
             this._waitCount = 0;
         }
     }
 
+    /** @returns {void} */
     gotoTitle() {
         SceneManager.goto(Scene_Title);
     }
@@ -481,6 +577,7 @@ class Scene_Title extends Scene_Base {
         super.initialize();
     }
 
+    /** @returns {void} */
     create() {
         super.create();
         this.createBackground();
@@ -489,6 +586,7 @@ class Scene_Title extends Scene_Base {
         this.createCommandWindow();
     }
 
+    /** @returns {void} */
     start() {
         super.start();
         SceneManager.clearStack();
@@ -497,6 +595,7 @@ class Scene_Title extends Scene_Base {
         this.startFadeIn(this.fadeSpeed(), false);
     }
 
+    /** @returns {void} */
     update() {
         if (!this.isBusy()) {
             this._commandWindow.open();
@@ -504,6 +603,7 @@ class Scene_Title extends Scene_Base {
         super.update();
     }
 
+    /** @returns {boolean} */
     isBusy() {
         return (
             this._commandWindow.isClosing() ||
@@ -511,6 +611,7 @@ class Scene_Title extends Scene_Base {
         );
     }
 
+    /** @returns {void} */
     terminate() {
         super.terminate();
         SceneManager.snapForBackground();
@@ -519,6 +620,7 @@ class Scene_Title extends Scene_Base {
         }
     }
 
+    /** @returns {void} */
     createBackground() {
         this._backSprite1 = new Sprite(
             ImageManager.loadTitle1($dataSystem.title1Name)
@@ -530,6 +632,7 @@ class Scene_Title extends Scene_Base {
         this.addChild(this._backSprite2);
     }
 
+    /** @returns {void} */
     createForeground() {
         this._gameTitleSprite = new Sprite(
             new Bitmap(Graphics.width, Graphics.height)
@@ -540,6 +643,7 @@ class Scene_Title extends Scene_Base {
         }
     }
 
+    /** @returns {void} */
     drawGameTitle() {
         const x = 20;
         const y = Graphics.height / 4;
@@ -553,6 +657,7 @@ class Scene_Title extends Scene_Base {
         bitmap.drawText(text, x, y, maxWidth, 48, "center");
     }
 
+    /** @returns {void} */
     adjustBackground() {
         this.scaleSprite(this._backSprite1);
         this.scaleSprite(this._backSprite2);
@@ -560,6 +665,7 @@ class Scene_Title extends Scene_Base {
         this.centerSprite(this._backSprite2);
     }
 
+    /** @returns {void} */
     createCommandWindow() {
         const background = $dataSystem.titleCommandWindow.background;
         const rect = this.commandWindowRect();
@@ -571,6 +677,7 @@ class Scene_Title extends Scene_Base {
         this.addWindow(this._commandWindow);
     }
 
+    /** @returns {Rectangle} */
     commandWindowRect() {
         const offsetX = $dataSystem.titleCommandWindow.offsetX;
         const offsetY = $dataSystem.titleCommandWindow.offsetY;
@@ -581,6 +688,7 @@ class Scene_Title extends Scene_Base {
         return new PIXI.Rectangle(wx, wy, ww, wh);
     }
 
+    /** @returns {void} */
     commandNewGame() {
         DataManager.setupNewGame();
         this._commandWindow.close();
@@ -588,16 +696,19 @@ class Scene_Title extends Scene_Base {
         SceneManager.goto(Scene_Map);
     }
 
+    /** @returns {void} */
     commandContinue() {
         this._commandWindow.close();
         SceneManager.push(Scene_Load);
     }
 
+    /** @returns {void} */
     commandOptions() {
         this._commandWindow.close();
         SceneManager.push(Scene_Options);
     }
 
+    /** @returns {void} */
     playTitleMusic() {
         AudioManager.playBgm($dataSystem.titleBgm);
         AudioManager.stopBgs();
@@ -617,10 +728,12 @@ class Scene_Message extends Scene_Base {
         super.initialize();
     }
 
+    /** @returns {boolean} */
     isMessageWindowClosing() {
         return this._messageWindow.isClosing();
     }
 
+    /** @returns {void} */
     createAllWindows() {
         this.createMessageWindow();
         this.createScrollTextWindow();
@@ -632,12 +745,14 @@ class Scene_Message extends Scene_Base {
         this.associateWindows();
     }
 
+    /** @returns {void} */
     createMessageWindow() {
         const rect = this.messageWindowRect();
         this._messageWindow = new Window_Message(rect);
         this.addWindow(this._messageWindow);
     }
 
+    /** @returns {Rectangle} */
     messageWindowRect() {
         const ww = Graphics.boxWidth;
         const wh = this.calcWindowHeight(4, false) + 8;
@@ -646,12 +761,14 @@ class Scene_Message extends Scene_Base {
         return new PIXI.Rectangle(wx, wy, ww, wh);
     }
 
+    /** @returns {void} */
     createScrollTextWindow() {
         const rect = this.scrollTextWindowRect();
         this._scrollTextWindow = new Window_ScrollText(rect);
         this.addWindow(this._scrollTextWindow);
     }
 
+    /** @returns {Rectangle} */
     scrollTextWindowRect() {
         const wx = 0;
         const wy = 0;
@@ -660,6 +777,7 @@ class Scene_Message extends Scene_Base {
         return new PIXI.Rectangle(wx, wy, ww, wh);
     }
 
+    /** @returns {void} */
     createGoldWindow() {
         const rect = this.goldWindowRect();
         this._goldWindow = new Window_Gold(rect);
@@ -667,6 +785,7 @@ class Scene_Message extends Scene_Base {
         this.addWindow(this._goldWindow);
     }
 
+    /** @returns {Rectangle} */
     goldWindowRect() {
         const ww = this.mainCommandWidth();
         const wh = this.calcWindowHeight(1, true);
@@ -675,27 +794,32 @@ class Scene_Message extends Scene_Base {
         return new PIXI.Rectangle(wx, wy, ww, wh);
     }
 
+    /** @returns {void} */
     createNameBoxWindow() {
         this._nameBoxWindow = new Window_NameBox();
         this.addWindow(this._nameBoxWindow);
     }
 
+    /** @returns {void} */
     createChoiceListWindow() {
         this._choiceListWindow = new Window_ChoiceList();
         this.addWindow(this._choiceListWindow);
     }
 
+    /** @returns {void} */
     createNumberInputWindow() {
         this._numberInputWindow = new Window_NumberInput();
         this.addWindow(this._numberInputWindow);
     }
 
+    /** @returns {void} */
     createEventItemWindow() {
         const rect = this.eventItemWindowRect();
         this._eventItemWindow = new Window_EventItem(rect);
         this.addWindow(this._eventItemWindow);
     }
 
+    /** @returns {Rectangle} */
     eventItemWindowRect() {
         const wx = 0;
         const wy = 0;
@@ -704,6 +828,7 @@ class Scene_Message extends Scene_Base {
         return new PIXI.Rectangle(wx, wy, ww, wh);
     }
 
+    /** @returns {void} */
     associateWindows() {
         const messageWindow = this._messageWindow;
         messageWindow.setGoldWindow(this._goldWindow);
@@ -717,6 +842,7 @@ class Scene_Message extends Scene_Base {
         this._eventItemWindow.setMessageWindow(messageWindow);
     }
 
+    /** @returns {void} */
     cancelMessageWait() {
         this._messageWindow.cancelWait();
     }
@@ -732,13 +858,19 @@ class Scene_Map extends Scene_Message {
 
     initialize() {
         super.initialize();
+        /** @type {number} */
         this._waitCount = 0;
+        /** @type {number} */
         this._encounterEffectDuration = 0;
+        /** @type {boolean} */
         this._mapLoaded = false;
+        /** @type {number} */
         this._touchCount = 0;
+        /** @type {boolean} */
         this._menuEnabled = false;
     }
 
+    /** @returns {void} */
     create() {
         super.create();
         this._transfer = $gamePlayer.isTransferring();
@@ -751,6 +883,7 @@ class Scene_Map extends Scene_Message {
         }
     }
 
+    /** @returns {boolean} */
     isReady() {
         if (!this._mapLoaded && DataManager.isMapLoaded()) {
             this.onMapLoaded();
@@ -759,6 +892,7 @@ class Scene_Map extends Scene_Message {
         return this._mapLoaded && super.isReady();
     }
 
+    /** @returns {void} */
     onMapLoaded() {
         if (this._transfer) {
             $gamePlayer.performTransfer();
@@ -766,11 +900,13 @@ class Scene_Map extends Scene_Message {
         this.createDisplayObjects();
     }
 
+    /** @returns {void} */
     onTransfer() {
         ImageManager.clear();
         EffectManager.clear();
     }
 
+    /** @returns {void} */
     start() {
         super.start();
         SceneManager.clearStack();
@@ -783,6 +919,7 @@ class Scene_Map extends Scene_Message {
         this.menuCalling = false;
     }
 
+    /** @returns {void} */
     onTransferEnd() {
         this._mapNameWindow.open();
         $gameMap.autoplay();
@@ -791,10 +928,12 @@ class Scene_Map extends Scene_Message {
         }
     }
 
+    /** @returns {boolean} */
     shouldAutosave() {
         return !this._lastMapWasNull;
     }
 
+    /** @returns {void} */
     update() {
         super.update();
         this.updateDestination();
@@ -809,6 +948,7 @@ class Scene_Map extends Scene_Message {
         this.updateWaitCount();
     }
 
+    /** @returns {void} */
     updateMainMultiply() {
         if (this.isFastForward()) {
             this.cancelMessageWait();
@@ -817,6 +957,7 @@ class Scene_Map extends Scene_Message {
         this.updateMain();
     }
 
+    /** @returns {void} */
     updateMain() {
         $gameMap.update(this.isActive());
         $gamePlayer.update(this.isPlayerActive());
@@ -824,10 +965,12 @@ class Scene_Map extends Scene_Message {
         $gameScreen.update();
     }
 
+    /** @returns {boolean} */
     isPlayerActive() {
         return this.isActive() && !this.isFading();
     }
 
+    /** @returns {boolean} */
     isFastForward() {
         return (
             $gameMap.isEventRunning() &&
@@ -836,6 +979,7 @@ class Scene_Map extends Scene_Message {
         );
     }
 
+    /** @returns {void} */
     stop() {
         super.stop();
         $gamePlayer.straighten();
@@ -849,6 +993,7 @@ class Scene_Map extends Scene_Message {
         }
     }
 
+    /** @returns {boolean} */
     isBusy() {
         return (
             this.isMessageWindowClosing() ||
@@ -858,6 +1003,7 @@ class Scene_Map extends Scene_Message {
         );
     }
 
+    /** @returns {void} */
     terminate() {
         super.terminate();
         if (!SceneManager.isNextScene(Scene_Battle)) {
@@ -869,6 +1015,7 @@ class Scene_Map extends Scene_Message {
         $gameScreen.clearZoom();
     }
 
+    /** @returns {boolean} */
     needsFadeIn() {
         return (
             SceneManager.isPreviousScene(Scene_Battle) ||
@@ -876,6 +1023,7 @@ class Scene_Map extends Scene_Message {
         );
     }
 
+    /** @returns {boolean | null} */
     needsSlowFadeOut() {
         return (
             SceneManager.isNextScene(Scene_Title) ||
@@ -883,6 +1031,7 @@ class Scene_Map extends Scene_Message {
         );
     }
 
+    /** @returns {boolean} */
     updateWaitCount() {
         if (this._waitCount > 0) {
             this._waitCount--;
@@ -891,6 +1040,7 @@ class Scene_Map extends Scene_Message {
         return false;
     }
 
+    /** @returns {void} */
     updateDestination() {
         if (this.isMapTouchOk()) {
             this.processMapTouch();
@@ -900,6 +1050,7 @@ class Scene_Map extends Scene_Message {
         }
     }
 
+    /** @returns {void} */
     updateMenuButton() {
         if (this._menuButton) {
             const menuEnabled = this.isMenuEnabled();
@@ -911,6 +1062,7 @@ class Scene_Map extends Scene_Message {
         }
     }
 
+    /** @returns {void} */
     hideMenuButton() {
         if (this._menuButton) {
             this._menuButton.visible = false;
@@ -918,20 +1070,24 @@ class Scene_Map extends Scene_Message {
         }
     }
 
+    /** @returns {void} */
     updateMapNameWindow() {
         if ($gameMessage.isBusy()) {
             this._mapNameWindow.close();
         }
     }
 
+    /** @returns {boolean} */
     isMenuEnabled() {
         return $gameSystem.isMenuEnabled() && !$gameMap.isEventRunning();
     }
 
+    /** @returns {boolean} */
     isMapTouchOk() {
         return this.isActive() && $gamePlayer.canMove();
     }
 
+    /** @returns {void} */
     processMapTouch() {
         if (TouchInput.isTriggered() || this._touchCount > 0) {
             if (TouchInput.isPressed() && !this.isAnyButtonPressed()) {
@@ -945,20 +1101,24 @@ class Scene_Map extends Scene_Message {
         }
     }
 
+    /** @returns {boolean} */
     isAnyButtonPressed() {
         return this._menuButton && this._menuButton.isPressed();
     }
 
+    /** @returns {void} */
     onMapTouch() {
         const x = $gameMap.canvasToMapX(TouchInput.x);
         const y = $gameMap.canvasToMapY(TouchInput.y);
         $gameTemp.setDestination(x, y);
     }
 
+    /** @returns {boolean} */
     isSceneChangeOk() {
         return this.isActive() && !$gameMessage.isBusy();
     }
 
+    /** @returns {void} */
     updateScene() {
         this.checkGameover();
         if (!SceneManager.isSceneChanging()) {
@@ -975,6 +1135,7 @@ class Scene_Map extends Scene_Message {
         }
     }
 
+    /** @returns {void} */
     createDisplayObjects() {
         this.createSpriteset();
         this.createWindowLayer();
@@ -982,23 +1143,27 @@ class Scene_Map extends Scene_Message {
         this.createButtons();
     }
 
+    /** @returns {void} */
     createSpriteset() {
         this._spriteset = new Spriteset_Map();
         this.addChild(this._spriteset);
         this._spriteset.update();
     }
 
+    /** @returns {void} */
     createAllWindows() {
         this.createMapNameWindow();
         super.createAllWindows();
     }
 
+    /** @returns {void} */
     createMapNameWindow() {
         const rect = this.mapNameWindowRect();
         this._mapNameWindow = new Window_MapName(rect);
         this.addWindow(this._mapNameWindow);
     }
 
+    /** @returns {Rectangle} */
     mapNameWindowRect() {
         const wx = 0;
         const wy = 0;
@@ -1007,12 +1172,14 @@ class Scene_Map extends Scene_Message {
         return new PIXI.Rectangle(wx, wy, ww, wh);
     }
 
+    /** @returns {void} */
     createButtons() {
         if (ConfigManager.touchUI) {
             this.createMenuButton();
         }
     }
 
+    /** @returns {void} */
     createMenuButton() {
         this._menuButton = new Sprite_Button("menu");
         this._menuButton.x = Graphics.boxWidth - this._menuButton.width - 4;
@@ -1021,18 +1188,21 @@ class Scene_Map extends Scene_Message {
         this.addWindow(this._menuButton);
     }
 
+    /** @returns {void} */
     updateTransferPlayer() {
         if ($gamePlayer.isTransferring()) {
             SceneManager.goto(Scene_Map);
         }
     }
 
+    /** @returns {void} */
     updateEncounter() {
         if ($gamePlayer.executeEncounter()) {
             SceneManager.push(Scene_Battle);
         }
     }
 
+    /** @returns {void} */
     updateCallMenu() {
         if (this.isMenuEnabled()) {
             if (this.isMenuCalled()) {
@@ -1046,10 +1216,12 @@ class Scene_Map extends Scene_Message {
         }
     }
 
+    /** @returns {boolean} */
     isMenuCalled() {
         return Input.isTriggered("menu") || TouchInput.isCancelled();
     }
 
+    /** @returns {void} */
     callMenu() {
         SoundManager.playOk();
         SceneManager.push(Scene_Menu);
@@ -1059,16 +1231,19 @@ class Scene_Map extends Scene_Message {
         this._waitCount = 2;
     }
 
+    /** @returns {void} */
     updateCallDebug() {
         if (this.isDebugCalled()) {
             SceneManager.push(Scene_Debug);
         }
     }
 
+    /** @returns {boolean} */
     isDebugCalled() {
         return Input.isTriggered("debug") && $gameTemp.isPlaytest();
     }
 
+    /** @returns {void} */
     fadeInForTransfer() {
         const fadeType = $gamePlayer.fadeType();
         switch (fadeType) {
@@ -1079,6 +1254,7 @@ class Scene_Map extends Scene_Message {
         }
     }
 
+    /** @returns {void} */
     fadeOutForTransfer() {
         const fadeType = $gamePlayer.fadeType();
         switch (fadeType) {
@@ -1089,6 +1265,7 @@ class Scene_Map extends Scene_Message {
         }
     }
 
+    /** @returns {void} */
     launchBattle() {
         BattleManager.saveBgmAndBgs();
         this.stopAudioOnBattleStart();
@@ -1097,6 +1274,7 @@ class Scene_Map extends Scene_Message {
         this._mapNameWindow.hide();
     }
 
+    /** @returns {void} */
     stopAudioOnBattleStart() {
         if (!AudioManager.isCurrentBgm($gameSystem.battleBgm())) {
             AudioManager.stopBgm();
@@ -1106,11 +1284,13 @@ class Scene_Map extends Scene_Message {
         AudioManager.stopSe();
     }
 
+    /** @returns {void} */
     startEncounterEffect() {
         this._spriteset.hideCharacters();
         this._encounterEffectDuration = this.encounterEffectSpeed();
     }
 
+    /** @returns {void} */
     updateEncounterEffect() {
         if (this._encounterEffectDuration > 0) {
             this._encounterEffectDuration--;
@@ -1136,17 +1316,23 @@ class Scene_Map extends Scene_Message {
         }
     }
 
+    /** @returns {void} */
     snapForBattleBackground() {
         this._windowLayer.visible = false;
         SceneManager.snapForBackground();
         this._windowLayer.visible = true;
     }
 
+    /**
+     * @param {number} duration
+     * @returns {void}
+     */
     startFlashForEncounter(duration) {
         const color = [255, 255, 255, 255];
         $gameScreen.startFlash(color, duration);
     }
 
+    /** @returns {number} */
     encounterEffectSpeed() {
         return 60;
     }
@@ -1164,6 +1350,7 @@ class Scene_MenuBase extends Scene_Base {
         super.initialize();
     }
 
+    /** @returns {void} */
     create() {
         super.create();
         this.createBackground();
@@ -1172,11 +1359,13 @@ class Scene_MenuBase extends Scene_Base {
         this.createButtons();
     }
 
+    /** @returns {void} */
     update() {
         super.update();
         this.updatePageButtons();
     }
 
+    /** @returns {number} */
     helpAreaTop() {
         if (this.isBottomHelpMode()) {
             return this.mainAreaBottom();
@@ -1187,14 +1376,17 @@ class Scene_MenuBase extends Scene_Base {
         }
     }
 
+    /** @returns {number} */
     helpAreaBottom() {
         return this.helpAreaTop() + this.helpAreaHeight();
     }
 
+    /** @returns {number} */
     helpAreaHeight() {
         return this.calcWindowHeight(2, false);
     }
 
+    /** @returns {number} */
     mainAreaTop() {
         if (!this.isBottomHelpMode()) {
             return this.helpAreaBottom();
@@ -1205,22 +1397,27 @@ class Scene_MenuBase extends Scene_Base {
         }
     }
 
+    /** @returns {number} */
     mainAreaBottom() {
         return this.mainAreaTop() + this.mainAreaHeight();
     }
 
+    /** @returns {number} */
     mainAreaHeight() {
         return Graphics.boxHeight - this.buttonAreaHeight() - this.helpAreaHeight();
     }
 
+    /** @returns {Game_Actor} */
     actor() {
         return this._actor;
     }
 
+    /** @returns {void} */
     updateActor() {
         this._actor = $gameParty.menuActor();
     }
 
+    /** @returns {void} */
     createBackground() {
         this._backgroundFilter = new PIXI.BlurFilter();
         this._backgroundSprite = new Sprite();
@@ -1230,16 +1427,22 @@ class Scene_MenuBase extends Scene_Base {
         this.setBackgroundOpacity(192);
     }
 
+    /**
+     * @param {number} opacity
+     * @returns {void}
+     */
     setBackgroundOpacity(opacity) {
         this._backgroundSprite.opacity = opacity;
     }
 
+    /** @returns {void} */
     createHelpWindow() {
         const rect = this.helpWindowRect();
         this._helpWindow = new Window_Help(rect);
         this.addWindow(this._helpWindow);
     }
 
+    /** @returns {Rectangle} */
     helpWindowRect() {
         const wx = 0;
         const wy = this.helpAreaTop();
@@ -1248,6 +1451,7 @@ class Scene_MenuBase extends Scene_Base {
         return new PIXI.Rectangle(wx, wy, ww, wh);
     }
 
+    /** @returns {void} */
     createButtons() {
         if (ConfigManager.touchUI) {
             if (this.needsCancelButton()) {
@@ -1259,10 +1463,12 @@ class Scene_MenuBase extends Scene_Base {
         }
     }
 
+    /** @returns {boolean} */
     needsCancelButton() {
         return true;
     }
 
+    /** @returns {void} */
     createCancelButton() {
         this._cancelButton = new Sprite_Button("cancel");
         this._cancelButton.x = Graphics.boxWidth - this._cancelButton.width - 4;
@@ -1270,10 +1476,12 @@ class Scene_MenuBase extends Scene_Base {
         this.addWindow(this._cancelButton);
     }
 
+    /** @returns {boolean} */
     needsPageButtons() {
         return false;
     }
 
+    /** @returns {void} */
     createPageButtons() {
         this._pageupButton = new Sprite_Button("pageup");
         this._pageupButton.x = 4;
@@ -1288,6 +1496,7 @@ class Scene_MenuBase extends Scene_Base {
         this._pagedownButton.setClickHandler(this.nextActor.bind(this));
     }
 
+    /** @returns {void} */
     updatePageButtons() {
         if (this._pageupButton && this._pagedownButton) {
             const enabled = this.arePageButtonsEnabled();
@@ -1296,22 +1505,26 @@ class Scene_MenuBase extends Scene_Base {
         }
     }
 
+    /** @returns {boolean} */
     arePageButtonsEnabled() {
         return true;
     }
 
+    /** @returns {void} */
     nextActor() {
         $gameParty.makeMenuActorNext();
         this.updateActor();
         this.onActorChange();
     }
 
+    /** @returns {void} */
     previousActor() {
         $gameParty.makeMenuActorPrevious();
         this.updateActor();
         this.onActorChange();
     }
 
+    /** @returns {void} */
     onActorChange() {
         SoundManager.playCursor();
     }
@@ -1329,10 +1542,12 @@ class Scene_Menu extends Scene_MenuBase {
         super.initialize();
     }
 
+    /** @returns {number} */
     helpAreaHeight() {
         return 0;
     }
 
+    /** @returns {void} */
     create() {
         super.create();
         this.createCommandWindow();
@@ -1340,11 +1555,13 @@ class Scene_Menu extends Scene_MenuBase {
         this.createStatusWindow();
     }
 
+    /** @returns {void} */
     start() {
         super.start();
         this._statusWindow.refresh();
     }
 
+    /** @returns {void} */
     createCommandWindow() {
         const rect = this.commandWindowRect();
         const commandWindow = new Window_MenuCommand(rect);
@@ -1361,6 +1578,7 @@ class Scene_Menu extends Scene_MenuBase {
         this._commandWindow = commandWindow;
     }
 
+    /** @returns {Rectangle} */
     commandWindowRect() {
         const ww = this.mainCommandWidth();
         const wh = this.mainAreaHeight() - this.goldWindowRect().height;
@@ -1369,12 +1587,14 @@ class Scene_Menu extends Scene_MenuBase {
         return new PIXI.Rectangle(wx, wy, ww, wh);
     }
 
+    /** @returns {void} */
     createGoldWindow() {
         const rect = this.goldWindowRect();
         this._goldWindow = new Window_Gold(rect);
         this.addWindow(this._goldWindow);
     }
 
+    /** @returns {Rectangle} */
     goldWindowRect() {
         const ww = this.mainCommandWidth();
         const wh = this.calcWindowHeight(1, true);
@@ -1383,12 +1603,14 @@ class Scene_Menu extends Scene_MenuBase {
         return new PIXI.Rectangle(wx, wy, ww, wh);
     }
 
+    /** @returns {void} */
     createStatusWindow() {
         const rect = this.statusWindowRect();
         this._statusWindow = new Window_MenuStatus(rect);
         this.addWindow(this._statusWindow);
     }
 
+    /** @returns {Rectangle} */
     statusWindowRect() {
         const ww = Graphics.boxWidth - this.mainCommandWidth();
         const wh = this.mainAreaHeight();
@@ -1397,10 +1619,12 @@ class Scene_Menu extends Scene_MenuBase {
         return new PIXI.Rectangle(wx, wy, ww, wh);
     }
 
+    /** @returns {void} */
     commandItem() {
         SceneManager.push(Scene_Item);
     }
 
+    /** @returns {void} */
     commandPersonal() {
         this._statusWindow.setFormationMode(false);
         this._statusWindow.selectLast();
@@ -1409,6 +1633,7 @@ class Scene_Menu extends Scene_MenuBase {
         this._statusWindow.setHandler("cancel", this.onPersonalCancel.bind(this));
     }
 
+    /** @returns {void} */
     commandFormation() {
         this._statusWindow.setFormationMode(true);
         this._statusWindow.selectLast();
@@ -1417,18 +1642,22 @@ class Scene_Menu extends Scene_MenuBase {
         this._statusWindow.setHandler("cancel", this.onFormationCancel.bind(this));
     }
 
+    /** @returns {void} */
     commandOptions() {
         SceneManager.push(Scene_Options);
     }
 
+    /** @returns {void} */
     commandSave() {
         SceneManager.push(Scene_Save);
     }
 
+    /** @returns {void} */
     commandGameEnd() {
         SceneManager.push(Scene_GameEnd);
     }
 
+    /** @returns {void} */
     onPersonalOk() {
         switch (this._commandWindow.currentSymbol()) {
             case "skill":
@@ -1443,11 +1672,13 @@ class Scene_Menu extends Scene_MenuBase {
         }
     }
 
+    /** @returns {void} */
     onPersonalCancel() {
         this._statusWindow.deselect();
         this._commandWindow.activate();
     }
 
+    /** @returns {void} */
     onFormationOk() {
         const index = this._statusWindow.index();
         const pendingIndex = this._statusWindow.pendingIndex();
@@ -1461,6 +1692,7 @@ class Scene_Menu extends Scene_MenuBase {
         this._statusWindow.activate();
     }
 
+    /** @returns {void} */
     onFormationCancel() {
         if (this._statusWindow.pendingIndex() >= 0) {
             this._statusWindow.setPendingIndex(-1);
@@ -1484,10 +1716,12 @@ class Scene_ItemBase extends Scene_MenuBase {
         super.initialize();
     }
 
+    /** @returns {void} */
     create() {
         super.create();
     }
 
+    /** @returns {void} */
     createActorWindow() {
         const rect = this.actorWindowRect();
         this._actorWindow = new Window_MenuActor(rect);
@@ -1496,6 +1730,7 @@ class Scene_ItemBase extends Scene_MenuBase {
         this.addWindow(this._actorWindow);
     }
 
+    /** @returns {Rectangle} */
     actorWindowRect() {
         const wx = 0;
         const wy = Math.min(this.mainAreaTop(), this.helpAreaTop());
@@ -1504,18 +1739,22 @@ class Scene_ItemBase extends Scene_MenuBase {
         return new PIXI.Rectangle(wx, wy, ww, wh);
     }
 
+    /** @returns {RMMZ.ActionItem | null} */
     item() {
         return this._itemWindow.item();
     }
 
+    /** @returns {Game_Actor | null | undefined} */
     user() {
         return null;
     }
 
+    /** @returns {boolean} */
     isCursorLeft() {
         return this._itemWindow.index() % 2 === 0;
     }
 
+    /** @returns {void} */
     showActorWindow() {
         if (this.isCursorLeft()) {
             this._actorWindow.x = Graphics.boxWidth - this._actorWindow.width;
@@ -1526,15 +1765,18 @@ class Scene_ItemBase extends Scene_MenuBase {
         this._actorWindow.activate();
     }
 
+    /** @returns {void} */
     hideActorWindow() {
         this._actorWindow.hide();
         this._actorWindow.deactivate();
     }
 
+    /** @returns {boolean} */
     isActorWindowActive() {
         return this._actorWindow && this._actorWindow.active;
     }
 
+    /** @returns {void} */
     onActorOk() {
         if (this.canUse()) {
             this.useItem();
@@ -1543,11 +1785,13 @@ class Scene_ItemBase extends Scene_MenuBase {
         }
     }
 
+    /** @returns {void} */
     onActorCancel() {
         this.hideActorWindow();
         this.activateItemWindow();
     }
 
+    /** @returns {void} */
     determineItem() {
         const action = new Game_Action(this.user());
         const item = this.item();
@@ -1561,6 +1805,7 @@ class Scene_ItemBase extends Scene_MenuBase {
         }
     }
 
+    /** @returns {void} */
     useItem() {
         this.playSeForItem();
         this.user().useItem(this.item());
@@ -1570,11 +1815,13 @@ class Scene_ItemBase extends Scene_MenuBase {
         this._actorWindow.refresh();
     }
 
+    /** @returns {void} */
     activateItemWindow() {
         this._itemWindow.refresh();
         this._itemWindow.activate();
     }
 
+    /** @returns {Game_Actor[]} */
     itemTargetActors() {
         const action = new Game_Action(this.user());
         action.setItemObject(this.item());
@@ -1587,17 +1834,20 @@ class Scene_ItemBase extends Scene_MenuBase {
         }
     }
 
+    /** @returns {boolean | null | undefined} */
     canUse() {
         const user = this.user();
         return user && user.canUse(this.item()) && this.isItemEffectsValid();
     }
 
+    /** @returns {boolean} */
     isItemEffectsValid() {
         const action = new Game_Action(this.user());
         action.setItemObject(this.item());
         return this.itemTargetActors().some(target => action.testApply(target));
     }
 
+    /** @returns {void} */
     applyItem() {
         const action = new Game_Action(this.user());
         action.setItemObject(this.item());
@@ -1609,6 +1859,7 @@ class Scene_ItemBase extends Scene_MenuBase {
         action.applyGlobal();
     }
 
+    /** @returns {void} */
     checkCommonEvent() {
         if ($gameTemp.isCommonEventReserved()) {
             SceneManager.goto(Scene_Map);
@@ -1628,6 +1879,7 @@ class Scene_Item extends Scene_ItemBase {
         super.initialize();
     }
 
+    /** @returns {void} */
     create() {
         super.create();
         this.createHelpWindow();
@@ -1636,6 +1888,7 @@ class Scene_Item extends Scene_ItemBase {
         this.createActorWindow();
     }
 
+    /** @returns {void} */
     createCategoryWindow() {
         const rect = this.categoryWindowRect();
         this._categoryWindow = new Window_ItemCategory(rect);
@@ -1645,6 +1898,7 @@ class Scene_Item extends Scene_ItemBase {
         this.addWindow(this._categoryWindow);
     }
 
+    /** @returns {Rectangle} */
     categoryWindowRect() {
         const wx = 0;
         const wy = this.mainAreaTop();
@@ -1653,6 +1907,7 @@ class Scene_Item extends Scene_ItemBase {
         return new PIXI.Rectangle(wx, wy, ww, wh);
     }
 
+    /** @returns {void} */
     createItemWindow() {
         const rect = this.itemWindowRect();
         this._itemWindow = new Window_ItemList(rect);
@@ -1672,6 +1927,7 @@ class Scene_Item extends Scene_ItemBase {
         }
     }
 
+    /** @returns {Rectangle} */
     itemWindowRect() {
         const wx = 0;
         const wy = this._categoryWindow.y + this._categoryWindow.height;
@@ -1680,22 +1936,26 @@ class Scene_Item extends Scene_ItemBase {
         return new PIXI.Rectangle(wx, wy, ww, wh);
     }
 
+    /** @returns {import("..").Game_Actor | undefined} */
     user() {
         const members = $gameParty.movableMembers();
         const bestPha = Math.max(...members.map(member => member.pha));
         return members.find(member => member.pha === bestPha);
     }
 
+    /** @returns {void} */
     onCategoryOk() {
         this._itemWindow.activate();
         this._itemWindow.selectLast();
     }
 
+    /** @returns {void} */
     onItemOk() {
         $gameParty.setLastItem(this.item());
         this.determineItem();
     }
 
+    /** @returns {void} */
     onItemCancel() {
         if (this._categoryWindow.needsSelection()) {
             this._itemWindow.deselect();
@@ -1705,10 +1965,12 @@ class Scene_Item extends Scene_ItemBase {
         }
     }
 
+    /** @returns {void} */
     playSeForItem() {
         SoundManager.playUseItem();
     }
 
+    /** @returns {void} */
     useItem() {
         super.useItem();
         this._itemWindow.redrawCurrentItem();
@@ -1727,6 +1989,7 @@ class Scene_Skill extends Scene_ItemBase {
         super.initialize();
     }
 
+    /** @returns {void} */
     create() {
         super.create();
         this.createHelpWindow();
@@ -1736,11 +1999,13 @@ class Scene_Skill extends Scene_ItemBase {
         this.createActorWindow();
     }
 
+    /** @returns {void} */
     start() {
         super.start();
         this.refreshActor();
     }
 
+    /** @returns {void} */
     createSkillTypeWindow() {
         const rect = this.skillTypeWindowRect();
         this._skillTypeWindow = new Window_SkillType(rect);
@@ -1752,6 +2017,7 @@ class Scene_Skill extends Scene_ItemBase {
         this.addWindow(this._skillTypeWindow);
     }
 
+    /** @returns {Rectangle} */
     skillTypeWindowRect() {
         const ww = this.mainCommandWidth();
         const wh = this.calcWindowHeight(3, true);
@@ -1760,12 +2026,14 @@ class Scene_Skill extends Scene_ItemBase {
         return new PIXI.Rectangle(wx, wy, ww, wh);
     }
 
+    /** @returns {void} */
     createStatusWindow() {
         const rect = this.statusWindowRect();
         this._statusWindow = new Window_SkillStatus(rect);
         this.addWindow(this._statusWindow);
     }
 
+    /** @returns {Rectangle} */
     statusWindowRect() {
         const ww = Graphics.boxWidth - this.mainCommandWidth();
         const wh = this._skillTypeWindow.height;
@@ -1774,6 +2042,7 @@ class Scene_Skill extends Scene_ItemBase {
         return new PIXI.Rectangle(wx, wy, ww, wh);
     }
 
+    /** @returns {void} */
     createItemWindow() {
         const rect = this.itemWindowRect();
         this._itemWindow = new Window_SkillList(rect);
@@ -1784,6 +2053,7 @@ class Scene_Skill extends Scene_ItemBase {
         this.addWindow(this._itemWindow);
     }
 
+    /** @returns {Rectangle} */
     itemWindowRect() {
         const wx = 0;
         const wy = this._statusWindow.y + this._statusWindow.height;
@@ -1792,14 +2062,17 @@ class Scene_Skill extends Scene_ItemBase {
         return new PIXI.Rectangle(wx, wy, ww, wh);
     }
 
+    /** @returns {boolean} */
     needsPageButtons() {
         return true;
     }
 
+    /** @returns {boolean} */
     arePageButtonsEnabled() {
         return !this.isActorWindowActive();
     }
 
+    /** @returns {void} */
     refreshActor() {
         const actor = this.actor();
         this._skillTypeWindow.setActor(actor);
@@ -1807,35 +2080,42 @@ class Scene_Skill extends Scene_ItemBase {
         this._itemWindow.setActor(actor);
     }
 
+    /** @returns {import("..").Game_Actor} */
     user() {
         return this.actor();
     }
 
+    /** @returns {void} */
     commandSkill() {
         this._itemWindow.activate();
         this._itemWindow.selectLast();
     }
 
+    /** @returns {void} */
     onItemOk() {
         this.actor().setLastMenuSkill(this.item());
         this.determineItem();
     }
 
+    /** @returns {void} */
     onItemCancel() {
         this._itemWindow.deselect();
         this._skillTypeWindow.activate();
     }
 
+    /** @returns {void} */
     playSeForItem() {
         SoundManager.playUseSkill();
     }
 
+    /** @returns {void} */
     useItem() {
         super.useItem();
         this._statusWindow.refresh();
         this._itemWindow.refresh();
     }
 
+    /** @returns {void} */
     onActorChange() {
         super.onActorChange();
         this.refreshActor();
@@ -1856,6 +2136,7 @@ class Scene_Equip extends Scene_MenuBase {
         super.initialize();
     }
 
+    /** @returns {void} */
     create() {
         super.create();
         this.createHelpWindow();
@@ -1866,12 +2147,14 @@ class Scene_Equip extends Scene_MenuBase {
         this.refreshActor();
     }
 
+    /** @returns {void} */
     createStatusWindow() {
         const rect = this.statusWindowRect();
         this._statusWindow = new Window_EquipStatus(rect);
         this.addWindow(this._statusWindow);
     }
 
+    /** @returns {Rectangle} */
     statusWindowRect() {
         const wx = 0;
         const wy = this.mainAreaTop();
@@ -1880,6 +2163,7 @@ class Scene_Equip extends Scene_MenuBase {
         return new PIXI.Rectangle(wx, wy, ww, wh);
     }
 
+    /** @returns {void} */
     createCommandWindow() {
         const rect = this.commandWindowRect();
         this._commandWindow = new Window_EquipCommand(rect);
@@ -1893,6 +2177,7 @@ class Scene_Equip extends Scene_MenuBase {
         this.addWindow(this._commandWindow);
     }
 
+    /** @returns {Rectangle} */
     commandWindowRect() {
         const wx = this.statusWidth();
         const wy = this.mainAreaTop();
@@ -1901,6 +2186,7 @@ class Scene_Equip extends Scene_MenuBase {
         return new PIXI.Rectangle(wx, wy, ww, wh);
     }
 
+    /** @returns {void} */
     createSlotWindow() {
         const rect = this.slotWindowRect();
         this._slotWindow = new Window_EquipSlot(rect);
@@ -1911,6 +2197,7 @@ class Scene_Equip extends Scene_MenuBase {
         this.addWindow(this._slotWindow);
     }
 
+    /** @returns {Rectangle} */
     slotWindowRect() {
         const commandWindowRect = this.commandWindowRect();
         const wx = this.statusWidth();
@@ -1920,6 +2207,7 @@ class Scene_Equip extends Scene_MenuBase {
         return new PIXI.Rectangle(wx, wy, ww, wh);
     }
 
+    /** @returns {void} */
     createItemWindow() {
         const rect = this.itemWindowRect();
         this._itemWindow = new Window_EquipItem(rect);
@@ -1932,22 +2220,27 @@ class Scene_Equip extends Scene_MenuBase {
         this.addWindow(this._itemWindow);
     }
 
+    /** @returns {Rectangle} */
     itemWindowRect() {
         return this.slotWindowRect();
     }
 
+    /** @returns {number} */
     statusWidth() {
         return 312;
     }
 
+    /** @returns {boolean} */
     needsPageButtons() {
         return true;
     }
 
+    /** @returns {boolean} */
     arePageButtonsEnabled() {
         return !(this._itemWindow && this._itemWindow.active);
     }
 
+    /** @returns {void} */
     refreshActor() {
         const actor = this.actor();
         this._statusWindow.setActor(actor);
@@ -1955,11 +2248,13 @@ class Scene_Equip extends Scene_MenuBase {
         this._itemWindow.setActor(actor);
     }
 
+    /** @returns {void} */
     commandEquip() {
         this._slotWindow.activate();
         this._slotWindow.select(0);
     }
 
+    /** @returns {void} */
     commandOptimize() {
         SoundManager.playEquip();
         this.actor().optimizeEquipments();
@@ -1968,6 +2263,7 @@ class Scene_Equip extends Scene_MenuBase {
         this._commandWindow.activate();
     }
 
+    /** @returns {void} */
     commandClear() {
         SoundManager.playEquip();
         this.actor().clearEquipments();
@@ -1976,6 +2272,7 @@ class Scene_Equip extends Scene_MenuBase {
         this._commandWindow.activate();
     }
 
+    /** @returns {void} */
     onSlotOk() {
         this._slotWindow.hide();
         this._itemWindow.show();
@@ -1983,11 +2280,13 @@ class Scene_Equip extends Scene_MenuBase {
         this._itemWindow.forceSelect(0);
     }
 
+    /** @returns {void} */
     onSlotCancel() {
         this._slotWindow.deselect();
         this._commandWindow.activate();
     }
 
+    /** @returns {void} */
     onItemOk() {
         SoundManager.playEquip();
         this.executeEquipChange();
@@ -1997,6 +2296,7 @@ class Scene_Equip extends Scene_MenuBase {
         this._statusWindow.refresh();
     }
 
+    /** @returns {void} */
     executeEquipChange() {
         const actor = this.actor();
         const slotId = this._slotWindow.index();
@@ -2004,10 +2304,12 @@ class Scene_Equip extends Scene_MenuBase {
         actor.changeEquip(slotId, item);
     }
 
+    /** @returns {void} */
     onItemCancel() {
         this.hideItemWindow();
     }
 
+    /** @returns {void} */
     onActorChange() {
         super.onActorChange();
         this.refreshActor();
@@ -2017,6 +2319,7 @@ class Scene_Equip extends Scene_MenuBase {
         this._commandWindow.activate();
     }
 
+    /** @returns {void} */
     hideItemWindow() {
         this._slotWindow.show();
         this._slotWindow.activate();
@@ -2037,6 +2340,7 @@ class Scene_Status extends Scene_MenuBase {
         super.initialize();
     }
 
+    /** @returns {void} */
     create() {
         super.create();
         this.createProfileWindow();
@@ -2045,16 +2349,19 @@ class Scene_Status extends Scene_MenuBase {
         this.createStatusEquipWindow();
     }
 
+    /** @returns {number} */
     helpAreaHeight() {
         return 0;
     }
 
+    /** @returns {void} */
     createProfileWindow() {
         const rect = this.profileWindowRect();
         this._profileWindow = new Window_Help(rect);
         this.addWindow(this._profileWindow);
     }
 
+    /** @returns {Rectangle} */
     profileWindowRect() {
         const ww = Graphics.boxWidth;
         const wh = this.profileHeight();
@@ -2063,6 +2370,7 @@ class Scene_Status extends Scene_MenuBase {
         return new PIXI.Rectangle(wx, wy, ww, wh);
     }
 
+    /** @returns {void} */
     createStatusWindow() {
         const rect = this.statusWindowRect();
         this._statusWindow = new Window_Status(rect);
@@ -2072,6 +2380,7 @@ class Scene_Status extends Scene_MenuBase {
         this.addWindow(this._statusWindow);
     }
 
+    /** @returns {Rectangle} */
     statusWindowRect() {
         const wx = 0;
         const wy = this.mainAreaTop();
@@ -2080,12 +2389,14 @@ class Scene_Status extends Scene_MenuBase {
         return new PIXI.Rectangle(wx, wy, ww, wh);
     }
 
+    /** @returns {void} */
     createStatusParamsWindow() {
         const rect = this.statusParamsWindowRect();
         this._statusParamsWindow = new Window_StatusParams(rect);
         this.addWindow(this._statusParamsWindow);
     }
 
+    /** @returns {Rectangle} */
     statusParamsWindowRect() {
         const ww = this.statusParamsWidth();
         const wh = this.statusParamsHeight();
@@ -2094,12 +2405,14 @@ class Scene_Status extends Scene_MenuBase {
         return new PIXI.Rectangle(wx, wy, ww, wh);
     }
 
+    /** @returns {void} */
     createStatusEquipWindow() {
         const rect = this.statusEquipWindowRect();
         this._statusEquipWindow = new Window_StatusEquip(rect);
         this.addWindow(this._statusEquipWindow);
     }
 
+    /** @returns {Rectangle} */
     statusEquipWindowRect() {
         const ww = Graphics.boxWidth - this.statusParamsWidth();
         const wh = this.statusParamsHeight();
@@ -2108,27 +2421,33 @@ class Scene_Status extends Scene_MenuBase {
         return new PIXI.Rectangle(wx, wy, ww, wh);
     }
 
+    /** @returns {number} */
     statusParamsWidth() {
         return 300;
     }
 
+    /** @returns {number} */
     statusParamsHeight() {
         return this.calcWindowHeight(6, false);
     }
 
+    /** @returns {number} */
     profileHeight() {
         return this.calcWindowHeight(2, false);
     }
 
+    /** @returns {void} */
     start() {
         super.start();
         this.refreshActor();
     }
 
+    /** @returns {boolean} */
     needsPageButtons() {
         return true;
     }
 
+    /** @returns {void} */
     refreshActor() {
         const actor = this.actor();
         this._profileWindow.setText(actor.profile());
@@ -2137,6 +2456,7 @@ class Scene_Status extends Scene_MenuBase {
         this._statusEquipWindow.setActor(actor);
     }
 
+    /** @returns {void} */
     onActorChange() {
         super.onActorChange();
         this.refreshActor();
@@ -2156,16 +2476,19 @@ class Scene_Options extends Scene_MenuBase {
         super.initialize();
     }
 
+    /** @returns {void} */
     create() {
         super.create();
         this.createOptionsWindow();
     }
 
+    /** @returns {void} */
     terminate() {
         super.terminate();
         ConfigManager.save();
     }
 
+    /** @returns {void} */
     createOptionsWindow() {
         const rect = this.optionsWindowRect();
         this._optionsWindow = new Window_Options(rect);
@@ -2173,6 +2496,7 @@ class Scene_Options extends Scene_MenuBase {
         this.addWindow(this._optionsWindow);
     }
 
+    /** @returns {Rectangle} */
     optionsWindowRect() {
         const n = Math.min(this.maxCommands(), this.maxVisibleCommands());
         const ww = 400;
@@ -2182,11 +2506,13 @@ class Scene_Options extends Scene_MenuBase {
         return new PIXI.Rectangle(wx, wy, ww, wh);
     }
 
+    /** @returns {number} */
     maxCommands() {
         // Increase this value when adding option items.
         return 7;
     }
 
+    /** @returns {number} */
     maxVisibleCommands() {
         return 12;
     }
@@ -2204,6 +2530,7 @@ class Scene_File extends Scene_MenuBase {
         super.initialize();
     }
 
+    /** @returns {void} */
     create() {
         super.create();
         DataManager.loadAllSavefileImages();
@@ -2212,29 +2539,38 @@ class Scene_File extends Scene_MenuBase {
         this._helpWindow.setText(this.helpWindowText());
     }
 
+    /** @returns {number} */
     helpAreaHeight() {
         return 0;
     }
 
+    /** @returns {void} */
     start() {
         super.start();
         this._listWindow.refresh();
     }
 
+    /** @returns {number} */
     savefileId() {
         return this._listWindow.savefileId();
     }
 
+    /**
+     * @param {number} savefileId
+     * @returns {boolean}
+     */
     isSavefileEnabled(savefileId) {
         return this._listWindow.isEnabled(savefileId);
     }
 
+    /** @returns {void} */
     createHelpWindow() {
         const rect = this.helpWindowRect();
         this._helpWindow = new Window_Help(rect);
         this.addWindow(this._helpWindow);
     }
 
+    /** @returns {Rectangle} */
     helpWindowRect() {
         const wx = 0;
         const wy = this.mainAreaTop();
@@ -2243,6 +2579,7 @@ class Scene_File extends Scene_MenuBase {
         return new PIXI.Rectangle(wx, wy, ww, wh);
     }
 
+    /** @returns {void} */
     createListWindow() {
         const rect = this.listWindowRect();
         this._listWindow = new Window_SavefileList(rect);
@@ -2254,6 +2591,7 @@ class Scene_File extends Scene_MenuBase {
         this.addWindow(this._listWindow);
     }
 
+    /** @returns {Rectangle} */
     listWindowRect() {
         const wx = 0;
         const wy = this.mainAreaTop() + this._helpWindow.height;
@@ -2262,26 +2600,32 @@ class Scene_File extends Scene_MenuBase {
         return new PIXI.Rectangle(wx, wy, ww, wh);
     }
 
+    /** @returns {"save" | "load"} */
     mode() {
         return null;
     }
 
+    /** @returns {boolean} */
     needsAutosave() {
         return $gameSystem.isAutosaveEnabled();
     }
 
+    /** @returns {void} */
     activateListWindow() {
         this._listWindow.activate();
     }
 
+    /** @returns {string} */
     helpWindowText() {
         return "";
     }
 
+    /** @returns {number} */
     firstSavefileId() {
         return 0;
     }
 
+    /** @returns {void} */
     onSavefileOk() {
         //
     }
@@ -2299,18 +2643,22 @@ class Scene_Save extends Scene_File {
         super.initialize();
     }
 
+    /** @returns {"save"} */
     mode() {
         return "save";
     }
 
+    /** @returns {string} */
     helpWindowText() {
         return TextManager.saveMessage;
     }
 
+    /** @returns {number} */
     firstSavefileId() {
         return $gameSystem.savefileId();
     }
 
+    /** @returns {void} */
     onSavefileOk() {
         super.onSavefileOk();
         const savefileId = this.savefileId();
@@ -2321,6 +2669,10 @@ class Scene_Save extends Scene_File {
         }
     }
 
+    /**
+     * @param {number} savefileId
+     * @returns {void}
+     */
     executeSave(savefileId) {
         $gameSystem.setSavefileId(savefileId);
         $gameSystem.onBeforeSave();
@@ -2329,11 +2681,13 @@ class Scene_Save extends Scene_File {
             .catch(() => this.onSaveFailure());
     }
 
+    /** @returns {void} */
     onSaveSuccess() {
         SoundManager.playSave();
         this.popScene();
     }
 
+    /** @returns {void} */
     onSaveFailure() {
         SoundManager.playBuzzer();
         this.activateListWindow();
@@ -2350,9 +2704,11 @@ class Scene_Load extends Scene_File {
 
     initialize() {
         super.initialize();
+        /** @type {boolean} */
         this._loadSuccess = false;
     }
 
+    /** @returns {void} */
     terminate() {
         super.terminate();
         if (this._loadSuccess) {
@@ -2360,18 +2716,22 @@ class Scene_Load extends Scene_File {
         }
     }
 
+    /** @returns {"load"} */
     mode() {
         return "load";
     }
 
+    /** @returns {string} */
     helpWindowText() {
         return TextManager.loadMessage;
     }
 
+    /** @returns {number} */
     firstSavefileId() {
         return DataManager.latestSavefileId();
     }
 
+    /** @returns {void} */
     onSavefileOk() {
         super.onSavefileOk();
         const savefileId = this.savefileId();
@@ -2382,12 +2742,17 @@ class Scene_Load extends Scene_File {
         }
     }
 
+    /**
+     * @param {number} savefileId
+     * @returns {void}
+     */
     executeLoad(savefileId) {
         DataManager.loadGame(savefileId)
             .then(() => this.onLoadSuccess())
             .catch(() => this.onLoadFailure());
     }
 
+    /** @returns {void} */
     onLoadSuccess() {
         SoundManager.playLoad();
         this.fadeOutAll();
@@ -2396,11 +2761,13 @@ class Scene_Load extends Scene_File {
         this._loadSuccess = true;
     }
 
+    /** @returns {void} */
     onLoadFailure() {
         SoundManager.playBuzzer();
         this.activateListWindow();
     }
 
+    /** @returns {void} */
     reloadMapIfUpdated() {
         if ($gameSystem.versionId() !== $dataSystem.versionId) {
             const mapId = $gameMap.mapId();
@@ -2425,21 +2792,25 @@ class Scene_GameEnd extends Scene_MenuBase {
         super.initialize();
     }
 
+    /** @returns {void} */
     create() {
         super.create();
         this.createCommandWindow();
     }
 
+    /** @returns {void} */
     stop() {
         super.stop();
         this._commandWindow.close();
     }
 
+    /** @returns {void} */
     createBackground() {
         super.createBackground();
         this.setBackgroundOpacity(128);
     }
 
+    /** @returns {void} */
     createCommandWindow() {
         const rect = this.commandWindowRect();
         this._commandWindow = new Window_GameEnd(rect);
@@ -2448,6 +2819,7 @@ class Scene_GameEnd extends Scene_MenuBase {
         this.addWindow(this._commandWindow);
     }
 
+    /** @returns {Rectangle} */
     commandWindowRect() {
         const ww = this.mainCommandWidth();
         const wh = this.calcWindowHeight(2, true);
@@ -2456,6 +2828,7 @@ class Scene_GameEnd extends Scene_MenuBase {
         return new PIXI.Rectangle(wx, wy, ww, wh);
     }
 
+    /** @returns {void} */
     commandToTitle() {
         this.fadeOutAll();
         SceneManager.goto(Scene_Title);
@@ -2475,12 +2848,18 @@ class Scene_Shop extends Scene_MenuBase {
         super.initialize();
     }
 
+    /**
+     * @param {RMMZ.ShopGoods[]} goods
+     * @param {boolean} purchaseOnly
+     * @returns {void}
+     */
     prepare(goods, purchaseOnly) {
         this._goods = goods;
         this._purchaseOnly = purchaseOnly;
         this._item = null;
     }
 
+    /** @returns {void} */
     create() {
         super.create();
         this.createHelpWindow();
@@ -2494,12 +2873,14 @@ class Scene_Shop extends Scene_MenuBase {
         this.createSellWindow();
     }
 
+    /** @returns {void} */
     createGoldWindow() {
         const rect = this.goldWindowRect();
         this._goldWindow = new Window_Gold(rect);
         this.addWindow(this._goldWindow);
     }
 
+    /** @returns {Rectangle} */
     goldWindowRect() {
         const ww = this.mainCommandWidth();
         const wh = this.calcWindowHeight(1, true);
@@ -2508,6 +2889,7 @@ class Scene_Shop extends Scene_MenuBase {
         return new PIXI.Rectangle(wx, wy, ww, wh);
     }
 
+    /** @returns {void} */
     createCommandWindow() {
         const rect = this.commandWindowRect();
         this._commandWindow = new Window_ShopCommand(rect);
@@ -2519,6 +2901,7 @@ class Scene_Shop extends Scene_MenuBase {
         this.addWindow(this._commandWindow);
     }
 
+    /** @returns {Rectangle} */
     commandWindowRect() {
         const wx = 0;
         const wy = this.mainAreaTop();
@@ -2527,12 +2910,14 @@ class Scene_Shop extends Scene_MenuBase {
         return new PIXI.Rectangle(wx, wy, ww, wh);
     }
 
+    /** @returns {void} */
     createDummyWindow() {
         const rect = this.dummyWindowRect();
         this._dummyWindow = new Window_Base(rect);
         this.addWindow(this._dummyWindow);
     }
 
+    /** @returns {Rectangle} */
     dummyWindowRect() {
         const wx = 0;
         const wy = this._commandWindow.y + this._commandWindow.height;
@@ -2541,6 +2926,7 @@ class Scene_Shop extends Scene_MenuBase {
         return new PIXI.Rectangle(wx, wy, ww, wh);
     }
 
+    /** @returns {void} */
     createNumberWindow() {
         const rect = this.numberWindowRect();
         this._numberWindow = new Window_ShopNumber(rect);
@@ -2550,6 +2936,7 @@ class Scene_Shop extends Scene_MenuBase {
         this.addWindow(this._numberWindow);
     }
 
+    /** @returns {Rectangle} */
     numberWindowRect() {
         const wx = 0;
         const wy = this._dummyWindow.y;
@@ -2558,6 +2945,7 @@ class Scene_Shop extends Scene_MenuBase {
         return new PIXI.Rectangle(wx, wy, ww, wh);
     }
 
+    /** @returns {void} */
     createStatusWindow() {
         const rect = this.statusWindowRect();
         this._statusWindow = new Window_ShopStatus(rect);
@@ -2565,6 +2953,7 @@ class Scene_Shop extends Scene_MenuBase {
         this.addWindow(this._statusWindow);
     }
 
+    /** @returns {Rectangle} */
     statusWindowRect() {
         const ww = this.statusWidth();
         const wh = this._dummyWindow.height;
@@ -2573,6 +2962,7 @@ class Scene_Shop extends Scene_MenuBase {
         return new PIXI.Rectangle(wx, wy, ww, wh);
     }
 
+    /** @returns {void} */
     createBuyWindow() {
         const rect = this.buyWindowRect();
         this._buyWindow = new Window_ShopBuy(rect);
@@ -2585,6 +2975,7 @@ class Scene_Shop extends Scene_MenuBase {
         this.addWindow(this._buyWindow);
     }
 
+    /** @returns {Rectangle} */
     buyWindowRect() {
         const wx = 0;
         const wy = this._dummyWindow.y;
@@ -2593,6 +2984,7 @@ class Scene_Shop extends Scene_MenuBase {
         return new PIXI.Rectangle(wx, wy, ww, wh);
     }
 
+    /** @returns {void} */
     createCategoryWindow() {
         const rect = this.categoryWindowRect();
         this._categoryWindow = new Window_ItemCategory(rect);
@@ -2604,6 +2996,7 @@ class Scene_Shop extends Scene_MenuBase {
         this.addWindow(this._categoryWindow);
     }
 
+    /** @returns {Rectangle} */
     categoryWindowRect() {
         const wx = 0;
         const wy = this._dummyWindow.y;
@@ -2612,6 +3005,7 @@ class Scene_Shop extends Scene_MenuBase {
         return new PIXI.Rectangle(wx, wy, ww, wh);
     }
 
+    /** @returns {void} */
     createSellWindow() {
         const rect = this.sellWindowRect();
         this._sellWindow = new Window_ShopSell(rect);
@@ -2628,6 +3022,7 @@ class Scene_Shop extends Scene_MenuBase {
         }
     }
 
+    /** @returns {Rectangle} */
     sellWindowRect() {
         const wx = 0;
         const wy = this._categoryWindow.y + this._categoryWindow.height;
@@ -2639,10 +3034,12 @@ class Scene_Shop extends Scene_MenuBase {
         return new PIXI.Rectangle(wx, wy, ww, wh);
     }
 
+    /** @returns {number} */
     statusWidth() {
         return 352;
     }
 
+    /** @returns {void} */
     activateBuyWindow() {
         this._buyWindow.setMoney(this.money());
         this._buyWindow.show();
@@ -2650,6 +3047,7 @@ class Scene_Shop extends Scene_MenuBase {
         this._statusWindow.show();
     }
 
+    /** @returns {void} */
     activateSellWindow() {
         if (this._categoryWindow.needsSelection()) {
             this._categoryWindow.show();
@@ -2660,11 +3058,13 @@ class Scene_Shop extends Scene_MenuBase {
         this._statusWindow.hide();
     }
 
+    /** @returns {void} */
     commandBuy() {
         this._dummyWindow.hide();
         this.activateBuyWindow();
     }
 
+    /** @returns {void} */
     commandSell() {
         this._dummyWindow.hide();
         this._sellWindow.show();
@@ -2678,6 +3078,7 @@ class Scene_Shop extends Scene_MenuBase {
         }
     }
 
+    /** @returns {void} */
     onBuyOk() {
         this._item = this._buyWindow.item();
         this._buyWindow.hide();
@@ -2687,6 +3088,7 @@ class Scene_Shop extends Scene_MenuBase {
         this._numberWindow.activate();
     }
 
+    /** @returns {void} */
     onBuyCancel() {
         this._commandWindow.activate();
         this._dummyWindow.show();
@@ -2696,12 +3098,14 @@ class Scene_Shop extends Scene_MenuBase {
         this._helpWindow.clear();
     }
 
+    /** @returns {void} */
     onCategoryOk() {
         this.activateSellWindow();
         this._sellWindow.select(0);
         this._sellWindow.setTopRow(0);
     }
 
+    /** @returns {void} */
     onCategoryCancel() {
         this._commandWindow.activate();
         this._dummyWindow.show();
@@ -2709,6 +3113,7 @@ class Scene_Shop extends Scene_MenuBase {
         this._sellWindow.hide();
     }
 
+    /** @returns {void} */
     onSellOk() {
         this._item = this._sellWindow.item();
         this._categoryWindow.hide();
@@ -2721,6 +3126,7 @@ class Scene_Shop extends Scene_MenuBase {
         this._statusWindow.show();
     }
 
+    /** @returns {void} */
     onSellCancel() {
         this._sellWindow.deselect();
         this._statusWindow.setItem(null);
@@ -2732,6 +3138,7 @@ class Scene_Shop extends Scene_MenuBase {
         }
     }
 
+    /** @returns {void} */
     onNumberOk() {
         SoundManager.playShop();
         switch (this._commandWindow.currentSymbol()) {
@@ -2747,21 +3154,31 @@ class Scene_Shop extends Scene_MenuBase {
         this._statusWindow.refresh();
     }
 
+    /** @returns {void} */
     onNumberCancel() {
         SoundManager.playCancel();
         this.endNumberInput();
     }
 
+    /**
+     * @param {number} number
+     * @returns {void}
+     */
     doBuy(number) {
         $gameParty.loseGold(number * this.buyingPrice());
         $gameParty.gainItem(this._item, number);
     }
 
+    /**
+     * @param {number} number
+     * @returns {void}
+     */
     doSell(number) {
         $gameParty.gainGold(number * this.sellingPrice());
         $gameParty.loseItem(this._item, number);
     }
 
+    /** @returns {void} */
     endNumberInput() {
         this._numberWindow.hide();
         switch (this._commandWindow.currentSymbol()) {
@@ -2774,6 +3191,7 @@ class Scene_Shop extends Scene_MenuBase {
         }
     }
 
+    /** @returns {number} */
     maxBuy() {
         const num = $gameParty.numItems(this._item);
         const max = $gameParty.maxItems(this._item) - num;
@@ -2785,22 +3203,27 @@ class Scene_Shop extends Scene_MenuBase {
         }
     }
 
+    /** @returns {number} */
     maxSell() {
         return $gameParty.numItems(this._item);
     }
 
+    /** @returns {number} */
     money() {
         return this._goldWindow.value();
     }
 
+    /** @returns {string} */
     currencyUnit() {
         return this._goldWindow.currencyUnit();
     }
 
+    /** @returns {number} */
     buyingPrice() {
         return this._buyWindow.price(this._item);
     }
 
+    /** @returns {number} */
     sellingPrice() {
         return Math.floor(this._item.price / 2);
     }
@@ -2818,11 +3241,17 @@ class Scene_Name extends Scene_MenuBase {
         super.initialize();
     }
 
+    /**
+     * @param {RMMZ.ActorID} actorId
+     * @param {number} maxLength
+     * @returns {void}
+     */
     prepare(actorId, maxLength) {
         this._actorId = actorId;
         this._maxLength = maxLength;
     }
 
+    /** @returns {void} */
     create() {
         super.create();
         this._actor = $gameActors.actor(this._actorId);
@@ -2830,11 +3259,13 @@ class Scene_Name extends Scene_MenuBase {
         this.createInputWindow();
     }
 
+    /** @returns {void} */
     start() {
         super.start();
         this._editWindow.refresh();
     }
 
+    /** @returns {void} */
     createEditWindow() {
         const rect = this.editWindowRect();
         this._editWindow = new Window_NameEdit(rect);
@@ -2842,6 +3273,7 @@ class Scene_Name extends Scene_MenuBase {
         this.addWindow(this._editWindow);
     }
 
+    /** @returns {Rectangle} */
     editWindowRect() {
         const inputWindowHeight = this.calcWindowHeight(9, true);
         const padding = $gameSystem.windowPadding();
@@ -2852,6 +3284,7 @@ class Scene_Name extends Scene_MenuBase {
         return new PIXI.Rectangle(wx, wy, ww, wh);
     }
 
+    /** @returns {void} */
     createInputWindow() {
         const rect = this.inputWindowRect();
         this._inputWindow = new Window_NameInput(rect);
@@ -2860,6 +3293,7 @@ class Scene_Name extends Scene_MenuBase {
         this.addWindow(this._inputWindow);
     }
 
+    /** @returns {Rectangle} */
     inputWindowRect() {
         const wx = this._editWindow.x;
         const wy = this._editWindow.y + this._editWindow.height + 8;
@@ -2868,6 +3302,7 @@ class Scene_Name extends Scene_MenuBase {
         return new PIXI.Rectangle(wx, wy, ww, wh);
     }
 
+    /** @returns {void} */
     onInputOk() {
         this._actor.setName(this._editWindow.name());
         this.popScene();
@@ -2886,6 +3321,7 @@ class Scene_Debug extends Scene_MenuBase {
         super.initialize();
     }
 
+    /** @returns {void} */
     create() {
         super.create();
         this.createRangeWindow();
@@ -2893,10 +3329,12 @@ class Scene_Debug extends Scene_MenuBase {
         this.createDebugHelpWindow();
     }
 
+    /** @returns {boolean} */
     needsCancelButton() {
         return false;
     }
 
+    /** @returns {void} */
     createRangeWindow() {
         const rect = this.rangeWindowRect();
         this._rangeWindow = new Window_DebugRange(rect);
@@ -2905,6 +3343,7 @@ class Scene_Debug extends Scene_MenuBase {
         this.addWindow(this._rangeWindow);
     }
 
+    /** @returns {Rectangle} */
     rangeWindowRect() {
         const wx = 0;
         const wy = 0;
@@ -2913,6 +3352,7 @@ class Scene_Debug extends Scene_MenuBase {
         return new PIXI.Rectangle(wx, wy, ww, wh);
     }
 
+    /** @returns {void} */
     createEditWindow() {
         const rect = this.editWindowRect();
         this._editWindow = new Window_DebugEdit(rect);
@@ -2921,6 +3361,7 @@ class Scene_Debug extends Scene_MenuBase {
         this.addWindow(this._editWindow);
     }
 
+    /** @returns {Rectangle} */
     editWindowRect() {
         const wx = this._rangeWindow.width;
         const wy = 0;
@@ -2929,12 +3370,14 @@ class Scene_Debug extends Scene_MenuBase {
         return new PIXI.Rectangle(wx, wy, ww, wh);
     }
 
+    /** @returns {void} */
     createDebugHelpWindow() {
         const rect = this.debugHelpWindowRect();
         this._debugHelpWindow = new Window_Base(rect);
         this.addWindow(this._debugHelpWindow);
     }
 
+    /** @returns {Rectangle} */
     debugHelpWindowRect() {
         const wx = this._editWindow.x;
         const wy = this._editWindow.height;
@@ -2943,18 +3386,21 @@ class Scene_Debug extends Scene_MenuBase {
         return new PIXI.Rectangle(wx, wy, ww, wh);
     }
 
+    /** @returns {void} */
     onRangeOk() {
         this._editWindow.activate();
         this._editWindow.select(0);
         this.refreshHelpWindow();
     }
 
+    /** @returns {void} */
     onEditCancel() {
         this._rangeWindow.activate();
         this._editWindow.deselect();
         this.refreshHelpWindow();
     }
 
+    /** @returns {void} */
     refreshHelpWindow() {
         const helpWindow = this._debugHelpWindow;
         helpWindow.contents.clear();
@@ -2964,6 +3410,7 @@ class Scene_Debug extends Scene_MenuBase {
         }
     }
 
+    /** @returns {string} */
     helpText() {
         if (this._rangeWindow.mode() === "switch") {
             return "Enter : ON / OFF";
@@ -2988,11 +3435,13 @@ class Scene_Battle extends Scene_Message {
         super.initialize();
     }
 
+    /** @returns {void} */
     create() {
         super.create();
         this.createDisplayObjects();
     }
 
+    /** @returns {void} */
     start() {
         super.start();
         BattleManager.playBattleBgm();
@@ -3001,6 +3450,7 @@ class Scene_Battle extends Scene_Message {
         this.startFadeIn(this.fadeSpeed(), false);
     }
 
+    /** @returns {void} */
     update() {
         const active = this.isActive();
         $gameTimer.update(active);
@@ -3012,6 +3462,7 @@ class Scene_Battle extends Scene_Message {
         super.update();
     }
 
+    /** @returns {void} */
     updateVisibility() {
         this.updateLogWindowVisibility();
         this.updateStatusWindowVisibility();
@@ -3019,10 +3470,12 @@ class Scene_Battle extends Scene_Message {
         this.updateCancelButton();
     }
 
+    /** @returns {void} */
     updateBattleProcess() {
         BattleManager.update(this.isTimeActive());
     }
 
+    /** @returns {boolean} */
     isTimeActive() {
         if (BattleManager.isActiveTpb()) {
             return !this._skillWindow.active && !this._itemWindow.active;
@@ -3031,6 +3484,7 @@ class Scene_Battle extends Scene_Message {
         }
     }
 
+    /** @returns {boolean} */
     isAnyInputWindowActive() {
         return (
             this._partyCommandWindow.active ||
@@ -3042,6 +3496,7 @@ class Scene_Battle extends Scene_Message {
         );
     }
 
+    /** @returns {void} */
     changeInputWindow() {
         this.hideSubInputWindows();
         if (BattleManager.isInputting()) {
@@ -3055,6 +3510,7 @@ class Scene_Battle extends Scene_Message {
         }
     }
 
+    /** @returns {void} */
     stop() {
         super.stop();
         if (this.needsSlowFadeOut()) {
@@ -3067,6 +3523,7 @@ class Scene_Battle extends Scene_Message {
         this._actorCommandWindow.close();
     }
 
+    /** @returns {void} */
     terminate() {
         super.terminate();
         $gameParty.onBattleEnd();
@@ -3077,10 +3534,12 @@ class Scene_Battle extends Scene_Message {
         }
     }
 
+    /** @returns {boolean | null} */
     shouldAutosave() {
         return SceneManager.isNextScene(Scene_Map);
     }
 
+    /** @returns {boolean | null} */
     needsSlowFadeOut() {
         return (
             SceneManager.isNextScene(Scene_Title) ||
@@ -3088,10 +3547,12 @@ class Scene_Battle extends Scene_Message {
         );
     }
 
+    /** @returns {void} */
     updateLogWindowVisibility() {
         this._logWindow.visible = !this._helpWindow.visible;
     }
 
+    /** @returns {void} */
     updateStatusWindowVisibility() {
         if ($gameMessage.isBusy()) {
             this._statusWindow.close();
@@ -3101,6 +3562,7 @@ class Scene_Battle extends Scene_Message {
         this.updateStatusWindowPosition();
     }
 
+    /** @returns {boolean} */
     shouldOpenStatusWindow() {
         return (
             this.isActive() &&
@@ -3109,6 +3571,7 @@ class Scene_Battle extends Scene_Message {
         );
     }
 
+    /** @returns {void} */
     updateStatusWindowPosition() {
         const statusWindow = this._statusWindow;
         const targetX = this.statusWindowX();
@@ -3120,6 +3583,7 @@ class Scene_Battle extends Scene_Message {
         }
     }
 
+    /** @returns {number} */
     statusWindowX() {
         if (this.isAnyInputWindowActive()) {
             return this.statusWindowRect().x;
@@ -3128,6 +3592,7 @@ class Scene_Battle extends Scene_Message {
         }
     }
 
+    /** @returns {void} */
     updateInputWindowVisibility() {
         if ($gameMessage.isBusy()) {
             this.closeCommandWindows();
@@ -3137,6 +3602,7 @@ class Scene_Battle extends Scene_Message {
         }
     }
 
+    /** @returns {boolean} */
     needsInputWindowChange() {
         const windowActive = this.isAnyInputWindowActive();
         const inputting = BattleManager.isInputting();
@@ -3146,6 +3612,7 @@ class Scene_Battle extends Scene_Message {
         return windowActive !== inputting;
     }
 
+    /** @returns {void} */
     updateCancelButton() {
         if (this._cancelButton) {
             this._cancelButton.visible =
@@ -3153,6 +3620,7 @@ class Scene_Battle extends Scene_Message {
         }
     }
 
+    /** @returns {void} */
     createDisplayObjects() {
         this.createSpriteset();
         this.createWindowLayer();
@@ -3163,11 +3631,13 @@ class Scene_Battle extends Scene_Message {
         this._logWindow.setSpriteset(this._spriteset);
     }
 
+    /** @returns {void} */
     createSpriteset() {
         this._spriteset = new Spriteset_Battle();
         this.addChild(this._spriteset);
     }
 
+    /** @returns {void} */
     createAllWindows() {
         this.createLogWindow();
         this.createStatusWindow();
@@ -3181,12 +3651,14 @@ class Scene_Battle extends Scene_Message {
         super.createAllWindows();
     }
 
+    /** @returns {void} */
     createLogWindow() {
         const rect = this.logWindowRect();
         this._logWindow = new Window_BattleLog(rect);
         this.addWindow(this._logWindow);
     }
 
+    /** @returns {Rectangle} */
     logWindowRect() {
         const wx = 0;
         const wy = 0;
@@ -3195,6 +3667,7 @@ class Scene_Battle extends Scene_Message {
         return new PIXI.Rectangle(wx, wy, ww, wh);
     }
 
+    /** @returns {void} */
     createStatusWindow() {
         const rect = this.statusWindowRect();
         const statusWindow = new Window_BattleStatus(rect);
@@ -3202,6 +3675,7 @@ class Scene_Battle extends Scene_Message {
         this._statusWindow = statusWindow;
     }
 
+    /** @returns {Rectangle} */
     statusWindowRect() {
         const extra = 10;
         const ww = Graphics.boxWidth - 192;
@@ -3211,6 +3685,7 @@ class Scene_Battle extends Scene_Message {
         return new PIXI.Rectangle(wx, wy, ww, wh);
     }
 
+    /** @returns {void} */
     createPartyCommandWindow() {
         const rect = this.partyCommandWindowRect();
         const commandWindow = new Window_PartyCommand(rect);
@@ -3221,6 +3696,7 @@ class Scene_Battle extends Scene_Message {
         this._partyCommandWindow = commandWindow;
     }
 
+    /** @returns {Rectangle} */
     partyCommandWindowRect() {
         const ww = 192;
         const wh = this.windowAreaHeight();
@@ -3229,6 +3705,7 @@ class Scene_Battle extends Scene_Message {
         return new PIXI.Rectangle(wx, wy, ww, wh);
     }
 
+    /** @returns {void} */
     createActorCommandWindow() {
         const rect = this.actorCommandWindowRect();
         const commandWindow = new Window_ActorCommand(rect);
@@ -3242,6 +3719,7 @@ class Scene_Battle extends Scene_Message {
         this._actorCommandWindow = commandWindow;
     }
 
+    /** @returns {Rectangle} */
     actorCommandWindowRect() {
         const ww = 192;
         const wh = this.windowAreaHeight();
@@ -3250,6 +3728,7 @@ class Scene_Battle extends Scene_Message {
         return new PIXI.Rectangle(wx, wy, ww, wh);
     }
 
+    /** @returns {void} */
     createHelpWindow() {
         const rect = this.helpWindowRect();
         this._helpWindow = new Window_Help(rect);
@@ -3257,6 +3736,7 @@ class Scene_Battle extends Scene_Message {
         this.addWindow(this._helpWindow);
     }
 
+    /** @returns {Rectangle} */
     helpWindowRect() {
         const wx = 0;
         const wy = this.helpAreaTop();
@@ -3265,6 +3745,7 @@ class Scene_Battle extends Scene_Message {
         return new PIXI.Rectangle(wx, wy, ww, wh);
     }
 
+    /** @returns {void} */
     createSkillWindow() {
         const rect = this.skillWindowRect();
         this._skillWindow = new Window_BattleSkill(rect);
@@ -3274,6 +3755,7 @@ class Scene_Battle extends Scene_Message {
         this.addWindow(this._skillWindow);
     }
 
+    /** @returns {Rectangle} */
     skillWindowRect() {
         const ww = Graphics.boxWidth;
         const wh = this.windowAreaHeight();
@@ -3282,6 +3764,7 @@ class Scene_Battle extends Scene_Message {
         return new PIXI.Rectangle(wx, wy, ww, wh);
     }
 
+    /** @returns {void} */
     createItemWindow() {
         const rect = this.itemWindowRect();
         this._itemWindow = new Window_BattleItem(rect);
@@ -3291,10 +3774,12 @@ class Scene_Battle extends Scene_Message {
         this.addWindow(this._itemWindow);
     }
 
+    /** @returns {Rectangle} */
     itemWindowRect() {
         return this.skillWindowRect();
     }
 
+    /** @returns {void} */
     createActorWindow() {
         const rect = this.actorWindowRect();
         this._actorWindow = new Window_BattleActor(rect);
@@ -3303,10 +3788,12 @@ class Scene_Battle extends Scene_Message {
         this.addWindow(this._actorWindow);
     }
 
+    /** @returns {Rectangle} */
     actorWindowRect() {
         return this.statusWindowRect();
     }
 
+    /** @returns {void} */
     createEnemyWindow() {
         const rect = this.enemyWindowRect();
         this._enemyWindow = new Window_BattleEnemy(rect);
@@ -3315,6 +3802,7 @@ class Scene_Battle extends Scene_Message {
         this.addWindow(this._enemyWindow);
     }
 
+    /** @returns {Rectangle} */
     enemyWindowRect() {
         const wx = this._statusWindow.x;
         const ww = this._statusWindow.width;
@@ -3323,32 +3811,39 @@ class Scene_Battle extends Scene_Message {
         return new PIXI.Rectangle(wx, wy, ww, wh);
     }
 
+    /** @returns {number} */
     helpAreaTop() {
         return 0;
     }
 
+    /** @returns {number} */
     helpAreaBottom() {
         return this.helpAreaTop() + this.helpAreaHeight();
     }
 
+    /** @returns {number} */
     helpAreaHeight() {
         return this.calcWindowHeight(2, false);
     }
 
+    /** @returns {number} */
     buttonAreaTop() {
         return this.helpAreaBottom();
     }
 
+    /** @returns {number} */
     windowAreaHeight() {
         return this.calcWindowHeight(4, true);
     }
 
+    /** @returns {void} */
     createButtons() {
         if (ConfigManager.touchUI) {
             this.createCancelButton();
         }
     }
 
+    /** @returns {void} */
     createCancelButton() {
         this._cancelButton = new Sprite_Button("cancel");
         this._cancelButton.x = Graphics.boxWidth - this._cancelButton.width - 4;
@@ -3356,6 +3851,7 @@ class Scene_Battle extends Scene_Message {
         this.addWindow(this._cancelButton);
     }
 
+    /** @returns {void} */
     closeCommandWindows() {
         this._partyCommandWindow.deactivate();
         this._actorCommandWindow.deactivate();
@@ -3363,6 +3859,7 @@ class Scene_Battle extends Scene_Message {
         this._actorCommandWindow.close();
     }
 
+    /** @returns {void} */
     hideSubInputWindows() {
         this._actorWindow.deactivate();
         this._enemyWindow.deactivate();
@@ -3374,6 +3871,7 @@ class Scene_Battle extends Scene_Message {
         this._itemWindow.hide();
     }
 
+    /** @returns {void} */
     startPartyCommandSelection() {
         this._statusWindow.deselect();
         this._statusWindow.show();
@@ -3383,15 +3881,18 @@ class Scene_Battle extends Scene_Message {
         this._partyCommandWindow.setup();
     }
 
+    /** @returns {void} */
     commandFight() {
         this.selectNextCommand();
     }
 
+    /** @returns {void} */
     commandEscape() {
         BattleManager.processEscape();
         this.changeInputWindow();
     }
 
+    /** @returns {void} */
     startActorCommandSelection() {
         this._statusWindow.show();
         this._statusWindow.selectActor(BattleManager.actor());
@@ -3400,12 +3901,14 @@ class Scene_Battle extends Scene_Message {
         this._actorCommandWindow.setup(BattleManager.actor());
     }
 
+    /** @returns {void} */
     commandAttack() {
         const action = BattleManager.inputtingAction();
         action.setAttack();
         this.onSelectAction();
     }
 
+    /** @returns {void} */
     commandSkill() {
         this._skillWindow.setActor(BattleManager.actor());
         this._skillWindow.setStypeId(this._actorCommandWindow.currentExt());
@@ -3416,12 +3919,14 @@ class Scene_Battle extends Scene_Message {
         this._actorCommandWindow.hide();
     }
 
+    /** @returns {void} */
     commandGuard() {
         const action = BattleManager.inputtingAction();
         action.setGuard();
         this.onSelectAction();
     }
 
+    /** @returns {void} */
     commandItem() {
         this._itemWindow.refresh();
         this._itemWindow.show();
@@ -3430,26 +3935,31 @@ class Scene_Battle extends Scene_Message {
         this._actorCommandWindow.hide();
     }
 
+    /** @returns {void} */
     commandCancel() {
         this.selectPreviousCommand();
     }
 
+    /** @returns {void} */
     selectNextCommand() {
         BattleManager.selectNextCommand();
         this.changeInputWindow();
     }
 
+    /** @returns {void} */
     selectPreviousCommand() {
         BattleManager.selectPreviousCommand();
         this.changeInputWindow();
     }
 
+    /** @returns {void} */
     startActorSelection() {
         this._actorWindow.refresh();
         this._actorWindow.show();
         this._actorWindow.activate();
     }
 
+    /** @returns {void} */
     onActorOk() {
         const action = BattleManager.inputtingAction();
         action.setTarget(this._actorWindow.index());
@@ -3457,6 +3967,7 @@ class Scene_Battle extends Scene_Message {
         this.selectNextCommand();
     }
 
+    /** @returns {void} */
     onActorCancel() {
         this._actorWindow.hide();
         switch (this._actorCommandWindow.currentSymbol()) {
@@ -3471,6 +3982,7 @@ class Scene_Battle extends Scene_Message {
         }
     }
 
+    /** @returns {void} */
     startEnemySelection() {
         this._enemyWindow.refresh();
         this._enemyWindow.show();
@@ -3479,6 +3991,7 @@ class Scene_Battle extends Scene_Message {
         this._statusWindow.hide();
     }
 
+    /** @returns {void} */
     onEnemyOk() {
         const action = BattleManager.inputtingAction();
         action.setTarget(this._enemyWindow.enemyIndex());
@@ -3486,6 +3999,7 @@ class Scene_Battle extends Scene_Message {
         this.selectNextCommand();
     }
 
+    /** @returns {void} */
     onEnemyCancel() {
         this._enemyWindow.hide();
         switch (this._actorCommandWindow.currentSymbol()) {
@@ -3504,6 +4018,7 @@ class Scene_Battle extends Scene_Message {
         }
     }
 
+    /** @returns {void} */
     onSkillOk() {
         const skill = this._skillWindow.item();
         const action = BattleManager.inputtingAction();
@@ -3512,6 +4027,7 @@ class Scene_Battle extends Scene_Message {
         this.onSelectAction();
     }
 
+    /** @returns {void} */
     onSkillCancel() {
         this._skillWindow.hide();
         this._statusWindow.show();
@@ -3519,6 +4035,7 @@ class Scene_Battle extends Scene_Message {
         this._actorCommandWindow.activate();
     }
 
+    /** @returns {void} */
     onItemOk() {
         const item = this._itemWindow.item();
         const action = BattleManager.inputtingAction();
@@ -3527,6 +4044,7 @@ class Scene_Battle extends Scene_Message {
         this.onSelectAction();
     }
 
+    /** @returns {void} */
     onItemCancel() {
         this._itemWindow.hide();
         this._statusWindow.show();
@@ -3534,6 +4052,7 @@ class Scene_Battle extends Scene_Message {
         this._actorCommandWindow.activate();
     }
 
+    /** @returns {void} */
     onSelectAction() {
         const action = BattleManager.inputtingAction();
         if (!action.needsSelection()) {
@@ -3545,6 +4064,7 @@ class Scene_Battle extends Scene_Message {
         }
     }
 
+    /** @returns {void} */
     endCommandSelection() {
         this.closeCommandWindows();
         this.hideSubInputWindows();
@@ -3565,18 +4085,21 @@ class Scene_Gameover extends Scene_Base {
         super.initialize();
     }
 
+    /** @returns {void} */
     create() {
         super.create();
         this.playGameoverMusic();
         this.createBackground();
     }
 
+    /** @returns {void} */
     start() {
         super.start();
         this.adjustBackground();
         this.startFadeIn(this.slowFadeSpeed(), false);
     }
 
+    /** @returns {void} */
     update() {
         if (this.isActive() && !this.isBusy() && this.isTriggered()) {
             this.gotoTitle();
@@ -3584,37 +4107,44 @@ class Scene_Gameover extends Scene_Base {
         super.update();
     }
 
+    /** @returns {void} */
     stop() {
         super.stop();
         this.fadeOutAll();
     }
 
+    /** @returns {void} */
     terminate() {
         super.terminate();
         AudioManager.stopAll();
     }
 
+    /** @returns {void} */
     playGameoverMusic() {
         AudioManager.stopBgm();
         AudioManager.stopBgs();
         AudioManager.playMe($dataSystem.gameoverMe);
     }
 
+    /** @returns {void} */
     createBackground() {
         this._backSprite = new Sprite();
         this._backSprite.bitmap = ImageManager.loadSystem("GameOver");
         this.addChild(this._backSprite);
     }
 
+    /** @returns {void} */
     adjustBackground() {
         this.scaleSprite(this._backSprite);
         this.centerSprite(this._backSprite);
     }
 
+    /** @returns {boolean} */
     isTriggered() {
         return Input.isTriggered("ok") || TouchInput.isTriggered();
     }
 
+    /** @returns {void} */
     gotoTitle() {
         SceneManager.goto(Scene_Title);
     }

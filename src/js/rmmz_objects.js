@@ -9,93 +9,137 @@ class Game_Temp {
     }
 
     initialize() {
+        /** @type {boolean} */
         this._isPlaytest = Utils.isOptionValid("test");
+        /** @type {number | null} */
         this._destinationX = null;
+        /** @type {number | null} */
         this._destinationY = null;
+        /** @type {Game_Battler | null} */
         this._touchTarget = null;
+        /** @type {"" | "select" | "click"} */
         this._touchState = "";
+        /** @type {boolean} */
         this._needsBattleRefresh = false;
+        /** @type {RMMZ.CommonEventID[]} */
         this._commonEventQueue = [];
+        /** @type {RMMZ.AnimationRequest[]} */
         this._animationQueue = [];
+        /** @type {RMMZ.BalloonRequest[]} */
         this._balloonQueue = [];
+        /** @type {[ RMMZ.SkillID, RMMZ.ItemID, RMMZ.ActorID, RMMZ.EnemyID, RMMZ.ActorID, RMMZ.EnemyID ]} */
         this._lastActionData = [0, 0, 0, 0, 0, 0];
     }
 
+    /** @returns {boolean} */
     isPlaytest() {
         return this._isPlaytest;
     }
 
+    /**
+     * @param {number} x
+     * @param {number} y
+     * @returns {void}
+     */
     setDestination(x, y) {
         this._destinationX = x;
         this._destinationY = y;
     }
 
+    /** @returns {void} */
     clearDestination() {
         this._destinationX = null;
         this._destinationY = null;
     }
 
+    /** @returns {boolean} */
     isDestinationValid() {
         return this._destinationX !== null;
     }
 
+    /** @returns {number | null} */
     destinationX() {
         return this._destinationX;
     }
 
+    /** @returns {number | null} */
     destinationY() {
         return this._destinationY;
     }
 
+    /**
+     * @param {Game_Battler} target
+     * @param {"select" | "click"} state
+     * @returns {void}
+     */
     setTouchState(target, state) {
         this._touchTarget = target;
         this._touchState = state;
     }
 
+    /** @returns {void} */
     clearTouchState() {
         this._touchTarget = null;
         this._touchState = "";
     }
 
+    /** @returns {Game_Battler | null} */
     touchTarget() {
         return this._touchTarget;
     }
 
+    /** @returns {string} */
     touchState() {
         return this._touchState;
     }
 
+    /** @returns {void} */
     requestBattleRefresh() {
         if ($gameParty.inBattle()) {
             this._needsBattleRefresh = true;
         }
     }
 
+    /** @returns {void} */
     clearBattleRefreshRequest() {
         this._needsBattleRefresh = false;
     }
 
+    /** @returns {boolean} */
     isBattleRefreshRequested() {
         return this._needsBattleRefresh;
     }
 
+    /**
+     * @param {RMMZ.CommonEventID} commonEventId
+     * @returns {void}
+     */
     reserveCommonEvent(commonEventId) {
         this._commonEventQueue.push(commonEventId);
     }
 
+    /** @returns {import("../data").DataCommonEvent} */
     retrieveCommonEvent() {
         return $dataCommonEvents[this._commonEventQueue.shift()];
     }
 
+    /** @returns {void} */
     clearCommonEventReservation() {
         this._commonEventQueue.length = 0;
     }
 
+    /** @returns {boolean} */
     isCommonEventReserved() {
         return this._commonEventQueue.length > 0;
     }
 
     // prettier-ignore
+    /**
+     * @param {(Game_Character | Game_Battler)[]} targets
+     * @param {RMMZ.AnimationID} animationId
+     * @param {boolean} [mirror]
+     * @returns {void}
+     */
     requestAnimation(
         targets, animationId, mirror = false
     ) {
@@ -114,10 +158,16 @@ class Game_Temp {
         }
     }
 
+    /** @returns {RMMZ.AnimationRequest | undefined} */
     retrieveAnimation() {
         return this._animationQueue.shift();
     }
 
+    /**
+     * @param {Game_Character} target
+     * @param {RMMZ.BalloonIconID} balloonId
+     * @returns {void}
+     */
     requestBalloon(target, balloonId) {
         const request = { target: target, balloonId: balloonId };
         this._balloonQueue.push(request);
@@ -126,38 +176,72 @@ class Game_Temp {
         }
     }
 
+    /** @returns {RMMZ.BalloonRequest | undefined} */
     retrieveBalloon() {
         return this._balloonQueue.shift();
     }
 
+    /**
+     * @param {RMMZ.ActionDataType} type
+     * @returns {number}
+     */
     lastActionData(type) {
         return this._lastActionData[type] || 0;
     }
 
+    /**
+     * @param {RMMZ.ActionDataType} type
+     * @param {number} value
+     * @returns {void}
+     */
     setLastActionData(type, value) {
         this._lastActionData[type] = value;
     }
 
+    /**
+     * @param {RMMZ.SkillID} skillID
+     * @returns {void}
+     */
     setLastUsedSkillId(skillID) {
         this.setLastActionData(0, skillID);
     }
 
+    /**
+     * @param {RMMZ.ItemID} itemID
+     * @returns {void}
+     */
     setLastUsedItemId(itemID) {
         this.setLastActionData(1, itemID);
     }
 
+    /**
+     * @param {RMMZ.ActorID} actorID
+     * @returns {void}
+     */
     setLastSubjectActorId(actorID) {
         this.setLastActionData(2, actorID);
     }
 
+    /**
+     * @param {RMMZ.EnemyID} enemyIndex
+     * @returns {void}
+     */
     setLastSubjectEnemyIndex(enemyIndex) {
         this.setLastActionData(3, enemyIndex);
     }
 
+    /**
+     * @param {RMMZ.ActorID} actorID
+     * @returns {void}
+     */
     setLastTargetActorId(actorID) {
         this.setLastActionData(4, actorID);
     }
 
+    /**
+     * @param {RMMZ.EnemyID} enemyIndex
+     * @returns {void}
+     */
     setLastTargetEnemyIndex(enemyIndex) {
         this.setLastActionData(5, enemyIndex);
     }
@@ -172,179 +256,252 @@ class Game_System {
     }
 
     initialize() {
+        /** @type {boolean} */
         this._saveEnabled = true;
+        /** @type {boolean} */
         this._menuEnabled = true;
+        /** @type {boolean} */
         this._encounterEnabled = true;
+        /** @type {boolean} */
         this._formationEnabled = true;
+        /** @type {number} */
         this._battleCount = 0;
+        /** @type {number} */
         this._winCount = 0;
+        /** @type {number} */
         this._escapeCount = 0;
+        /** @type {number} */
         this._saveCount = 0;
+        /** @type {number} */
         this._versionId = 0;
+        /** @type {number} */
         this._savefileId = 0;
+        /** @type {number} */
         this._framesOnSave = 0;
+        /** @type {RMMZ.DataAudio | null} */
         this._bgmOnSave = null;
+        /** @type {RMMZ.DataAudio | null} */
         this._bgsOnSave = null;
+        /** @type {RMMZ.Color | null} */
         this._windowTone = null;
+        /** @type {RMMZ.DataAudio | null} */
         this._battleBgm = null;
+        /** @type {RMMZ.DataAudio | null} */
         this._victoryMe = null;
+        /** @type {RMMZ.DataAudio | null} */
         this._defeatMe = null;
+        /** @type {RMMZ.DataAudio | null} */
         this._savedBgm = null;
+        /** @type {RMMZ.DataAudio | null} */
         this._walkingBgm = null;
     }
 
+    /** @returns {RegExpMatchArray | null} */
     isJapanese() {
         return $dataSystem.locale.match(/^ja/);
     }
 
+    /** @returns {RegExpMatchArray | null} */
     isChinese() {
         return $dataSystem.locale.match(/^zh/);
     }
 
+    /** @returns {RegExpMatchArray | null} */
     isKorean() {
         return $dataSystem.locale.match(/^ko/);
     }
 
+    /** @returns {RegExpMatchArray | null} */
     isCJK() {
         return $dataSystem.locale.match(/^(ja|zh|ko)/);
     }
 
+    /** @returns {RegExpMatchArray | null} */
     isRussian() {
         return $dataSystem.locale.match(/^ru/);
     }
 
+    /** @returns {boolean} */
     isSideView() {
         return $dataSystem.optSideView;
     }
 
+    /** @returns {boolean} */
     isAutosaveEnabled() {
         return $dataSystem.optAutosave;
     }
 
+    /** @returns {boolean} */
     isMessageSkipEnabled() {
         return $dataSystem.optMessageSkip;
     }
 
+    /** @returns {boolean} */
     isSaveEnabled() {
         return this._saveEnabled;
     }
 
+    /** @returns {void} */
     disableSave() {
         this._saveEnabled = false;
     }
 
+    /** @returns {void} */
     enableSave() {
         this._saveEnabled = true;
     }
 
+    /** @returns {boolean} */
     isMenuEnabled() {
         return this._menuEnabled;
     }
 
+    /** @returns {void} */
     disableMenu() {
         this._menuEnabled = false;
     }
 
+    /** @returns {void} */
     enableMenu() {
         this._menuEnabled = true;
     }
 
+    /** @returns {boolean} */
     isEncounterEnabled() {
         return this._encounterEnabled;
     }
 
+    /** @returns {void} */
     disableEncounter() {
         this._encounterEnabled = false;
     }
 
+    /** @returns {void} */
     enableEncounter() {
         this._encounterEnabled = true;
     }
 
+    /** @returns {boolean} */
     isFormationEnabled() {
         return this._formationEnabled;
     }
 
+    /** @returns {void} */
     disableFormation() {
         this._formationEnabled = false;
     }
 
+    /** @returns {void} */
     enableFormation() {
         this._formationEnabled = true;
     }
 
+    /** @returns {number} */
     battleCount() {
         return this._battleCount;
     }
 
+    /** @returns {number} */
     winCount() {
         return this._winCount;
     }
 
+    /** @returns {number} */
     escapeCount() {
         return this._escapeCount;
     }
 
+    /** @returns {number} */
     saveCount() {
         return this._saveCount;
     }
 
+    /** @returns {number} */
     versionId() {
         return this._versionId;
     }
 
+    /** @returns {number} */
     savefileId() {
         return this._savefileId || 0;
     }
 
+    /**
+     * @param {number} savefileId
+     * @returns {void}
+     */
     setSavefileId(savefileId) {
         this._savefileId = savefileId;
     }
 
+    /** @returns {RMMZ.Color} */
     windowTone() {
         return this._windowTone || $dataSystem.windowTone;
     }
 
+    /**
+     * @param {RMMZ.Color} value
+     * @returns {void}
+     */
     setWindowTone(value) {
         this._windowTone = value;
     }
 
+    /** @returns {RMMZ.DataAudio} */
     battleBgm() {
         return this._battleBgm || $dataSystem.battleBgm;
     }
 
+    /**
+     * @param {RMMZ.DataAudio} value
+     * @returns {void}
+     */
     setBattleBgm(value) {
         this._battleBgm = value;
     }
 
+    /** @returns {RMMZ.DataAudio} */
     victoryMe() {
         return this._victoryMe || $dataSystem.victoryMe;
     }
 
+    /**
+     * @param {RMMZ.DataAudio} value
+     * @returns {void}
+     */
     setVictoryMe(value) {
         this._victoryMe = value;
     }
 
+    /** @returns {RMMZ.DataAudio} */
     defeatMe() {
         return this._defeatMe || $dataSystem.defeatMe;
     }
 
+    /**
+     * @param {RMMZ.DataAudio} value
+     * @returns {void}
+     */
     setDefeatMe(value) {
         this._defeatMe = value;
     }
 
+    /** @returns {void} */
     onBattleStart() {
         this._battleCount++;
     }
 
+    /** @returns {void} */
     onBattleWin() {
         this._winCount++;
     }
 
+    /** @returns {void} */
     onBattleEscape() {
         this._escapeCount++;
     }
 
+    /** @returns {void} */
     onBeforeSave() {
         this._saveCount++;
         this._versionId = $dataSystem.versionId;
@@ -353,16 +510,19 @@ class Game_System {
         this._bgsOnSave = AudioManager.saveBgs();
     }
 
+    /** @returns {void} */
     onAfterLoad() {
         Graphics.frameCount = this._framesOnSave;
         AudioManager.playBgm(this._bgmOnSave);
         AudioManager.playBgs(this._bgsOnSave);
     }
 
+    /** @returns {number} */
     playtime() {
         return Math.floor(Graphics.frameCount / 60);
     }
 
+    /** @returns {string} */
     playtimeText() {
         const hour = Math.floor(this.playtime() / 60 / 60);
         const min = Math.floor(this.playtime() / 60) % 60;
@@ -370,46 +530,56 @@ class Game_System {
         return hour.padZero(2) + ":" + min.padZero(2) + ":" + sec.padZero(2);
     }
 
+    /** @returns {void} */
     saveBgm() {
         this._savedBgm = AudioManager.saveBgm();
     }
 
+    /** @returns {void} */
     replayBgm() {
         if (this._savedBgm) {
             AudioManager.replayBgm(this._savedBgm);
         }
     }
 
+    /** @returns {void} */
     saveWalkingBgm() {
         this._walkingBgm = AudioManager.saveBgm();
     }
 
+    /** @returns {void} */
     replayWalkingBgm() {
         if (this._walkingBgm) {
             AudioManager.playBgm(this._walkingBgm);
         }
     }
 
+    /** @returns {void} */
     saveWalkingBgm2() {
         this._walkingBgm = $dataMap.bgm;
     }
 
+    /** @returns {string} */
     mainFontFace() {
         return "rmmz-mainfont, " + $dataSystem.advanced.fallbackFonts;
     }
 
+    /** @returns {string} */
     numberFontFace() {
         return "rmmz-numberfont, " + this.mainFontFace();
     }
 
+    /** @returns {number} */
     mainFontSize() {
         return $dataSystem.advanced.fontSize;
     }
 
+    /** @returns {number} */
     windowPadding() {
         return 12;
     }
 
+    /** @returns {number} */
     windowOpacity() {
         return $dataSystem.advanced.windowOpacity;
     }
@@ -424,10 +594,16 @@ class Game_Timer {
     }
 
     initialize() {
+        /** @type {number} */
         this._frames = 0;
+        /** @type {boolean} */
         this._working = false;
     }
 
+    /**
+     * @param {boolean} sceneActive
+     * @returns {void}
+     */
     update(sceneActive) {
         if (sceneActive && this._working && this._frames > 0) {
             this._frames--;
@@ -437,27 +613,36 @@ class Game_Timer {
         }
     }
 
+    /**
+     * @param {number} count
+     * @returns {void}
+     */
     start(count) {
         this._frames = count;
         this._working = true;
     }
 
+    /** @returns {void} */
     stop() {
         this._working = false;
     }
 
+    /** @returns {boolean} */
     isWorking() {
         return this._working;
     }
 
+    /** @returns {number} */
     seconds() {
         return Math.floor(this._frames / 60);
     }
 
+    /** @returns {number} */
     frames() {
         return this._frames;
     }
 
+    /** @returns {void} */
     onExpire() {
         BattleManager.abort();
     }
@@ -476,6 +661,7 @@ class Game_Message {
         this.clear();
     }
 
+    /** @returns {void} */
     clear() {
         this._texts = [];
         this._choices = [];
@@ -498,129 +684,204 @@ class Game_Message {
         this._choiceCallback = null;
     }
 
+    /** @returns {string[]} */
     choices() {
         return this._choices;
     }
 
+    /** @returns {string} */
     speakerName() {
         return this._speakerName;
     }
 
+    /** @returns {string} */
     faceName() {
         return this._faceName;
     }
 
+    /** @returns {number} */
     faceIndex() {
         return this._faceIndex;
     }
 
+    /** @returns {RMMZ.TextWindowBackgroundType} */
     background() {
         return this._background;
     }
 
+    /** @returns {RMMZ.TextWindowPositionType} */
     positionType() {
         return this._positionType;
     }
 
+    /** @returns {number} */
     choiceDefaultType() {
         return this._choiceDefaultType;
     }
 
+    /** @returns {number} */
     choiceCancelType() {
         return this._choiceCancelType;
     }
 
+    /** @returns {RMMZ.TextWindowBackgroundType} */
     choiceBackground() {
         return this._choiceBackground;
     }
 
+    /** @returns {RMMZ.TextWindowPositionType} */
     choicePositionType() {
         return this._choicePositionType;
     }
 
+    /** @returns {number} */
     numInputVariableId() {
         return this._numInputVariableId;
     }
 
+    /** @returns {number} */
     numInputMaxDigits() {
         return this._numInputMaxDigits;
     }
 
+    /** @returns {number} */
     itemChoiceVariableId() {
         return this._itemChoiceVariableId;
     }
 
+    /** @returns {number} */
     itemChoiceItypeId() {
         return this._itemChoiceItypeId;
     }
 
+    /** @returns {boolean} */
     scrollMode() {
         return this._scrollMode;
     }
 
+    /** @returns {number} */
     scrollSpeed() {
         return this._scrollSpeed;
     }
 
+    /** @returns {boolean} */
     scrollNoFast() {
         return this._scrollNoFast;
     }
 
+    /**
+     * @param {string} text
+     * @returns {void}
+     */
     add(text) {
         this._texts.push(text);
     }
 
+    /**
+     * @param {string} speakerName
+     * @returns {void}
+     */
     setSpeakerName(speakerName) {
         this._speakerName = speakerName ? speakerName : "";
     }
 
+    /**
+     * @param {string} faceName
+     * @param {number} faceIndex
+     * @returns {void}
+     */
     setFaceImage(faceName, faceIndex) {
         this._faceName = faceName;
         this._faceIndex = faceIndex;
     }
 
+    /**
+     * @param {RMMZ.TextWindowBackgroundType} background
+     * @returns {void}
+     */
     setBackground(background) {
         this._background = background;
     }
 
+    /**
+     * @param {RMMZ.TextWindowPositionType} positionType
+     * @returns {void}
+     */
     setPositionType(positionType) {
         this._positionType = positionType;
     }
 
+    /**
+     * @param {string[]} choices
+     * @param {number} defaultType
+     * @param {number} cancelType
+     * @returns {void}
+     */
     setChoices(choices, defaultType, cancelType) {
         this._choices = choices;
         this._choiceDefaultType = defaultType;
         this._choiceCancelType = cancelType;
     }
 
+    /**
+     * @param {RMMZ.TextWindowBackgroundType} background
+     * @returns {void}
+     */
     setChoiceBackground(background) {
         this._choiceBackground = background;
     }
 
+    /**
+     * @param {RMMZ.TextWindowPositionType} positionType
+     * @returns {void}
+     */
     setChoicePositionType(positionType) {
         this._choicePositionType = positionType;
     }
 
+    /**
+     * @param {number} variableId
+     * @param {number} maxDigits
+     * @returns {void}
+     */
     setNumberInput(variableId, maxDigits) {
         this._numInputVariableId = variableId;
         this._numInputMaxDigits = maxDigits;
     }
 
+    /**
+     * @param {number} variableId
+     * @param {RMMZ.ItemType} itemType
+     * @returns {void}
+     */
     setItemChoice(variableId, itemType) {
         this._itemChoiceVariableId = variableId;
         this._itemChoiceItypeId = itemType;
     }
 
+    /**
+     * @param {number} speed
+     * @param {boolean} noFast
+     * @returns {void}
+     */
     setScroll(speed, noFast) {
         this._scrollMode = true;
         this._scrollSpeed = speed;
         this._scrollNoFast = noFast;
     }
 
+    /**
+     * @param {(chosen: number) => void} callback
+     * @returns {void}
+     */
     setChoiceCallback(callback) {
         this._choiceCallback = callback;
     }
 
+    /**
+     * @param {number} n
+     * @returns {void}
+     */
     onChoice(n) {
         if (this._choiceCallback) {
             this._choiceCallback(n);
@@ -628,22 +889,27 @@ class Game_Message {
         }
     }
 
+    /** @returns {boolean} */
     hasText() {
         return this._texts.length > 0;
     }
 
+    /** @returns {boolean} */
     isChoice() {
         return this._choices.length > 0;
     }
 
+    /** @returns {boolean} */
     isNumberInput() {
         return this._numInputVariableId > 0;
     }
 
+    /** @returns {boolean} */
     isItemChoice() {
         return this._itemChoiceVariableId > 0;
     }
 
+    /** @returns {boolean} */
     isBusy() {
         return (
             this.hasText() ||
@@ -653,16 +919,19 @@ class Game_Message {
         );
     }
 
+    /** @returns {void} */
     newPage() {
         if (this._texts.length > 0) {
             this._texts[this._texts.length - 1] += "\f";
         }
     }
 
+    /** @returns {string} */
     allText() {
         return this._texts.join("\n");
     }
 
+    /** @returns {boolean} */
     isRTL() {
         return Utils.containsArabic(this.allText());
     }
@@ -680,14 +949,24 @@ class Game_Switches {
         this.clear();
     }
 
+    /** @returns {void} */
     clear() {
         this._data = [];
     }
 
+    /**
+     * @param {RMMZ.SwitchID} [switchId]
+     * @returns {boolean}
+     */
     value(switchId) {
         return !!this._data[switchId];
     }
 
+    /**
+     * @param {number} switchId
+     * @param {boolean} value
+     * @returns {void}
+     */
     setValue(switchId, value) {
         if (switchId > 0 && switchId < $dataSystem.switches.length) {
             this._data[switchId] = value;
@@ -695,6 +974,7 @@ class Game_Switches {
         }
     }
 
+    /** @returns {void} */
     onChange() {
         $gameMap.requestRefresh();
     }
@@ -712,14 +992,24 @@ class Game_Variables {
         this.clear();
     }
 
+    /** @returns {void} */
     clear() {
         this._data = [];
     }
 
+    /**
+     * @param {RMMZ.VariableID} [variableId]
+     * @returns {number}
+     */
     value(variableId) {
         return this._data[variableId] || 0;
     }
 
+    /**
+     * @param {RMMZ.VariableID} variableId
+     * @param {number} value
+     * @returns {void}
+     */
     setValue(variableId, value) {
         if (variableId > 0 && variableId < $dataSystem.variables.length) {
             if (typeof value === "number") {
@@ -730,6 +1020,7 @@ class Game_Variables {
         }
     }
 
+    /** @returns {void} */
     onChange() {
         $gameMap.requestRefresh();
     }
@@ -751,10 +1042,19 @@ class Game_SelfSwitches {
         this._data = {};
     }
 
+    /**
+     * @param {RMMZ.SelfSwitchID} key
+     * @returns {boolean}
+     */
     value(key) {
         return !!this._data[key];
     }
 
+    /**
+     * @param {RMMZ.SelfSwitchID} key
+     * @param {boolean} value
+     * @returns {void}
+     */
     setValue(key, value) {
         if (value) {
             this._data[key] = true;
@@ -764,6 +1064,7 @@ class Game_SelfSwitches {
         this.onChange();
     }
 
+    /** @returns {void} */
     onChange() {
         $gameMap.requestRefresh();
     }
@@ -782,6 +1083,7 @@ class Game_Screen {
         this.clear();
     }
 
+    /** @returns {void} */
     clear() {
         this.clearFade();
         this.clearTone();
@@ -792,6 +1094,7 @@ class Game_Screen {
         this.clearPictures();
     }
 
+    /** @returns {void} */
     onBattleStart() {
         this.clearFade();
         this.clearFlash();
@@ -800,47 +1103,64 @@ class Game_Screen {
         this.eraseBattlePictures();
     }
 
+    /** @returns {number} */
     brightness() {
         return this._brightness;
     }
 
+    /** @returns {[ number, number, number, number ]} */
     tone() {
         return this._tone;
     }
 
+    /** @returns {[ number, number, number, number ]} */
     flashColor() {
         return this._flashColor;
     }
 
+    /** @returns {number} */
     shake() {
         return this._shake;
     }
 
+    /** @returns {number} */
     zoomX() {
         return this._zoomX;
     }
 
+    /** @returns {number} */
     zoomY() {
         return this._zoomY;
     }
 
+    /** @returns {number} */
     zoomScale() {
         return this._zoomScale;
     }
 
+    /** @returns {RMMZ.WeatherType} */
     weatherType() {
         return this._weatherType;
     }
 
+    /** @returns {number} */
     weatherPower() {
         return this._weatherPower;
     }
 
+    /**
+     * @param {RMMZ.PictureID} pictureId
+     * @returns {Game_Picture | null}
+     */
     picture(pictureId) {
         const realPictureId = this.realPictureId(pictureId);
         return this._pictures[realPictureId];
     }
 
+    /**
+     * @param {RMMZ.PictureID} pictureId
+     * @returns {number}
+     */
     realPictureId(pictureId) {
         if ($gameParty.inBattle()) {
             return pictureId + this.maxPictures();
@@ -849,23 +1169,27 @@ class Game_Screen {
         }
     }
 
+    /** @returns {void} */
     clearFade() {
         this._brightness = 255;
         this._fadeOutDuration = 0;
         this._fadeInDuration = 0;
     }
 
+    /** @returns {void} */
     clearTone() {
         this._tone = [0, 0, 0, 0];
         this._toneTarget = [0, 0, 0, 0];
         this._toneDuration = 0;
     }
 
+    /** @returns {void} */
     clearFlash() {
         this._flashColor = [0, 0, 0, 0];
         this._flashDuration = 0;
     }
 
+    /** @returns {void} */
     clearShake() {
         this._shakePower = 0;
         this._shakeSpeed = 0;
@@ -874,6 +1198,7 @@ class Game_Screen {
         this._shake = 0;
     }
 
+    /** @returns {void} */
     clearZoom() {
         this._zoomX = 0;
         this._zoomY = 0;
@@ -882,6 +1207,7 @@ class Game_Screen {
         this._zoomDuration = 0;
     }
 
+    /** @returns {void} */
     clearWeather() {
         this._weatherType = "none";
         this._weatherPower = 0;
@@ -889,14 +1215,17 @@ class Game_Screen {
         this._weatherDuration = 0;
     }
 
+    /** @returns {void} */
     clearPictures() {
         this._pictures = [];
     }
 
+    /** @returns {void} */
     eraseBattlePictures() {
         this._pictures = this._pictures.slice(0, this.maxPictures() + 1);
     }
 
+    /** @returns {number} */
     maxPictures() {
         if ("picturesUpperLimit" in $dataSystem.advanced) {
             return $dataSystem.advanced.picturesUpperLimit;
@@ -905,16 +1234,29 @@ class Game_Screen {
         }
     }
 
+    /**
+     * @param {number} duration
+     * @returns {void}
+     */
     startFadeOut(duration) {
         this._fadeOutDuration = duration;
         this._fadeInDuration = 0;
     }
 
+    /**
+     * @param {number} duration
+     * @returns {void}
+     */
     startFadeIn(duration) {
         this._fadeInDuration = duration;
         this._fadeOutDuration = 0;
     }
 
+    /**
+     * @param {RMMZ.Color} tone
+     * @param {number} duration
+     * @returns {void}
+     */
     startTint(tone, duration) {
         this._toneTarget = tone.clone();
         this._toneDuration = duration;
@@ -923,17 +1265,35 @@ class Game_Screen {
         }
     }
 
+    /**
+     * @param {RMMZ.Color} color
+     * @param {number} duration
+     * @returns {void}
+     */
     startFlash(color, duration) {
         this._flashColor = color.clone();
         this._flashDuration = duration;
     }
 
+    /**
+     * @param {number} power
+     * @param {number} speed
+     * @param {number} duration
+     * @returns {void}
+     */
     startShake(power, speed, duration) {
         this._shakePower = power;
         this._shakeSpeed = speed;
         this._shakeDuration = duration;
     }
 
+    /**
+     * @param {number} x
+     * @param {number} y
+     * @param {number} scale
+     * @param {number} duration
+     * @returns {void}
+     */
     startZoom(x, y, scale, duration) {
         this._zoomX = x;
         this._zoomY = y;
@@ -941,12 +1301,24 @@ class Game_Screen {
         this._zoomDuration = duration;
     }
 
+    /**
+     * @param {number} x
+     * @param {number} y
+     * @param {number} scale
+     * @returns {void}
+     */
     setZoom(x, y, scale) {
         this._zoomX = x;
         this._zoomY = y;
         this._zoomScale = scale;
     }
 
+    /**
+     * @param {RMMZ.WeatherType} type
+     * @param {number} power
+     * @param {number} duration
+     * @returns {void}
+     */
     changeWeather(type, power, duration) {
         if (type !== "none" || duration === 0) {
             this._weatherType = type;
@@ -958,6 +1330,7 @@ class Game_Screen {
         }
     }
 
+    /** @returns {void} */
     update() {
         this.updateFadeOut();
         this.updateFadeIn();
@@ -969,6 +1342,7 @@ class Game_Screen {
         this.updatePictures();
     }
 
+    /** @returns {void} */
     updateFadeOut() {
         if (this._fadeOutDuration > 0) {
             const d = this._fadeOutDuration;
@@ -977,6 +1351,7 @@ class Game_Screen {
         }
     }
 
+    /** @returns {void} */
     updateFadeIn() {
         if (this._fadeInDuration > 0) {
             const d = this._fadeInDuration;
@@ -985,6 +1360,7 @@ class Game_Screen {
         }
     }
 
+    /** @returns {void} */
     updateTone() {
         if (this._toneDuration > 0) {
             const d = this._toneDuration;
@@ -995,6 +1371,7 @@ class Game_Screen {
         }
     }
 
+    /** @returns {void} */
     updateFlash() {
         if (this._flashDuration > 0) {
             const d = this._flashDuration;
@@ -1003,6 +1380,7 @@ class Game_Screen {
         }
     }
 
+    /** @returns {void} */
     updateShake() {
         if (this._shakeDuration > 0 || this._shake !== 0) {
             const delta =
@@ -1025,6 +1403,7 @@ class Game_Screen {
         }
     }
 
+    /** @returns {void} */
     updateZoom() {
         if (this._zoomDuration > 0) {
             const d = this._zoomDuration;
@@ -1034,6 +1413,7 @@ class Game_Screen {
         }
     }
 
+    /** @returns {void} */
     updateWeather() {
         if (this._weatherDuration > 0) {
             const d = this._weatherDuration;
@@ -1046,6 +1426,7 @@ class Game_Screen {
         }
     }
 
+    /** @returns {void} */
     updatePictures() {
         for (const picture of this._pictures) {
             if (picture) {
@@ -1054,11 +1435,24 @@ class Game_Screen {
         }
     }
 
+    /** @returns {void} */
     startFlashForDamage() {
         this.startFlash([255, 0, 0, 128], 8);
     }
 
     // prettier-ignore
+    /**
+     * @param {RMMZ.PictureID} pictureId
+     * @param {string} name
+     * @param {number} origin
+     * @param {number} x
+     * @param {number} y
+     * @param {number} scaleX
+     * @param {number} scaleY
+     * @param {number} opacity
+     * @param {import("pixi.js").BLEND_MODES} blendMode
+     * @returns {void}
+     */
     showPicture(
         pictureId, name, origin, x, y, scaleX, scaleY, opacity, blendMode
     ) {
@@ -1069,6 +1463,19 @@ class Game_Screen {
     }
 
     // prettier-ignore
+    /**
+     * @param {RMMZ.PictureID} pictureId
+     * @param {number} origin
+     * @param {number} x
+     * @param {number} y
+     * @param {number} scaleX
+     * @param {number} scaleY
+     * @param {number} opacity
+     * @param {import("pixi.js").BLEND_MODES} blendMode
+     * @param {number} duration
+     * @param {RMMZ.PictureEasingType} easingType
+     * @returns {void}
+     */
     movePicture(
         pictureId, origin, x, y, scaleX, scaleY, opacity, blendMode, duration,
         easingType
@@ -1081,6 +1488,11 @@ class Game_Screen {
         }
     }
 
+    /**
+     * @param {RMMZ.PictureID} pictureId
+     * @param {number} speed
+     * @returns {void}
+     */
     rotatePicture(pictureId, speed) {
         const picture = this.picture(pictureId);
         if (picture) {
@@ -1088,6 +1500,12 @@ class Game_Screen {
         }
     }
 
+    /**
+     * @param {RMMZ.PictureID} pictureId
+     * @param {RMMZ.Color} tone
+     * @param {number} duration
+     * @returns {void}
+     */
     tintPicture(pictureId, tone, duration) {
         const picture = this.picture(pictureId);
         if (picture) {
@@ -1095,6 +1513,10 @@ class Game_Screen {
         }
     }
 
+    /**
+     * @param {RMMZ.PictureID} pictureId
+     * @returns {void}
+     */
     erasePicture(pictureId) {
         const realPictureId = this.realPictureId(pictureId);
         this._pictures[realPictureId] = null;
@@ -1116,46 +1538,57 @@ class Game_Picture {
         this.initRotation();
     }
 
+    /** @returns {string} */
     name() {
         return this._name;
     }
 
+    /** @returns {number} */
     origin() {
         return this._origin;
     }
 
+    /** @returns {number} */
     x() {
         return this._x;
     }
 
+    /** @returns {number} */
     y() {
         return this._y;
     }
 
+    /** @returns {number} */
     scaleX() {
         return this._scaleX;
     }
 
+    /** @returns {number} */
     scaleY() {
         return this._scaleY;
     }
 
+    /** @returns {number} */
     opacity() {
         return this._opacity;
     }
 
+    /** @returns {import("pixi.js").BLEND_MODES} */
     blendMode() {
         return this._blendMode;
     }
 
+    /** @returns {[ number, number, number, number ] | null} */
     tone() {
         return this._tone;
     }
 
+    /** @returns {number} */
     angle() {
         return this._angle;
     }
 
+    /** @returns {void} */
     initBasic() {
         this._name = "";
         this._origin = 0;
@@ -1167,6 +1600,7 @@ class Game_Picture {
         this._blendMode = 0;
     }
 
+    /** @returns {void} */
     initTarget() {
         this._targetX = this._x;
         this._targetY = this._y;
@@ -1179,18 +1613,31 @@ class Game_Picture {
         this._easingExponent = 0;
     }
 
+    /** @returns {void} */
     initTone() {
         this._tone = null;
         this._toneTarget = null;
         this._toneDuration = 0;
     }
 
+    /** @returns {void} */
     initRotation() {
         this._angle = 0;
         this._rotationSpeed = 0;
     }
 
     // prettier-ignore
+    /**
+     * @param {string} name
+     * @param {number} origin
+     * @param {number} x
+     * @param {number} y
+     * @param {number} scaleX
+     * @param {number} scaleY
+     * @param {number} opacity
+     * @param {import("pixi.js").BLEND_MODES} blendMode
+     * @returns {void}
+     */
     show(
         name, origin, x, y, scaleX, scaleY, opacity, blendMode
     ) {
@@ -1208,6 +1655,18 @@ class Game_Picture {
     }
 
     // prettier-ignore
+    /**
+     * @param {number} origin
+     * @param {number} x
+     * @param {number} y
+     * @param {number} scaleX
+     * @param {number} scaleY
+     * @param {number} opacity
+     * @param {import("pixi.js").BLEND_MODES} blendMode
+     * @param {number} duration
+     * @param {RMMZ.PictureEasingType} easingType
+     * @returns {void}
+     */
     move(
         origin, x, y, scaleX, scaleY, opacity, blendMode, duration, easingType
     ) {
@@ -1224,10 +1683,19 @@ class Game_Picture {
         this._easingExponent = 2;
     }
 
+    /**
+     * @param {number} speed
+     * @returns {void}
+     */
     rotate(speed) {
         this._rotationSpeed = speed;
     }
 
+    /**
+     * @param {RMMZ.Color} tone
+     * @param {number} duration
+     * @returns {void}
+     */
     tint(tone, duration) {
         if (!this._tone) {
             this._tone = [0, 0, 0, 0];
@@ -1239,12 +1707,14 @@ class Game_Picture {
         }
     }
 
+    /** @returns {void} */
     update() {
         this.updateMove();
         this.updateTone();
         this.updateRotation();
     }
 
+    /** @returns {void} */
     updateMove() {
         if (this._duration > 0) {
             this._x = this.applyEasing(this._x, this._targetX);
@@ -1256,6 +1726,7 @@ class Game_Picture {
         }
     }
 
+    /** @returns {void} */
     updateTone() {
         if (this._toneDuration > 0) {
             const d = this._toneDuration;
@@ -1266,12 +1737,18 @@ class Game_Picture {
         }
     }
 
+    /** @returns {void} */
     updateRotation() {
         if (this._rotationSpeed !== 0) {
             this._angle += this._rotationSpeed / 2;
         }
     }
 
+    /**
+     * @param {number} current
+     * @param {number} target
+     * @returns {number}
+     */
     applyEasing(current, target) {
         const d = this._duration;
         const wd = this._wholeDuration;
@@ -1281,6 +1758,10 @@ class Game_Picture {
         return start + (target - start) * t;
     }
 
+    /**
+     * @param {number} t
+     * @returns {number}
+     */
     calcEasing(t) {
         const exponent = this._easingExponent;
         switch (this._easingType) {
@@ -1295,14 +1776,29 @@ class Game_Picture {
         }
     }
 
+    /**
+     * @param {number} t
+     * @param {number} exponent
+     * @returns {number}
+     */
     easeIn(t, exponent) {
         return Math.pow(t, exponent);
     }
 
+    /**
+     * @param {number} t
+     * @param {number} exponent
+     * @returns {number}
+     */
     easeOut(t, exponent) {
         return 1 - Math.pow(1 - t, exponent);
     }
 
+    /**
+     * @param {number} t
+     * @param {number} exponent
+     * @returns {number}
+     */
     easeInOut(t, exponent) {
         if (t < 0.5) {
             return this.easeIn(t * 2, exponent) / 2;
@@ -1317,50 +1813,63 @@ class Game_Picture {
  * required because save data should not include the database object itself.
  */
 class Game_Item {
+    /** @param {[item?: RMMZ.DataItemBase | null]} args */
     constructor(...args) {
         this.initialize(...args);
     }
 
+    /** @param {RMMZ.DataItemBase | null} [item] */
     initialize(item) {
+        /** @type {RMMZ.DataClassID | ""} */
         this._dataClass = "";
+        /** @type {number} */
         this._itemId = 0;
         if (item) {
             this.setObject(item);
         }
     }
 
+    /** @returns {boolean} */
     isSkill() {
         return this._dataClass === "skill";
     }
 
+    /** @returns {boolean} */
     isItem() {
         return this._dataClass === "item";
     }
 
+    /** @returns {boolean} */
     isUsableItem() {
         return this.isSkill() || this.isItem();
     }
 
+    /** @returns {boolean} */
     isWeapon() {
         return this._dataClass === "weapon";
     }
 
+    /** @returns {boolean} */
     isArmor() {
         return this._dataClass === "armor";
     }
 
+    /** @returns {boolean} */
     isEquipItem() {
         return this.isWeapon() || this.isArmor();
     }
 
+    /** @returns {boolean} */
     isNull() {
         return this._dataClass === "";
     }
 
+    /** @returns {number} */
     itemId() {
         return this._itemId;
     }
 
+    /** @returns {RMMZ.DataItemBase} */
     object() {
         if (this.isSkill()) {
             return $dataSkills[this._itemId];
@@ -1375,6 +1884,10 @@ class Game_Item {
         }
     }
 
+    /**
+     * @param {RMMZ.DataItemBase | null} item
+     * @returns {void}
+     */
     setObject(item) {
         if (DataManager.isSkill(item)) {
             this._dataClass = "skill";
@@ -1390,6 +1903,11 @@ class Game_Item {
         this._itemId = item ? item.id : 0;
     }
 
+    /**
+     * @param {boolean} isWeapon
+     * @param {number} itemId
+     * @returns {void}
+     */
     setEquip(isWeapon, itemId) {
         this._dataClass = isWeapon ? "weapon" : "armor";
         this._itemId = itemId;
@@ -1400,6 +1918,7 @@ class Game_Item {
  * The game object class for a battle action.
  */
 class Game_Action {
+    /** @param {[subject: Game_Battler, forcing?: boolean]} args */
     constructor(...args) {
         this.initialize(...args);
     }
@@ -1438,19 +1957,31 @@ class Game_Action {
 
     static HITTYPE_MAGICAL = 2;
 
+    /**
+     * @param {Game_Battler} subject
+     * @param {boolean} [forcing]
+     */
     initialize(subject, forcing) {
+        /** @type {RMMZ.ActorID | RMMZ.EnemyID} */
         this._subjectActorId = 0;
+        /** @type {number} */
         this._subjectEnemyIndex = -1;
+        /** @type {boolean} */
         this._forcing = forcing || false;
         this.setSubject(subject);
         this.clear();
     }
 
+    /** @returns {void} */
     clear() {
         this._item = new Game_Item();
         this._targetIndex = -1;
     }
 
+    /**
+     * @param {RMMZ.ActionTarget} subject
+     * @returns {void}
+     */
     setSubject(subject) {
         if (subject.isActor()) {
             this._subjectActorId = subject.actorId();
@@ -1461,6 +1992,7 @@ class Game_Action {
         }
     }
 
+    /** @returns {import("./Game_Actor").Game_Actor | import("./Game_Enemy").Game_Enemy} */
     subject() {
         if (this._subjectActorId > 0) {
             return $gameActors.actor(this._subjectActorId);
@@ -1469,14 +2001,20 @@ class Game_Action {
         }
     }
 
+    /** @returns {import("./Game_Party").Game_Party | import("./Game_Troop").Game_Troop} */
     friendsUnit() {
         return this.subject().friendsUnit();
     }
 
+    /** @returns {import("./Game_Party").Game_Party | import("./Game_Troop").Game_Troop} */
     opponentsUnit() {
         return this.subject().opponentsUnit();
     }
 
+    /**
+     * @param {RMMZ.EnemyAction | null | undefined} action
+     * @returns {void}
+     */
     setEnemyAction(action) {
         if (action) {
             this.setSkill(action.skillId);
@@ -1485,42 +2023,64 @@ class Game_Action {
         }
     }
 
+    /** @returns {void} */
     setAttack() {
         this.setSkill(this.subject().attackSkillId());
     }
 
+    /** @returns {void} */
     setGuard() {
         this.setSkill(this.subject().guardSkillId());
     }
 
+    /**
+     * @param {RMMZ.SkillID} skillId
+     * @returns {void}
+     */
     setSkill(skillId) {
         this._item.setObject($dataSkills[skillId]);
     }
 
+    /**
+     * @param {RMMZ.ItemID} itemId
+     * @returns {void}
+     */
     setItem(itemId) {
         this._item.setObject($dataItems[itemId]);
     }
 
+    /**
+     * @param {RMMZ.ActionItem | null} object
+     * @returns {void}
+     */
     setItemObject(object) {
         this._item.setObject(object);
     }
 
+    /**
+     * @param {number} targetIndex
+     * @returns {void}
+     */
     setTarget(targetIndex) {
         this._targetIndex = targetIndex;
     }
 
+    /** @returns {RMMZ.ActionItem} */
     item() {
         return this._item.object();
     }
 
+    /** @returns {boolean} */
     isSkill() {
         return this._item.isSkill();
     }
 
+    /** @returns {boolean} */
     isItem() {
         return this._item.isItem();
     }
 
+    /** @returns {number} */
     numRepeats() {
         let repeats = this.item().repeats;
         if (this.isAttack()) {
@@ -1529,106 +2089,138 @@ class Game_Action {
         return Math.floor(repeats);
     }
 
+    /**
+     * @param {RMMZ.Scope[]} list
+     * @returns {boolean}
+     */
     checkItemScope(list) {
         return list.includes(this.item().scope);
     }
 
+    /** @returns {boolean} */
     isForOpponent() {
         return this.checkItemScope([1, 2, 3, 4, 5, 6, 14]);
     }
 
+    /** @returns {boolean} */
     isForFriend() {
         return this.checkItemScope([7, 8, 9, 10, 11, 12, 13, 14]);
     }
 
+    /** @returns {boolean} */
     isForEveryone() {
         return this.checkItemScope([14]);
     }
 
+    /** @returns {boolean} */
     isForAliveFriend() {
         return this.checkItemScope([7, 8, 11, 14]);
     }
 
+    /** @returns {boolean} */
     isForDeadFriend() {
         return this.checkItemScope([9, 10]);
     }
 
+    /** @returns {boolean} */
     isForUser() {
         return this.checkItemScope([11]);
     }
 
+    /** @returns {boolean} */
     isForOne() {
         return this.checkItemScope([1, 3, 7, 9, 11, 12]);
     }
 
+    /** @returns {boolean} */
     isForRandom() {
         return this.checkItemScope([3, 4, 5, 6]);
     }
 
+    /** @returns {boolean} */
     isForAll() {
         return this.checkItemScope([2, 8, 10, 13, 14]);
     }
 
+    /** @returns {boolean} */
     needsSelection() {
         return this.checkItemScope([1, 7, 9, 12]);
     }
 
+    /** @returns {number} */
     numTargets() {
         return this.isForRandom() ? this.item().scope - 2 : 0;
     }
 
+    /**
+     * @param {RMMZ.DamageType[]} list
+     * @returns {boolean}
+     */
     checkDamageType(list) {
         return list.includes(this.item().damage.type);
     }
 
+    /** @returns {boolean} */
     isHpEffect() {
         return this.checkDamageType([1, 3, 5]);
     }
 
+    /** @returns {boolean} */
     isMpEffect() {
         return this.checkDamageType([2, 4, 6]);
     }
 
+    /** @returns {boolean} */
     isDamage() {
         return this.checkDamageType([1, 2]);
     }
 
+    /** @returns {boolean} */
     isRecover() {
         return this.checkDamageType([3, 4]);
     }
 
+    /** @returns {boolean} */
     isDrain() {
         return this.checkDamageType([5, 6]);
     }
 
+    /** @returns {boolean} */
     isHpRecover() {
         return this.checkDamageType([3]);
     }
 
+    /** @returns {boolean} */
     isMpRecover() {
         return this.checkDamageType([4]);
     }
 
+    /** @returns {boolean} */
     isCertainHit() {
         return this.item().hitType === Game_Action.HITTYPE_CERTAIN;
     }
 
+    /** @returns {boolean} */
     isPhysical() {
         return this.item().hitType === Game_Action.HITTYPE_PHYSICAL;
     }
 
+    /** @returns {boolean} */
     isMagical() {
         return this.item().hitType === Game_Action.HITTYPE_MAGICAL;
     }
 
+    /** @returns {boolean} */
     isAttack() {
         return this.item() === $dataSkills[this.subject().attackSkillId()];
     }
 
+    /** @returns {boolean} */
     isGuard() {
         return this.item() === $dataSkills[this.subject().guardSkillId()];
     }
 
+    /** @returns {boolean} */
     isMagicSkill() {
         if (this.isSkill()) {
             return $dataSystem.magicSkills.includes(this.item().stypeId);
@@ -1637,6 +2229,7 @@ class Game_Action {
         }
     }
 
+    /** @returns {void} */
     decideRandomTarget() {
         let target;
         if (this.isForDeadFriend()) {
@@ -1653,20 +2246,24 @@ class Game_Action {
         }
     }
 
+    /** @returns {void} */
     setConfusion() {
         this.setAttack();
     }
 
+    /** @returns {void} */
     prepare() {
         if (this.subject().isConfused() && !this._forcing) {
             this.setConfusion();
         }
     }
 
+    /** @returns {boolean | RMMZ.ActionItem} */
     isValid() {
         return (this._forcing && this.item()) || this.subject().canUse(this.item());
     }
 
+    /** @returns {number} */
     speed() {
         const agi = this.subject().agi;
         let speed = agi + Math.randomInt(Math.floor(5 + agi / 4));
@@ -1679,6 +2276,7 @@ class Game_Action {
         return speed;
     }
 
+    /** @returns {(import("./Game_Actor").Game_Actor | import("./Game_Enemy").Game_Enemy)[]} */
     makeTargets() {
         const targets = [];
         if (!this._forcing && this.subject().isConfused()) {
@@ -1693,6 +2291,10 @@ class Game_Action {
         return this.repeatTargets(targets);
     }
 
+    /**
+     * @param {(RMMZ.ActionTarget | null)[]} targets
+     * @returns {(import("./Game_Actor").Game_Actor | import("./Game_Enemy").Game_Enemy)[]}
+     */
     repeatTargets(targets) {
         const repeatedTargets = [];
         const repeats = this.numRepeats();
@@ -1706,6 +2308,7 @@ class Game_Action {
         return repeatedTargets;
     }
 
+    /** @returns {import("./Game_Actor").Game_Actor | import("./Game_Enemy").Game_Enemy | null} */
     confusionTarget() {
         switch (this.subject().confusionLevel()) {
             case 1:
@@ -1720,12 +2323,14 @@ class Game_Action {
         }
     }
 
+    /** @returns {(import("./Game_Actor").Game_Actor | import("./Game_Enemy").Game_Enemy)[]} */
     targetsForEveryone() {
         const opponentMembers = this.opponentsUnit().aliveMembers();
         const friendMembers = this.friendsUnit().aliveMembers();
         return opponentMembers.concat(friendMembers);
     }
 
+    /** @returns {(import("./Game_Actor").Game_Actor | import("./Game_Enemy").Game_Enemy | null)[]} */
     targetsForOpponents() {
         const unit = this.opponentsUnit();
         if (this.isForRandom()) {
@@ -1735,6 +2340,7 @@ class Game_Action {
         }
     }
 
+    /** @returns {(import("./Game_Actor").Game_Actor | import("./Game_Enemy").Game_Enemy | null)[]} */
     targetsForFriends() {
         const unit = this.friendsUnit();
         if (this.isForUser()) {
@@ -1748,6 +2354,10 @@ class Game_Action {
         }
     }
 
+    /**
+     * @param {RMMZ.ActionUnit} unit
+     * @returns {(import("./Game_Actor").Game_Actor | import("./Game_Enemy").Game_Enemy | null)[]}
+     */
     randomTargets(unit) {
         const targets = [];
         for (let i = 0; i < this.numTargets(); i++) {
@@ -1756,6 +2366,10 @@ class Game_Action {
         return targets;
     }
 
+    /**
+     * @param {RMMZ.ActionUnit} unit
+     * @returns {(import("./Game_Actor").Game_Actor | import("./Game_Enemy").Game_Enemy)[]}
+     */
     targetsForDead(unit) {
         if (this.isForOne()) {
             return [unit.smoothDeadTarget(this._targetIndex)];
@@ -1764,6 +2378,10 @@ class Game_Action {
         }
     }
 
+    /**
+     * @param {RMMZ.ActionUnit} unit
+     * @returns {(import("./Game_Actor").Game_Actor | import("./Game_Enemy").Game_Enemy | null)[]}
+     */
     targetsForAlive(unit) {
         if (this.isForOne()) {
             if (this._targetIndex < 0) {
@@ -1776,6 +2394,10 @@ class Game_Action {
         }
     }
 
+    /**
+     * @param {RMMZ.ActionUnit} unit
+     * @returns {(import("./Game_Actor").Game_Actor | import("./Game_Enemy").Game_Enemy)[]}
+     */
     targetsForDeadAndAlive(unit) {
         if (this.isForOne()) {
             return [unit.members()[this._targetIndex]];
@@ -1784,6 +2406,7 @@ class Game_Action {
         }
     }
 
+    /** @returns {number} */
     evaluate() {
         let value = 0;
         for (const target of this.itemTargetCandidates()) {
@@ -1802,6 +2425,7 @@ class Game_Action {
         return value;
     }
 
+    /** @returns {(import("./Game_Actor").Game_Actor | import("./Game_Enemy").Game_Enemy)[]} */
     itemTargetCandidates() {
         if (!this.isValid()) {
             return [];
@@ -1816,6 +2440,10 @@ class Game_Action {
         }
     }
 
+    /**
+     * @param {RMMZ.ActionTarget} target
+     * @returns {number | undefined}
+     */
     evaluateWithTarget(target) {
         if (this.isHpEffect()) {
             const value = this.makeDamageValue(target, false);
@@ -1828,6 +2456,10 @@ class Game_Action {
         }
     }
 
+    /**
+     * @param {RMMZ.ActionTarget} target
+     * @returns {boolean}
+     */
     testApply(target) {
         return (
             this.testLifeAndDeath(target) &&
@@ -1838,6 +2470,10 @@ class Game_Action {
         );
     }
 
+    /**
+     * @param {RMMZ.ActionTarget} target
+     * @returns {boolean}
+     */
     testLifeAndDeath(target) {
         if (this.isForOpponent() || this.isForAliveFriend()) {
             return target.isAlive();
@@ -1848,12 +2484,21 @@ class Game_Action {
         }
     }
 
+    /**
+     * @param {RMMZ.ActionTarget} target
+     * @returns {boolean}
+     */
     hasItemAnyValidEffects(target) {
         return this.item().effects.some(effect =>
             this.testItemEffect(target, effect)
         );
     }
 
+    /**
+     * @param {RMMZ.ActionTarget} target
+     * @param {RMMZ.ActionEffectBase} effect
+     * @returns {boolean}
+     */
     testItemEffect(target, effect) {
         switch (effect.code) {
             case Game_Action.EFFECT_RECOVER_HP:
@@ -1883,6 +2528,10 @@ class Game_Action {
         }
     }
 
+    /**
+     * @param {RMMZ.ActionTarget} target
+     * @returns {number}
+     */
     itemCnt(target) {
         if (this.isPhysical() && target.canMove()) {
             return target.cnt;
@@ -1891,6 +2540,10 @@ class Game_Action {
         }
     }
 
+    /**
+     * @param {RMMZ.ActionTarget} target
+     * @returns {number}
+     */
     itemMrf(target) {
         if (this.isMagical()) {
             return target.mrf;
@@ -1899,6 +2552,10 @@ class Game_Action {
         }
     }
 
+    /**
+     * @param {Game_Battler} target
+     * @returns {number}
+     */
     itemHit(/*target*/) {
         const successRate = this.item().successRate;
         if (this.isPhysical()) {
@@ -1908,6 +2565,10 @@ class Game_Action {
         }
     }
 
+    /**
+     * @param {RMMZ.ActionTarget} target
+     * @returns {number}
+     */
     itemEva(target) {
         if (this.isPhysical()) {
             return target.eva;
@@ -1918,12 +2579,20 @@ class Game_Action {
         }
     }
 
+    /**
+     * @param {RMMZ.ActionTarget} target
+     * @returns {number}
+     */
     itemCri(target) {
         return this.item().damage.critical
             ? this.subject().cri * (1 - target.cev)
             : 0;
     }
 
+    /**
+     * @param {RMMZ.ActionTarget} target
+     * @returns {void}
+     */
     apply(target) {
         const result = target.result();
         this.subject().clearResult();
@@ -1947,6 +2616,11 @@ class Game_Action {
         this.updateLastTarget(target);
     }
 
+    /**
+     * @param {RMMZ.ActionTarget} target
+     * @param {boolean} critical
+     * @returns {number}
+     */
     makeDamageValue(target, critical) {
         const item = this.item();
         const baseValue = this.evalDamageFormula(target);
@@ -1969,6 +2643,10 @@ class Game_Action {
         return value;
     }
 
+    /**
+     * @param {RMMZ.ActionTarget} target
+     * @returns {number}
+     */
     evalDamageFormula(target) {
         try {
             const item = this.item();
@@ -1983,6 +2661,10 @@ class Game_Action {
         }
     }
 
+    /**
+     * @param {RMMZ.ActionTarget} target
+     * @returns {number}
+     */
     calcElementRate(target) {
         if (this.item().damage.elementId < 0) {
             return this.elementsMaxRate(target, this.subject().attackElements());
@@ -1991,6 +2673,11 @@ class Game_Action {
         }
     }
 
+    /**
+     * @param {RMMZ.ActionTarget} target
+     * @param {RMMZ.DataID[]} elements
+     * @returns {number}
+     */
     elementsMaxRate(target, elements) {
         if (elements.length > 0) {
             const rates = elements.map(elementId => target.elementRate(elementId));
@@ -2000,20 +2687,39 @@ class Game_Action {
         }
     }
 
+    /**
+     * @param {number} damage
+     * @returns {number}
+     */
     applyCritical(damage) {
         return damage * 3;
     }
 
+    /**
+     * @param {number} damage
+     * @param {number} variance
+     * @returns {number}
+     */
     applyVariance(damage, variance) {
         const amp = Math.floor(Math.max((Math.abs(damage) * variance) / 100, 0));
         const v = Math.randomInt(amp + 1) + Math.randomInt(amp + 1) - amp;
         return damage >= 0 ? damage + v : damage - v;
     }
 
+    /**
+     * @param {number} damage
+     * @param {RMMZ.ActionTarget} target
+     * @returns {number}
+     */
     applyGuard(damage, target) {
         return damage / (damage > 0 && target.isGuard() ? 2 * target.grd : 1);
     }
 
+    /**
+     * @param {RMMZ.ActionTarget} target
+     * @param {number} value
+     * @returns {void}
+     */
     executeDamage(target, value) {
         const result = target.result();
         if (value === 0) {
@@ -2027,6 +2733,11 @@ class Game_Action {
         }
     }
 
+    /**
+     * @param {RMMZ.ActionTarget} target
+     * @param {number} value
+     * @returns {void}
+     */
     executeHpDamage(target, value) {
         if (this.isDrain()) {
             value = Math.min(target.hp, value);
@@ -2039,6 +2750,11 @@ class Game_Action {
         this.gainDrainedHp(value);
     }
 
+    /**
+     * @param {RMMZ.ActionTarget} target
+     * @param {number} value
+     * @returns {void}
+     */
     executeMpDamage(target, value) {
         if (!this.isMpRecover()) {
             value = Math.min(target.mp, value);
@@ -2050,6 +2766,10 @@ class Game_Action {
         this.gainDrainedMp(value);
     }
 
+    /**
+     * @param {number} value
+     * @returns {void}
+     */
     gainDrainedHp(value) {
         if (this.isDrain()) {
             let gainTarget = this.subject();
@@ -2060,6 +2780,10 @@ class Game_Action {
         }
     }
 
+    /**
+     * @param {number} value
+     * @returns {void}
+     */
     gainDrainedMp(value) {
         if (this.isDrain()) {
             let gainTarget = this.subject();
@@ -2070,6 +2794,11 @@ class Game_Action {
         }
     }
 
+    /**
+     * @param {RMMZ.ActionTarget} target
+     * @param {RMMZ.ActionEffectBase} effect
+     * @returns {void}
+     */
     applyItemEffect(target, effect) {
         switch (effect.code) {
             case Game_Action.EFFECT_RECOVER_HP:
@@ -2114,6 +2843,11 @@ class Game_Action {
         }
     }
 
+    /**
+     * @param {RMMZ.ActionTarget} target
+     * @param {RMMZ.ActionEffect<typeof Game_Action.EFFECT_RECOVER_HP>} effect
+     * @returns {void}
+     */
     itemEffectRecoverHp(target, effect) {
         let value = (target.mhp * effect.value1 + effect.value2) * target.rec;
         if (this.isItem()) {
@@ -2126,6 +2860,11 @@ class Game_Action {
         }
     }
 
+    /**
+     * @param {RMMZ.ActionTarget} target
+     * @param {RMMZ.ActionEffect<typeof Game_Action.EFFECT_RECOVER_MP>} effect
+     * @returns {void}
+     */
     itemEffectRecoverMp(target, effect) {
         let value = (target.mmp * effect.value1 + effect.value2) * target.rec;
         if (this.isItem()) {
@@ -2138,6 +2877,11 @@ class Game_Action {
         }
     }
 
+    /**
+     * @param {RMMZ.ActionTarget} target
+     * @param {RMMZ.ActionEffect<typeof Game_Action.EFFECT_GAIN_TP>} effect
+     * @returns {void}
+     */
     itemEffectGainTp(target, effect) {
         let value = Math.floor(effect.value1);
         if (value !== 0) {
@@ -2146,6 +2890,11 @@ class Game_Action {
         }
     }
 
+    /**
+     * @param {RMMZ.ActionTarget} target
+     * @param {RMMZ.ActionEffect<typeof Game_Action.EFFECT_ADD_STATE>} effect
+     * @returns {void}
+     */
     itemEffectAddState(target, effect) {
         if (effect.dataId === 0) {
             this.itemEffectAddAttackState(target, effect);
@@ -2154,6 +2903,11 @@ class Game_Action {
         }
     }
 
+    /**
+     * @param {RMMZ.ActionTarget} target
+     * @param {RMMZ.ActionEffect<typeof Game_Action.EFFECT_ADD_STATE>} effect
+     * @returns {void}
+     */
     itemEffectAddAttackState(target, effect) {
         for (const stateId of this.subject().attackStates()) {
             let chance = effect.value1;
@@ -2167,6 +2921,11 @@ class Game_Action {
         }
     }
 
+    /**
+     * @param {RMMZ.ActionTarget} target
+     * @param {RMMZ.ActionEffect<typeof Game_Action.EFFECT_ADD_STATE>} effect
+     * @returns {void}
+     */
     itemEffectAddNormalState(target, effect) {
         let chance = effect.value1;
         if (!this.isCertainHit()) {
@@ -2179,6 +2938,11 @@ class Game_Action {
         }
     }
 
+    /**
+     * @param {RMMZ.ActionTarget} target
+     * @param {RMMZ.ActionEffect<typeof Game_Action.EFFECT_REMOVE_STATE>} effect
+     * @returns {void}
+     */
     itemEffectRemoveState(target, effect) {
         let chance = effect.value1;
         if (Math.random() < chance) {
@@ -2187,11 +2951,21 @@ class Game_Action {
         }
     }
 
+    /**
+     * @param {RMMZ.ActionTarget} target
+     * @param {RMMZ.ActionEffect<typeof Game_Action.EFFECT_ADD_BUFF>} effect
+     * @returns {void}
+     */
     itemEffectAddBuff(target, effect) {
         target.addBuff(effect.dataId, effect.value1);
         this.makeSuccess(target);
     }
 
+    /**
+     * @param {RMMZ.ActionTarget} target
+     * @param {RMMZ.ActionEffect<typeof Game_Action.EFFECT_ADD_DEBUFF>} effect
+     * @returns {void}
+     */
     itemEffectAddDebuff(target, effect) {
         let chance = target.debuffRate(effect.dataId) * this.lukEffectRate(target);
         if (Math.random() < chance) {
@@ -2200,6 +2974,11 @@ class Game_Action {
         }
     }
 
+    /**
+     * @param {RMMZ.ActionTarget} target
+     * @param {RMMZ.ActionEffect<typeof Game_Action.EFFECT_REMOVE_BUFF>} effect
+     * @returns {void}
+     */
     itemEffectRemoveBuff(target, effect) {
         if (target.isBuffAffected(effect.dataId)) {
             target.removeBuff(effect.dataId);
@@ -2207,6 +2986,11 @@ class Game_Action {
         }
     }
 
+    /**
+     * @param {RMMZ.ActionTarget} target
+     * @param {RMMZ.ActionEffect<typeof Game_Action.EFFECT_REMOVE_DEBUFF>} effect
+     * @returns {void}
+     */
     itemEffectRemoveDebuff(target, effect) {
         if (target.isDebuffAffected(effect.dataId)) {
             target.removeBuff(effect.dataId);
@@ -2214,6 +2998,11 @@ class Game_Action {
         }
     }
 
+    /**
+     * @param {RMMZ.ActionTarget} target
+     * @param {RMMZ.ActionEffect<typeof Game_Action.EFFECT_SPECIAL>} effect
+     * @returns {void}
+     */
     itemEffectSpecial(target, effect) {
         if (effect.dataId === Game_Action.SPECIAL_EFFECT_ESCAPE) {
             target.escape();
@@ -2221,11 +3010,21 @@ class Game_Action {
         }
     }
 
+    /**
+     * @param {RMMZ.ActionTarget} target
+     * @param {RMMZ.ActionEffect<typeof Game_Action.EFFECT_GROW>} effect
+     * @returns {void}
+     */
     itemEffectGrow(target, effect) {
         target.addParam(effect.dataId, Math.floor(effect.value1));
         this.makeSuccess(target);
     }
 
+    /**
+     * @param {RMMZ.ActionTarget} target
+     * @param {RMMZ.ActionEffect<typeof Game_Action.EFFECT_LEARN_SKILL>} effect
+     * @returns {void}
+     */
     itemEffectLearnSkill(target, effect) {
         if (target.isActor()) {
             target.learnSkill(effect.dataId);
@@ -2233,23 +3032,41 @@ class Game_Action {
         }
     }
 
+    /**
+     * @param {Game_Battler} target
+     * @param {RMMZ.ActionEffectBase} effect
+     * @returns {void}
+     */
     itemEffectCommonEvent(/*target, effect*/) {
         //
     }
 
+    /**
+     * @param {RMMZ.ActionTarget} target
+     * @returns {void}
+     */
     makeSuccess(target) {
         target.result().success = true;
     }
 
+    /**
+     * @param {Game_Battler} target
+     * @returns {void}
+     */
     applyItemUserEffect(/*target*/) {
         const value = Math.floor(this.item().tpGain * this.subject().tcr);
         this.subject().gainSilentTp(value);
     }
 
+    /**
+     * @param {RMMZ.ActionTarget} target
+     * @returns {number}
+     */
     lukEffectRate(target) {
         return Math.max(1.0 + (this.subject().luk - target.luk) * 0.001, 0.0);
     }
 
+    /** @returns {void} */
     applyGlobal() {
         for (const effect of this.item().effects) {
             if (effect.code === Game_Action.EFFECT_COMMON_EVENT) {
@@ -2260,6 +3077,7 @@ class Game_Action {
         this.updateLastSubject();
     }
 
+    /** @returns {void} */
     updateLastUsed() {
         const item = this.item();
         if (DataManager.isSkill(item)) {
@@ -2269,6 +3087,7 @@ class Game_Action {
         }
     }
 
+    /** @returns {void} */
     updateLastSubject() {
         const subject = this.subject();
         if (subject.isActor()) {
@@ -2278,6 +3097,10 @@ class Game_Action {
         }
     }
 
+    /**
+     * @param {RMMZ.ActionTarget} target
+     * @returns {void}
+     */
     updateLastTarget(target) {
         if (target.isActor()) {
             $gameTemp.setLastTargetActorId(target.actorId());
@@ -2292,6 +3115,7 @@ class Game_Action {
  * member variables in this class are public.
  */
 class Game_ActionResult {
+    /** @param {[]} args */
     constructor(...args) {
         this.initialize(...args);
     }
@@ -2300,6 +3124,7 @@ class Game_ActionResult {
         this.clear();
     }
 
+    /** @returns {void} */
     clear() {
         this.used = false;
         this.missed = false;
@@ -2319,14 +3144,17 @@ class Game_ActionResult {
         this.removedBuffs = [];
     }
 
+    /** @returns {import("../data").DataState[]} */
     addedStateObjects() {
         return this.addedStates.map(id => $dataStates[id]);
     }
 
+    /** @returns {import("../data").DataState[]} */
     removedStateObjects() {
         return this.removedStates.map(id => $dataStates[id]);
     }
 
+    /** @returns {boolean} */
     isStatusAffected() {
         return (
             this.addedStates.length > 0 ||
@@ -2337,54 +3165,95 @@ class Game_ActionResult {
         );
     }
 
+    /** @returns {boolean} */
     isHit() {
         return this.used && !this.missed && !this.evaded;
     }
 
+    /**
+     * @param {RMMZ.StateID} stateId
+     * @returns {boolean}
+     */
     isStateAdded(stateId) {
         return this.addedStates.includes(stateId);
     }
 
+    /**
+     * @param {RMMZ.StateID} stateId
+     * @returns {void}
+     */
     pushAddedState(stateId) {
         if (!this.isStateAdded(stateId)) {
             this.addedStates.push(stateId);
         }
     }
 
+    /**
+     * @param {RMMZ.StateID} stateId
+     * @returns {boolean}
+     */
     isStateRemoved(stateId) {
         return this.removedStates.includes(stateId);
     }
 
+    /**
+     * @param {RMMZ.StateID} stateId
+     * @returns {void}
+     */
     pushRemovedState(stateId) {
         if (!this.isStateRemoved(stateId)) {
             this.removedStates.push(stateId);
         }
     }
 
+    /**
+     * @param {RMMZ.ParamID} paramId
+     * @returns {boolean}
+     */
     isBuffAdded(paramId) {
         return this.addedBuffs.includes(paramId);
     }
 
+    /**
+     * @param {RMMZ.ParamID} paramId
+     * @returns {void}
+     */
     pushAddedBuff(paramId) {
         if (!this.isBuffAdded(paramId)) {
             this.addedBuffs.push(paramId);
         }
     }
 
+    /**
+     * @param {RMMZ.ParamID} paramId
+     * @returns {boolean}
+     */
     isDebuffAdded(paramId) {
         return this.addedDebuffs.includes(paramId);
     }
 
+    /**
+     * @param {RMMZ.ParamID} paramId
+     * @returns {void}
+     */
     pushAddedDebuff(paramId) {
         if (!this.isDebuffAdded(paramId)) {
             this.addedDebuffs.push(paramId);
         }
     }
 
+    /**
+     * @param {RMMZ.ParamID} paramId
+     * @returns {boolean}
+     */
     isBuffRemoved(paramId) {
         return this.removedBuffs.includes(paramId);
     }
 
+    /**
+     * @param {RMMZ.ParamID} paramId
+     * @returns {void}
+     */
     pushRemovedBuff(paramId) {
         if (!this.isBuffRemoved(paramId)) {
             this.removedBuffs.push(paramId);
@@ -2396,6 +3265,7 @@ class Game_ActionResult {
  * The superclass of Game_Battler. It mainly contains parameters calculation.
  */
 class Game_BattlerBase {
+    /** @param {[]} args */
     constructor(...args) {
         this.initialize(...args);
     }
@@ -2462,126 +3332,157 @@ class Game_BattlerBase {
 
     static ICON_DEBUFF_START = 48;
 
+    /** @type {number} */
     get hp() {
             return this._hp;
         }
 
+    /** @type {number} */
     get mp() {
             return this._mp;
         }
 
+    /** @type {number} */
     get tp() {
             return this._tp;
         }
 
+    /** @type {number} */
     get mhp() {
             return this.param(0);
         }
 
+    /** @type {number} */
     get mmp() {
             return this.param(1);
         }
 
+    /** @type {number} */
     get atk() {
             return this.param(2);
         }
 
+    /** @type {number} */
     get def() {
             return this.param(3);
         }
 
+    /** @type {number} */
     get mat() {
             return this.param(4);
         }
 
+    /** @type {number} */
     get mdf() {
             return this.param(5);
         }
 
+    /** @type {number} */
     get agi() {
             return this.param(6);
         }
 
+    /** @type {number} */
     get luk() {
             return this.param(7);
         }
 
+    /** @type {number} */
     get hit() {
             return this.xparam(0);
         }
 
+    /** @type {number} */
     get eva() {
             return this.xparam(1);
         }
 
+    /** @type {number} */
     get cri() {
             return this.xparam(2);
         }
 
+    /** @type {number} */
     get cev() {
             return this.xparam(3);
         }
 
+    /** @type {number} */
     get mev() {
             return this.xparam(4);
         }
 
+    /** @type {number} */
     get mrf() {
             return this.xparam(5);
         }
 
+    /** @type {number} */
     get cnt() {
             return this.xparam(6);
         }
 
+    /** @type {number} */
     get hrg() {
             return this.xparam(7);
         }
 
+    /** @type {number} */
     get mrg() {
             return this.xparam(8);
         }
 
+    /** @type {number} */
     get trg() {
             return this.xparam(9);
         }
 
+    /** @type {number} */
     get tgr() {
             return this.sparam(0);
         }
 
+    /** @type {number} */
     get grd() {
             return this.sparam(1);
         }
 
+    /** @type {number} */
     get rec() {
             return this.sparam(2);
         }
 
+    /** @type {number} */
     get pha() {
             return this.sparam(3);
         }
 
+    /** @type {number} */
     get mcr() {
             return this.sparam(4);
         }
 
+    /** @type {number} */
     get tcr() {
             return this.sparam(5);
         }
 
+    /** @type {number} */
     get pdr() {
             return this.sparam(6);
         }
 
+    /** @type {number} */
     get mdr() {
             return this.sparam(7);
         }
 
+    /** @type {number} */
     get fdr() {
             return this.sparam(8);
         }
 
+    /** @type {number} */
     get exr() {
             return this.sparam(9);
         }
@@ -2590,52 +3491,78 @@ class Game_BattlerBase {
         this.initMembers();
     }
 
+    /** @returns {void} */
     initMembers() {
+        /** @type {number} */
         this._hp = 1;
+        /** @type {number} */
         this._mp = 0;
+        /** @type {number} */
         this._tp = 0;
+        /** @type {boolean} */
         this._hidden = false;
         this.clearParamPlus();
         this.clearStates();
         this.clearBuffs();
     }
 
+    /** @returns {void} */
     clearParamPlus() {
         this._paramPlus = [0, 0, 0, 0, 0, 0, 0, 0];
     }
 
+    /** @returns {void} */
     clearStates() {
         this._states = [];
         this._stateTurns = {};
     }
 
+    /**
+     * @param {RMMZ.StateID} stateId
+     * @returns {void}
+     */
     eraseState(stateId) {
         this._states.remove(stateId);
         delete this._stateTurns[stateId];
     }
 
+    /**
+     * @param {RMMZ.StateID} stateId
+     * @returns {boolean}
+     */
     isStateAffected(stateId) {
         return this._states.includes(stateId);
     }
 
+    /** @returns {boolean} */
     isDeathStateAffected() {
         return this.isStateAffected(this.deathStateId());
     }
 
+    /** @returns {number} */
     deathStateId() {
         return 1;
     }
 
+    /**
+     * @param {RMMZ.StateID} stateId
+     * @returns {void}
+     */
     resetStateCounts(stateId) {
         const state = $dataStates[stateId];
         const variance = 1 + Math.max(state.maxTurns - state.minTurns, 0);
         this._stateTurns[stateId] = state.minTurns + Math.randomInt(variance);
     }
 
+    /**
+     * @param {RMMZ.StateID} stateId
+     * @returns {boolean}
+     */
     isStateExpired(stateId) {
         return this._stateTurns[stateId] === 0;
     }
 
+    /** @returns {void} */
     updateStateTurns() {
         for (const stateId of this._states) {
             if (this._stateTurns[stateId] > 0) {
@@ -2644,66 +3571,114 @@ class Game_BattlerBase {
         }
     }
 
+    /** @returns {void} */
     clearBuffs() {
         this._buffs = [0, 0, 0, 0, 0, 0, 0, 0];
         this._buffTurns = [0, 0, 0, 0, 0, 0, 0, 0];
     }
 
+    /**
+     * @param {RMMZ.ParamID} paramId
+     * @returns {void}
+     */
     eraseBuff(paramId) {
         this._buffs[paramId] = 0;
         this._buffTurns[paramId] = 0;
     }
 
+    /** @returns {8} */
     buffLength() {
         return this._buffs.length;
     }
 
+    /**
+     * @param {RMMZ.ParamID} paramId
+     * @returns {number}
+     */
     buff(paramId) {
         return this._buffs[paramId];
     }
 
+    /**
+     * @param {RMMZ.ParamID} paramId
+     * @returns {boolean}
+     */
     isBuffAffected(paramId) {
         return this._buffs[paramId] > 0;
     }
 
+    /**
+     * @param {RMMZ.ParamID} paramId
+     * @returns {boolean}
+     */
     isDebuffAffected(paramId) {
         return this._buffs[paramId] < 0;
     }
 
+    /**
+     * @param {RMMZ.ParamID} paramId
+     * @returns {boolean}
+     */
     isBuffOrDebuffAffected(paramId) {
         return this._buffs[paramId] !== 0;
     }
 
+    /**
+     * @param {RMMZ.ParamID} paramId
+     * @returns {boolean}
+     */
     isMaxBuffAffected(paramId) {
         return this._buffs[paramId] === 2;
     }
 
+    /**
+     * @param {RMMZ.ParamID} paramId
+     * @returns {boolean}
+     */
     isMaxDebuffAffected(paramId) {
         return this._buffs[paramId] === -2;
     }
 
+    /**
+     * @param {RMMZ.ParamID} paramId
+     * @returns {void}
+     */
     increaseBuff(paramId) {
         if (!this.isMaxBuffAffected(paramId)) {
             this._buffs[paramId]++;
         }
     }
 
+    /**
+     * @param {RMMZ.ParamID} paramId
+     * @returns {void}
+     */
     decreaseBuff(paramId) {
         if (!this.isMaxDebuffAffected(paramId)) {
             this._buffs[paramId]--;
         }
     }
 
+    /**
+     * @param {RMMZ.ParamID} paramId
+     * @param {number} turns
+     * @returns {void}
+     */
     overwriteBuffTurns(paramId, turns) {
         if (this._buffTurns[paramId] < turns) {
             this._buffTurns[paramId] = turns;
         }
     }
 
+    /**
+     * @param {RMMZ.ParamID} paramId
+     * @returns {boolean}
+     */
     isBuffExpired(paramId) {
         return this._buffTurns[paramId] === 0;
     }
 
+    /** @returns {void} */
     updateBuffTurns() {
         for (let i = 0; i < this._buffTurns.length; i++) {
             if (this._buffTurns[i] > 0) {
@@ -2712,28 +3687,33 @@ class Game_BattlerBase {
         }
     }
 
+    /** @returns {void} */
     die() {
         this._hp = 0;
         this.clearStates();
         this.clearBuffs();
     }
 
+    /** @returns {void} */
     revive() {
         if (this._hp === 0) {
             this._hp = 1;
         }
     }
 
+    /** @returns {import("../data").DataState[]} */
     states() {
         return this._states.map(id => $dataStates[id]);
     }
 
+    /** @returns {number[]} */
     stateIcons() {
         return this.states()
             .map(state => state.iconIndex)
             .filter(iconIndex => iconIndex > 0);
     }
 
+    /** @returns {number[]} */
     buffIcons() {
         const icons = [];
         for (let i = 0; i < this._buffs.length; i++) {
@@ -2744,6 +3724,11 @@ class Game_BattlerBase {
         return icons;
     }
 
+    /**
+     * @param {number} buffLevel
+     * @param {RMMZ.ParamID} paramId
+     * @returns {number}
+     */
     buffIconIndex(buffLevel, paramId) {
         if (buffLevel > 0) {
             return Game_BattlerBase.ICON_BUFF_START + (buffLevel - 1) * 8 + paramId;
@@ -2756,57 +3741,103 @@ class Game_BattlerBase {
         }
     }
 
+    /** @returns {number[]} */
     allIcons() {
         return this.stateIcons().concat(this.buffIcons());
     }
 
+    /** @returns {{ traits: RMMZ.Trait[]; }[]} */
     traitObjects() {
         // Returns an array of the all objects having traits. States only here.
         return this.states();
     }
 
+    /** @returns {RMMZ.Trait[]} */
     allTraits() {
         return this.traitObjects().reduce((r, obj) => r.concat(obj.traits), []);
     }
 
+    /**
+     * @param {RMMZ.TraitType} code
+     * @returns {RMMZ.Trait[]}
+     */
     traits(code) {
         return this.allTraits().filter(trait => trait.code === code);
     }
 
+    /**
+     * @param {RMMZ.TraitType} code
+     * @param {RMMZ.DataID} id
+     * @returns {RMMZ.Trait[]}
+     */
     traitsWithId(code, id) {
         return this.allTraits().filter(
             trait => trait.code === code && trait.dataId === id
         );
     }
 
+    /**
+     * @param {RMMZ.TraitType} code
+     * @param {RMMZ.DataID} id
+     * @returns {number}
+     */
     traitsPi(code, id) {
         return this.traitsWithId(code, id).reduce((r, trait) => r * trait.value, 1);
     }
 
+    /**
+     * @param {RMMZ.TraitType} code
+     * @param {RMMZ.DataID} id
+     * @returns {number}
+     */
     traitsSum(code, id) {
         return this.traitsWithId(code, id).reduce((r, trait) => r + trait.value, 0);
     }
 
+    /**
+     * @param {RMMZ.TraitType} code
+     * @returns {number}
+     */
     traitsSumAll(code) {
         return this.traits(code).reduce((r, trait) => r + trait.value, 0);
     }
 
+    /**
+     * @param {RMMZ.TraitType} code
+     * @returns {number[]}
+     */
     traitsSet(code) {
         return this.traits(code).reduce((r, trait) => r.concat(trait.dataId), []);
     }
 
+    /**
+     * @param {RMMZ.ParamID} paramId
+     * @returns {number}
+     */
     paramBase(/*paramId*/) {
         return 0;
     }
 
+    /**
+     * @param {RMMZ.ParamID} paramId
+     * @returns {number}
+     */
     paramPlus(paramId) {
         return this._paramPlus[paramId];
     }
 
+    /**
+     * @param {RMMZ.ParamID} paramId
+     * @returns {number}
+     */
     paramBasePlus(paramId) {
         return Math.max(0, this.paramBase(paramId) + this.paramPlus(paramId));
     }
 
+    /**
+     * @param {RMMZ.ParamID} paramId
+     * @returns {0 | 1}
+     */
     paramMin(paramId) {
         if (paramId === 0) {
             return 1; // MHP
@@ -2815,18 +3846,34 @@ class Game_BattlerBase {
         }
     }
 
+    /**
+     * @param {RMMZ.ParamID} paramId
+     * @returns {number}
+     */
     paramMax(/*paramId*/) {
         return Infinity;
     }
 
+    /**
+     * @param {RMMZ.ParamID} paramId
+     * @returns {number}
+     */
     paramRate(paramId) {
         return this.traitsPi(Game_BattlerBase.TRAIT_PARAM, paramId);
     }
 
+    /**
+     * @param {RMMZ.ParamID} paramId
+     * @returns {number}
+     */
     paramBuffRate(paramId) {
         return this._buffs[paramId] * 0.25 + 1.0;
     }
 
+    /**
+     * @param {RMMZ.ParamID} paramId
+     * @returns {number}
+     */
     param(paramId) {
         const value =
             this.paramBasePlus(paramId) *
@@ -2837,165 +3884,260 @@ class Game_BattlerBase {
         return Math.round(value.clamp(minValue, maxValue));
     }
 
+    /**
+     * @param {RMMZ.DataID} xparamId
+     * @returns {number}
+     */
     xparam(xparamId) {
         return this.traitsSum(Game_BattlerBase.TRAIT_XPARAM, xparamId);
     }
 
+    /**
+     * @param {RMMZ.DataID} sparamId
+     * @returns {number}
+     */
     sparam(sparamId) {
         return this.traitsPi(Game_BattlerBase.TRAIT_SPARAM, sparamId);
     }
 
+    /**
+     * @param {RMMZ.DataID} elementId
+     * @returns {number}
+     */
     elementRate(elementId) {
         return this.traitsPi(Game_BattlerBase.TRAIT_ELEMENT_RATE, elementId);
     }
 
+    /**
+     * @param {RMMZ.ParamID} paramId
+     * @returns {number}
+     */
     debuffRate(paramId) {
         return this.traitsPi(Game_BattlerBase.TRAIT_DEBUFF_RATE, paramId);
     }
 
+    /**
+     * @param {RMMZ.StateID} stateId
+     * @returns {number}
+     */
     stateRate(stateId) {
         return this.traitsPi(Game_BattlerBase.TRAIT_STATE_RATE, stateId);
     }
 
+    /** @returns {number[]} */
     stateResistSet() {
         return this.traitsSet(Game_BattlerBase.TRAIT_STATE_RESIST);
     }
 
+    /**
+     * @param {RMMZ.StateID} stateId
+     * @returns {boolean}
+     */
     isStateResist(stateId) {
         return this.stateResistSet().includes(stateId);
     }
 
+    /** @returns {number[]} */
     attackElements() {
         return this.traitsSet(Game_BattlerBase.TRAIT_ATTACK_ELEMENT);
     }
 
+    /** @returns {number[]} */
     attackStates() {
         return this.traitsSet(Game_BattlerBase.TRAIT_ATTACK_STATE);
     }
 
+    /**
+     * @param {RMMZ.StateID} stateId
+     * @returns {number}
+     */
     attackStatesRate(stateId) {
         return this.traitsSum(Game_BattlerBase.TRAIT_ATTACK_STATE, stateId);
     }
 
+    /** @returns {number} */
     attackSpeed() {
         return this.traitsSumAll(Game_BattlerBase.TRAIT_ATTACK_SPEED);
     }
 
+    /** @returns {number} */
     attackTimesAdd() {
         return Math.max(this.traitsSumAll(Game_BattlerBase.TRAIT_ATTACK_TIMES), 0);
     }
 
+    /** @returns {number} */
     attackSkillId() {
         const set = this.traitsSet(Game_BattlerBase.TRAIT_ATTACK_SKILL);
         return set.length > 0 ? Math.max(...set) : 1;
     }
 
+    /** @returns {number[]} */
     addedSkillTypes() {
         return this.traitsSet(Game_BattlerBase.TRAIT_STYPE_ADD);
     }
 
+    /**
+     * @param {RMMZ.SkillType} stypeId
+     * @returns {boolean}
+     */
     isSkillTypeSealed(stypeId) {
         return this.traitsSet(Game_BattlerBase.TRAIT_STYPE_SEAL).includes(stypeId);
     }
 
+    /** @returns {number[]} */
     addedSkills() {
         return this.traitsSet(Game_BattlerBase.TRAIT_SKILL_ADD);
     }
 
+    /**
+     * @param {RMMZ.SkillID} skillId
+     * @returns {boolean}
+     */
     isSkillSealed(skillId) {
         return this.traitsSet(Game_BattlerBase.TRAIT_SKILL_SEAL).includes(skillId);
     }
 
+    /**
+     * @param {RMMZ.WeaponType} wtypeId
+     * @returns {boolean}
+     */
     isEquipWtypeOk(wtypeId) {
         return this.traitsSet(Game_BattlerBase.TRAIT_EQUIP_WTYPE).includes(wtypeId);
     }
 
+    /**
+     * @param {RMMZ.ArmorType} atypeId
+     * @returns {boolean}
+     */
     isEquipAtypeOk(atypeId) {
         return this.traitsSet(Game_BattlerBase.TRAIT_EQUIP_ATYPE).includes(atypeId);
     }
 
+    /**
+     * @param {RMMZ.ElementType} etypeId
+     * @returns {boolean}
+     */
     isEquipTypeLocked(etypeId) {
         return this.traitsSet(Game_BattlerBase.TRAIT_EQUIP_LOCK).includes(etypeId);
     }
 
+    /**
+     * @param {RMMZ.ElementType} etypeId
+     * @returns {boolean}
+     */
     isEquipTypeSealed(etypeId) {
         return this.traitsSet(Game_BattlerBase.TRAIT_EQUIP_SEAL).includes(etypeId);
     }
 
+    /** @returns {number} */
     slotType() {
         const set = this.traitsSet(Game_BattlerBase.TRAIT_SLOT_TYPE);
         return set.length > 0 ? Math.max(...set) : 0;
     }
 
+    /** @returns {boolean} */
     isDualWield() {
         return this.slotType() === 1;
     }
 
+    /** @returns {number[]} */
     actionPlusSet() {
         return this.traits(Game_BattlerBase.TRAIT_ACTION_PLUS).map(
             trait => trait.value
         );
     }
 
+    /**
+     * @param {RMMZ.DataID} flagId
+     * @returns {boolean}
+     */
     specialFlag(flagId) {
         return this.traits(Game_BattlerBase.TRAIT_SPECIAL_FLAG).some(
             trait => trait.dataId === flagId
         );
     }
 
+    /** @returns {number} */
     collapseType() {
         const set = this.traitsSet(Game_BattlerBase.TRAIT_COLLAPSE_TYPE);
         return set.length > 0 ? Math.max(...set) : 0;
     }
 
+    /**
+     * @param {RMMZ.DataID} abilityId
+     * @returns {boolean}
+     */
     partyAbility(abilityId) {
         return this.traits(Game_BattlerBase.TRAIT_PARTY_ABILITY).some(
             trait => trait.dataId === abilityId
         );
     }
 
+    /** @returns {boolean} */
     isAutoBattle() {
         return this.specialFlag(Game_BattlerBase.FLAG_ID_AUTO_BATTLE);
     }
 
+    /** @returns {boolean} */
     isGuard() {
         return this.specialFlag(Game_BattlerBase.FLAG_ID_GUARD) && this.canMove();
     }
 
+    /** @returns {boolean} */
     isSubstitute() {
         return (
             this.specialFlag(Game_BattlerBase.FLAG_ID_SUBSTITUTE) && this.canMove()
         );
     }
 
+    /** @returns {boolean} */
     isPreserveTp() {
         return this.specialFlag(Game_BattlerBase.FLAG_ID_PRESERVE_TP);
     }
 
+    /**
+     * @param {RMMZ.ParamID} paramId
+     * @param {number} value
+     * @returns {void}
+     */
     addParam(paramId, value) {
         this._paramPlus[paramId] += value;
         this.refresh();
     }
 
+    /**
+     * @param {number} hp
+     * @returns {void}
+     */
     setHp(hp) {
         this._hp = hp;
         this.refresh();
     }
 
+    /**
+     * @param {number} mp
+     * @returns {void}
+     */
     setMp(mp) {
         this._mp = mp;
         this.refresh();
     }
 
+    /**
+     * @param {number} tp
+     * @returns {void}
+     */
     setTp(tp) {
         this._tp = tp;
         this.refresh();
     }
 
+    /** @returns {number} */
     maxTp() {
         return 100;
     }
 
+    /** @returns {void} */
     refresh() {
         for (const stateId of this.stateResistSet()) {
             this.eraseState(stateId);
@@ -3005,84 +4147,103 @@ class Game_BattlerBase {
         this._tp = this._tp.clamp(0, this.maxTp());
     }
 
+    /** @returns {void} */
     recoverAll() {
         this.clearStates();
         this._hp = this.mhp;
         this._mp = this.mmp;
     }
 
+    /** @returns {number} */
     hpRate() {
         return this.hp / this.mhp;
     }
 
+    /** @returns {number} */
     mpRate() {
         return this.mmp > 0 ? this.mp / this.mmp : 0;
     }
 
+    /** @returns {number} */
     tpRate() {
         return this.tp / this.maxTp();
     }
 
+    /** @returns {void} */
     hide() {
         this._hidden = true;
     }
 
+    /** @returns {void} */
     appear() {
         this._hidden = false;
     }
 
+    /** @returns {boolean} */
     isHidden() {
         return this._hidden;
     }
 
+    /** @returns {boolean} */
     isAppeared() {
         return !this.isHidden();
     }
 
+    /** @returns {boolean} */
     isDead() {
         return this.isAppeared() && this.isDeathStateAffected();
     }
 
+    /** @returns {boolean} */
     isAlive() {
         return this.isAppeared() && !this.isDeathStateAffected();
     }
 
+    /** @returns {boolean} */
     isDying() {
         return this.isAlive() && this._hp < this.mhp / 4;
     }
 
+    /** @returns {boolean} */
     isRestricted() {
         return this.isAppeared() && this.restriction() > 0;
     }
 
+    /** @returns {boolean} */
     canInput() {
         // prettier-ignore
         return this.isAppeared() && this.isActor() &&
                 !this.isRestricted() && !this.isAutoBattle();
     }
 
+    /** @returns {boolean} */
     canMove() {
         return this.isAppeared() && this.restriction() < 4;
     }
 
+    /** @returns {boolean} */
     isConfused() {
         return (
             this.isAppeared() && this.restriction() >= 1 && this.restriction() <= 3
         );
     }
 
+    /** @returns {number} */
     confusionLevel() {
         return this.isConfused() ? this.restriction() : 0;
     }
 
+    /** @returns {this is Game_Actor} */
     isActor() {
         return false;
     }
 
+    /** @returns {this is Game_Enemy} */
     isEnemy() {
         return false;
     }
 
+    /** @returns {void} */
     sortStates() {
         this._states.sort((a, b) => {
             const p1 = $dataStates[a].priority;
@@ -3094,11 +4255,16 @@ class Game_BattlerBase {
         });
     }
 
+    /** @returns {number} */
     restriction() {
         const restrictions = this.states().map(state => state.restriction);
         return Math.max(0, ...restrictions);
     }
 
+    /**
+     * @param {RMMZ.StateID} stateId
+     * @returns {void}
+     */
     addNewState(stateId) {
         if (stateId === this.deathStateId()) {
             this.die();
@@ -3111,10 +4277,12 @@ class Game_BattlerBase {
         }
     }
 
+    /** @returns {void} */
     onRestrict() {
         //
     }
 
+    /** @returns {string} */
     mostImportantStateText() {
         for (const state of this.states()) {
             if (state.message3) {
@@ -3124,6 +4292,7 @@ class Game_BattlerBase {
         return "";
     }
 
+    /** @returns {import("../data").Motion} */
     stateMotionIndex() {
         const states = this.states();
         if (states.length > 0) {
@@ -3133,6 +4302,7 @@ class Game_BattlerBase {
         }
     }
 
+    /** @returns {import("../data").Overlay} */
     stateOverlayIndex() {
         const states = this.states();
         if (states.length > 0) {
@@ -3142,18 +4312,34 @@ class Game_BattlerBase {
         }
     }
 
+    /**
+     * @param {RMMZ.DataSkill} skill
+     * @returns {boolean}
+     */
     isSkillWtypeOk(/*skill*/) {
         return true;
     }
 
+    /**
+     * @param {RMMZ.DataSkill} skill
+     * @returns {number}
+     */
     skillMpCost(skill) {
         return Math.floor(skill.mpCost * this.mcr);
     }
 
+    /**
+     * @param {RMMZ.DataSkill} skill
+     * @returns {number}
+     */
     skillTpCost(skill) {
         return skill.tpCost;
     }
 
+    /**
+     * @param {RMMZ.DataSkill} skill
+     * @returns {boolean}
+     */
     canPaySkillCost(skill) {
         return (
             this._tp >= this.skillTpCost(skill) &&
@@ -3161,11 +4347,19 @@ class Game_BattlerBase {
         );
     }
 
+    /**
+     * @param {RMMZ.DataSkill} skill
+     * @returns {void}
+     */
     paySkillCost(skill) {
         this._mp -= this.skillMpCost(skill);
         this._tp -= this.skillTpCost(skill);
     }
 
+    /**
+     * @param {RMMZ.DataSkill | RMMZ.DataItem} item
+     * @returns {boolean}
+     */
     isOccasionOk(item) {
         if ($gameParty.inBattle()) {
             return item.occasion === 0 || item.occasion === 1;
@@ -3174,10 +4368,18 @@ class Game_BattlerBase {
         }
     }
 
+    /**
+     * @param {RMMZ.DataSkill | RMMZ.DataItem} item
+     * @returns {boolean}
+     */
     meetsUsableItemConditions(item) {
         return this.canMove() && this.isOccasionOk(item);
     }
 
+    /**
+     * @param {RMMZ.DataSkill} skill
+     * @returns {boolean}
+     */
     meetsSkillConditions(skill) {
         return (
             this.meetsUsableItemConditions(skill) &&
@@ -3188,10 +4390,18 @@ class Game_BattlerBase {
         );
     }
 
+    /**
+     * @param {RMMZ.DataSkill | RMMZ.DataItem} item
+     * @returns {boolean}
+     */
     meetsItemConditions(item) {
         return this.meetsUsableItemConditions(item) && $gameParty.hasItem(item);
     }
 
+    /**
+     * @param {RMMZ.DataItemBase | null} item
+     * @returns {boolean}
+     */
     canUse(item) {
         if (!item) {
             return false;
@@ -3204,6 +4414,10 @@ class Game_BattlerBase {
         }
     }
 
+    /**
+     * @param {RMMZ.DataItemBase} item
+     * @returns {item is RMMZ.DataWeapon | RMMZ.DataArmor}
+     */
     canEquip(item) {
         if (!item) {
             return false;
@@ -3216,6 +4430,10 @@ class Game_BattlerBase {
         }
     }
 
+    /**
+     * @param {RMMZ.DataWeapon} item
+     * @returns {boolean}
+     */
     canEquipWeapon(item) {
         return (
             this.isEquipWtypeOk(item.wtypeId) &&
@@ -3223,6 +4441,10 @@ class Game_BattlerBase {
         );
     }
 
+    /**
+     * @param {RMMZ.DataArmor} item
+     * @returns {boolean}
+     */
     canEquipArmor(item) {
         return (
             this.isEquipAtypeOk(item.atypeId) &&
@@ -3230,14 +4452,17 @@ class Game_BattlerBase {
         );
     }
 
+    /** @returns {number} */
     guardSkillId() {
         return 2;
     }
 
+    /** @returns {boolean} */
     canAttack() {
         return this.canUse($dataSkills[this.attackSkillId()]);
     }
 
+    /** @returns {boolean} */
     canGuard() {
         return this.canUse($dataSkills[this.guardSkillId()]);
     }
@@ -3248,6 +4473,7 @@ class Game_BattlerBase {
  * and actions.
  */
 class Game_Battler extends Game_BattlerBase {
+    /** @param {[]} args */
     constructor(...args) {
         super(...args);
     }
@@ -3256,108 +4482,153 @@ class Game_Battler extends Game_BattlerBase {
         super.initialize();
     }
 
+    /** @returns {void} */
     initMembers() {
         super.initMembers();
+        /** @type {Game_Action[]} */
         this._actions = [];
+        /** @type {number} */
         this._speed = 0;
+        /** @type {Game_ActionResult} */
         this._result = new Game_ActionResult();
+        /** @type {RMMZ.ActionState | ""} */
         this._actionState = "";
+        /** @type {number} */
         this._lastTargetIndex = 0;
+        /** @type {boolean} */
         this._damagePopup = false;
+        /** @type {RMMZ.BattlerEffectType | null} */
         this._effectType = null;
+        /** @type {RMMZ.BattlerMotionType | null} */
         this._motionType = null;
+        /** @type {number} */
         this._weaponImageId = 0;
+        /** @type {boolean} */
         this._motionRefresh = false;
+        /** @type {boolean} */
         this._selected = false;
+        /** @type {string} */
         this._tpbState = "";
+        /** @type {number} */
         this._tpbChargeTime = 0;
+        /** @type {number} */
         this._tpbCastTime = 0;
+        /** @type {number} */
         this._tpbIdleTime = 0;
+        /** @type {number} */
         this._tpbTurnCount = 0;
+        /** @type {boolean} */
         this._tpbTurnEnd = false;
     }
 
+    /** @returns {void} */
     clearDamagePopup() {
         this._damagePopup = false;
     }
 
+    /** @returns {void} */
     clearWeaponAnimation() {
         this._weaponImageId = 0;
     }
 
+    /** @returns {void} */
     clearEffect() {
         this._effectType = null;
     }
 
+    /** @returns {void} */
     clearMotion() {
         this._motionType = null;
         this._motionRefresh = false;
     }
 
+    /**
+     * @param {RMMZ.BattlerEffectType} effectType
+     * @returns {void}
+     */
     requestEffect(effectType) {
         this._effectType = effectType;
     }
 
+    /**
+     * @param {RMMZ.BattlerMotionType} motionType
+     * @returns {void}
+     */
     requestMotion(motionType) {
         this._motionType = motionType;
     }
 
+    /** @returns {void} */
     requestMotionRefresh() {
         this._motionRefresh = true;
     }
 
+    /** @returns {void} */
     cancelMotionRefresh() {
         this._motionRefresh = false;
     }
 
+    /** @returns {void} */
     select() {
         this._selected = true;
     }
 
+    /** @returns {void} */
     deselect() {
         this._selected = false;
     }
 
+    /** @returns {boolean} */
     isDamagePopupRequested() {
         return this._damagePopup;
     }
 
+    /** @returns {boolean} */
     isEffectRequested() {
         return !!this._effectType;
     }
 
+    /** @returns {boolean} */
     isMotionRequested() {
         return !!this._motionType;
     }
 
+    /** @returns {boolean} */
     isWeaponAnimationRequested() {
         return this._weaponImageId > 0;
     }
 
+    /** @returns {boolean} */
     isMotionRefreshRequested() {
         return this._motionRefresh;
     }
 
+    /** @returns {boolean} */
     isSelected() {
         return this._selected;
     }
 
+    /** @returns {RMMZ.BattlerEffectType | null} */
     effectType() {
         return this._effectType;
     }
 
+    /** @returns {RMMZ.BattlerMotionType | null} */
     motionType() {
         return this._motionType;
     }
 
+    /** @returns {number} */
     weaponImageId() {
         return this._weaponImageId;
     }
 
+    /** @returns {void} */
     startDamagePopup() {
         this._damagePopup = true;
     }
 
+    /** @returns {boolean} */
     shouldPopupDamage() {
         const result = this._result;
         return (
@@ -3368,44 +4639,67 @@ class Game_Battler extends Game_BattlerBase {
         );
     }
 
+    /**
+     * @param {RMMZ.DataID} weaponImageId
+     * @returns {void}
+     */
     startWeaponAnimation(weaponImageId) {
         this._weaponImageId = weaponImageId;
     }
 
+    /**
+     * @param {number} index
+     * @returns {Game_Action}
+     */
     action(index) {
         return this._actions[index];
     }
 
+    /**
+     * @param {number} index
+     * @param {Game_Action} action
+     * @returns {void}
+     */
     setAction(index, action) {
         this._actions[index] = action;
     }
 
+    /** @returns {number} */
     numActions() {
         return this._actions.length;
     }
 
+    /** @returns {void} */
     clearActions() {
         this._actions = [];
     }
 
+    /** @returns {Game_ActionResult} */
     result() {
         return this._result;
     }
 
+    /** @returns {void} */
     clearResult() {
         this._result.clear();
     }
 
+    /** @returns {void} */
     clearTpbChargeTime() {
         this._tpbState = "charging";
         this._tpbChargeTime = 0;
     }
 
+    /** @returns {void} */
     applyTpbPenalty() {
         this._tpbState = "charging";
         this._tpbChargeTime -= 1;
     }
 
+    /**
+     * @param {boolean} [advantageous]
+     * @returns {void}
+     */
     initTpbChargeTime(advantageous) {
         const speed = this.tpbRelativeSpeed();
         this._tpbState = "charging";
@@ -3415,31 +4709,38 @@ class Game_Battler extends Game_BattlerBase {
         }
     }
 
+    /** @returns {number} */
     tpbChargeTime() {
         return this._tpbChargeTime;
     }
 
+    /** @returns {void} */
     startTpbCasting() {
         this._tpbState = "casting";
         this._tpbCastTime = 0;
     }
 
+    /** @returns {void} */
     startTpbAction() {
         this._tpbState = "acting";
     }
 
+    /** @returns {boolean} */
     isTpbCharged() {
         return this._tpbState === "charged";
     }
 
+    /** @returns {boolean} */
     isTpbReady() {
         return this._tpbState === "ready";
     }
 
+    /** @returns {boolean} */
     isTpbTimeout() {
         return this._tpbIdleTime >= 1;
     }
 
+    /** @returns {void} */
     updateTpb() {
         if (this.canMove()) {
             this.updateTpbChargeTime();
@@ -3451,6 +4752,7 @@ class Game_Battler extends Game_BattlerBase {
         }
     }
 
+    /** @returns {void} */
     updateTpbChargeTime() {
         if (this._tpbState === "charging") {
             this._tpbChargeTime += this.tpbAcceleration();
@@ -3461,6 +4763,7 @@ class Game_Battler extends Game_BattlerBase {
         }
     }
 
+    /** @returns {void} */
     updateTpbCastTime() {
         if (this._tpbState === "casting") {
             this._tpbCastTime += this.tpbAcceleration();
@@ -3471,37 +4774,44 @@ class Game_Battler extends Game_BattlerBase {
         }
     }
 
+    /** @returns {void} */
     updateTpbAutoBattle() {
         if (this.isTpbCharged() && !this.isTpbTurnEnd() && this.isAutoBattle()) {
             this.makeTpbActions();
         }
     }
 
+    /** @returns {void} */
     updateTpbIdleTime() {
         if (!this.canMove() || this.isTpbCharged()) {
             this._tpbIdleTime += this.tpbAcceleration();
         }
     }
 
+    /** @returns {number} */
     tpbAcceleration() {
         const speed = this.tpbRelativeSpeed();
         const referenceTime = $gameParty.tpbReferenceTime();
         return speed / referenceTime;
     }
 
+    /** @returns {number} */
     tpbRelativeSpeed() {
         return this.tpbSpeed() / $gameParty.tpbBaseSpeed();
     }
 
+    /** @returns {number} */
     tpbSpeed() {
         return Math.sqrt(this.agi) + 1;
     }
 
+    /** @returns {number} */
     tpbBaseSpeed() {
         const baseAgility = this.paramBasePlus(6);
         return Math.sqrt(baseAgility) + 1;
     }
 
+    /** @returns {number} */
     tpbRequiredCastTime() {
         const actions = this._actions.filter(action => action.isValid());
         const items = actions.map(action => action.item());
@@ -3509,32 +4819,38 @@ class Game_Battler extends Game_BattlerBase {
         return Math.sqrt(delay) / this.tpbSpeed();
     }
 
+    /** @returns {void} */
     onTpbCharged() {
         if (!this.shouldDelayTpbCharge()) {
             this.finishTpbCharge();
         }
     }
 
+    /** @returns {boolean} */
     shouldDelayTpbCharge() {
         return !BattleManager.isActiveTpb() && $gameParty.canInput();
     }
 
+    /** @returns {void} */
     finishTpbCharge() {
         this._tpbState = "charged";
         this._tpbTurnEnd = true;
         this._tpbIdleTime = 0;
     }
 
+    /** @returns {boolean} */
     isTpbTurnEnd() {
         return this._tpbTurnEnd;
     }
 
+    /** @returns {void} */
     initTpbTurn() {
         this._tpbTurnEnd = false;
         this._tpbTurnCount = 0;
         this._tpbIdleTime = 0;
     }
 
+    /** @returns {void} */
     startTpbTurn() {
         this._tpbTurnEnd = false;
         this._tpbTurnCount++;
@@ -3544,6 +4860,7 @@ class Game_Battler extends Game_BattlerBase {
         }
     }
 
+    /** @returns {void} */
     makeTpbActions() {
         this.makeActions();
         if (this.canInput()) {
@@ -3554,12 +4871,14 @@ class Game_Battler extends Game_BattlerBase {
         }
     }
 
+    /** @returns {void} */
     onTpbTimeout() {
         this.onAllActionsEnd();
         this._tpbTurnEnd = true;
         this._tpbIdleTime = 0;
     }
 
+    /** @returns {number} */
     turnCount() {
         if (BattleManager.isTpb()) {
             return this._tpbTurnCount;
@@ -3568,6 +4887,7 @@ class Game_Battler extends Game_BattlerBase {
         }
     }
 
+    /** @returns {boolean} */
     canInput() {
         if (BattleManager.isTpb() && !this.isTpbCharged()) {
             return false;
@@ -3575,6 +4895,7 @@ class Game_Battler extends Game_BattlerBase {
         return super.canInput();
     }
 
+    /** @returns {void} */
     refresh() {
         super.refresh();
         if (this.hp === 0) {
@@ -3584,6 +4905,10 @@ class Game_Battler extends Game_BattlerBase {
         }
     }
 
+    /**
+     * @param {RMMZ.StateID} stateId
+     * @returns {void}
+     */
     addState(stateId) {
         if (this.isStateAddable(stateId)) {
             if (!this.isStateAffected(stateId)) {
@@ -3595,6 +4920,10 @@ class Game_Battler extends Game_BattlerBase {
         }
     }
 
+    /**
+     * @param {RMMZ.StateID} stateId
+     * @returns {boolean}
+     */
     isStateAddable(stateId) {
         return (
             this.isAlive() &&
@@ -3604,10 +4933,15 @@ class Game_Battler extends Game_BattlerBase {
         );
     }
 
+    /**
+     * @param {RMMZ.StateID} stateId
+     * @returns {boolean}
+     */
     isStateRestrict(stateId) {
         return $dataStates[stateId].removeByRestriction && this.isRestricted();
     }
 
+    /** @returns {void} */
     onRestrict() {
         super.onRestrict();
         this.clearTpbChargeTime();
@@ -3619,6 +4953,10 @@ class Game_Battler extends Game_BattlerBase {
         }
     }
 
+    /**
+     * @param {RMMZ.StateID} stateId
+     * @returns {void}
+     */
     removeState(stateId) {
         if (this.isStateAffected(stateId)) {
             if (stateId === this.deathStateId()) {
@@ -3630,6 +4968,7 @@ class Game_Battler extends Game_BattlerBase {
         }
     }
 
+    /** @returns {void} */
     escape() {
         if ($gameParty.inBattle()) {
             this.hide();
@@ -3639,6 +4978,11 @@ class Game_Battler extends Game_BattlerBase {
         SoundManager.playEscape();
     }
 
+    /**
+     * @param {RMMZ.ParamID} paramId
+     * @param {number} turns
+     * @returns {void}
+     */
     addBuff(paramId, turns) {
         if (this.isAlive()) {
             this.increaseBuff(paramId);
@@ -3650,6 +4994,11 @@ class Game_Battler extends Game_BattlerBase {
         }
     }
 
+    /**
+     * @param {RMMZ.ParamID} paramId
+     * @param {number} turns
+     * @returns {void}
+     */
     addDebuff(paramId, turns) {
         if (this.isAlive()) {
             this.decreaseBuff(paramId);
@@ -3661,6 +5010,10 @@ class Game_Battler extends Game_BattlerBase {
         }
     }
 
+    /**
+     * @param {RMMZ.ParamID} paramId
+     * @returns {void}
+     */
     removeBuff(paramId) {
         if (this.isAlive() && this.isBuffOrDebuffAffected(paramId)) {
             this.eraseBuff(paramId);
@@ -3669,6 +5022,7 @@ class Game_Battler extends Game_BattlerBase {
         }
     }
 
+    /** @returns {void} */
     removeBattleStates() {
         for (const state of this.states()) {
             if (state.removeAtBattleEnd) {
@@ -3677,12 +5031,17 @@ class Game_Battler extends Game_BattlerBase {
         }
     }
 
+    /** @returns {void} */
     removeAllBuffs() {
         for (let i = 0; i < this.buffLength(); i++) {
             this.removeBuff(i);
         }
     }
 
+    /**
+     * @param {RMMZ.AutoRemovalTiming} timing
+     * @returns {void}
+     */
     removeStatesAuto(timing) {
         for (const state of this.states()) {
             if (
@@ -3694,6 +5053,7 @@ class Game_Battler extends Game_BattlerBase {
         }
     }
 
+    /** @returns {void} */
     removeBuffsAuto() {
         for (let i = 0; i < this.buffLength(); i++) {
             if (this.isBuffExpired(i)) {
@@ -3702,6 +5062,7 @@ class Game_Battler extends Game_BattlerBase {
         }
     }
 
+    /** @returns {void} */
     removeStatesByDamage() {
         for (const state of this.states()) {
             if (
@@ -3713,11 +5074,13 @@ class Game_Battler extends Game_BattlerBase {
         }
     }
 
+    /** @returns {number} */
     makeActionTimes() {
         const actionPlusSet = this.actionPlusSet();
         return actionPlusSet.reduce((r, p) => (Math.random() < p ? r + 1 : r), 1);
     }
 
+    /** @returns {void} */
     makeActions() {
         this.clearActions();
         if (this.canMove()) {
@@ -3729,26 +5092,39 @@ class Game_Battler extends Game_BattlerBase {
         }
     }
 
+    /** @returns {number} */
     speed() {
         return this._speed;
     }
 
+    /** @returns {void} */
     makeSpeed() {
         this._speed = Math.min(...this._actions.map(action => action.speed())) || 0;
     }
 
+    /** @returns {Game_Action} */
     currentAction() {
         return this._actions[0];
     }
 
+    /** @returns {void} */
     removeCurrentAction() {
         this._actions.shift();
     }
 
+    /**
+     * @param {Game_Actor | Game_Enemy} target
+     * @returns {void}
+     */
     setLastTarget(target) {
         this._lastTargetIndex = target ? target.index() : 0;
     }
 
+    /**
+     * @param {RMMZ.SkillID} skillId
+     * @param {RMMZ.ActorID | RMMZ.EnemyID} targetIndex
+     * @returns {void}
+     */
     forceAction(skillId, targetIndex) {
         this.clearActions();
         const action = new Game_Action(this, true);
@@ -3765,6 +5141,10 @@ class Game_Battler extends Game_BattlerBase {
         }
     }
 
+    /**
+     * @param {RMMZ.ActionItem} item
+     * @returns {void}
+     */
     useItem(item) {
         if (DataManager.isSkill(item)) {
             this.paySkillCost(item);
@@ -3773,43 +5153,70 @@ class Game_Battler extends Game_BattlerBase {
         }
     }
 
+    /**
+     * @param {RMMZ.DataItem} item
+     * @returns {void}
+     */
     consumeItem(item) {
         $gameParty.consumeItem(item);
     }
 
+    /**
+     * @param {number} value
+     * @returns {void}
+     */
     gainHp(value) {
         this._result.hpDamage = -value;
         this._result.hpAffected = true;
         this.setHp(this.hp + value);
     }
 
+    /**
+     * @param {number} value
+     * @returns {void}
+     */
     gainMp(value) {
         this._result.mpDamage = -value;
         this.setMp(this.mp + value);
     }
 
+    /**
+     * @param {number} value
+     * @returns {void}
+     */
     gainTp(value) {
         this._result.tpDamage = -value;
         this.setTp(this.tp + value);
     }
 
+    /**
+     * @param {number} value
+     * @returns {void}
+     */
     gainSilentTp(value) {
         this.setTp(this.tp + value);
     }
 
+    /** @returns {void} */
     initTp() {
         this.setTp(Math.randomInt(25));
     }
 
+    /** @returns {void} */
     clearTp() {
         this.setTp(0);
     }
 
+    /**
+     * @param {number} damageRate
+     * @returns {void}
+     */
     chargeTpByDamage(damageRate) {
         const value = Math.floor(50 * damageRate * this.tcr);
         this.gainSilentTp(value);
     }
 
+    /** @returns {void} */
     regenerateHp() {
         const minRecover = -this.maxSlipDamage();
         const value = Math.max(Math.floor(this.mhp * this.hrg), minRecover);
@@ -3818,10 +5225,12 @@ class Game_Battler extends Game_BattlerBase {
         }
     }
 
+    /** @returns {number} */
     maxSlipDamage() {
         return $dataSystem.optSlipDeath ? this.hp : Math.max(this.hp - 1, 0);
     }
 
+    /** @returns {void} */
     regenerateMp() {
         const value = Math.floor(this.mmp * this.mrg);
         if (value !== 0) {
@@ -3829,11 +5238,13 @@ class Game_Battler extends Game_BattlerBase {
         }
     }
 
+    /** @returns {void} */
     regenerateTp() {
         const value = Math.floor(100 * this.trg);
         this.gainSilentTp(value);
     }
 
+    /** @returns {void} */
     regenerateAll() {
         if (this.isAlive()) {
             this.regenerateHp();
@@ -3842,6 +5253,10 @@ class Game_Battler extends Game_BattlerBase {
         }
     }
 
+    /**
+     * @param {boolean} [advantageous]
+     * @returns {void}
+     */
     onBattleStart(advantageous) {
         this.setActionState("undecided");
         this.clearMotion();
@@ -3852,12 +5267,14 @@ class Game_Battler extends Game_BattlerBase {
         }
     }
 
+    /** @returns {void} */
     onAllActionsEnd() {
         this.clearResult();
         this.removeStatesAuto(1);
         this.removeBuffsAuto();
     }
 
+    /** @returns {void} */
     onTurnEnd() {
         this.clearResult();
         this.regenerateAll();
@@ -3866,6 +5283,7 @@ class Game_Battler extends Game_BattlerBase {
         this.removeStatesAuto(2);
     }
 
+    /** @returns {void} */
     onBattleEnd() {
         this.clearResult();
         this.removeBattleStates();
@@ -3877,32 +5295,45 @@ class Game_Battler extends Game_BattlerBase {
         this.appear();
     }
 
+    /**
+     * @param {number} value
+     * @returns {void}
+     */
     onDamage(value) {
         this.removeStatesByDamage();
         this.chargeTpByDamage(value / this.mhp);
     }
 
+    /**
+     * @param {RMMZ.ActionState} actionState
+     * @returns {void}
+     */
     setActionState(actionState) {
         this._actionState = actionState;
         this.requestMotionRefresh();
     }
 
+    /** @returns {boolean} */
     isUndecided() {
         return this._actionState === "undecided";
     }
 
+    /** @returns {boolean} */
     isInputting() {
         return this._actionState === "inputting";
     }
 
+    /** @returns {boolean} */
     isWaiting() {
         return this._actionState === "waiting";
     }
 
+    /** @returns {boolean} */
     isActing() {
         return this._actionState === "acting";
     }
 
+    /** @returns {boolean} */
     isChanting() {
         if (this.isWaiting()) {
             return this._actions.some(action => action.isMagicSkill());
@@ -3910,6 +5341,7 @@ class Game_Battler extends Game_BattlerBase {
         return false;
     }
 
+    /** @returns {boolean} */
     isGuardWaiting() {
         if (this.isWaiting()) {
             return this._actions.some(action => action.isGuard());
@@ -3917,52 +5349,73 @@ class Game_Battler extends Game_BattlerBase {
         return false;
     }
 
+    /**
+     * @param {Game_Action} action
+     * @returns {void}
+     */
     performActionStart(action) {
         if (!action.isGuard()) {
             this.setActionState("acting");
         }
     }
 
+    /**
+     * @param {Game_Action} action
+     * @returns {void}
+     */
     performAction(/*action*/) {
         //
     }
 
+    /** @returns {void} */
     performActionEnd() {
         //
     }
 
+    /** @returns {void} */
     performDamage() {
         //
     }
 
+    /** @returns {void} */
     performMiss() {
         SoundManager.playMiss();
     }
 
+    /** @returns {void} */
     performRecovery() {
         SoundManager.playRecovery();
     }
 
+    /** @returns {void} */
     performEvasion() {
         SoundManager.playEvasion();
     }
 
+    /** @returns {void} */
     performMagicEvasion() {
         SoundManager.playMagicEvasion();
     }
 
+    /** @returns {void} */
     performCounter() {
         SoundManager.playEvasion();
     }
 
+    /** @returns {void} */
     performReflection() {
         SoundManager.playReflection();
     }
 
+    /**
+     * @param {Game_Battler} target
+     * @returns {void}
+     */
     performSubstitute(/*target*/) {
         //
     }
 
+    /** @returns {void} */
     performCollapse() {
         //
     }
@@ -3972,40 +5425,65 @@ class Game_Battler extends Game_BattlerBase {
  * The game object class for an actor.
  */
 class Game_Actor extends Game_Battler {
+    /** @param {[actorId: RMMZ.ActorID]} args */
     constructor(...args) {
         super(...args);
     }
 
+    /** @type {number} */
     get level() {
         return this._level;
     }
 
+    /** @param {RMMZ.ActorID} actorId */
     initialize(actorId) {
         super.initialize();
         this.setup(actorId);
     }
 
+    /** @returns {void} */
     initMembers() {
         super.initMembers();
+        /** @type {number} */
         this._actorId = 0;
+        /** @type {string} */
         this._name = "";
+        /** @type {string} */
         this._nickname = "";
+        /** @type {number} */
         this._classId = 0;
+        /** @type {number} */
         this._level = 0;
+        /** @type {string} */
         this._characterName = "";
+        /** @type {number} */
         this._characterIndex = 0;
+        /** @type {string} */
         this._faceName = "";
+        /** @type {number} */
         this._faceIndex = 0;
+        /** @type {string} */
         this._battlerName = "";
+        /** @type {Record<RMMZ.ClassID, number>} */
         this._exp = {};
+        /** @type {RMMZ.SkillID[]} */
         this._skills = [];
+        /** @type {Game_Item[]} */
         this._equips = [];
+        /** @type {number} */
         this._actionInputIndex = 0;
+        /** @type {Game_Item} */
         this._lastMenuSkill = new Game_Item();
+        /** @type {Game_Item} */
         this._lastBattleSkill = new Game_Item();
+        /** @type {string} */
         this._lastCommandSymbol = "";
     }
 
+    /**
+     * @param {RMMZ.ActorID} actorId
+     * @returns {void}
+     */
     setup(actorId) {
         const actor = $dataActors[actorId];
         this._actorId = actorId;
@@ -4022,73 +5500,105 @@ class Game_Actor extends Game_Battler {
         this.recoverAll();
     }
 
+    /** @returns {number} */
     actorId() {
         return this._actorId;
     }
 
+    /** @returns {import("../data").DataActor} */
     actor() {
         return $dataActors[this._actorId];
     }
 
+    /** @returns {string} */
     name() {
         return this._name;
     }
 
+    /**
+     * @param {string} name
+     * @returns {void}
+     */
     setName(name) {
         this._name = name;
     }
 
+    /** @returns {string} */
     nickname() {
         return this._nickname;
     }
 
+    /**
+     * @param {string} nickname
+     * @returns {void}
+     */
     setNickname(nickname) {
         this._nickname = nickname;
     }
 
+    /** @returns {string} */
     profile() {
         return this._profile;
     }
 
+    /**
+     * @param {string} profile
+     * @returns {void}
+     */
     setProfile(profile) {
         this._profile = profile;
     }
 
+    /** @returns {string} */
     characterName() {
         return this._characterName;
     }
 
+    /** @returns {number} */
     characterIndex() {
         return this._characterIndex;
     }
 
+    /** @returns {string} */
     faceName() {
         return this._faceName;
     }
 
+    /** @returns {number} */
     faceIndex() {
         return this._faceIndex;
     }
 
+    /** @returns {string} */
     battlerName() {
         return this._battlerName;
     }
 
+    /** @returns {void} */
     clearStates() {
         super.clearStates();
         this._stateSteps = {};
     }
 
+    /**
+     * @param {RMMZ.StateID} stateId
+     * @returns {void}
+     */
     eraseState(stateId) {
         super.eraseState(stateId);
         delete this._stateSteps[stateId];
     }
 
+    /**
+     * @param {RMMZ.StateID} stateId
+     * @returns {void}
+     */
     resetStateCounts(stateId) {
         super.resetStateCounts(stateId);
         this._stateSteps[stateId] = $dataStates[stateId].stepsToRemove;
     }
 
+    /** @returns {void} */
     initImages() {
         const actor = this.actor();
         this._characterName = actor.characterName;
@@ -4098,6 +5608,10 @@ class Game_Actor extends Game_Battler {
         this._battlerName = actor.battlerName;
     }
 
+    /**
+     * @param {number} level
+     * @returns {number}
+     */
     expForLevel(level) {
         const c = this.currentClass();
         const basis = c.expParams[0];
@@ -4111,34 +5625,42 @@ class Game_Actor extends Game_Battler {
         );
     }
 
+    /** @returns {void} */
     initExp() {
         this._exp[this._classId] = this.currentLevelExp();
     }
 
+    /** @returns {number} */
     currentExp() {
         return this._exp[this._classId];
     }
 
+    /** @returns {number} */
     currentLevelExp() {
         return this.expForLevel(this._level);
     }
 
+    /** @returns {number} */
     nextLevelExp() {
         return this.expForLevel(this._level + 1);
     }
 
+    /** @returns {number} */
     nextRequiredExp() {
         return this.nextLevelExp() - this.currentExp();
     }
 
+    /** @returns {number} */
     maxLevel() {
         return this.actor().maxLevel;
     }
 
+    /** @returns {boolean} */
     isMaxLevel() {
         return this._level >= this.maxLevel();
     }
 
+    /** @returns {void} */
     initSkills() {
         this._skills = [];
         for (const learning of this.currentClass().learnings) {
@@ -4148,6 +5670,10 @@ class Game_Actor extends Game_Battler {
         }
     }
 
+    /**
+     * @param {(RMMZ.WeaponID | RMMZ.ArmorID)[]} equips
+     * @returns {void}
+     */
     initEquips(equips) {
         const slots = this.equipSlots();
         const maxSlots = slots.length;
@@ -4164,6 +5690,7 @@ class Game_Actor extends Game_Battler {
         this.refresh();
     }
 
+    /** @returns {number[]} */
     equipSlots() {
         const slots = [];
         for (let i = 1; i < $dataSystem.equipTypes.length; i++) {
@@ -4175,26 +5702,41 @@ class Game_Actor extends Game_Battler {
         return slots;
     }
 
+    /** @returns {RMMZ.DataEquipment[]} */
     equips() {
         return this._equips.map(item => item.object());
     }
 
+    /** @returns {RMMZ.DataWeapon[]} */
     weapons() {
         return this.equips().filter(item => item && DataManager.isWeapon(item));
     }
 
+    /** @returns {RMMZ.DataArmor[]} */
     armors() {
         return this.equips().filter(item => item && DataManager.isArmor(item));
     }
 
+    /**
+     * @param {RMMZ.DataWeapon} weapon
+     * @returns {boolean}
+     */
     hasWeapon(weapon) {
         return this.weapons().includes(weapon);
     }
 
+    /**
+     * @param {RMMZ.DataArmor} armor
+     * @returns {boolean}
+     */
     hasArmor(armor) {
         return this.armors().includes(armor);
     }
 
+    /**
+     * @param {RMMZ.EquipmentSlotID} slotId
+     * @returns {boolean}
+     */
     isEquipChangeOk(slotId) {
         return (
             !this.isEquipTypeLocked(this.equipSlots()[slotId]) &&
@@ -4202,6 +5744,11 @@ class Game_Actor extends Game_Battler {
         );
     }
 
+    /**
+     * @param {RMMZ.EquipmentSlotID} slotId
+     * @param {RMMZ.DataEquipment | null} item
+     * @returns {void}
+     */
     changeEquip(slotId, item) {
         if (
             this.tradeItemWithParty(item, this.equips()[slotId]) &&
@@ -4212,12 +5759,22 @@ class Game_Actor extends Game_Battler {
         }
     }
 
+    /**
+     * @param {RMMZ.EquipmentSlotID} slotId
+     * @param {RMMZ.DataEquipment | null} item
+     * @returns {void}
+     */
     forceChangeEquip(slotId, item) {
         this._equips[slotId].setObject(item);
         this.releaseUnequippableItems(true);
         this.refresh();
     }
 
+    /**
+     * @param {RMMZ.DataEquipment | null} newItem
+     * @param {RMMZ.DataEquipment | null} oldItem
+     * @returns {boolean}
+     */
     tradeItemWithParty(newItem, oldItem) {
         if (newItem && !$gameParty.hasItem(newItem)) {
             return false;
@@ -4228,6 +5785,11 @@ class Game_Actor extends Game_Battler {
         }
     }
 
+    /**
+     * @param {RMMZ.EquipmentType} etypeId
+     * @param {RMMZ.WeaponID | RMMZ.ArmorID} itemId
+     * @returns {void}
+     */
     changeEquipById(etypeId, itemId) {
         const slotId = etypeId - 1;
         if (this.equipSlots()[slotId] === 1) {
@@ -4237,10 +5799,18 @@ class Game_Actor extends Game_Battler {
         }
     }
 
+    /**
+     * @param {RMMZ.DataEquipment} item
+     * @returns {boolean}
+     */
     isEquipped(item) {
         return this.equips().includes(item);
     }
 
+    /**
+     * @param {RMMZ.DataEquipment} item
+     * @returns {void}
+     */
     discardEquip(item) {
         const slotId = this.equips().indexOf(item);
         if (slotId >= 0) {
@@ -4248,6 +5818,10 @@ class Game_Actor extends Game_Battler {
         }
     }
 
+    /**
+     * @param {boolean} forcing
+     * @returns {void}
+     */
     releaseUnequippableItems(forcing) {
         for (;;) {
             const slots = this.equipSlots();
@@ -4269,6 +5843,7 @@ class Game_Actor extends Game_Battler {
         }
     }
 
+    /** @returns {void} */
     clearEquipments() {
         const maxSlots = this.equipSlots().length;
         for (let i = 0; i < maxSlots; i++) {
@@ -4278,6 +5853,7 @@ class Game_Actor extends Game_Battler {
         }
     }
 
+    /** @returns {void} */
     optimizeEquipments() {
         const maxSlots = this.equipSlots().length;
         this.clearEquipments();
@@ -4288,6 +5864,10 @@ class Game_Actor extends Game_Battler {
         }
     }
 
+    /**
+     * @param {RMMZ.EquipmentSlotID} slotId
+     * @returns {RMMZ.DataEquipment | null}
+     */
     bestEquipItem(slotId) {
         const etypeId = this.equipSlots()[slotId];
         const items = $gameParty
@@ -4305,10 +5885,18 @@ class Game_Actor extends Game_Battler {
         return bestItem;
     }
 
+    /**
+     * @param {RMMZ.DataEquipment} item
+     * @returns {number}
+     */
     calcEquipItemPerformance(item) {
         return item.params.reduce((a, b) => a + b);
     }
 
+    /**
+     * @param {RMMZ.DataSkill} skill
+     * @returns {boolean}
+     */
     isSkillWtypeOk(skill) {
         const wtypeId1 = skill.requiredWtypeId1;
         const wtypeId2 = skill.requiredWtypeId2;
@@ -4323,57 +5911,76 @@ class Game_Actor extends Game_Battler {
         }
     }
 
+    /**
+     * @param {RMMZ.WeaponType} wtypeId
+     * @returns {boolean}
+     */
     isWtypeEquipped(wtypeId) {
         return this.weapons().some(weapon => weapon.wtypeId === wtypeId);
     }
 
+    /** @returns {void} */
     refresh() {
         this.releaseUnequippableItems(false);
         super.refresh();
     }
 
+    /** @returns {void} */
     hide() {
         super.hide();
         $gameTemp.requestBattleRefresh();
     }
 
+    /** @returns {this is Game_Actor} */
     isActor() {
         return true;
     }
 
+    /** @returns {import("./Game_Party").Game_Party} */
     friendsUnit() {
         return $gameParty;
     }
 
+    /** @returns {import("./Game_Troop").Game_Troop} */
     opponentsUnit() {
         return $gameTroop;
     }
 
+    /** @returns {number} */
     index() {
         return $gameParty.members().indexOf(this);
     }
 
+    /** @returns {boolean} */
     isBattleMember() {
         return $gameParty.battleMembers().includes(this);
     }
 
+    /** @returns {boolean} */
     isFormationChangeOk() {
         return true;
     }
 
+    /** @returns {RMMZ.DataClass} */
     currentClass() {
         return $dataClasses[this._classId];
     }
 
+    /**
+     * @param {RMMZ.DataClass} gameClass
+     * @returns {boolean}
+     */
     isClass(gameClass) {
         return gameClass && this._classId === gameClass.id;
     }
 
+    /** @returns {number[]} */
     skillTypes() {
         const skillTypes = this.addedSkillTypes().sort((a, b) => a - b);
         return skillTypes.filter((x, i, self) => self.indexOf(x) === i);
     }
 
+    /** @returns {RMMZ.DataSkill[]} */
     skills() {
         const list = [];
         for (const id of this._skills.concat(this.addedSkills())) {
@@ -4384,10 +5991,12 @@ class Game_Actor extends Game_Battler {
         return list;
     }
 
+    /** @returns {RMMZ.DataSkill[]} */
     usableSkills() {
         return this.skills().filter(skill => this.canUse(skill));
     }
 
+    /** @returns {{ traits: import("../data").Trait[]; }[]} */
     traitObjects() {
         const objects = super.traitObjects();
         objects.push(this.actor(), this.currentClass());
@@ -4399,6 +6008,7 @@ class Game_Actor extends Game_Battler {
         return objects;
     }
 
+    /** @returns {number[]} */
     attackElements() {
         const set = super.attackElements();
         if (this.hasNoWeapons() && !set.includes(this.bareHandsElementId())) {
@@ -4407,18 +6017,28 @@ class Game_Actor extends Game_Battler {
         return set;
     }
 
+    /** @returns {boolean} */
     hasNoWeapons() {
         return this.weapons().length === 0;
     }
 
+    /** @returns {number} */
     bareHandsElementId() {
         return 1;
     }
 
+    /**
+     * @param {RMMZ.ParamID} paramId
+     * @returns {number}
+     */
     paramBase(paramId) {
         return this.currentClass().params[paramId][this._level];
     }
 
+    /**
+     * @param {RMMZ.ParamID} paramId
+     * @returns {number}
+     */
     paramPlus(paramId) {
         let value = super.paramPlus(paramId);
         for (const item of this.equips()) {
@@ -4429,6 +6049,7 @@ class Game_Actor extends Game_Battler {
         return value;
     }
 
+    /** @returns {number} */
     attackAnimationId1() {
         if (this.hasNoWeapons()) {
             return this.bareHandsAnimationId();
@@ -4438,15 +6059,22 @@ class Game_Actor extends Game_Battler {
         }
     }
 
+    /** @returns {0} */
     attackAnimationId2() {
         const weapons = this.weapons();
         return weapons[1] ? weapons[1].animationId : 0;
     }
 
+    /** @returns {number} */
     bareHandsAnimationId() {
         return 1;
     }
 
+    /**
+     * @param {number} exp
+     * @param {boolean} [show]
+     * @returns {void}
+     */
     changeExp(exp, show) {
         this._exp[this._classId] = Math.max(exp, 0);
         const lastLevel = this._level;
@@ -4463,6 +6091,7 @@ class Game_Actor extends Game_Battler {
         this.refresh();
     }
 
+    /** @returns {void} */
     levelUp() {
         this._level++;
         for (const learning of this.currentClass().learnings) {
@@ -4472,10 +6101,15 @@ class Game_Actor extends Game_Battler {
         }
     }
 
+    /** @returns {void} */
     levelDown() {
         this._level--;
     }
 
+    /**
+     * @param {RMMZ.DataSkill[]} lastSkills
+     * @returns {RMMZ.DataSkill[]}
+     */
     findNewSkills(lastSkills) {
         const newSkills = this.skills();
         for (const lastSkill of lastSkills) {
@@ -4484,6 +6118,10 @@ class Game_Actor extends Game_Battler {
         return newSkills;
     }
 
+    /**
+     * @param {RMMZ.DataSkill[]} newSkills
+     * @returns {void}
+     */
     displayLevelUp(newSkills) {
         const text = TextManager.levelUp.format(
             this._name,
@@ -4497,28 +6135,44 @@ class Game_Actor extends Game_Battler {
         }
     }
 
+    /**
+     * @param {number} exp
+     * @returns {void}
+     */
     gainExp(exp) {
         const newExp = this.currentExp() + Math.round(exp * this.finalExpRate());
         this.changeExp(newExp, this.shouldDisplayLevelUp());
     }
 
+    /** @returns {number} */
     finalExpRate() {
         return this.exr * (this.isBattleMember() ? 1 : this.benchMembersExpRate());
     }
 
+    /** @returns {0 | 1} */
     benchMembersExpRate() {
         return $dataSystem.optExtraExp ? 1 : 0;
     }
 
+    /** @returns {boolean} */
     shouldDisplayLevelUp() {
         return true;
     }
 
+    /**
+     * @param {number} level
+     * @param {boolean} [show]
+     * @returns {void}
+     */
     changeLevel(level, show) {
         level = level.clamp(1, this.maxLevel());
         this.changeExp(this.expForLevel(level), show);
     }
 
+    /**
+     * @param {RMMZ.SkillID} skillId
+     * @returns {void}
+     */
     learnSkill(skillId) {
         if (!this.isLearnedSkill(skillId)) {
             this._skills.push(skillId);
@@ -4526,18 +6180,35 @@ class Game_Actor extends Game_Battler {
         }
     }
 
+    /**
+     * @param {RMMZ.SkillID} skillId
+     * @returns {void}
+     */
     forgetSkill(skillId) {
         this._skills.remove(skillId);
     }
 
+    /**
+     * @param {RMMZ.SkillID} skillId
+     * @returns {boolean}
+     */
     isLearnedSkill(skillId) {
         return this._skills.includes(skillId);
     }
 
+    /**
+     * @param {RMMZ.SkillID} skillId
+     * @returns {boolean}
+     */
     hasSkill(skillId) {
         return this.skills().includes($dataSkills[skillId]);
     }
 
+    /**
+     * @param {RMMZ.ClassID} classId
+     * @param {boolean} [keepExp]
+     * @returns {void}
+     */
     changeClass(classId, keepExp) {
         if (keepExp) {
             this._exp[classId] = this.currentExp();
@@ -4548,6 +6219,11 @@ class Game_Actor extends Game_Battler {
         this.refresh();
     }
 
+    /**
+     * @param {string} characterName
+     * @param {number} characterIndex
+     * @returns {void}
+     */
     setCharacterImage(
         characterName,
         characterIndex
@@ -4556,24 +6232,42 @@ class Game_Actor extends Game_Battler {
         this._characterIndex = characterIndex;
     }
 
+    /**
+     * @param {string} faceName
+     * @param {number} faceIndex
+     * @returns {void}
+     */
     setFaceImage(faceName, faceIndex) {
         this._faceName = faceName;
         this._faceIndex = faceIndex;
         $gameTemp.requestBattleRefresh();
     }
 
+    /**
+     * @param {string} battlerName
+     * @returns {void}
+     */
     setBattlerImage(battlerName) {
         this._battlerName = battlerName;
     }
 
+    /** @returns {boolean} */
     isSpriteVisible() {
         return $gameSystem.isSideView();
     }
 
+    /**
+     * @param {Game_Action} action
+     * @returns {void}
+     */
     performActionStart(action) {
         super.performActionStart(action);
     }
 
+    /**
+     * @param {Game_Action} action
+     * @returns {void}
+     */
     performAction(action) {
         super.performAction(action);
         if (action.isAttack()) {
@@ -4589,10 +6283,12 @@ class Game_Actor extends Game_Battler {
         }
     }
 
+    /** @returns {void} */
     performActionEnd() {
         super.performActionEnd();
     }
 
+    /** @returns {void} */
     performAttack() {
         const weapons = this.weapons();
         const wtypeId = weapons[0] ? weapons[0].wtypeId : 0;
@@ -4609,6 +6305,7 @@ class Game_Actor extends Game_Battler {
         }
     }
 
+    /** @returns {void} */
     performDamage() {
         super.performDamage();
         if (this.isSpriteVisible()) {
@@ -4619,21 +6316,25 @@ class Game_Actor extends Game_Battler {
         SoundManager.playActorDamage();
     }
 
+    /** @returns {void} */
     performEvasion() {
         super.performEvasion();
         this.requestMotion("evade");
     }
 
+    /** @returns {void} */
     performMagicEvasion() {
         super.performMagicEvasion();
         this.requestMotion("evade");
     }
 
+    /** @returns {void} */
     performCounter() {
         super.performCounter();
         this.performAttack();
     }
 
+    /** @returns {void} */
     performCollapse() {
         super.performCollapse();
         if ($gameParty.inBattle()) {
@@ -4641,6 +6342,7 @@ class Game_Actor extends Game_Battler {
         }
     }
 
+    /** @returns {void} */
     performVictory() {
         this.setActionState("done");
         if (this.canMove()) {
@@ -4648,12 +6350,14 @@ class Game_Actor extends Game_Battler {
         }
     }
 
+    /** @returns {void} */
     performEscape() {
         if (this.canMove()) {
             this.requestMotion("escape");
         }
     }
 
+    /** @returns {Game_Action[]} */
     makeActionList() {
         const list = [];
         const attackAction = new Game_Action(this);
@@ -4667,6 +6371,7 @@ class Game_Actor extends Game_Battler {
         return list;
     }
 
+    /** @returns {void} */
     makeAutoBattleActions() {
         for (let i = 0; i < this.numActions(); i++) {
             const list = this.makeActionList();
@@ -4682,6 +6387,7 @@ class Game_Actor extends Game_Battler {
         this.setActionState("waiting");
     }
 
+    /** @returns {void} */
     makeConfusionActions() {
         for (let i = 0; i < this.numActions(); i++) {
             this.action(i).setConfusion();
@@ -4689,6 +6395,7 @@ class Game_Actor extends Game_Battler {
         this.setActionState("waiting");
     }
 
+    /** @returns {void} */
     makeActions() {
         super.makeActions();
         if (this.numActions() > 0) {
@@ -4703,6 +6410,7 @@ class Game_Actor extends Game_Battler {
         }
     }
 
+    /** @returns {void} */
     onPlayerWalk() {
         this.clearResult();
         this.checkFloorEffect();
@@ -4716,6 +6424,10 @@ class Game_Actor extends Game_Battler {
         }
     }
 
+    /**
+     * @param {RMMZ.DataState} state
+     * @returns {void}
+     */
     updateStateSteps(state) {
         if (state.removeByWalking) {
             if (this._stateSteps[state.id] > 0) {
@@ -4726,6 +6438,7 @@ class Game_Actor extends Game_Battler {
         }
     }
 
+    /** @returns {void} */
     showAddedStates() {
         for (const state of this.result().addedStateObjects()) {
             if (state.message1) {
@@ -4734,6 +6447,7 @@ class Game_Actor extends Game_Battler {
         }
     }
 
+    /** @returns {void} */
     showRemovedStates() {
         for (const state of this.result().removedStateObjects()) {
             if (state.message4) {
@@ -4742,10 +6456,12 @@ class Game_Actor extends Game_Battler {
         }
     }
 
+    /** @returns {number} */
     stepsForTurn() {
         return 20;
     }
 
+    /** @returns {void} */
     turnEndOnMap() {
         if ($gameParty.steps() % this.stepsForTurn() === 0) {
             this.onTurnEnd();
@@ -4755,12 +6471,14 @@ class Game_Actor extends Game_Battler {
         }
     }
 
+    /** @returns {void} */
     checkFloorEffect() {
         if ($gamePlayer.isOnDamageFloor()) {
             this.executeFloorDamage();
         }
     }
 
+    /** @returns {void} */
     executeFloorDamage() {
         const floorDamage = Math.floor(this.basicFloorDamage() * this.fdr);
         const realDamage = Math.min(floorDamage, this.maxFloorDamage());
@@ -4770,29 +6488,35 @@ class Game_Actor extends Game_Battler {
         }
     }
 
+    /** @returns {number} */
     basicFloorDamage() {
         return 10;
     }
 
+    /** @returns {number} */
     maxFloorDamage() {
         return $dataSystem.optFloorDeath ? this.hp : Math.max(this.hp - 1, 0);
     }
 
+    /** @returns {void} */
     performMapDamage() {
         if (!$gameParty.inBattle()) {
             $gameScreen.startFlashForDamage();
         }
     }
 
+    /** @returns {void} */
     clearActions() {
         super.clearActions();
         this._actionInputIndex = 0;
     }
 
+    /** @returns {Game_Action} */
     inputtingAction() {
         return this.action(this._actionInputIndex);
     }
 
+    /** @returns {boolean} */
     selectNextCommand() {
         if (this._actionInputIndex < this.numActions() - 1) {
             this._actionInputIndex++;
@@ -4802,6 +6526,7 @@ class Game_Actor extends Game_Battler {
         }
     }
 
+    /** @returns {boolean} */
     selectPreviousCommand() {
         if (this._actionInputIndex > 0) {
             this._actionInputIndex--;
@@ -4811,6 +6536,7 @@ class Game_Actor extends Game_Battler {
         }
     }
 
+    /** @returns {RMMZ.DataSkill} */
     lastSkill() {
         if ($gameParty.inBattle()) {
             return this.lastBattleSkill();
@@ -4819,36 +6545,59 @@ class Game_Actor extends Game_Battler {
         }
     }
 
+    /** @returns {RMMZ.DataSkill} */
     lastMenuSkill() {
         return this._lastMenuSkill.object();
     }
 
+    /**
+     * @param {RMMZ.DataSkill | null} skill
+     * @returns {void}
+     */
     setLastMenuSkill(skill) {
         this._lastMenuSkill.setObject(skill);
     }
 
+    /** @returns {RMMZ.DataSkill} */
     lastBattleSkill() {
         return this._lastBattleSkill.object();
     }
 
+    /**
+     * @param {RMMZ.DataSkill | null} skill
+     * @returns {void}
+     */
     setLastBattleSkill(skill) {
         this._lastBattleSkill.setObject(skill);
     }
 
+    /** @returns {string} */
     lastCommandSymbol() {
         return this._lastCommandSymbol;
     }
 
+    /**
+     * @param {string} symbol
+     * @returns {void}
+     */
     setLastCommandSymbol(symbol) {
         this._lastCommandSymbol = symbol;
     }
 
+    /**
+     * @param {RMMZ.DataItem} item
+     * @returns {boolean}
+     */
     testEscape(item) {
         return item.effects.some(
             effect => effect && effect.code === Game_Action.EFFECT_SPECIAL
         );
     }
 
+    /**
+     * @param {RMMZ.DataItem} item
+     * @returns {boolean}
+     */
     meetsUsableItemConditions(item) {
         if ($gameParty.inBattle()) {
             if (!BattleManager.canEscape() && this.testEscape(item)) {
@@ -4858,6 +6607,7 @@ class Game_Actor extends Game_Battler {
         return super.meetsUsableItemConditions(item);
     }
 
+    /** @returns {void} */
     onEscapeFailure() {
         if (BattleManager.isTpb()) {
             this.applyTpbPenalty();
@@ -4871,24 +6621,42 @@ class Game_Actor extends Game_Battler {
  * The game object class for an enemy.
  */
 class Game_Enemy extends Game_Battler {
+    /** @param {[enemyId: RMMZ.EnemyID, x: number, y: number]} args */
     constructor(...args) {
         super(...args);
     }
 
+    /**
+     * @param {RMMZ.EnemyID} enemyId
+     * @param {number} x
+     * @param {number} y
+     */
     initialize(enemyId, x, y) {
         super.initialize();
         this.setup(enemyId, x, y);
     }
 
+    /** @returns {void} */
     initMembers() {
         super.initMembers();
+        /** @type {number} */
         this._enemyId = 0;
+        /** @type {string} */
         this._letter = "";
+        /** @type {boolean} */
         this._plural = false;
+        /** @type {number} */
         this._screenX = 0;
+        /** @type {number} */
         this._screenY = 0;
     }
 
+    /**
+     * @param {RMMZ.EnemyID} enemyId
+     * @param {number} x
+     * @param {number} y
+     * @returns {void}
+     */
     setup(enemyId, x, y) {
         this._enemyId = enemyId;
         this._screenX = x;
@@ -4896,50 +6664,65 @@ class Game_Enemy extends Game_Battler {
         this.recoverAll();
     }
 
+    /** @returns {this is Game_Enemy} */
     isEnemy() {
         return true;
     }
 
+    /** @returns {import("./Game_Troop").Game_Troop} */
     friendsUnit() {
         return $gameTroop;
     }
 
+    /** @returns {import("./Game_Party").Game_Party} */
     opponentsUnit() {
         return $gameParty;
     }
 
+    /** @returns {number} */
     index() {
         return $gameTroop.members().indexOf(this);
     }
 
+    /** @returns {boolean} */
     isBattleMember() {
         return this.index() >= 0;
     }
 
+    /** @returns {number} */
     enemyId() {
         return this._enemyId;
     }
 
+    /** @returns {import("../data").DataEnemy} */
     enemy() {
         return $dataEnemies[this._enemyId];
     }
 
+    /** @returns {{ traits: import("../data").Trait[]; }[]} */
     traitObjects() {
         return super.traitObjects().concat(this.enemy());
     }
 
+    /**
+     * @param {RMMZ.ParamID} paramId
+     * @returns {number}
+     */
     paramBase(paramId) {
         return this.enemy().params[paramId];
     }
 
+    /** @returns {number} */
     exp() {
         return this.enemy().exp;
     }
 
+    /** @returns {number} */
     gold() {
         return this.enemy().gold;
     }
 
+    /** @returns {RMMZ.DataItemBase[]} */
     makeDropItems() {
         const rate = this.dropItemRate();
         return this.enemy().dropItems.reduce((r, di) => {
@@ -4951,10 +6734,16 @@ class Game_Enemy extends Game_Battler {
         }, []);
     }
 
+    /** @returns {1 | 2} */
     dropItemRate() {
         return $gameParty.hasDropItemDouble() ? 2 : 1;
     }
 
+    /**
+     * @param {RMMZ.DropItemType} kind
+     * @param {RMMZ.DataID} dataId
+     * @returns {import("../data").DataItem | import("../data").DataWeapon | import("../data").DataArmor | null}
+     */
     itemObject(kind, dataId) {
         if (kind === 1) {
             return $dataItems[dataId];
@@ -4967,65 +6756,92 @@ class Game_Enemy extends Game_Battler {
         }
     }
 
+    /** @returns {boolean} */
     isSpriteVisible() {
         return true;
     }
 
+    /** @returns {number} */
     screenX() {
         return this._screenX;
     }
 
+    /** @returns {number} */
     screenY() {
         return this._screenY;
     }
 
+    /** @returns {string} */
     battlerName() {
         return this.enemy().battlerName;
     }
 
+    /** @returns {number} */
     battlerHue() {
         return this.enemy().battlerHue;
     }
 
+    /** @returns {string} */
     originalName() {
         return this.enemy().name;
     }
 
+    /** @returns {string} */
     name() {
         return this.originalName() + (this._plural ? this._letter : "");
     }
 
+    /** @returns {boolean} */
     isLetterEmpty() {
         return this._letter === "";
     }
 
+    /**
+     * @param {string} letter
+     * @returns {void}
+     */
     setLetter(letter) {
         this._letter = letter;
     }
 
+    /**
+     * @param {boolean} plural
+     * @returns {void}
+     */
     setPlural(plural) {
         this._plural = plural;
     }
 
+    /**
+     * @param {Game_Action} action
+     * @returns {void}
+     */
     performActionStart(action) {
         super.performActionStart(action);
         this.requestEffect("whiten");
     }
 
+    /**
+     * @param {Game_Action} action
+     * @returns {void}
+     */
     performAction(action) {
         super.performAction(action);
     }
 
+    /** @returns {void} */
     performActionEnd() {
         super.performActionEnd();
     }
 
+    /** @returns {void} */
     performDamage() {
         super.performDamage();
         SoundManager.playEnemyDamage();
         this.requestEffect("blink");
     }
 
+    /** @returns {void} */
     performCollapse() {
         super.performCollapse();
         switch (this.collapseType()) {
@@ -5043,6 +6859,10 @@ class Game_Enemy extends Game_Battler {
         }
     }
 
+    /**
+     * @param {RMMZ.EnemyID} enemyId
+     * @returns {void}
+     */
     transform(enemyId) {
         const name = this.originalName();
         this._enemyId = enemyId;
@@ -5056,6 +6876,10 @@ class Game_Enemy extends Game_Battler {
         }
     }
 
+    /**
+     * @param {RMMZ.EnemyAction} action
+     * @returns {boolean}
+     */
     meetsCondition(action) {
         const param1 = action.conditionParam1;
         const param2 = action.conditionParam2;
@@ -5077,6 +6901,11 @@ class Game_Enemy extends Game_Battler {
         }
     }
 
+    /**
+     * @param {number} param1
+     * @param {number} param2
+     * @returns {boolean}
+     */
     meetsTurnCondition(param1, param2) {
         const n = this.turnCount();
         if (param2 === 0) {
@@ -5086,32 +6915,63 @@ class Game_Enemy extends Game_Battler {
         }
     }
 
+    /**
+     * @param {number} param1
+     * @param {number} param2
+     * @returns {boolean}
+     */
     meetsHpCondition(param1, param2) {
         return this.hpRate() >= param1 && this.hpRate() <= param2;
     }
 
+    /**
+     * @param {number} param1
+     * @param {number} param2
+     * @returns {boolean}
+     */
     meetsMpCondition(param1, param2) {
         return this.mpRate() >= param1 && this.mpRate() <= param2;
     }
 
+    /**
+     * @param {RMMZ.StateID} param
+     * @returns {boolean}
+     */
     meetsStateCondition(param) {
         return this.isStateAffected(param);
     }
 
+    /**
+     * @param {number} param
+     * @returns {boolean}
+     */
     meetsPartyLevelCondition(param) {
         return $gameParty.highestLevel() >= param;
     }
 
+    /**
+     * @param {RMMZ.SwitchID} param
+     * @returns {boolean}
+     */
     meetsSwitchCondition(param) {
         return $gameSwitches.value(param);
     }
 
+    /**
+     * @param {RMMZ.EnemyAction} action
+     * @returns {boolean}
+     */
     isActionValid(action) {
         return (
             this.meetsCondition(action) && this.canUse($dataSkills[action.skillId])
         );
     }
 
+    /**
+     * @param {RMMZ.EnemyAction[]} actionList
+     * @param {number} ratingZero
+     * @returns {RMMZ.EnemyAction | null | undefined}
+     */
     selectAction(actionList, ratingZero) {
         const sum = actionList.reduce((r, a) => r + a.rating - ratingZero, 0);
         if (sum > 0) {
@@ -5127,6 +6987,10 @@ class Game_Enemy extends Game_Battler {
         }
     }
 
+    /**
+     * @param {RMMZ.EnemyAction[]} actionList
+     * @returns {void}
+     */
     selectAllActions(actionList) {
         const ratingMax = Math.max(...actionList.map(a => a.rating));
         const ratingZero = ratingMax - 3;
@@ -5138,6 +7002,7 @@ class Game_Enemy extends Game_Battler {
         }
     }
 
+    /** @returns {void} */
     makeActions() {
         super.makeActions();
         if (this.numActions() > 0) {
@@ -5161,9 +7026,14 @@ class Game_Actors {
     }
 
     initialize() {
+        /** @type {Game_Actor[]} */
         this._data = [];
     }
 
+    /**
+     * @param {RMMZ.ActorID} actorId
+     * @returns {Game_Actor | null}
+     */
     actor(actorId) {
         if ($dataActors[actorId]) {
             if (!this._data[actorId]) {
@@ -5184,45 +7054,55 @@ class Game_Unit {
     }
 
     initialize() {
+        /** @type {boolean} */
         this._inBattle = false;
     }
 
+    /** @returns {boolean} */
     inBattle() {
         return this._inBattle;
     }
 
+    /** @returns {Game_Battler[]} */
     members() {
         return [];
     }
 
+    /** @returns {Game_Battler[]} */
     aliveMembers() {
         return this.members().filter(member => member.isAlive());
     }
 
+    /** @returns {Game_Battler[]} */
     deadMembers() {
         return this.members().filter(member => member.isDead());
     }
 
+    /** @returns {Game_Battler[]} */
     movableMembers() {
         return this.members().filter(member => member.canMove());
     }
 
+    /** @returns {void} */
     clearActions() {
         for (const member of this.members()) {
             member.clearActions();
         }
     }
 
+    /** @returns {number} */
     agility() {
         const members = this.members();
         const sum = members.reduce((r, member) => r + member.agi, 0);
         return Math.max(1, sum / Math.max(1, members.length));
     }
 
+    /** @returns {number} */
     tgrSum() {
         return this.aliveMembers().reduce((r, member) => r + member.tgr, 0);
     }
 
+    /** @returns {Game_Battler | null} */
     randomTarget() {
         let tgrRand = Math.random() * this.tgrSum();
         let target = null;
@@ -5235,27 +7115,41 @@ class Game_Unit {
         return target;
     }
 
+    /** @returns {Game_Battler | null} */
     randomDeadTarget() {
         const members = this.deadMembers();
         return members.length ? members[Math.randomInt(members.length)] : null;
     }
 
+    /**
+     * @param {number} index
+     * @returns {Game_Battler}
+     */
     smoothTarget(index) {
         const member = this.members()[Math.max(0, index)];
         return member && member.isAlive() ? member : this.aliveMembers()[0];
     }
 
+    /**
+     * @param {number} index
+     * @returns {Game_Battler}
+     */
     smoothDeadTarget(index) {
         const member = this.members()[Math.max(0, index)];
         return member && member.isDead() ? member : this.deadMembers()[0];
     }
 
+    /** @returns {void} */
     clearResults() {
         for (const member of this.members()) {
             member.clearResult();
         }
     }
 
+    /**
+     * @param {boolean} advantageous
+     * @returns {void}
+     */
     onBattleStart(advantageous) {
         for (const member of this.members()) {
             member.onBattleStart(advantageous);
@@ -5263,6 +7157,7 @@ class Game_Unit {
         this._inBattle = true;
     }
 
+    /** @returns {void} */
     onBattleEnd() {
         this._inBattle = false;
         for (const member of this.members()) {
@@ -5270,12 +7165,17 @@ class Game_Unit {
         }
     }
 
+    /** @returns {void} */
     makeActions() {
         for (const member of this.members()) {
             member.makeActions();
         }
     }
 
+    /**
+     * @param {Game_Battler | null} activeMember
+     * @returns {void}
+     */
     select(activeMember) {
         for (const member of this.members()) {
             if (member === activeMember) {
@@ -5286,10 +7186,15 @@ class Game_Unit {
         }
     }
 
+    /** @returns {boolean} */
     isAllDead() {
         return this.aliveMembers().length === 0;
     }
 
+    /**
+     * @param {Game_Battler} target
+     * @returns {Game_Battler | null}
+     */
     substituteBattler(target) {
         for (const member of this.members()) {
             if (member.isSubstitute() && member !== target) {
@@ -5299,15 +7204,18 @@ class Game_Unit {
         return null;
     }
 
+    /** @returns {number} */
     tpbBaseSpeed() {
         const members = this.members();
         return Math.max(...members.map(member => member.tpbBaseSpeed()));
     }
 
+    /** @returns {60 | 240} */
     tpbReferenceTime() {
         return BattleManager.isActiveTpb() ? 240 : 60;
     }
 
+    /** @returns {void} */
     updateTpb() {
         for (const member of this.members()) {
             member.updateTpb();
@@ -5320,6 +7228,7 @@ class Game_Unit {
  * included.
  */
 class Game_Party extends Game_Unit {
+    /** @param {[]} args */
     constructor(...args) {
         super(...args);
     }
@@ -5338,61 +7247,79 @@ class Game_Party extends Game_Unit {
 
     initialize() {
         super.initialize();
+        /** @type {number} */
         this._gold = 0;
+        /** @type {number} */
         this._steps = 0;
+        /** @type {Game_Item} */
         this._lastItem = new Game_Item();
+        /** @type {number} */
         this._menuActorId = 0;
+        /** @type {number} */
         this._targetActorId = 0;
+        /** @type {RMMZ.ActorID[]} */
         this._actors = [];
         this.initAllItems();
     }
 
+    /** @returns {void} */
     initAllItems() {
         this._items = {};
         this._weapons = {};
         this._armors = {};
     }
 
+    /** @returns {boolean} */
     exists() {
         return this._actors.length > 0;
     }
 
+    /** @returns {number} */
     size() {
         return this.members().length;
     }
 
+    /** @returns {boolean} */
     isEmpty() {
         return this.size() === 0;
     }
 
+    /** @returns {Game_Actor[]} */
     members() {
         return this.inBattle() ? this.battleMembers() : this.allMembers();
     }
 
+    /** @returns {Game_Actor[]} */
     allMembers() {
         return this._actors.map(id => $gameActors.actor(id));
     }
 
+    /** @returns {Game_Actor[]} */
     battleMembers() {
         return this.allBattleMembers().filter(actor => actor.isAppeared());
     }
 
+    /** @returns {Game_Actor[]} */
     hiddenBattleMembers() {
         return this.allBattleMembers().filter(actor => actor.isHidden());
     }
 
+    /** @returns {Game_Actor[]} */
     allBattleMembers() {
         return this.allMembers().slice(0, this.maxBattleMembers());
     }
 
+    /** @returns {number} */
     maxBattleMembers() {
         return 4;
     }
 
+    /** @returns {Game_Actor} */
     leader() {
         return this.battleMembers()[0];
     }
 
+    /** @returns {void} */
     removeInvalidMembers() {
         for (const actorId of this._actors) {
             if (!$dataActors[actorId]) {
@@ -5401,6 +7328,7 @@ class Game_Party extends Game_Unit {
         }
     }
 
+    /** @returns {void} */
     reviveBattleMembers() {
         for (const actor of this.battleMembers()) {
             if (actor.isDead()) {
@@ -5409,26 +7337,35 @@ class Game_Party extends Game_Unit {
         }
     }
 
+    /** @returns {import("../data").DataItem[]} */
     items() {
         return Object.keys(this._items).map(id => $dataItems[id]);
     }
 
+    /** @returns {import("../data").DataWeapon[]} */
     weapons() {
         return Object.keys(this._weapons).map(id => $dataWeapons[id]);
     }
 
+    /** @returns {import("../data").DataArmor[]} */
     armors() {
         return Object.keys(this._armors).map(id => $dataArmors[id]);
     }
 
+    /** @returns {RMMZ.DataEquipment[]} */
     equipItems() {
         return this.weapons().concat(this.armors());
     }
 
+    /** @returns {RMMZ.DataItemBase[]} */
     allItems() {
         return this.items().concat(this.equipItems());
     }
 
+    /**
+     * @param {RMMZ.DataItemBase | null} item
+     * @returns {Record<number, number> | null}
+     */
     itemContainer(item) {
         if (!item) {
             return null;
@@ -5443,6 +7380,7 @@ class Game_Party extends Game_Unit {
         }
     }
 
+    /** @returns {void} */
     setupStartingMembers() {
         this._actors = [];
         for (const actorId of $dataSystem.partyMembers) {
@@ -5452,6 +7390,7 @@ class Game_Party extends Game_Unit {
         }
     }
 
+    /** @returns {string} */
     name() {
         const numBattleMembers = this.battleMembers().length;
         if (numBattleMembers === 0) {
@@ -5463,11 +7402,13 @@ class Game_Party extends Game_Unit {
         }
     }
 
+    /** @returns {void} */
     setupBattleTest() {
         this.setupBattleTestMembers();
         this.setupBattleTestItems();
     }
 
+    /** @returns {void} */
     setupBattleTestMembers() {
         for (const battler of $dataSystem.testBattlers) {
             const actor = $gameActors.actor(battler.actorId);
@@ -5480,6 +7421,7 @@ class Game_Party extends Game_Unit {
         }
     }
 
+    /** @returns {void} */
     setupBattleTestItems() {
         for (const item of $dataItems) {
             if (item && item.name.length > 0) {
@@ -5488,10 +7430,15 @@ class Game_Party extends Game_Unit {
         }
     }
 
+    /** @returns {number} */
     highestLevel() {
         return Math.max(...this.members().map(actor => actor.level));
     }
 
+    /**
+     * @param {RMMZ.ActorID} actorId
+     * @returns {void}
+     */
     addActor(actorId) {
         if (!this._actors.includes(actorId)) {
             this._actors.push(actorId);
@@ -5507,6 +7454,10 @@ class Game_Party extends Game_Unit {
         }
     }
 
+    /**
+     * @param {RMMZ.ActorID} actorId
+     * @returns {void}
+     */
     removeActor(actorId) {
         if (this._actors.includes(actorId)) {
             const actor = $gameActors.actor(actorId);
@@ -5521,43 +7472,72 @@ class Game_Party extends Game_Unit {
         }
     }
 
+    /** @returns {number} */
     gold() {
         return this._gold;
     }
 
+    /**
+     * @param {number} amount
+     * @returns {void}
+     */
     gainGold(amount) {
         this._gold = (this._gold + amount).clamp(0, this.maxGold());
     }
 
+    /**
+     * @param {number} amount
+     * @returns {void}
+     */
     loseGold(amount) {
         this.gainGold(-amount);
     }
 
+    /** @returns {number} */
     maxGold() {
         return 99999999;
     }
 
+    /** @returns {number} */
     steps() {
         return this._steps;
     }
 
+    /** @returns {void} */
     increaseSteps() {
         this._steps++;
     }
 
+    /**
+     * @param {RMMZ.DataItemBase | null} item
+     * @returns {number}
+     */
     numItems(item) {
         const container = this.itemContainer(item);
         return container ? container[item.id] || 0 : 0;
     }
 
+    /**
+     * @param {RMMZ.DataItem | RMMZ.DataWeapon | RMMZ.DataArmor | null} item
+     * @returns {number}
+     */
     maxItems(/*item*/) {
         return 99;
     }
 
+    /**
+     * @param {RMMZ.DataItemBase} item
+     * @returns {boolean}
+     */
     hasMaxItems(item) {
         return this.numItems(item) >= this.maxItems(item);
     }
 
+    /**
+     * @param {RMMZ.DataItemBase} item
+     * @param {boolean} [includeEquip]
+     * @returns {boolean}
+     */
     hasItem(item, includeEquip) {
         if (this.numItems(item) > 0) {
             return true;
@@ -5568,10 +7548,20 @@ class Game_Party extends Game_Unit {
         }
     }
 
+    /**
+     * @param {RMMZ.DataEquipment} item
+     * @returns {boolean}
+     */
     isAnyMemberEquipped(item) {
         return this.members().some(actor => actor.equips().includes(item));
     }
 
+    /**
+     * @param {RMMZ.DataItemBase | null} item
+     * @param {number} amount
+     * @param {boolean} [includeEquip]
+     * @returns {void}
+     */
     gainItem(item, amount, includeEquip) {
         const container = this.itemContainer(item);
         if (container) {
@@ -5588,6 +7578,11 @@ class Game_Party extends Game_Unit {
         }
     }
 
+    /**
+     * @param {RMMZ.DataEquipment} item
+     * @param {number} amount
+     * @returns {void}
+     */
     discardMembersEquip(item, amount) {
         let n = amount;
         for (const actor of this.members()) {
@@ -5598,24 +7593,40 @@ class Game_Party extends Game_Unit {
         }
     }
 
+    /**
+     * @param {RMMZ.DataItemBase | null} item
+     * @param {number} amount
+     * @param {boolean} [includeEquip]
+     * @returns {void}
+     */
     loseItem(item, amount, includeEquip) {
         this.gainItem(item, -amount, includeEquip);
     }
 
+    /**
+     * @param {RMMZ.DataItemBase} item
+     * @returns {void}
+     */
     consumeItem(item) {
         if (DataManager.isItem(item) && item.consumable) {
             this.loseItem(item, 1);
         }
     }
 
+    /**
+     * @param {RMMZ.DataItemBase | null} item
+     * @returns {boolean}
+     */
     canUse(item) {
         return this.members().some(actor => actor.canUse(item));
     }
 
+    /** @returns {boolean} */
     canInput() {
         return this.members().some(actor => actor.canInput());
     }
 
+    /** @returns {boolean} */
     isAllDead() {
         if (super.isAllDead()) {
             return this.inBattle() || !this.isEmpty();
@@ -5624,16 +7635,19 @@ class Game_Party extends Game_Unit {
         }
     }
 
+    /** @returns {boolean} */
     isEscaped() {
         return this.isAllDead() && this.hiddenBattleMembers().length > 0;
     }
 
+    /** @returns {void} */
     onPlayerWalk() {
         for (const actor of this.members()) {
             actor.onPlayerWalk();
         }
     }
 
+    /** @returns {Game_Actor} */
     menuActor() {
         let actor = $gameActors.actor(this._menuActorId);
         if (!this.members().includes(actor)) {
@@ -5642,10 +7656,15 @@ class Game_Party extends Game_Unit {
         return actor;
     }
 
+    /**
+     * @param {Game_Actor} actor
+     * @returns {void}
+     */
     setMenuActor(actor) {
         this._menuActorId = actor.actorId();
     }
 
+    /** @returns {void} */
     makeMenuActorNext() {
         let index = this.members().indexOf(this.menuActor());
         if (index >= 0) {
@@ -5656,6 +7675,7 @@ class Game_Party extends Game_Unit {
         }
     }
 
+    /** @returns {void} */
     makeMenuActorPrevious() {
         let index = this.members().indexOf(this.menuActor());
         if (index >= 0) {
@@ -5666,6 +7686,7 @@ class Game_Party extends Game_Unit {
         }
     }
 
+    /** @returns {Game_Actor} */
     targetActor() {
         let actor = $gameActors.actor(this._targetActorId);
         if (!this.members().includes(actor)) {
@@ -5674,18 +7695,32 @@ class Game_Party extends Game_Unit {
         return actor;
     }
 
+    /**
+     * @param {Game_Actor} actor
+     * @returns {void}
+     */
     setTargetActor(actor) {
         this._targetActorId = actor.actorId();
     }
 
+    /** @returns {RMMZ.DataItemBase} */
     lastItem() {
         return this._lastItem.object();
     }
 
+    /**
+     * @param {RMMZ.DataItemBase | null} item
+     * @returns {void}
+     */
     setLastItem(item) {
         this._lastItem.setObject(item);
     }
 
+    /**
+     * @param {RMMZ.ActorID} index1
+     * @param {RMMZ.ActorID} index2
+     * @returns {void}
+     */
     swapOrder(index1, index2) {
         const temp = this._actors[index1];
         this._actors[index1] = this._actors[index2];
@@ -5693,6 +7728,7 @@ class Game_Party extends Game_Unit {
         $gamePlayer.refresh();
     }
 
+    /** @returns {[ string, number ][]} */
     charactersForSavefile() {
         return this.battleMembers().map(actor => [
             actor.characterName(),
@@ -5700,6 +7736,7 @@ class Game_Party extends Game_Unit {
         ]);
     }
 
+    /** @returns {[ string, number ][]} */
     facesForSavefile() {
         return this.battleMembers().map(actor => [
             actor.faceName(),
@@ -5707,34 +7744,48 @@ class Game_Party extends Game_Unit {
         ]);
     }
 
+    /**
+     * @param {RMMZ.DataID} abilityId
+     * @returns {boolean}
+     */
     partyAbility(abilityId) {
         return this.battleMembers().some(actor => actor.partyAbility(abilityId));
     }
 
+    /** @returns {boolean} */
     hasEncounterHalf() {
         return this.partyAbility(Game_Party.ABILITY_ENCOUNTER_HALF);
     }
 
+    /** @returns {boolean} */
     hasEncounterNone() {
         return this.partyAbility(Game_Party.ABILITY_ENCOUNTER_NONE);
     }
 
+    /** @returns {boolean} */
     hasCancelSurprise() {
         return this.partyAbility(Game_Party.ABILITY_CANCEL_SURPRISE);
     }
 
+    /** @returns {boolean} */
     hasRaisePreemptive() {
         return this.partyAbility(Game_Party.ABILITY_RAISE_PREEMPTIVE);
     }
 
+    /** @returns {boolean} */
     hasGoldDouble() {
         return this.partyAbility(Game_Party.ABILITY_GOLD_DOUBLE);
     }
 
+    /** @returns {boolean} */
     hasDropItemDouble() {
         return this.partyAbility(Game_Party.ABILITY_DROP_ITEM_DOUBLE);
     }
 
+    /**
+     * @param {number} troopAgi
+     * @returns {number}
+     */
     ratePreemptive(troopAgi) {
         let rate = this.agility() >= troopAgi ? 0.05 : 0.03;
         if (this.hasRaisePreemptive()) {
@@ -5743,6 +7794,10 @@ class Game_Party extends Game_Unit {
         return rate;
     }
 
+    /**
+     * @param {number} troopAgi
+     * @returns {number}
+     */
     rateSurprise(troopAgi) {
         let rate = this.agility() >= troopAgi ? 0.03 : 0.05;
         if (this.hasCancelSurprise()) {
@@ -5751,30 +7806,35 @@ class Game_Party extends Game_Unit {
         return rate;
     }
 
+    /** @returns {void} */
     performVictory() {
         for (const actor of this.members()) {
             actor.performVictory();
         }
     }
 
+    /** @returns {void} */
     performEscape() {
         for (const actor of this.members()) {
             actor.performEscape();
         }
     }
 
+    /** @returns {void} */
     removeBattleStates() {
         for (const actor of this.members()) {
             actor.removeBattleStates();
         }
     }
 
+    /** @returns {void} */
     requestMotionRefresh() {
         for (const actor of this.members()) {
             actor.requestMotionRefresh();
         }
     }
 
+    /** @returns {void} */
     onEscapeFailure() {
         for (const actor of this.members()) {
             actor.onEscapeFailure();
@@ -5786,17 +7846,20 @@ class Game_Party extends Game_Unit {
  * The game object class for a troop and the battle-related data.
  */
 class Game_Troop extends Game_Unit {
+    /** @param {[]} args */
     constructor(...args) {
         super(...args);
     }
 
     // prettier-ignore
+    /** @type {string[]} */
     static LETTER_TABLE_HALF = [
         " A"," B"," C"," D"," E"," F"," G"," H"," I"," J"," K"," L"," M",
         " N"," O"," P"," Q"," R"," S"," T"," U"," V"," W"," X"," Y"," Z"
     ];
 
     // prettier-ignore
+    /** @type {string[]} */
     static LETTER_TABLE_FULL = [
         "Ａ","Ｂ","Ｃ","Ｄ","Ｅ","Ｆ","Ｇ","Ｈ","Ｉ","Ｊ","Ｋ","Ｌ","Ｍ",
         "Ｎ","Ｏ","Ｐ","Ｑ","Ｒ","Ｓ","Ｔ","Ｕ","Ｖ","Ｗ","Ｘ","Ｙ","Ｚ"
@@ -5804,26 +7867,32 @@ class Game_Troop extends Game_Unit {
 
     initialize() {
         super.initialize();
+        /** @type {Game_Interpreter} */
         this._interpreter = new Game_Interpreter();
         this.clear();
     }
 
+    /** @returns {boolean} */
     isEventRunning() {
         return this._interpreter.isRunning();
     }
 
+    /** @returns {void} */
     updateInterpreter() {
         this._interpreter.update();
     }
 
+    /** @returns {number} */
     turnCount() {
         return this._turnCount;
     }
 
+    /** @returns {Game_Enemy[]} */
     members() {
         return this._enemies;
     }
 
+    /** @returns {void} */
     clear() {
         this._interpreter.clear();
         this._troopId = 0;
@@ -5833,10 +7902,15 @@ class Game_Troop extends Game_Unit {
         this._namesCount = {};
     }
 
+    /** @returns {import("../data").DataTroop} */
     troop() {
         return $dataTroops[this._troopId];
     }
 
+    /**
+     * @param {RMMZ.TroopID} troopId
+     * @returns {void}
+     */
     setup(troopId) {
         this.clear();
         this._troopId = troopId;
@@ -5856,6 +7930,7 @@ class Game_Troop extends Game_Unit {
         this.makeUniqueNames();
     }
 
+    /** @returns {void} */
     makeUniqueNames() {
         const table = this.letterTable();
         for (const enemy of this.members()) {
@@ -5869,6 +7944,7 @@ class Game_Troop extends Game_Unit {
         this.updatePluralFlags();
     }
 
+    /** @returns {void} */
     updatePluralFlags() {
         for (const enemy of this.members()) {
             const name = enemy.originalName();
@@ -5878,12 +7954,14 @@ class Game_Troop extends Game_Unit {
         }
     }
 
+    /** @returns {string[]} */
     letterTable() {
         return $gameSystem.isCJK()
             ? Game_Troop.LETTER_TABLE_FULL
             : Game_Troop.LETTER_TABLE_HALF;
     }
 
+    /** @returns {string[]} */
     enemyNames() {
         const names = [];
         for (const enemy of this.members()) {
@@ -5895,6 +7973,10 @@ class Game_Troop extends Game_Unit {
         return names;
     }
 
+    /**
+     * @param {RMMZ.DataTroopPage} page
+     * @returns {boolean}
+     */
     meetsConditions(page) {
         const c = page.conditions;
         if (
@@ -5942,6 +8024,7 @@ class Game_Troop extends Game_Unit {
         return true;
     }
 
+    /** @returns {void} */
     setupBattleEvent() {
         if (!this._interpreter.isRunning()) {
             if (this._interpreter.setupReservedCommonEvent()) {
@@ -5961,6 +8044,7 @@ class Game_Troop extends Game_Unit {
         }
     }
 
+    /** @returns {void} */
     increaseTurn() {
         const pages = this.troop().pages;
         for (let i = 0; i < pages.length; i++) {
@@ -5972,24 +8056,29 @@ class Game_Troop extends Game_Unit {
         this._turnCount++;
     }
 
+    /** @returns {number} */
     expTotal() {
         return this.deadMembers().reduce((r, enemy) => r + enemy.exp(), 0);
     }
 
+    /** @returns {number} */
     goldTotal() {
         const members = this.deadMembers();
         return members.reduce((r, enemy) => r + enemy.gold(), 0) * this.goldRate();
     }
 
+    /** @returns {1 | 2} */
     goldRate() {
         return $gameParty.hasGoldDouble() ? 2 : 1;
     }
 
+    /** @returns {RMMZ.DataItemBase[]} */
     makeDropItems() {
         const members = this.deadMembers();
         return members.reduce((r, enemy) => r.concat(enemy.makeDropItems()), []);
     }
 
+    /** @returns {boolean} */
     isTpbTurnEnd() {
         const members = this.members();
         const turnMax = Math.max(...members.map(member => member.turnCount()));
@@ -6002,36 +8091,63 @@ class Game_Troop extends Game_Unit {
  * determination functions.
  */
 class Game_Map {
+    /** @param {[]} args */
     constructor(...args) {
         this.initialize(...args);
     }
 
     initialize() {
+        /** @type {Game_Interpreter} */
         this._interpreter = new Game_Interpreter();
+        /** @type {number} */
         this._mapId = 0;
+        /** @type {number} */
         this._tilesetId = 0;
+        /** @type {Game_Event[]} */
         this._events = [];
+        /** @type {Game_CommonEvent[]} */
         this._commonEvents = [];
+        /** @type {Game_Vehicle[]} */
         this._vehicles = [];
+        /** @type {number} */
         this._displayX = 0;
+        /** @type {number} */
         this._displayY = 0;
+        /** @type {boolean} */
         this._nameDisplay = true;
+        /** @type {RMMZ.Direction} */
         this._scrollDirection = 2;
+        /** @type {number} */
         this._scrollRest = 0;
+        /** @type {number} */
         this._scrollSpeed = 4;
+        /** @type {string} */
         this._parallaxName = "";
+        /** @type {boolean} */
         this._parallaxZero = false;
+        /** @type {boolean} */
         this._parallaxLoopX = false;
+        /** @type {boolean} */
         this._parallaxLoopY = false;
+        /** @type {number} */
         this._parallaxSx = 0;
+        /** @type {number} */
         this._parallaxSy = 0;
+        /** @type {number} */
         this._parallaxX = 0;
+        /** @type {number} */
         this._parallaxY = 0;
+        /** @type {string | null} */
         this._battleback1Name = null;
+        /** @type {string | null} */
         this._battleback2Name = null;
         this.createVehicles();
     }
 
+    /**
+     * @param {RMMZ.MapID} mapId
+     * @returns {void}
+     */
     setup(mapId) {
         if (!$dataMap) {
             throw new Error("The map data is not available");
@@ -6048,10 +8164,12 @@ class Game_Map {
         this._needsRefresh = false;
     }
 
+    /** @returns {boolean} */
     isEventRunning() {
         return this._interpreter.isRunning() || this.isAnyEventStarting();
     }
 
+    /** @returns {number} */
     tileWidth() {
         if ("tileSize" in $dataSystem) {
             return $dataSystem.tileSize;
@@ -6060,58 +8178,72 @@ class Game_Map {
         }
     }
 
+    /** @returns {number} */
     tileHeight() {
         return this.tileWidth();
     }
 
+    /** @returns {number} */
     bushDepth() {
         return this.tileHeight() / 4;
     }
 
+    /** @returns {number} */
     mapId() {
         return this._mapId;
     }
 
+    /** @returns {number} */
     tilesetId() {
         return this._tilesetId;
     }
 
+    /** @returns {number} */
     displayX() {
         return this._displayX;
     }
 
+    /** @returns {number} */
     displayY() {
         return this._displayY;
     }
 
+    /** @returns {string} */
     parallaxName() {
         return this._parallaxName;
     }
 
+    /** @returns {string | null} */
     battleback1Name() {
         return this._battleback1Name;
     }
 
+    /** @returns {string | null} */
     battleback2Name() {
         return this._battleback2Name;
     }
 
+    /** @returns {void} */
     requestRefresh() {
         this._needsRefresh = true;
     }
 
+    /** @returns {boolean} */
     isNameDisplayEnabled() {
         return this._nameDisplay;
     }
 
+    /** @returns {void} */
     disableNameDisplay() {
         this._nameDisplay = false;
     }
 
+    /** @returns {void} */
     enableNameDisplay() {
         this._nameDisplay = true;
     }
 
+    /** @returns {void} */
     createVehicles() {
         this._vehicles = [];
         this._vehicles[0] = new Game_Vehicle("boat");
@@ -6119,16 +8251,22 @@ class Game_Map {
         this._vehicles[2] = new Game_Vehicle("airship");
     }
 
+    /** @returns {void} */
     refereshVehicles() {
         for (const vehicle of this._vehicles) {
             vehicle.refresh();
         }
     }
 
+    /** @returns {Game_Vehicle[]} */
     vehicles() {
         return this._vehicles;
     }
 
+    /**
+     * @param {number | RMMZ.VehicleType} type
+     * @returns {Game_Vehicle | null}
+     */
     vehicle(type) {
         if (type === 0 || type === "boat") {
             return this.boat();
@@ -6141,18 +8279,22 @@ class Game_Map {
         }
     }
 
+    /** @returns {Game_Vehicle} */
     boat() {
         return this._vehicles[0];
     }
 
+    /** @returns {Game_Vehicle} */
     ship() {
         return this._vehicles[1];
     }
 
+    /** @returns {Game_Vehicle} */
     airship() {
         return this._vehicles[2];
     }
 
+    /** @returns {void} */
     setupEvents() {
         this._events = [];
         this._commonEvents = [];
@@ -6165,36 +8307,49 @@ class Game_Map {
         this.refreshTileEvents();
     }
 
+    /** @returns {Game_Event[]} */
     events() {
         return this._events.filter(event => !!event);
     }
 
+    /**
+     * @param {RMMZ.EventID} eventId
+     * @returns {Game_Event}
+     */
     event(eventId) {
         return this._events[eventId];
     }
 
+    /**
+     * @param {RMMZ.EventID} eventId
+     * @returns {void}
+     */
     eraseEvent(eventId) {
         this._events[eventId].erase();
     }
 
+    /** @returns {import("../data").DataCommonEvent[]} */
     autorunCommonEvents() {
         return $dataCommonEvents.filter(
             commonEvent => commonEvent && commonEvent.trigger === 1
         );
     }
 
+    /** @returns {import("../data").DataCommonEvent[]} */
     parallelCommonEvents() {
         return $dataCommonEvents.filter(
             commonEvent => commonEvent && commonEvent.trigger === 2
         );
     }
 
+    /** @returns {void} */
     setupScroll() {
         this._scrollDirection = 2;
         this._scrollRest = 0;
         this._scrollSpeed = 4;
     }
 
+    /** @returns {void} */
     setupParallax() {
         this._parallaxName = $dataMap.parallaxName || "";
         this._parallaxZero = ImageManager.isZeroParallax(this._parallaxName);
@@ -6206,6 +8361,7 @@ class Game_Map {
         this._parallaxY = 0;
     }
 
+    /** @returns {void} */
     setupBattleback() {
         if ($dataMap.specifyBattleback) {
             this._battleback1Name = $dataMap.battleback1Name;
@@ -6216,6 +8372,11 @@ class Game_Map {
         }
     }
 
+    /**
+     * @param {number} x
+     * @param {number} y
+     * @returns {void}
+     */
     setDisplayPos(x, y) {
         if (this.isLoopHorizontal()) {
             this._displayX = x.mod(this.width());
@@ -6235,6 +8396,7 @@ class Game_Map {
         }
     }
 
+    /** @returns {number} */
     parallaxOx() {
         if (this._parallaxZero) {
             return this._parallaxX * this.tileWidth();
@@ -6245,6 +8407,7 @@ class Game_Map {
         }
     }
 
+    /** @returns {number} */
     parallaxOy() {
         if (this._parallaxZero) {
             return this._parallaxY * this.tileHeight();
@@ -6255,10 +8418,12 @@ class Game_Map {
         }
     }
 
+    /** @returns {import("../data").DataTileset} */
     tileset() {
         return $dataTilesets[this._tilesetId];
     }
 
+    /** @returns {number[]} */
     tilesetFlags() {
         const tileset = this.tileset();
         if (tileset) {
@@ -6268,54 +8433,70 @@ class Game_Map {
         }
     }
 
+    /** @returns {string} */
     displayName() {
         return $dataMap.displayName;
     }
 
+    /** @returns {number} */
     width() {
         return $dataMap.width;
     }
 
+    /** @returns {number} */
     height() {
         return $dataMap.height;
     }
 
+    /** @returns {number[]} */
     data() {
         return $dataMap.data;
     }
 
+    /** @returns {boolean} */
     isLoopHorizontal() {
         return $dataMap.scrollType === 2 || $dataMap.scrollType === 3;
     }
 
+    /** @returns {boolean} */
     isLoopVertical() {
         return $dataMap.scrollType === 1 || $dataMap.scrollType === 3;
     }
 
+    /** @returns {boolean} */
     isDashDisabled() {
         return $dataMap.disableDashing;
     }
 
+    /** @returns {import("../data").DataEncounter[]} */
     encounterList() {
         return $dataMap.encounterList;
     }
 
+    /** @returns {number} */
     encounterStep() {
         return $dataMap.encounterStep;
     }
 
+    /** @returns {boolean} */
     isOverworld() {
         return this.tileset() && this.tileset().mode === 0;
     }
 
+    /** @returns {number} */
     screenTileX() {
         return Math.round((Graphics.width / this.tileWidth()) * 16) / 16;
     }
 
+    /** @returns {number} */
     screenTileY() {
         return Math.round((Graphics.height / this.tileHeight()) * 16) / 16;
     }
 
+    /**
+     * @param {number} x
+     * @returns {number}
+     */
     adjustX(x) {
         if (
             this.isLoopHorizontal() &&
@@ -6327,6 +8508,10 @@ class Game_Map {
         }
     }
 
+    /**
+     * @param {number} y
+     * @returns {number}
+     */
     adjustY(y) {
         if (
             this.isLoopVertical() &&
@@ -6338,30 +8523,63 @@ class Game_Map {
         }
     }
 
+    /**
+     * @param {number} x
+     * @returns {number}
+     */
     roundX(x) {
         return this.isLoopHorizontal() ? x.mod(this.width()) : x;
     }
 
+    /**
+     * @param {number} y
+     * @returns {number}
+     */
     roundY(y) {
         return this.isLoopVertical() ? y.mod(this.height()) : y;
     }
 
+    /**
+     * @param {number} x
+     * @param {RMMZ.Direction} d
+     * @returns {number}
+     */
     xWithDirection(x, d) {
         return x + (d === 6 ? 1 : d === 4 ? -1 : 0);
     }
 
+    /**
+     * @param {number} y
+     * @param {RMMZ.Direction} d
+     * @returns {number}
+     */
     yWithDirection(y, d) {
         return y + (d === 2 ? 1 : d === 8 ? -1 : 0);
     }
 
+    /**
+     * @param {number} x
+     * @param {RMMZ.Direction} d
+     * @returns {number}
+     */
     roundXWithDirection(x, d) {
         return this.roundX(x + (d === 6 ? 1 : d === 4 ? -1 : 0));
     }
 
+    /**
+     * @param {number} y
+     * @param {RMMZ.Direction} d
+     * @returns {number}
+     */
     roundYWithDirection(y, d) {
         return this.roundY(y + (d === 2 ? 1 : d === 8 ? -1 : 0));
     }
 
+    /**
+     * @param {number} x1
+     * @param {number} x2
+     * @returns {number}
+     */
     deltaX(x1, x2) {
         let result = x1 - x2;
         if (this.isLoopHorizontal() && Math.abs(result) > this.width() / 2) {
@@ -6374,6 +8592,11 @@ class Game_Map {
         return result;
     }
 
+    /**
+     * @param {number} y1
+     * @param {number} y2
+     * @returns {number}
+     */
     deltaY(y1, y2) {
         let result = y1 - y2;
         if (this.isLoopVertical() && Math.abs(result) > this.height() / 2) {
@@ -6386,10 +8609,21 @@ class Game_Map {
         return result;
     }
 
+    /**
+     * @param {number} x1
+     * @param {number} y1
+     * @param {number} x2
+     * @param {number} y2
+     * @returns {number}
+     */
     distance(x1, y1, x2, y2) {
         return Math.abs(this.deltaX(x1, x2)) + Math.abs(this.deltaY(y1, y2));
     }
 
+    /**
+     * @param {number} x
+     * @returns {number}
+     */
     canvasToMapX(x) {
         const tileWidth = this.tileWidth();
         const originX = this._displayX * tileWidth;
@@ -6397,6 +8631,10 @@ class Game_Map {
         return this.roundX(mapX);
     }
 
+    /**
+     * @param {number} y
+     * @returns {number}
+     */
     canvasToMapY(y) {
         const tileHeight = this.tileHeight();
         const originY = this._displayY * tileHeight;
@@ -6404,6 +8642,7 @@ class Game_Map {
         return this.roundY(mapY);
     }
 
+    /** @returns {void} */
     autoplay() {
         if ($dataMap.autoplayBgm) {
             if ($gamePlayer.isInVehicle()) {
@@ -6417,12 +8656,14 @@ class Game_Map {
         }
     }
 
+    /** @returns {void} */
     refreshIfNeeded() {
         if (this._needsRefresh) {
             this.refresh();
         }
     }
 
+    /** @returns {void} */
     refresh() {
         for (const event of this.events()) {
             event.refresh();
@@ -6434,27 +8675,52 @@ class Game_Map {
         this._needsRefresh = false;
     }
 
+    /** @returns {void} */
     refreshTileEvents() {
         this._tileEvents = this.events().filter(event => event.isTile());
     }
 
+    /**
+     * @param {number} x
+     * @param {number} y
+     * @returns {Game_Event[]}
+     */
     eventsXy(x, y) {
         return this.events().filter(event => event.pos(x, y));
     }
 
+    /**
+     * @param {number} x
+     * @param {number} y
+     * @returns {Game_Event[]}
+     */
     eventsXyNt(x, y) {
         return this.events().filter(event => event.posNt(x, y));
     }
 
+    /**
+     * @param {number} x
+     * @param {number} y
+     * @returns {Game_Event[]}
+     */
     tileEventsXy(x, y) {
         return this._tileEvents.filter(event => event.posNt(x, y));
     }
 
+    /**
+     * @param {number} x
+     * @param {number} y
+     * @returns {number}
+     */
     eventIdXy(x, y) {
         const list = this.eventsXy(x, y);
         return list.length === 0 ? 0 : list[0].eventId();
     }
 
+    /**
+     * @param {number} distance
+     * @returns {void}
+     */
     scrollDown(distance) {
         if (this.isLoopVertical()) {
             this._displayY += distance;
@@ -6472,6 +8738,10 @@ class Game_Map {
         }
     }
 
+    /**
+     * @param {number} distance
+     * @returns {void}
+     */
     scrollLeft(distance) {
         if (this.isLoopHorizontal()) {
             this._displayX += $dataMap.width - distance;
@@ -6486,6 +8756,10 @@ class Game_Map {
         }
     }
 
+    /**
+     * @param {number} distance
+     * @returns {void}
+     */
     scrollRight(distance) {
         if (this.isLoopHorizontal()) {
             this._displayX += distance;
@@ -6503,6 +8777,10 @@ class Game_Map {
         }
     }
 
+    /**
+     * @param {number} distance
+     * @returns {void}
+     */
     scrollUp(distance) {
         if (this.isLoopVertical()) {
             this._displayY += $dataMap.height - distance;
@@ -6517,10 +8795,21 @@ class Game_Map {
         }
     }
 
+    /**
+     * @param {number} x
+     * @param {number} y
+     * @returns {boolean}
+     */
     isValid(x, y) {
         return x >= 0 && x < this.width() && y >= 0 && y < this.height();
     }
 
+    /**
+     * @param {number} x
+     * @param {number} y
+     * @param {number} bit
+     * @returns {boolean}
+     */
     checkPassage(x, y, bit) {
         const flags = this.tilesetFlags();
         const tiles = this.allTiles(x, y);
@@ -6542,12 +8831,23 @@ class Game_Map {
         return false;
     }
 
+    /**
+     * @param {number} x
+     * @param {number} y
+     * @param {number} z
+     * @returns {number}
+     */
     tileId(x, y, z) {
         const width = $dataMap.width;
         const height = $dataMap.height;
         return $dataMap.data[(z * height + y) * width + x] || 0;
     }
 
+    /**
+     * @param {number} x
+     * @param {number} y
+     * @returns {number[]}
+     */
     layeredTiles(x, y) {
         const tiles = [];
         for (let i = 0; i < 4; i++) {
@@ -6556,53 +8856,116 @@ class Game_Map {
         return tiles;
     }
 
+    /**
+     * @param {number} x
+     * @param {number} y
+     * @returns {number[]}
+     */
     allTiles(x, y) {
         const tiles = this.tileEventsXy(x, y).map(event => event.tileId());
         return tiles.concat(this.layeredTiles(x, y));
     }
 
+    /**
+     * @param {number} x
+     * @param {number} y
+     * @param {number} z
+     * @returns {number}
+     */
     autotileType(x, y, z) {
         const tileId = this.tileId(x, y, z);
         return tileId >= 2048 ? Math.floor((tileId - 2048) / 48) : -1;
     }
 
+    /**
+     * @param {number} x
+     * @param {number} y
+     * @param {RMMZ.Direction} d
+     * @returns {boolean}
+     */
     isPassable(x, y, d) {
         return this.checkPassage(x, y, (1 << (d / 2 - 1)) & 0x0f);
     }
 
+    /**
+     * @param {number} x
+     * @param {number} y
+     * @returns {boolean}
+     */
     isBoatPassable(x, y) {
         return this.checkPassage(x, y, 0x0200);
     }
 
+    /**
+     * @param {number} x
+     * @param {number} y
+     * @returns {boolean}
+     */
     isShipPassable(x, y) {
         return this.checkPassage(x, y, 0x0400);
     }
 
+    /**
+     * @param {number} x
+     * @param {number} y
+     * @returns {boolean}
+     */
     isAirshipLandOk(x, y) {
         return this.checkPassage(x, y, 0x0800) && this.checkPassage(x, y, 0x0f);
     }
 
+    /**
+     * @param {number} x
+     * @param {number} y
+     * @param {number} bit
+     * @returns {boolean}
+     */
     checkLayeredTilesFlags(x, y, bit) {
         const flags = this.tilesetFlags();
         return this.layeredTiles(x, y).some(tileId => (flags[tileId] & bit) !== 0);
     }
 
+    /**
+     * @param {number} x
+     * @param {number} y
+     * @returns {boolean}
+     */
     isLadder(x, y) {
         return this.isValid(x, y) && this.checkLayeredTilesFlags(x, y, 0x20);
     }
 
+    /**
+     * @param {number} x
+     * @param {number} y
+     * @returns {boolean}
+     */
     isBush(x, y) {
         return this.isValid(x, y) && this.checkLayeredTilesFlags(x, y, 0x40);
     }
 
+    /**
+     * @param {number} x
+     * @param {number} y
+     * @returns {boolean}
+     */
     isCounter(x, y) {
         return this.isValid(x, y) && this.checkLayeredTilesFlags(x, y, 0x80);
     }
 
+    /**
+     * @param {number} x
+     * @param {number} y
+     * @returns {boolean}
+     */
     isDamageFloor(x, y) {
         return this.isValid(x, y) && this.checkLayeredTilesFlags(x, y, 0x100);
     }
 
+    /**
+     * @param {number} x
+     * @param {number} y
+     * @returns {number}
+     */
     terrainTag(x, y) {
         if (this.isValid(x, y)) {
             const flags = this.tilesetFlags();
@@ -6617,20 +8980,36 @@ class Game_Map {
         return 0;
     }
 
+    /**
+     * @param {number} x
+     * @param {number} y
+     * @returns {number}
+     */
     regionId(x, y) {
         return this.isValid(x, y) ? this.tileId(x, y, 5) : 0;
     }
 
+    /**
+     * @param {RMMZ.Direction} direction
+     * @param {number} distance
+     * @param {number} speed
+     * @returns {void}
+     */
     startScroll(direction, distance, speed) {
         this._scrollDirection = direction;
         this._scrollRest = distance;
         this._scrollSpeed = speed;
     }
 
+    /** @returns {boolean} */
     isScrolling() {
         return this._scrollRest > 0;
     }
 
+    /**
+     * @param {boolean} sceneActive
+     * @returns {void}
+     */
     update(sceneActive) {
         this.refreshIfNeeded();
         if (sceneActive) {
@@ -6642,6 +9021,7 @@ class Game_Map {
         this.updateParallax();
     }
 
+    /** @returns {void} */
     updateScroll() {
         if (this.isScrolling()) {
             const lastX = this._displayX;
@@ -6655,10 +9035,16 @@ class Game_Map {
         }
     }
 
+    /** @returns {number} */
     scrollDistance() {
         return Math.pow(2, this._scrollSpeed) / 256;
     }
 
+    /**
+     * @param {RMMZ.Direction} direction
+     * @param {number} distance
+     * @returns {void}
+     */
     doScroll(direction, distance) {
         switch (direction) {
             case 2:
@@ -6676,6 +9062,7 @@ class Game_Map {
         }
     }
 
+    /** @returns {void} */
     updateEvents() {
         for (const event of this.events()) {
             event.update();
@@ -6685,12 +9072,14 @@ class Game_Map {
         }
     }
 
+    /** @returns {void} */
     updateVehicles() {
         for (const vehicle of this._vehicles) {
             vehicle.update();
         }
     }
 
+    /** @returns {void} */
     updateParallax() {
         if (this._parallaxLoopX) {
             this._parallaxX += this._parallaxSx / this.tileWidth() / 2;
@@ -6700,11 +9089,20 @@ class Game_Map {
         }
     }
 
+    /**
+     * @param {number} tilesetId
+     * @returns {void}
+     */
     changeTileset(tilesetId) {
         this._tilesetId = tilesetId;
         this.refresh();
     }
 
+    /**
+     * @param {string | null} battleback1Name
+     * @param {string | null} battleback2Name
+     * @returns {void}
+     */
     changeBattleback(
         battleback1Name,
         battleback2Name
@@ -6713,6 +9111,14 @@ class Game_Map {
         this._battleback2Name = battleback2Name;
     }
 
+    /**
+     * @param {string} name
+     * @param {boolean} loopX
+     * @param {boolean} loopY
+     * @param {number} sx
+     * @param {number} sy
+     * @returns {void}
+     */
     changeParallax(name, loopX, loopY, sx, sy) {
         this._parallaxName = name;
         this._parallaxZero = ImageManager.isZeroParallax(this._parallaxName);
@@ -6728,6 +9134,7 @@ class Game_Map {
         this._parallaxSy = sy;
     }
 
+    /** @returns {void} */
     updateInterpreter() {
         for (;;) {
             this._interpreter.update();
@@ -6744,12 +9151,17 @@ class Game_Map {
         }
     }
 
+    /**
+     * @param {RMMZ.EventID} eventId
+     * @returns {void}
+     */
     unlockEvent(eventId) {
         if (this._events[eventId]) {
             this._events[eventId].unlock();
         }
     }
 
+    /** @returns {boolean} */
     setupStartingEvent() {
         this.refreshIfNeeded();
         if (this._interpreter.setupReservedCommonEvent()) {
@@ -6767,6 +9179,7 @@ class Game_Map {
         return false;
     }
 
+    /** @returns {boolean} */
     setupTestEvent() {
         if (window.$testEvent) {
             this._interpreter.setup($testEvent, 0);
@@ -6776,6 +9189,7 @@ class Game_Map {
         return false;
     }
 
+    /** @returns {boolean} */
     setupStartingMapEvent() {
         for (const event of this.events()) {
             if (event.isStarting()) {
@@ -6787,6 +9201,7 @@ class Game_Map {
         return false;
     }
 
+    /** @returns {boolean} */
     setupAutorunCommonEvent() {
         for (const commonEvent of this.autorunCommonEvents()) {
             if ($gameSwitches.value(commonEvent.switchId)) {
@@ -6797,6 +9212,7 @@ class Game_Map {
         return false;
     }
 
+    /** @returns {boolean} */
     isAnyEventStarting() {
         return this.events().some(event => event.isStarting());
     }
@@ -6807,23 +9223,29 @@ class Game_Map {
  * running parallel process events.
  */
 class Game_CommonEvent {
+    /** @param {[commonEventId: RMMZ.CommonEventID]} args */
     constructor(...args) {
         this.initialize(...args);
     }
 
+    /** @param {RMMZ.CommonEventID} commonEventId */
     initialize(commonEventId) {
+        /** @type {number} */
         this._commonEventId = commonEventId;
         this.refresh();
     }
 
+    /** @returns {import("../data").DataCommonEvent} */
     event() {
         return $dataCommonEvents[this._commonEventId];
     }
 
+    /** @returns {import("../data").DataCommand[]} */
     list() {
         return this.event().list;
     }
 
+    /** @returns {void} */
     refresh() {
         if (this.isActive()) {
             if (!this._interpreter) {
@@ -6834,11 +9256,13 @@ class Game_CommonEvent {
         }
     }
 
+    /** @returns {boolean} */
     isActive() {
         const event = this.event();
         return event.trigger === 2 && $gameSwitches.value(event.switchId);
     }
 
+    /** @returns {void} */
     update() {
         if (this._interpreter) {
             if (!this._interpreter.isRunning()) {
@@ -6854,14 +9278,17 @@ class Game_CommonEvent {
  * coordinates and images, shared by all characters.
  */
 class Game_CharacterBase {
+    /** @param {[]} args */
     constructor(...args) {
         this.initialize(...args);
     }
 
+    /** @type {number} */
     get x() {
             return this._x;
         }
 
+    /** @type {number} */
     get y() {
             return this._y;
         }
@@ -6870,96 +9297,165 @@ class Game_CharacterBase {
         this.initMembers();
     }
 
+    /** @returns {void} */
     initMembers() {
+        /** @type {number} */
         this._x = 0;
+        /** @type {number} */
         this._y = 0;
+        /** @type {number} */
         this._realX = 0;
+        /** @type {number} */
         this._realY = 0;
+        /** @type {number} */
         this._moveSpeed = 4;
+        /** @type {number} */
         this._moveFrequency = 6;
+        /** @type {number} */
         this._opacity = 255;
+        /** @type {import("pixi.js").BLEND_MODES} */
         this._blendMode = 0;
+        /** @type {RMMZ.Direction} */
         this._direction = 2;
+        /** @type {number} */
         this._pattern = 1;
+        /** @type {RMMZ.PriorityType} */
         this._priorityType = 1;
+        /** @type {number} */
         this._tileId = 0;
+        /** @type {string} */
         this._characterName = "";
+        /** @type {number} */
         this._characterIndex = 0;
+        /** @type {boolean} */
         this._isObjectCharacter = false;
+        /** @type {boolean} */
         this._walkAnime = true;
+        /** @type {boolean} */
         this._stepAnime = false;
+        /** @type {boolean} */
         this._directionFix = false;
+        /** @type {boolean} */
         this._through = false;
+        /** @type {boolean} */
         this._transparent = false;
+        /** @type {number} */
         this._bushDepth = 0;
+        /** @type {number} */
         this._animationId = 0;
+        /** @type {number} */
         this._balloonId = 0;
+        /** @type {boolean} */
         this._animationPlaying = false;
+        /** @type {boolean} */
         this._balloonPlaying = false;
+        /** @type {number} */
         this._animationCount = 0;
+        /** @type {number} */
         this._stopCount = 0;
+        /** @type {number} */
         this._jumpCount = 0;
+        /** @type {number} */
         this._jumpPeak = 0;
+        /** @type {boolean} */
         this._movementSuccess = true;
     }
 
+    /**
+     * @param {number} x
+     * @param {number} y
+     * @returns {boolean}
+     */
     pos(x, y) {
         return this._x === x && this._y === y;
     }
 
+    /**
+     * @param {number} x
+     * @param {number} y
+     * @returns {boolean}
+     */
     posNt(x, y) {
         // No through
         return this.pos(x, y) && !this.isThrough();
     }
 
+    /** @returns {number} */
     moveSpeed() {
         return this._moveSpeed;
     }
 
+    /**
+     * @param {number} moveSpeed
+     * @returns {void}
+     */
     setMoveSpeed(moveSpeed) {
         this._moveSpeed = moveSpeed;
     }
 
+    /** @returns {number} */
     moveFrequency() {
         return this._moveFrequency;
     }
 
+    /**
+     * @param {number} moveFrequency
+     * @returns {void}
+     */
     setMoveFrequency(moveFrequency) {
         this._moveFrequency = moveFrequency;
     }
 
+    /** @returns {number} */
     opacity() {
         return this._opacity;
     }
 
+    /**
+     * @param {number} opacity
+     * @returns {void}
+     */
     setOpacity(opacity) {
         this._opacity = opacity;
     }
 
+    /** @returns {import("pixi.js").BLEND_MODES} */
     blendMode() {
         return this._blendMode;
     }
 
+    /**
+     * @param {import("pixi.js").BLEND_MODES} blendMode
+     * @returns {void}
+     */
     setBlendMode(blendMode) {
         this._blendMode = blendMode;
     }
 
+    /** @returns {boolean} */
     isNormalPriority() {
         return this._priorityType === 1;
     }
 
+    /**
+     * @param {RMMZ.PriorityType} priorityType
+     * @returns {void}
+     */
     setPriorityType(priorityType) {
         this._priorityType = priorityType;
     }
 
+    /** @returns {boolean} */
     isMoving() {
         return this._realX !== this._x || this._realY !== this._y;
     }
 
+    /** @returns {boolean} */
     isJumping() {
         return this._jumpCount > 0;
     }
 
+    /** @returns {number} */
     jumpHeight() {
         return (
             (this._jumpPeak * this._jumpPeak -
@@ -6968,34 +9464,45 @@ class Game_CharacterBase {
         );
     }
 
+    /** @returns {boolean} */
     isStopping() {
         return !this.isMoving() && !this.isJumping();
     }
 
+    /**
+     * @param {number} threshold
+     * @returns {boolean}
+     */
     checkStop(threshold) {
         return this._stopCount > threshold;
     }
 
+    /** @returns {void} */
     resetStopCount() {
         this._stopCount = 0;
     }
 
+    /** @returns {number} */
     realMoveSpeed() {
         return this._moveSpeed + (this.isDashing() ? 1 : 0);
     }
 
+    /** @returns {number} */
     distancePerFrame() {
         return Math.pow(2, this.realMoveSpeed()) / 256;
     }
 
+    /** @returns {boolean} */
     isDashing() {
         return false;
     }
 
+    /** @returns {boolean} */
     isDebugThrough() {
         return false;
     }
 
+    /** @returns {void} */
     straighten() {
         if (this.hasWalkAnime() || this.hasStepAnime()) {
             this._pattern = 1;
@@ -7003,10 +9510,20 @@ class Game_CharacterBase {
         this._animationCount = 0;
     }
 
+    /**
+     * @param {RMMZ.Direction} d
+     * @returns {RMMZ.Direction}
+     */
     reverseDir(d) {
         return 10 - d;
     }
 
+    /**
+     * @param {number} x
+     * @param {number} y
+     * @param {RMMZ.Direction} d
+     * @returns {boolean}
+     */
     canPass(x, y, d) {
         const x2 = $gameMap.roundXWithDirection(x, d);
         const y2 = $gameMap.roundYWithDirection(y, d);
@@ -7025,6 +9542,13 @@ class Game_CharacterBase {
         return true;
     }
 
+    /**
+     * @param {number} x
+     * @param {number} y
+     * @param {RMMZ.Direction} horz
+     * @param {RMMZ.Direction} vert
+     * @returns {boolean}
+     */
     canPassDiagonally(x, y, horz, vert) {
         const x2 = $gameMap.roundXWithDirection(x, horz);
         const y2 = $gameMap.roundYWithDirection(y, vert);
@@ -7037,6 +9561,12 @@ class Game_CharacterBase {
         return false;
     }
 
+    /**
+     * @param {number} x
+     * @param {number} y
+     * @param {RMMZ.Direction} d
+     * @returns {boolean}
+     */
     isMapPassable(x, y, d) {
         const x2 = $gameMap.roundXWithDirection(x, d);
         const y2 = $gameMap.roundYWithDirection(y, d);
@@ -7044,19 +9574,39 @@ class Game_CharacterBase {
         return $gameMap.isPassable(x, y, d) && $gameMap.isPassable(x2, y2, d2);
     }
 
+    /**
+     * @param {number} x
+     * @param {number} y
+     * @returns {boolean}
+     */
     isCollidedWithCharacters(x, y) {
         return this.isCollidedWithEvents(x, y) || this.isCollidedWithVehicles(x, y);
     }
 
+    /**
+     * @param {number} x
+     * @param {number} y
+     * @returns {boolean}
+     */
     isCollidedWithEvents(x, y) {
         const events = $gameMap.eventsXyNt(x, y);
         return events.some(event => event.isNormalPriority());
     }
 
+    /**
+     * @param {number} x
+     * @param {number} y
+     * @returns {boolean}
+     */
     isCollidedWithVehicles(x, y) {
         return $gameMap.boat().posNt(x, y) || $gameMap.ship().posNt(x, y);
     }
 
+    /**
+     * @param {number} x
+     * @param {number} y
+     * @returns {void}
+     */
     setPosition(x, y) {
         this._x = Math.round(x);
         this._y = Math.round(y);
@@ -7064,6 +9614,10 @@ class Game_CharacterBase {
         this._realY = y;
     }
 
+    /**
+     * @param {Game_CharacterBase} character
+     * @returns {void}
+     */
     copyPosition(character) {
         this._x = character._x;
         this._y = character._y;
@@ -7072,16 +9626,26 @@ class Game_CharacterBase {
         this._direction = character._direction;
     }
 
+    /**
+     * @param {number} x
+     * @param {number} y
+     * @returns {void}
+     */
     locate(x, y) {
         this.setPosition(x, y);
         this.straighten();
         this.refreshBushDepth();
     }
 
+    /** @returns {RMMZ.Direction} */
     direction() {
         return this._direction;
     }
 
+    /**
+     * @param {RMMZ.Direction | 0} [d]
+     * @returns {void}
+     */
     setDirection(d) {
         if (!this.isDirectionFixed() && d) {
             this._direction = d;
@@ -7089,31 +9653,38 @@ class Game_CharacterBase {
         this.resetStopCount();
     }
 
+    /** @returns {boolean} */
     isTile() {
         return this._tileId > 0 && this._priorityType === 0;
     }
 
+    /** @returns {boolean} */
     isObjectCharacter() {
         return this._isObjectCharacter;
     }
 
+    /** @returns {0 | 6} */
     shiftY() {
         return this.isObjectCharacter() ? 0 : 6;
     }
 
+    /** @returns {number} */
     scrolledX() {
         return $gameMap.adjustX(this._realX);
     }
 
+    /** @returns {number} */
     scrolledY() {
         return $gameMap.adjustY(this._realY);
     }
 
+    /** @returns {number} */
     screenX() {
         const tw = $gameMap.tileWidth();
         return Math.floor(this.scrolledX() * tw + tw / 2);
     }
 
+    /** @returns {number} */
     screenY() {
         const th = $gameMap.tileHeight();
         return Math.floor(
@@ -7121,10 +9692,12 @@ class Game_CharacterBase {
         );
     }
 
+    /** @returns {number} */
     screenZ() {
         return this._priorityType * 2 + 1;
     }
 
+    /** @returns {boolean} */
     isNearTheScreen() {
         const gw = Graphics.width;
         const gh = Graphics.height;
@@ -7135,6 +9708,7 @@ class Game_CharacterBase {
         return px >= -gw && px <= gw && py >= -gh && py <= gh;
     }
 
+    /** @returns {void} */
     update() {
         if (this.isStopping()) {
             this.updateStop();
@@ -7147,10 +9721,12 @@ class Game_CharacterBase {
         this.updateAnimation();
     }
 
+    /** @returns {void} */
     updateStop() {
         this._stopCount++;
     }
 
+    /** @returns {void} */
     updateJump() {
         this._jumpCount--;
         this._realX =
@@ -7164,6 +9740,7 @@ class Game_CharacterBase {
         }
     }
 
+    /** @returns {void} */
     updateMove() {
         if (this._x < this._realX) {
             this._realX = Math.max(this._realX - this.distancePerFrame(), this._x);
@@ -7182,6 +9759,7 @@ class Game_CharacterBase {
         }
     }
 
+    /** @returns {void} */
     updateAnimation() {
         this.updateAnimationCount();
         if (this._animationCount >= this.animationWait()) {
@@ -7190,10 +9768,12 @@ class Game_CharacterBase {
         }
     }
 
+    /** @returns {number} */
     animationWait() {
         return (9 - this.realMoveSpeed()) * 3;
     }
 
+    /** @returns {void} */
     updateAnimationCount() {
         if (this.isMoving() && this.hasWalkAnime()) {
             this._animationCount += 1.5;
@@ -7202,6 +9782,7 @@ class Game_CharacterBase {
         }
     }
 
+    /** @returns {void} */
     updatePattern() {
         if (!this.hasStepAnime() && this._stopCount > 0) {
             this.resetPattern();
@@ -7210,26 +9791,35 @@ class Game_CharacterBase {
         }
     }
 
+    /** @returns {number} */
     maxPattern() {
         return 4;
     }
 
+    /** @returns {number} */
     pattern() {
         return this._pattern < 3 ? this._pattern : 1;
     }
 
+    /**
+     * @param {number} pattern
+     * @returns {void}
+     */
     setPattern(pattern) {
         this._pattern = pattern;
     }
 
+    /** @returns {boolean} */
     isOriginalPattern() {
         return this.pattern() === 1;
     }
 
+    /** @returns {void} */
     resetPattern() {
         this.setPattern(1);
     }
 
+    /** @returns {void} */
     refreshBushDepth() {
         if (
             this.isNormalPriority() &&
@@ -7245,22 +9835,27 @@ class Game_CharacterBase {
         }
     }
 
+    /** @returns {boolean} */
     isOnLadder() {
         return $gameMap.isLadder(this._x, this._y);
     }
 
+    /** @returns {boolean} */
     isOnBush() {
         return $gameMap.isBush(this._x, this._y);
     }
 
+    /** @returns {number} */
     terrainTag() {
         return $gameMap.terrainTag(this._x, this._y);
     }
 
+    /** @returns {number} */
     regionId() {
         return $gameMap.regionId(this._x, this._y);
     }
 
+    /** @returns {void} */
     increaseSteps() {
         if (this.isOnLadder()) {
             this.setDirection(8);
@@ -7269,18 +9864,26 @@ class Game_CharacterBase {
         this.refreshBushDepth();
     }
 
+    /** @returns {number} */
     tileId() {
         return this._tileId;
     }
 
+    /** @returns {string} */
     characterName() {
         return this._characterName;
     }
 
+    /** @returns {number} */
     characterIndex() {
         return this._characterIndex;
     }
 
+    /**
+     * @param {string} characterName
+     * @param {number} characterIndex
+     * @returns {void}
+     */
     setImage(
         characterName,
         characterIndex
@@ -7291,6 +9894,10 @@ class Game_CharacterBase {
         this._isObjectCharacter = ImageManager.isObjectCharacter(characterName);
     }
 
+    /**
+     * @param {RMMZ.TileID} tileId
+     * @returns {void}
+     */
     setTileImage(tileId) {
         this._tileId = tileId;
         this._characterName = "";
@@ -7298,24 +9905,42 @@ class Game_CharacterBase {
         this._isObjectCharacter = true;
     }
 
+    /**
+     * @param {RMMZ.Direction} d
+     * @returns {void}
+     */
     checkEventTriggerTouchFront(d) {
         const x2 = $gameMap.roundXWithDirection(this._x, d);
         const y2 = $gameMap.roundYWithDirection(this._y, d);
         this.checkEventTriggerTouch(x2, y2);
     }
 
+    /**
+     * @param {number} x
+     * @param {number} y
+     * @returns {boolean | void}
+     */
     checkEventTriggerTouch(/*x, y*/) {
         return false;
     }
 
+    /** @returns {boolean} */
     isMovementSucceeded(/*x, y*/) {
         return this._movementSuccess;
     }
 
+    /**
+     * @param {boolean} success
+     * @returns {void}
+     */
     setMovementSuccess(success) {
         this._movementSuccess = success;
     }
 
+    /**
+     * @param {RMMZ.Direction} d
+     * @returns {void}
+     */
     moveStraight(d) {
         this.setMovementSuccess(this.canPass(this._x, this._y, d));
         if (this.isMovementSucceeded()) {
@@ -7331,6 +9956,11 @@ class Game_CharacterBase {
         }
     }
 
+    /**
+     * @param {RMMZ.Direction} horz
+     * @param {RMMZ.Direction} vert
+     * @returns {void}
+     */
     moveDiagonally(horz, vert) {
         this.setMovementSuccess(
             this.canPassDiagonally(this._x, this._y, horz, vert)
@@ -7350,6 +9980,11 @@ class Game_CharacterBase {
         }
     }
 
+    /**
+     * @param {number} xPlus
+     * @param {number} yPlus
+     * @returns {void}
+     */
     jump(xPlus, yPlus) {
         if (Math.abs(xPlus) > Math.abs(yPlus)) {
             if (xPlus !== 0) {
@@ -7369,70 +10004,102 @@ class Game_CharacterBase {
         this.straighten();
     }
 
+    /** @returns {boolean} */
     hasWalkAnime() {
         return this._walkAnime;
     }
 
+    /**
+     * @param {boolean} walkAnime
+     * @returns {void}
+     */
     setWalkAnime(walkAnime) {
         this._walkAnime = walkAnime;
     }
 
+    /** @returns {boolean} */
     hasStepAnime() {
         return this._stepAnime;
     }
 
+    /**
+     * @param {boolean} stepAnime
+     * @returns {void}
+     */
     setStepAnime(stepAnime) {
         this._stepAnime = stepAnime;
     }
 
+    /** @returns {boolean} */
     isDirectionFixed() {
         return this._directionFix;
     }
 
+    /**
+     * @param {boolean} directionFix
+     * @returns {void}
+     */
     setDirectionFix(directionFix) {
         this._directionFix = directionFix;
     }
 
+    /** @returns {boolean} */
     isThrough() {
         return this._through;
     }
 
+    /**
+     * @param {boolean} through
+     * @returns {void}
+     */
     setThrough(through) {
         this._through = through;
     }
 
+    /** @returns {boolean} */
     isTransparent() {
         return this._transparent;
     }
 
+    /** @returns {number} */
     bushDepth() {
         return this._bushDepth;
     }
 
+    /**
+     * @param {boolean} transparent
+     * @returns {void}
+     */
     setTransparent(transparent) {
         this._transparent = transparent;
     }
 
+    /** @returns {void} */
     startAnimation() {
         this._animationPlaying = true;
     }
 
+    /** @returns {void} */
     startBalloon() {
         this._balloonPlaying = true;
     }
 
+    /** @returns {boolean} */
     isAnimationPlaying() {
         return this._animationPlaying;
     }
 
+    /** @returns {boolean} */
     isBalloonPlaying() {
         return this._balloonPlaying;
     }
 
+    /** @returns {void} */
     endAnimation() {
         this._animationPlaying = false;
     }
 
+    /** @returns {void} */
     endBalloon() {
         this._balloonPlaying = false;
     }
@@ -7442,6 +10109,7 @@ class Game_CharacterBase {
  * The superclass of Game_Player, Game_Follower, GameVehicle, and Game_Event.
  */
 class Game_Character extends Game_CharacterBase {
+    /** @param {[]} args */
     constructor(...args) {
         super(...args);
     }
@@ -7542,31 +10210,45 @@ class Game_Character extends Game_CharacterBase {
         super.initialize();
     }
 
+    /** @returns {void} */
     initMembers() {
         super.initMembers();
+        /** @type {boolean} */
         this._moveRouteForcing = false;
+        /** @type {RMMZ.MoveRoute | null} */
         this._moveRoute = null;
+        /** @type {number} */
         this._moveRouteIndex = 0;
+        /** @type {RMMZ.MoveRoute | null} */
         this._originalMoveRoute = null;
+        /** @type {number} */
         this._originalMoveRouteIndex = 0;
+        /** @type {number} */
         this._waitCount = 0;
     }
 
+    /** @returns {void} */
     memorizeMoveRoute() {
         this._originalMoveRoute = this._moveRoute;
         this._originalMoveRouteIndex = this._moveRouteIndex;
     }
 
+    /** @returns {void} */
     restoreMoveRoute() {
         this._moveRoute = this._originalMoveRoute;
         this._moveRouteIndex = this._originalMoveRouteIndex;
         this._originalMoveRoute = null;
     }
 
+    /** @returns {boolean} */
     isMoveRouteForcing() {
         return this._moveRouteForcing;
     }
 
+    /**
+     * @param {RMMZ.MoveRoute} moveRoute
+     * @returns {void}
+     */
     setMoveRoute(moveRoute) {
         if (this._moveRouteForcing) {
             this._originalMoveRoute = moveRoute;
@@ -7577,6 +10259,10 @@ class Game_Character extends Game_CharacterBase {
         }
     }
 
+    /**
+     * @param {RMMZ.MoveRoute} moveRoute
+     * @returns {void}
+     */
     forceMoveRoute(moveRoute) {
         if (!this._originalMoveRoute) {
             this.memorizeMoveRoute();
@@ -7587,6 +10273,7 @@ class Game_Character extends Game_CharacterBase {
         this._waitCount = 0;
     }
 
+    /** @returns {void} */
     updateStop() {
         super.updateStop();
         if (this._moveRouteForcing) {
@@ -7594,6 +10281,7 @@ class Game_Character extends Game_CharacterBase {
         }
     }
 
+    /** @returns {void} */
     updateRoutineMove() {
         if (this._waitCount > 0) {
             this._waitCount--;
@@ -7607,6 +10295,10 @@ class Game_Character extends Game_CharacterBase {
         }
     }
 
+    /**
+     * @param {RMMZ.DataCommand} command
+     * @returns {void}
+     */
     processMoveCommand(command) {
         const gc = Game_Character;
         const params = command.parameters;
@@ -7752,14 +10444,23 @@ class Game_Character extends Game_CharacterBase {
         }
     }
 
+    /**
+     * @param {number} x
+     * @returns {number}
+     */
     deltaXFrom(x) {
         return $gameMap.deltaX(this.x, x);
     }
 
+    /**
+     * @param {number} y
+     * @returns {number}
+     */
     deltaYFrom(y) {
         return $gameMap.deltaY(this.y, y);
     }
 
+    /** @returns {void} */
     moveRandom() {
         const d = 2 + Math.randomInt(4) * 2;
         if (this.canPass(this.x, this.y, d)) {
@@ -7767,6 +10468,10 @@ class Game_Character extends Game_CharacterBase {
         }
     }
 
+    /**
+     * @param {Game_Character} character
+     * @returns {void}
+     */
     moveTowardCharacter(character) {
         const sx = this.deltaXFrom(character.x);
         const sy = this.deltaYFrom(character.y);
@@ -7783,6 +10488,10 @@ class Game_Character extends Game_CharacterBase {
         }
     }
 
+    /**
+     * @param {Game_Character} character
+     * @returns {void}
+     */
     moveAwayFromCharacter(character) {
         const sx = this.deltaXFrom(character.x);
         const sy = this.deltaYFrom(character.y);
@@ -7799,6 +10508,10 @@ class Game_Character extends Game_CharacterBase {
         }
     }
 
+    /**
+     * @param {Game_Character} character
+     * @returns {void}
+     */
     turnTowardCharacter(character) {
         const sx = this.deltaXFrom(character.x);
         const sy = this.deltaYFrom(character.y);
@@ -7809,6 +10522,10 @@ class Game_Character extends Game_CharacterBase {
         }
     }
 
+    /**
+     * @param {Game_Character} character
+     * @returns {void}
+     */
     turnAwayFromCharacter(character) {
         const sx = this.deltaXFrom(character.x);
         const sy = this.deltaYFrom(character.y);
@@ -7819,26 +10536,32 @@ class Game_Character extends Game_CharacterBase {
         }
     }
 
+    /** @returns {void} */
     turnTowardPlayer() {
         this.turnTowardCharacter($gamePlayer);
     }
 
+    /** @returns {void} */
     turnAwayFromPlayer() {
         this.turnAwayFromCharacter($gamePlayer);
     }
 
+    /** @returns {void} */
     moveTowardPlayer() {
         this.moveTowardCharacter($gamePlayer);
     }
 
+    /** @returns {void} */
     moveAwayFromPlayer() {
         this.moveAwayFromCharacter($gamePlayer);
     }
 
+    /** @returns {void} */
     moveForward() {
         this.moveStraight(this.direction());
     }
 
+    /** @returns {void} */
     moveBackward() {
         const lastDirectionFix = this.isDirectionFixed();
         this.setDirectionFix(true);
@@ -7846,6 +10569,7 @@ class Game_Character extends Game_CharacterBase {
         this.setDirectionFix(lastDirectionFix);
     }
 
+    /** @returns {void} */
     processRouteEnd() {
         if (this._moveRoute.repeat) {
             this._moveRouteIndex = -1;
@@ -7856,6 +10580,7 @@ class Game_Character extends Game_CharacterBase {
         }
     }
 
+    /** @returns {void} */
     advanceMoveRouteIndex() {
         const moveRoute = this._moveRoute;
         if (moveRoute && (this.isMovementSucceeded() || moveRoute.skippable)) {
@@ -7867,6 +10592,7 @@ class Game_Character extends Game_CharacterBase {
         }
     }
 
+    /** @returns {void} */
     turnRight90() {
         switch (this.direction()) {
             case 2:
@@ -7884,6 +10610,7 @@ class Game_Character extends Game_CharacterBase {
         }
     }
 
+    /** @returns {void} */
     turnLeft90() {
         switch (this.direction()) {
             case 2:
@@ -7901,10 +10628,12 @@ class Game_Character extends Game_CharacterBase {
         }
     }
 
+    /** @returns {void} */
     turn180() {
         this.setDirection(this.reverseDir(this.direction()));
     }
 
+    /** @returns {void} */
     turnRightOrLeft90() {
         switch (Math.randomInt(2)) {
             case 0:
@@ -7916,10 +10645,15 @@ class Game_Character extends Game_CharacterBase {
         }
     }
 
+    /** @returns {void} */
     turnRandom() {
         this.setDirection(2 + Math.randomInt(4) * 2);
     }
 
+    /**
+     * @param {Game_Character} character
+     * @returns {void}
+     */
     swap(character) {
         const newX = character.x;
         const newY = character.y;
@@ -7927,6 +10661,11 @@ class Game_Character extends Game_CharacterBase {
         this.locate(newX, newY);
     }
 
+    /**
+     * @param {number} goalX
+     * @param {number} goalY
+     * @returns {0 | 2 | 4 | 8 | 6}
+     */
     findDirectionTo(goalX, goalY) {
         const searchLimit = this.searchLimit();
         const mapWidth = $gameMap.width();
@@ -8039,6 +10778,7 @@ class Game_Character extends Game_CharacterBase {
         return 0;
     }
 
+    /** @returns {number} */
     searchLimit() {
         return 12;
     }
@@ -8049,6 +10789,7 @@ class Game_Character extends Game_CharacterBase {
  * determinants and map scrolling functions.
  */
 class Game_Player extends Game_Character {
+    /** @param {[]} args */
     constructor(...args) {
         super(...args);
     }
@@ -8058,23 +10799,38 @@ class Game_Player extends Game_Character {
         this.setTransparent($dataSystem.optTransparent);
     }
 
+    /** @returns {void} */
     initMembers() {
         super.initMembers();
+        /** @type {RMMZ.VehicleType} */
         this._vehicleType = "walk";
+        /** @type {boolean} */
         this._vehicleGettingOn = false;
+        /** @type {boolean} */
         this._vehicleGettingOff = false;
+        /** @type {boolean} */
         this._dashing = false;
+        /** @type {boolean} */
         this._needsMapReload = false;
+        /** @type {boolean} */
         this._transferring = false;
+        /** @type {number} */
         this._newMapId = 0;
+        /** @type {number} */
         this._newX = 0;
+        /** @type {number} */
         this._newY = 0;
+        /** @type {RMMZ.Direction} */
         this._newDirection = 0;
+        /** @type {number | undefined} */
         this._fadeType = 0;
+        /** @type {Game_Followers} */
         this._followers = new Game_Followers();
+        /** @type {number} */
         this._encounterCount = 0;
     }
 
+    /** @returns {void} */
     clearTransferInfo() {
         this._transferring = false;
         this._newMapId = 0;
@@ -8083,10 +10839,12 @@ class Game_Player extends Game_Character {
         this._newDirection = 0;
     }
 
+    /** @returns {Game_Followers} */
     followers() {
         return this._followers;
     }
 
+    /** @returns {void} */
     refresh() {
         const actor = $gameParty.leader();
         const characterName = actor ? actor.characterName() : "";
@@ -8095,6 +10853,7 @@ class Game_Player extends Game_Character {
         this._followers.refresh();
     }
 
+    /** @returns {boolean} */
     isStopping() {
         if (this._vehicleGettingOn || this._vehicleGettingOff) {
             return false;
@@ -8102,6 +10861,14 @@ class Game_Player extends Game_Character {
         return super.isStopping();
     }
 
+    /**
+     * @param {RMMZ.MapID} mapId
+     * @param {number} x
+     * @param {number} y
+     * @param {RMMZ.Direction} [d]
+     * @param {number} [fadeType]
+     * @returns {void}
+     */
     reserveTransfer(mapId, x, y, d, fadeType) {
         this._transferring = true;
         this._newMapId = mapId;
@@ -8111,6 +10878,7 @@ class Game_Player extends Game_Character {
         this._fadeType = fadeType;
     }
 
+    /** @returns {void} */
     setupForNewGame() {
         const mapId = $dataSystem.startMapId;
         const x = $dataSystem.startX;
@@ -8118,22 +10886,27 @@ class Game_Player extends Game_Character {
         this.reserveTransfer(mapId, x, y, 2, 0);
     }
 
+    /** @returns {void} */
     requestMapReload() {
         this._needsMapReload = true;
     }
 
+    /** @returns {boolean} */
     isTransferring() {
         return this._transferring;
     }
 
+    /** @returns {number} */
     newMapId() {
         return this._newMapId;
     }
 
+    /** @returns {number | undefined} */
     fadeType() {
         return this._fadeType;
     }
 
+    /** @returns {void} */
     performTransfer() {
         if (this.isTransferring()) {
             this.setDirection(this._newDirection);
@@ -8147,6 +10920,12 @@ class Game_Player extends Game_Character {
         }
     }
 
+    /**
+     * @param {number} x
+     * @param {number} y
+     * @param {RMMZ.Direction} d
+     * @returns {boolean}
+     */
     isMapPassable(x, y, d) {
         const vehicle = this.vehicle();
         if (vehicle) {
@@ -8156,38 +10935,51 @@ class Game_Player extends Game_Character {
         }
     }
 
+    /** @returns {import("./Game_Vehicle").Game_Vehicle} */
     vehicle() {
         return $gameMap.vehicle(this._vehicleType);
     }
 
+    /** @returns {boolean} */
     isInBoat() {
         return this._vehicleType === "boat";
     }
 
+    /** @returns {boolean} */
     isInShip() {
         return this._vehicleType === "ship";
     }
 
+    /** @returns {boolean} */
     isInAirship() {
         return this._vehicleType === "airship";
     }
 
+    /** @returns {boolean} */
     isInVehicle() {
         return this.isInBoat() || this.isInShip() || this.isInAirship();
     }
 
+    /** @returns {boolean} */
     isNormal() {
         return this._vehicleType === "walk" && !this.isMoveRouteForcing();
     }
 
+    /** @returns {boolean} */
     isDashing() {
         return this._dashing;
     }
 
+    /** @returns {boolean} */
     isDebugThrough() {
         return Input.isPressed("control") && $gameTemp.isPlaytest();
     }
 
+    /**
+     * @param {number} x
+     * @param {number} y
+     * @returns {boolean}
+     */
     isCollided(x, y) {
         if (this.isThrough()) {
             return false;
@@ -8196,18 +10988,30 @@ class Game_Player extends Game_Character {
         }
     }
 
+    /** @returns {number} */
     centerX() {
         return ($gameMap.screenTileX() - 1) / 2;
     }
 
+    /** @returns {number} */
     centerY() {
         return ($gameMap.screenTileY() - 1) / 2;
     }
 
+    /**
+     * @param {number} x
+     * @param {number} y
+     * @returns {void}
+     */
     center(x, y) {
         return $gameMap.setDisplayPos(x - this.centerX(), y - this.centerY());
     }
 
+    /**
+     * @param {number} x
+     * @param {number} y
+     * @returns {void}
+     */
     locate(x, y) {
         super.locate(x, y);
         this.center(x, y);
@@ -8218,6 +11022,7 @@ class Game_Player extends Game_Character {
         this._followers.synchronize(x, y, this.direction());
     }
 
+    /** @returns {void} */
     increaseSteps() {
         super.increaseSteps();
         if (this.isNormal()) {
@@ -8225,11 +11030,13 @@ class Game_Player extends Game_Character {
         }
     }
 
+    /** @returns {void} */
     makeEncounterCount() {
         const n = $gameMap.encounterStep();
         this._encounterCount = Math.randomInt(n) + Math.randomInt(n) + 1;
     }
 
+    /** @returns {number} */
     makeEncounterTroopId() {
         const encounterList = [];
         let weightSum = 0;
@@ -8251,6 +11058,10 @@ class Game_Player extends Game_Character {
         return 0;
     }
 
+    /**
+     * @param {RMMZ.DataEncounter} encounter
+     * @returns {boolean}
+     */
     meetsEncounterConditions(encounter) {
         return (
             encounter.regionSet.length === 0 ||
@@ -8258,6 +11069,7 @@ class Game_Player extends Game_Character {
         );
     }
 
+    /** @returns {boolean} */
     executeEncounter() {
         if (!$gameMap.isEventRunning() && this._encounterCount <= 0) {
             this.makeEncounterCount();
@@ -8274,6 +11086,13 @@ class Game_Player extends Game_Character {
         }
     }
 
+    /**
+     * @param {number} x
+     * @param {number} y
+     * @param {number[]} triggers
+     * @param {boolean} normal
+     * @returns {void}
+     */
     startMapEvent(x, y, triggers, normal) {
         if (!$gameMap.isEventRunning()) {
             for (const event of $gameMap.eventsXy(x, y)) {
@@ -8287,6 +11106,7 @@ class Game_Player extends Game_Character {
         }
     }
 
+    /** @returns {void} */
     moveByInput() {
         if (!this.isMoving() && this.canMove()) {
             let direction = this.getInputDirection();
@@ -8303,6 +11123,7 @@ class Game_Player extends Game_Character {
         }
     }
 
+    /** @returns {boolean} */
     canMove() {
         if ($gameMap.isEventRunning() || $gameMessage.isBusy()) {
             return false;
@@ -8319,14 +11140,23 @@ class Game_Player extends Game_Character {
         return true;
     }
 
+    /** @returns {RMMZ.Direction} */
     getInputDirection() {
         return Input.dir4;
     }
 
+    /**
+     * @param {RMMZ.Direction} direction
+     * @returns {void}
+     */
     executeMove(direction) {
         this.moveStraight(direction);
     }
 
+    /**
+     * @param {boolean} [sceneActive]
+     * @returns {void}
+     */
     update(sceneActive) {
         const lastScrolledX = this.scrolledX();
         const lastScrolledY = this.scrolledY();
@@ -8344,6 +11174,7 @@ class Game_Player extends Game_Character {
         this._followers.update();
     }
 
+    /** @returns {void} */
     updateDashing() {
         if (this.isMoving()) {
             return;
@@ -8356,6 +11187,7 @@ class Game_Player extends Game_Character {
         }
     }
 
+    /** @returns {boolean} */
     isDashButtonPressed() {
         const shift = Input.isPressed("shift");
         if (ConfigManager.alwaysDash) {
@@ -8365,6 +11197,11 @@ class Game_Player extends Game_Character {
         }
     }
 
+    /**
+     * @param {number} lastScrolledX
+     * @param {number} lastScrolledY
+     * @returns {void}
+     */
     updateScroll(lastScrolledX, lastScrolledY) {
         const x1 = lastScrolledX;
         const y1 = lastScrolledY;
@@ -8384,6 +11221,7 @@ class Game_Player extends Game_Character {
         }
     }
 
+    /** @returns {void} */
     updateVehicle() {
         if (this.isInVehicle() && !this.areFollowersGathering()) {
             if (this._vehicleGettingOn) {
@@ -8396,6 +11234,7 @@ class Game_Player extends Game_Character {
         }
     }
 
+    /** @returns {void} */
     updateVehicleGetOn() {
         if (!this.areFollowersGathering() && !this.isMoving()) {
             this.setDirection(this.vehicle().direction());
@@ -8409,6 +11248,7 @@ class Game_Player extends Game_Character {
         }
     }
 
+    /** @returns {void} */
     updateVehicleGetOff() {
         if (!this.areFollowersGathering() && this.vehicle().isLowest()) {
             this._vehicleGettingOff = false;
@@ -8417,6 +11257,11 @@ class Game_Player extends Game_Character {
         }
     }
 
+    /**
+     * @param {boolean} wasMoving
+     * @param {boolean} [sceneActive]
+     * @returns {void}
+     */
     updateNonmoving(wasMoving, sceneActive) {
         if (!$gameMap.isEventRunning()) {
             if (wasMoving) {
@@ -8437,6 +11282,7 @@ class Game_Player extends Game_Character {
         }
     }
 
+    /** @returns {boolean} */
     triggerAction() {
         if (this.canMove()) {
             if (this.triggerButtonAction()) {
@@ -8449,6 +11295,7 @@ class Game_Player extends Game_Character {
         return false;
     }
 
+    /** @returns {boolean} */
     triggerButtonAction() {
         if (Input.isTriggered("ok")) {
             if (this.getOnOffVehicle()) {
@@ -8466,6 +11313,7 @@ class Game_Player extends Game_Character {
         return false;
     }
 
+    /** @returns {boolean} */
     triggerTouchAction() {
         if ($gameTemp.isDestinationValid()) {
             const direction = this.direction();
@@ -8488,6 +11336,11 @@ class Game_Player extends Game_Character {
         return false;
     }
 
+    /**
+     * @param {number} x1
+     * @param {number} y1
+     * @returns {boolean}
+     */
     triggerTouchActionD1(x1, y1) {
         if ($gameMap.airship().pos(x1, y1)) {
             if (TouchInput.isTriggered() && this.getOnOffVehicle()) {
@@ -8498,6 +11351,11 @@ class Game_Player extends Game_Character {
         return $gameMap.setupStartingEvent();
     }
 
+    /**
+     * @param {number} x2
+     * @param {number} y2
+     * @returns {boolean}
+     */
     triggerTouchActionD2(x2, y2) {
         if ($gameMap.boat().pos(x2, y2) || $gameMap.ship().pos(x2, y2)) {
             if (TouchInput.isTriggered() && this.getOnVehicle()) {
@@ -8513,6 +11371,11 @@ class Game_Player extends Game_Character {
         return $gameMap.setupStartingEvent();
     }
 
+    /**
+     * @param {number} x2
+     * @param {number} y2
+     * @returns {boolean}
+     */
     triggerTouchActionD3(x2, y2) {
         if ($gameMap.isCounter(x2, y2)) {
             this.checkEventTriggerThere([0, 1, 2]);
@@ -8520,12 +11383,14 @@ class Game_Player extends Game_Character {
         return $gameMap.setupStartingEvent();
     }
 
+    /** @returns {void} */
     updateEncounterCount() {
         if (this.canEncounter()) {
             this._encounterCount -= this.encounterProgressValue();
         }
     }
 
+    /** @returns {boolean} */
     canEncounter() {
         return (
             !$gameParty.hasEncounterNone() &&
@@ -8536,6 +11401,7 @@ class Game_Player extends Game_Character {
         );
     }
 
+    /** @returns {number} */
     encounterProgressValue() {
         let value = $gameMap.isBush(this.x, this.y) ? 2 : 1;
         if ($gameParty.hasEncounterHalf()) {
@@ -8547,12 +11413,20 @@ class Game_Player extends Game_Character {
         return value;
     }
 
+    /**
+     * @param {number[]} triggers
+     * @returns {void}
+     */
     checkEventTriggerHere(triggers) {
         if (this.canStartLocalEvents()) {
             this.startMapEvent(this.x, this.y, triggers, false);
         }
     }
 
+    /**
+     * @param {number[]} triggers
+     * @returns {void}
+     */
     checkEventTriggerThere(triggers) {
         if (this.canStartLocalEvents()) {
             const direction = this.direction();
@@ -8569,16 +11443,23 @@ class Game_Player extends Game_Character {
         }
     }
 
+    /**
+     * @param {number} x
+     * @param {number} y
+     * @returns {void}
+     */
     checkEventTriggerTouch(x, y) {
         if (this.canStartLocalEvents()) {
             this.startMapEvent(x, y, [1, 2], true);
         }
     }
 
+    /** @returns {boolean} */
     canStartLocalEvents() {
         return !this.isInAirship();
     }
 
+    /** @returns {boolean} */
     getOnOffVehicle() {
         if (this.isInVehicle()) {
             return this.getOffVehicle();
@@ -8587,6 +11468,7 @@ class Game_Player extends Game_Character {
         }
     }
 
+    /** @returns {boolean} */
     getOnVehicle() {
         const direction = this.direction();
         const x1 = this.x;
@@ -8610,6 +11492,7 @@ class Game_Player extends Game_Character {
         return this._vehicleGettingOn;
     }
 
+    /** @returns {boolean} */
     getOffVehicle() {
         if (this.vehicle().isLandOk(this.x, this.y, this.direction())) {
             if (this.isInAirship()) {
@@ -8630,16 +11513,22 @@ class Game_Player extends Game_Character {
         return this._vehicleGettingOff;
     }
 
+    /** @returns {void} */
     forceMoveForward() {
         this.setThrough(true);
         this.moveForward();
         this.setThrough(false);
     }
 
+    /** @returns {boolean} */
     isOnDamageFloor() {
         return $gameMap.isDamageFloor(this.x, this.y) && !this.isInAirship();
     }
 
+    /**
+     * @param {RMMZ.Direction} d
+     * @returns {void}
+     */
     moveStraight(d) {
         if (this.canPass(this.x, this.y, d)) {
             this._followers.updateMove();
@@ -8647,6 +11536,11 @@ class Game_Player extends Game_Character {
         super.moveStraight(d);
     }
 
+    /**
+     * @param {RMMZ.Direction} horz
+     * @param {RMMZ.Direction} vert
+     * @returns {void}
+     */
     moveDiagonally(horz, vert) {
         if (this.canPassDiagonally(this.x, this.y, horz, vert)) {
             this._followers.updateMove();
@@ -8654,27 +11548,37 @@ class Game_Player extends Game_Character {
         super.moveDiagonally(horz, vert);
     }
 
+    /**
+     * @param {number} xPlus
+     * @param {number} yPlus
+     * @returns {void}
+     */
     jump(xPlus, yPlus) {
         super.jump(xPlus, yPlus);
         this._followers.jumpAll();
     }
 
+    /** @returns {void} */
     showFollowers() {
         this._followers.show();
     }
 
+    /** @returns {void} */
     hideFollowers() {
         this._followers.hide();
     }
 
+    /** @returns {void} */
     gatherFollowers() {
         this._followers.gather();
     }
 
+    /** @returns {boolean} */
     areFollowersGathering() {
         return this._followers.areGathering();
     }
 
+    /** @returns {boolean} */
     areFollowersGathered() {
         return this._followers.areGathered();
     }
@@ -8685,35 +11589,43 @@ class Game_Player extends Game_Character {
  * other than the front character, displayed in the party.
  */
 class Game_Follower extends Game_Character {
+    /** @param {[memberIndex: number]} args */
     constructor(...args) {
         super(...args);
     }
 
+    /** @param {number} memberIndex */
     initialize(memberIndex) {
         super.initialize();
+        /** @type {number} */
         this._memberIndex = memberIndex;
         this.setTransparent($dataSystem.optTransparent);
         this.setThrough(true);
     }
 
+    /** @returns {void} */
     refresh() {
         const characterName = this.isVisible() ? this.actor().characterName() : "";
         const characterIndex = this.isVisible() ? this.actor().characterIndex() : 0;
         this.setImage(characterName, characterIndex);
     }
 
+    /** @returns {import("./Game_Actor").Game_Actor} */
     actor() {
         return $gameParty.battleMembers()[this._memberIndex];
     }
 
+    /** @returns {boolean} */
     isVisible() {
         return this.actor() && $gamePlayer.followers().isVisible();
     }
 
+    /** @returns {boolean} */
     isGathered() {
         return !this.isMoving() && this.pos($gamePlayer.x, $gamePlayer.y);
     }
 
+    /** @returns {void} */
     update() {
         super.update();
         this.setMoveSpeed($gamePlayer.realMoveSpeed());
@@ -8725,6 +11637,10 @@ class Game_Follower extends Game_Character {
         this.setTransparent($gamePlayer.isTransparent());
     }
 
+    /**
+     * @param {Game_Character} character
+     * @returns {void}
+     */
     chaseCharacter(character) {
         const sx = this.deltaXFrom(character.x);
         const sy = this.deltaYFrom(character.y);
@@ -8743,17 +11659,22 @@ class Game_Follower extends Game_Character {
  * The wrapper class for a follower array.
  */
 class Game_Followers {
+    /** @param {[]} args */
     constructor(...args) {
         this.initialize(...args);
     }
 
     initialize() {
+        /** @type {boolean} */
         this._visible = $dataSystem.optFollowers;
+        /** @type {boolean} */
         this._gathering = false;
+        /** @type {Game_Follower[]} */
         this._data = [];
         this.setup();
     }
 
+    /** @returns {void} */
     setup() {
         this._data = [];
         for (let i = 1; i < $gameParty.maxBattleMembers(); i++) {
@@ -8761,36 +11682,47 @@ class Game_Followers {
         }
     }
 
+    /** @returns {boolean} */
     isVisible() {
         return this._visible;
     }
 
+    /** @returns {void} */
     show() {
         this._visible = true;
     }
 
+    /** @returns {void} */
     hide() {
         this._visible = false;
     }
 
+    /** @returns {Game_Follower[]} */
     data() {
         return this._data.clone();
     }
 
+    /** @returns {Game_Follower[]} */
     reverseData() {
         return this._data.clone().reverse();
     }
 
+    /**
+     * @param {number} index
+     * @returns {Game_Follower}
+     */
     follower(index) {
         return this._data[index];
     }
 
+    /** @returns {void} */
     refresh() {
         for (const follower of this._data) {
             follower.refresh();
         }
     }
 
+    /** @returns {void} */
     update() {
         if (this.areGathering()) {
             if (!this.areMoving()) {
@@ -8805,6 +11737,7 @@ class Game_Followers {
         }
     }
 
+    /** @returns {void} */
     updateMove() {
         for (let i = this._data.length - 1; i >= 0; i--) {
             const precedingCharacter = i > 0 ? this._data[i - 1] : $gamePlayer;
@@ -8812,6 +11745,7 @@ class Game_Followers {
         }
     }
 
+    /** @returns {void} */
     jumpAll() {
         if ($gamePlayer.isJumping()) {
             for (const follower of this._data) {
@@ -8822,6 +11756,12 @@ class Game_Followers {
         }
     }
 
+    /**
+     * @param {number} x
+     * @param {number} y
+     * @param {RMMZ.Direction} d
+     * @returns {void}
+     */
     synchronize(x, y, d) {
         for (const follower of this._data) {
             follower.locate(x, y);
@@ -8829,26 +11769,36 @@ class Game_Followers {
         }
     }
 
+    /** @returns {void} */
     gather() {
         this._gathering = true;
     }
 
+    /** @returns {boolean} */
     areGathering() {
         return this._gathering;
     }
 
+    /** @returns {Game_Follower[]} */
     visibleFollowers() {
         return this._data.filter(follower => follower.isVisible());
     }
 
+    /** @returns {boolean} */
     areMoving() {
         return this.visibleFollowers().some(follower => follower.isMoving());
     }
 
+    /** @returns {boolean} */
     areGathered() {
         return this.visibleFollowers().every(follower => follower.isGathered());
     }
 
+    /**
+     * @param {number} x
+     * @param {number} y
+     * @returns {boolean}
+     */
     isSomeoneCollided(x, y) {
         return this.visibleFollowers().some(follower => follower.pos(x, y));
     }
@@ -8858,43 +11808,56 @@ class Game_Followers {
  * The game object class for a vehicle.
  */
 class Game_Vehicle extends Game_Character {
+    /** @param {[type: RMMZ.VehicleType]} args */
     constructor(...args) {
         super(...args);
     }
 
+    /** @param {RMMZ.VehicleType} type */
     initialize(type) {
         super.initialize();
+        /** @type {RMMZ.VehicleType} */
         this._type = type;
         this.resetDirection();
         this.initMoveSpeed();
         this.loadSystemSettings();
     }
 
+    /** @returns {void} */
     initMembers() {
         super.initMembers();
         this._type = "";
+        /** @type {number} */
         this._mapId = 0;
+        /** @type {number} */
         this._altitude = 0;
+        /** @type {boolean} */
         this._driving = false;
+        /** @type {RMMZ.DataAudio | null} */
         this._bgm = null;
     }
 
+    /** @returns {boolean} */
     isBoat() {
         return this._type === "boat";
     }
 
+    /** @returns {boolean} */
     isShip() {
         return this._type === "ship";
     }
 
+    /** @returns {boolean} */
     isAirship() {
         return this._type === "airship";
     }
 
+    /** @returns {void} */
     resetDirection() {
         this.setDirection(4);
     }
 
+    /** @returns {void} */
     initMoveSpeed() {
         if (this.isBoat()) {
             this.setMoveSpeed(4);
@@ -8905,6 +11868,7 @@ class Game_Vehicle extends Game_Character {
         }
     }
 
+    /** @returns {import("../data").DataVehicle | null} */
     vehicle() {
         if (this.isBoat()) {
             return $dataSystem.boat;
@@ -8917,6 +11881,7 @@ class Game_Vehicle extends Game_Character {
         }
     }
 
+    /** @returns {void} */
     loadSystemSettings() {
         const vehicle = this.vehicle();
         this._mapId = vehicle.startMapId;
@@ -8924,6 +11889,7 @@ class Game_Vehicle extends Game_Character {
         this.setImage(vehicle.characterName, vehicle.characterIndex);
     }
 
+    /** @returns {void} */
     refresh() {
         if (this._driving) {
             this._mapId = $gameMap.mapId();
@@ -8941,12 +11907,23 @@ class Game_Vehicle extends Game_Character {
         this.setTransparent(this._mapId !== $gameMap.mapId());
     }
 
+    /**
+     * @param {RMMZ.MapID} mapId
+     * @param {number} x
+     * @param {number} y
+     * @returns {void}
+     */
     setLocation(mapId, x, y) {
         this._mapId = mapId;
         this.setPosition(x, y);
         this.refresh();
     }
 
+    /**
+     * @param {number} x
+     * @param {number} y
+     * @returns {boolean}
+     */
     pos(x, y) {
         if (this._mapId === $gameMap.mapId()) {
             return super.pos(x, y);
@@ -8955,6 +11932,12 @@ class Game_Vehicle extends Game_Character {
         }
     }
 
+    /**
+     * @param {number} x
+     * @param {number} y
+     * @param {RMMZ.Direction} d
+     * @returns {boolean}
+     */
     isMapPassable(x, y, d) {
         const x2 = $gameMap.roundXWithDirection(x, d);
         const y2 = $gameMap.roundYWithDirection(y, d);
@@ -8969,6 +11952,7 @@ class Game_Vehicle extends Game_Character {
         }
     }
 
+    /** @returns {void} */
     getOn() {
         this._driving = true;
         this.setWalkAnime(true);
@@ -8977,6 +11961,7 @@ class Game_Vehicle extends Game_Character {
         this.playBgm();
     }
 
+    /** @returns {void} */
     getOff() {
         this._driving = false;
         this.setWalkAnime(false);
@@ -8985,35 +11970,46 @@ class Game_Vehicle extends Game_Character {
         $gameSystem.replayWalkingBgm();
     }
 
+    /**
+     * @param {RMMZ.DataAudio} bgm
+     * @returns {void}
+     */
     setBgm(bgm) {
         this._bgm = bgm;
     }
 
+    /** @returns {void} */
     playBgm() {
         AudioManager.playBgm(this._bgm || this.vehicle().bgm);
     }
 
+    /** @returns {void} */
     syncWithPlayer() {
         this.copyPosition($gamePlayer);
         this.refreshBushDepth();
     }
 
+    /** @returns {number} */
     screenY() {
         return super.screenY() - this._altitude;
     }
 
+    /** @returns {number} */
     shadowX() {
         return this.screenX();
     }
 
+    /** @returns {number} */
     shadowY() {
         return this.screenY() + this._altitude;
     }
 
+    /** @returns {number} */
     shadowOpacity() {
         return (255 * this._altitude) / this.maxAltitude();
     }
 
+    /** @returns {boolean} */
     canMove() {
         if (this.isAirship()) {
             return this.isHighest();
@@ -9022,6 +12018,7 @@ class Game_Vehicle extends Game_Character {
         }
     }
 
+    /** @returns {void} */
     update() {
         super.update();
         if (this.isAirship()) {
@@ -9029,12 +12026,14 @@ class Game_Vehicle extends Game_Character {
         }
     }
 
+    /** @returns {void} */
     updateAirship() {
         this.updateAirshipAltitude();
         this.setStepAnime(this.isHighest());
         this.setPriorityType(this.isLowest() ? 0 : 2);
     }
 
+    /** @returns {void} */
     updateAirshipAltitude() {
         if (this._driving && !this.isHighest()) {
             this._altitude++;
@@ -9044,22 +12043,32 @@ class Game_Vehicle extends Game_Character {
         }
     }
 
+    /** @returns {number} */
     maxAltitude() {
         return 48;
     }
 
+    /** @returns {boolean} */
     isLowest() {
         return this._altitude <= 0;
     }
 
+    /** @returns {boolean} */
     isHighest() {
         return this._altitude >= this.maxAltitude();
     }
 
+    /** @returns {boolean} */
     isTakeoffOk() {
         return $gamePlayer.areFollowersGathered();
     }
 
+    /**
+     * @param {number} x
+     * @param {number} y
+     * @param {RMMZ.Direction} d
+     * @returns {boolean}
+     */
     isLandOk(x, y, d) {
         if (this.isAirship()) {
             if (!$gameMap.isAirshipLandOk(x, y)) {
@@ -9090,47 +12099,73 @@ class Game_Vehicle extends Game_Character {
  * switching and running parallel process events.
  */
 class Game_Event extends Game_Character {
+    /** @param {[mapId: RMMZ.MapID, eventId: RMMZ.EventID]} args */
     constructor(...args) {
         super(...args);
     }
 
+    /**
+     * @param {RMMZ.MapID} mapId
+     * @param {RMMZ.EventID} eventId
+     */
     initialize(mapId, eventId) {
         super.initialize();
+        /** @type {RMMZ.MapID} */
         this._mapId = mapId;
+        /** @type {RMMZ.EventID} */
         this._eventId = eventId;
         this.locate(this.event().x, this.event().y);
         this.refresh();
     }
 
+    /** @returns {void} */
     initMembers() {
         super.initMembers();
+        /** @type {number} */
         this._moveType = 0;
+        /** @type {number | null} */
         this._trigger = 0;
+        /** @type {boolean} */
         this._starting = false;
+        /** @type {boolean} */
         this._erased = false;
+        /** @type {number} */
         this._pageIndex = -2;
+        /** @type {number} */
         this._originalPattern = 1;
+        /** @type {number} */
         this._originalDirection = 2;
+        /** @type {RMMZ.Direction} */
         this._prelockDirection = 0;
+        /** @type {boolean} */
         this._locked = false;
     }
 
+    /** @returns {number} */
     eventId() {
         return this._eventId;
     }
 
+    /** @returns {import("../data").DataEvent} */
     event() {
         return $dataMap.events[this._eventId];
     }
 
+    /** @returns {RMMZ.DataEventPage} */
     page() {
         return this.event().pages[this._pageIndex];
     }
 
+    /** @returns {import("../data").DataCommand[]} */
     list() {
         return this.page().list;
     }
 
+    /**
+     * @param {number} x
+     * @param {number} y
+     * @returns {boolean}
+     */
     isCollidedWithCharacters(x, y) {
         return (
             super.isCollidedWithCharacters(x, y) ||
@@ -9138,15 +12173,26 @@ class Game_Event extends Game_Character {
         );
     }
 
+    /**
+     * @param {number} x
+     * @param {number} y
+     * @returns {boolean}
+     */
     isCollidedWithEvents(x, y) {
         const events = $gameMap.eventsXyNt(x, y);
         return events.length > 0;
     }
 
+    /**
+     * @param {number} x
+     * @param {number} y
+     * @returns {boolean}
+     */
     isCollidedWithPlayerCharacters(x, y) {
         return this.isNormalPriority() && $gamePlayer.isCollided(x, y);
     }
 
+    /** @returns {void} */
     lock() {
         if (!this._locked) {
             this._prelockDirection = this.direction();
@@ -9155,6 +12201,7 @@ class Game_Event extends Game_Character {
         }
     }
 
+    /** @returns {void} */
     unlock() {
         if (this._locked) {
             this._locked = false;
@@ -9162,6 +12209,7 @@ class Game_Event extends Game_Character {
         }
     }
 
+    /** @returns {void} */
     updateStop() {
         if (this._locked) {
             this.resetStopCount();
@@ -9172,6 +12220,7 @@ class Game_Event extends Game_Character {
         }
     }
 
+    /** @returns {void} */
     updateSelfMovement() {
         if (
             !this._locked &&
@@ -9192,10 +12241,12 @@ class Game_Event extends Game_Character {
         }
     }
 
+    /** @returns {number} */
     stopCountThreshold() {
         return 30 * (5 - this.moveFrequency());
     }
 
+    /** @returns {void} */
     moveTypeRandom() {
         switch (Math.randomInt(6)) {
             case 0:
@@ -9213,6 +12264,7 @@ class Game_Event extends Game_Character {
         }
     }
 
+    /** @returns {void} */
     moveTypeTowardPlayer() {
         if (this.isNearThePlayer()) {
             switch (Math.randomInt(6)) {
@@ -9234,28 +12286,37 @@ class Game_Event extends Game_Character {
         }
     }
 
+    /** @returns {boolean} */
     isNearThePlayer() {
         const sx = Math.abs(this.deltaXFrom($gamePlayer.x));
         const sy = Math.abs(this.deltaYFrom($gamePlayer.y));
         return sx + sy < 20;
     }
 
+    /** @returns {void} */
     moveTypeCustom() {
         this.updateRoutineMove();
     }
 
+    /** @returns {boolean} */
     isStarting() {
         return this._starting;
     }
 
+    /** @returns {void} */
     clearStartingFlag() {
         this._starting = false;
     }
 
+    /**
+     * @param {number[]} triggers
+     * @returns {boolean}
+     */
     isTriggerIn(triggers) {
         return triggers.includes(this._trigger);
     }
 
+    /** @returns {void} */
     start() {
         const list = this.list();
         if (list && list.length > 1) {
@@ -9266,11 +12327,13 @@ class Game_Event extends Game_Character {
         }
     }
 
+    /** @returns {void} */
     erase() {
         this._erased = true;
         this.refresh();
     }
 
+    /** @returns {void} */
     refresh() {
         const newPageIndex = this._erased ? -1 : this.findProperPageIndex();
         if (this._pageIndex !== newPageIndex) {
@@ -9279,6 +12342,7 @@ class Game_Event extends Game_Character {
         }
     }
 
+    /** @returns {number} */
     findProperPageIndex() {
         const pages = this.event().pages;
         for (let i = pages.length - 1; i >= 0; i--) {
@@ -9290,6 +12354,10 @@ class Game_Event extends Game_Character {
         return -1;
     }
 
+    /**
+     * @param {RMMZ.DataEventPage} page
+     * @returns {boolean}
+     */
     meetsConditions(page) {
         const c = page.conditions;
         if (c.switch1Valid) {
@@ -9328,6 +12396,7 @@ class Game_Event extends Game_Character {
         return true;
     }
 
+    /** @returns {void} */
     setupPage() {
         if (this._pageIndex >= 0) {
             this.setupPageSettings();
@@ -9339,6 +12408,7 @@ class Game_Event extends Game_Character {
         this.checkEventTriggerAuto();
     }
 
+    /** @returns {void} */
     clearPageSettings() {
         this.setImage("", 0);
         this._moveType = 0;
@@ -9347,6 +12417,7 @@ class Game_Event extends Game_Character {
         this.setThrough(true);
     }
 
+    /** @returns {void} */
     setupPageSettings() {
         const page = this.page();
         const image = page.image;
@@ -9382,14 +12453,21 @@ class Game_Event extends Game_Character {
         }
     }
 
+    /** @returns {boolean} */
     isOriginalPattern() {
         return this.pattern() === this._originalPattern;
     }
 
+    /** @returns {void} */
     resetPattern() {
         this.setPattern(this._originalPattern);
     }
 
+    /**
+     * @param {number} x
+     * @param {number} y
+     * @returns {void}
+     */
     checkEventTriggerTouch(x, y) {
         if (!$gameMap.isEventRunning()) {
             if (this._trigger === 2 && $gamePlayer.pos(x, y)) {
@@ -9400,18 +12478,21 @@ class Game_Event extends Game_Character {
         }
     }
 
+    /** @returns {void} */
     checkEventTriggerAuto() {
         if (this._trigger === 3) {
             this.start();
         }
     }
 
+    /** @returns {void} */
     update() {
         super.update();
         this.checkEventTriggerAuto();
         this.updateParallel();
     }
 
+    /** @returns {void} */
     updateParallel() {
         if (this._interpreter) {
             if (!this._interpreter.isRunning()) {
@@ -9421,11 +12502,20 @@ class Game_Event extends Game_Character {
         }
     }
 
+    /**
+     * @param {number} x
+     * @param {number} y
+     * @returns {void}
+     */
     locate(x, y) {
         super.locate(x, y);
         this._prelockDirection = 0;
     }
 
+    /**
+     * @param {RMMZ.MoveRoute} moveRoute
+     * @returns {void}
+     */
     forceMoveRoute(moveRoute) {
         super.forceMoveRoute(moveRoute);
         this._prelockDirection = 0;
@@ -9436,26 +12526,35 @@ class Game_Event extends Game_Character {
  * The interpreter for running event commands.
  */
 class Game_Interpreter {
+    /** @param {[depth?: number]} args */
     constructor(...args) {
         this.initialize(...args);
     }
 
+    /** @param {number} [depth] */
     initialize(depth) {
+        /** @type {number} */
         this._depth = depth || 0;
         this.checkOverflow();
         this.clear();
+        /** @type {Record<number, number | boolean | null>} */
         this._branch = {};
+        /** @type {number} */
         this._indent = 0;
+        /** @type {number} */
         this._frameCount = 0;
+        /** @type {number} */
         this._freezeChecker = 0;
     }
 
+    /** @returns {void} */
     checkOverflow() {
         if (this._depth >= 100) {
             throw new Error("Common event calls exceeded the limit");
         }
     }
 
+    /** @returns {void} */
     clear() {
         this._mapId = 0;
         this._eventId = 0;
@@ -9468,6 +12567,11 @@ class Game_Interpreter {
         this._childInterpreter = null;
     }
 
+    /**
+     * @param {RMMZ.DataCommand[]} list
+     * @param {RMMZ.EventID} [eventId]
+     * @returns {void}
+     */
     setup(list, eventId) {
         this.clear();
         this._mapId = $gameMap.mapId();
@@ -9480,6 +12584,8 @@ class Game_Interpreter {
      * Preloads face and picture images referenced by upcoming event commands.
      * This is usually sufficient compared with the more complicated preload
      * scheme in certain versions of MV.
+     *
+     * @returns {void}
      */
     loadImages() {
         const list = this._list.slice(0, 200);
@@ -9495,14 +12601,17 @@ class Game_Interpreter {
         }
     }
 
+    /** @returns {number} */
     eventId() {
         return this._eventId;
     }
 
+    /** @returns {boolean} */
     isOnCurrentMap() {
         return this._mapId === $gameMap.mapId();
     }
 
+    /** @returns {boolean} */
     setupReservedCommonEvent() {
         if ($gameTemp.isCommonEventReserved()) {
             const commonEvent = $gameTemp.retrieveCommonEvent();
@@ -9514,10 +12623,12 @@ class Game_Interpreter {
         return false;
     }
 
+    /** @returns {boolean} */
     isRunning() {
         return !!this._list;
     }
 
+    /** @returns {void} */
     update() {
         while (this.isRunning()) {
             if (this.updateChild() || this.updateWait()) {
@@ -9535,6 +12646,7 @@ class Game_Interpreter {
         }
     }
 
+    /** @returns {boolean} */
     updateChild() {
         if (this._childInterpreter) {
             this._childInterpreter.update();
@@ -9547,10 +12659,12 @@ class Game_Interpreter {
         return false;
     }
 
+    /** @returns {boolean | null} */
     updateWait() {
         return this.updateWaitCount() || this.updateWaitMode();
     }
 
+    /** @returns {boolean} */
     updateWaitCount() {
         if (this._waitCount > 0) {
             this._waitCount--;
@@ -9559,6 +12673,7 @@ class Game_Interpreter {
         return false;
     }
 
+    /** @returns {boolean | null} */
     updateWaitMode() {
         let character = null;
         let waiting = false;
@@ -9603,18 +12718,28 @@ class Game_Interpreter {
         return waiting;
     }
 
+    /**
+     * @param {RMMZ.WaitMode} waitMode
+     * @returns {void}
+     */
     setWaitMode(waitMode) {
         this._waitMode = waitMode;
     }
 
+    /**
+     * @param {number} duration
+     * @returns {void}
+     */
     wait(duration) {
         this._waitCount = duration;
     }
 
+    /** @returns {number} */
     fadeSpeed() {
         return 24;
     }
 
+    /** @returns {boolean} */
     executeCommand() {
         const command = this.currentCommand();
         if (command) {
@@ -9632,6 +12757,7 @@ class Game_Interpreter {
         return true;
     }
 
+    /** @returns {boolean} */
     checkFreeze() {
         if (this._frameCount !== Graphics.frameCount) {
             this._frameCount = Graphics.frameCount;
@@ -9644,21 +12770,28 @@ class Game_Interpreter {
         }
     }
 
+    /** @returns {void} */
     terminate() {
         this._list = null;
         this._comments = "";
     }
 
+    /** @returns {void} */
     skipBranch() {
         while (this._list[this._index + 1].indent > this._indent) {
             this._index++;
         }
     }
 
+    /**
+     * @template {RMMZ.CommandCode} T
+     * @returns {RMMZ.ExtractDataCommand<T>}
+     */
     currentCommand() {
         return this._list[this._index];
     }
 
+    /** @returns {0 | 1 | 16 | 2 | 3 | 4 | 5 | 113 | 115 | 12 | 15 | 20 | 30 | 128 | 8 | 7 | 6 | 10 | 9 | 24 | 40 | 32 | 26 | 13 | 17 | 18 | 27 | 33 | 34 | 37 | 38 | 39 | 45 | 102 | 104 | 14 | 36 | 11 | 21 | 22 | 23 | 31 | 35 | 41 | 42 | 43 | 44 | 19 | 25 | 28 | 29 | 101 | 401 | 402 | 403 | 103 | 105 | 405 | 108 | 408 | 109 | 111 | 411 | 112 | 413 | 117 | 118 | 119 | 121 | 122 | 123 | 124 | 125 | 126 | 127 | 129 | 132 | 133 | 134 | 135 | 136 | 137 | 138 | 139 | 140 | 201 | 202 | 203 | 204 | 205 | 505 | 206 | 211 | 212 | 213 | 214 | 216 | 217 | 221 | 222 | 223 | 224 | 225 | 230 | 231 | 232 | 233 | 234 | 235 | 236 | 241 | 242 | 243 | 244 | 245 | 246 | 249 | 250 | 251 | 261 | 281 | 282 | 283 | 284 | 285 | 301 | 601 | 602 | 603 | 302 | 605 | 303 | 311 | 312 | 326 | 313 | 314 | 315 | 316 | 317 | 318 | 319 | 320 | 321 | 322 | 323 | 324 | 325 | 331 | 332 | 342 | 333 | 334 | 335 | 336 | 337 | 339 | 340 | 351 | 352 | 353 | 354 | 355 | 655 | 356 | 357} */
     nextEventCode() {
         const command = this._list[this._index + 1];
         if (command) {
@@ -9668,6 +12801,11 @@ class Game_Interpreter {
         }
     }
 
+    /**
+     * @param {RMMZ.ActorID} param
+     * @param {(actor: Game_Actor) => void} callback
+     * @returns {void}
+     */
     iterateActorId(param, callback) {
         if (param === 0) {
             $gameParty.members().forEach(callback);
@@ -9679,6 +12817,12 @@ class Game_Interpreter {
         }
     }
 
+    /**
+     * @param {0 | 1} param1
+     * @param {RMMZ.ActorID | RMMZ.VariableID} param2
+     * @param {(actor: Game_Actor) => void} callback
+     * @returns {void}
+     */
     iterateActorEx(param1, param2, callback) {
         if (param1 === 0) {
             this.iterateActorId(param2, callback);
@@ -9687,6 +12831,11 @@ class Game_Interpreter {
         }
     }
 
+    /**
+     * @param {number} param
+     * @param {(actor: Game_Actor) => void} callback
+     * @returns {void}
+     */
     iterateActorIndex(param, callback) {
         if (param < 0) {
             $gameParty.members().forEach(callback);
@@ -9698,6 +12847,11 @@ class Game_Interpreter {
         }
     }
 
+    /**
+     * @param {number} param
+     * @param {(enemy: Game_Enemy) => void} callback
+     * @returns {void}
+     */
     iterateEnemyIndex(param, callback) {
         if (param < 0) {
             $gameTroop.members().forEach(callback);
@@ -9709,6 +12863,12 @@ class Game_Interpreter {
         }
     }
 
+    /**
+     * @param {0 | 1} param1
+     * @param {RMMZ.EnemyID | RMMZ.ActorID} param2
+     * @param {(battler: RMMZ.ActionTarget) => void} callback
+     * @returns {void}
+     */
     iterateBattler(param1, param2, callback) {
         if ($gameParty.inBattle()) {
             if (param1 === 0) {
@@ -9719,6 +12879,10 @@ class Game_Interpreter {
         }
     }
 
+    /**
+     * @param {RMMZ.CharacterID} param
+     * @returns {Game_Character | null}
+     */
     character(param) {
         if ($gameParty.inBattle()) {
             return null;
@@ -9732,6 +12896,12 @@ class Game_Interpreter {
     }
 
     // prettier-ignore
+    /**
+     * @param {RMMZ.ValueOperation} operation
+     * @param {0 | 1} operandType
+     * @param {number | RMMZ.VariableID} operand
+     * @returns {number}
+     */
     operateValue(
         operation, operandType, operand
     ) {
@@ -9739,6 +12909,12 @@ class Game_Interpreter {
         return operation === 0 ? value : -value;
     }
 
+    /**
+     * @param {RMMZ.ActionTarget} target
+     * @param {number} value
+     * @param {boolean} allowDeath
+     * @returns {void}
+     */
     changeHp(target, value, allowDeath) {
         if (target.isAlive()) {
             if (!allowDeath && target.hp <= -value) {
@@ -9752,6 +12928,10 @@ class Game_Interpreter {
     }
 
     // Show Text
+    /**
+     * @param {RMMZ.CommandParams<101>} params
+     * @returns {boolean}
+     */
     command101(params) {
         if ($gameMessage.isBusy()) {
             return false;
@@ -9784,6 +12964,10 @@ class Game_Interpreter {
     }
 
     // Show Choices
+    /**
+     * @param {RMMZ.CommandParams<102>} params
+     * @returns {boolean}
+     */
     command102(params) {
         if ($gameMessage.isBusy()) {
             return false;
@@ -9793,6 +12977,10 @@ class Game_Interpreter {
         return true;
     }
 
+    /**
+     * @param {RMMZ.CommandParams<102>} params
+     * @returns {void}
+     */
     setupChoices(params) {
         const choices = params[0].clone();
         const cancelType = params[1] < choices.length ? params[1] : -2;
@@ -9808,6 +12996,10 @@ class Game_Interpreter {
     }
 
     // When [**]
+    /**
+     * @param {RMMZ.CommandParams<402>} params
+     * @returns {boolean}
+     */
     command402(params) {
         if (this._branch[this._indent] !== params[0]) {
             this.skipBranch();
@@ -9816,6 +13008,7 @@ class Game_Interpreter {
     }
 
     // When Cancel
+    /** @returns {boolean} */
     command403() {
         if (this._branch[this._indent] >= 0) {
             this.skipBranch();
@@ -9824,6 +13017,10 @@ class Game_Interpreter {
     }
 
     // Input Number
+    /**
+     * @param {RMMZ.CommandParams<103>} params
+     * @returns {boolean}
+     */
     command103(params) {
         if ($gameMessage.isBusy()) {
             return false;
@@ -9833,11 +13030,19 @@ class Game_Interpreter {
         return true;
     }
 
+    /**
+     * @param {RMMZ.CommandParams<103>} params
+     * @returns {void}
+     */
     setupNumInput(params) {
         $gameMessage.setNumberInput(params[0], params[1]);
     }
 
     // Select Item
+    /**
+     * @param {RMMZ.CommandParams<104>} params
+     * @returns {boolean}
+     */
     command104(params) {
         if ($gameMessage.isBusy()) {
             return false;
@@ -9847,11 +13052,19 @@ class Game_Interpreter {
         return true;
     }
 
+    /**
+     * @param {RMMZ.CommandParams<104>} params
+     * @returns {void}
+     */
     setupItemChoice(params) {
         $gameMessage.setItemChoice(params[0], params[1] || 2);
     }
 
     // Show Scrolling Text
+    /**
+     * @param {RMMZ.CommandParams<105>} params
+     * @returns {boolean}
+     */
     command105(params) {
         if ($gameMessage.isBusy()) {
             return false;
@@ -9866,6 +13079,10 @@ class Game_Interpreter {
     }
 
     // Comment
+    /**
+     * @param {RMMZ.CommandParams<108>} params
+     * @returns {boolean}
+     */
     command108(params) {
         this._comments = [params[0]];
         while (this.nextEventCode() === 408) {
@@ -9876,12 +13093,17 @@ class Game_Interpreter {
     }
 
     // Skip
+    /** @returns {boolean} */
     command109() {
         this.skipBranch();
         return true;
     }
 
     // Conditional Branch
+    /**
+     * @param {RMMZ.CommandParams<111>} params
+     * @returns {boolean}
+     */
     command111(params) {
         let result = false;
         let value1, value2;
@@ -10032,6 +13254,7 @@ class Game_Interpreter {
     }
 
     // Else
+    /** @returns {boolean} */
     command411() {
         if (this._branch[this._indent] !== false) {
             this.skipBranch();
@@ -10040,11 +13263,13 @@ class Game_Interpreter {
     }
 
     // Loop
+    /** @returns {boolean} */
     command112() {
         return true;
     }
 
     // Repeat Above
+    /** @returns {boolean} */
     command413() {
         do {
             this._index--;
@@ -10053,6 +13278,7 @@ class Game_Interpreter {
     }
 
     // Break Loop
+    /** @returns {boolean} */
     command113() {
         let depth = 0;
         while (this._index < this._list.length - 1) {
@@ -10073,12 +13299,17 @@ class Game_Interpreter {
     }
 
     // Exit Event Processing
+    /** @returns {boolean} */
     command115() {
         this._index = this._list.length;
         return true;
     }
 
     // Common Event
+    /**
+     * @param {RMMZ.CommandParams<117>} params
+     * @returns {boolean}
+     */
     command117(params) {
         const commonEvent = $dataCommonEvents[params[0]];
         if (commonEvent) {
@@ -10088,17 +13319,27 @@ class Game_Interpreter {
         return true;
     }
 
+    /**
+     * @param {RMMZ.DataCommand[]} list
+     * @param {RMMZ.EventID} eventId
+     * @returns {void}
+     */
     setupChild(list, eventId) {
         this._childInterpreter = new Game_Interpreter(this._depth + 1);
         this._childInterpreter.setup(list, eventId);
     }
 
     // Label
+    /** @returns {boolean} */
     command118() {
         return true;
     }
 
     // Jump to Label
+    /**
+     * @param {RMMZ.CommandParams<119>} params
+     * @returns {boolean}
+     */
     command119(params) {
         const labelName = params[0];
         for (let i = 0; i < this._list.length; i++) {
@@ -10111,6 +13352,10 @@ class Game_Interpreter {
         return true;
     }
 
+    /**
+     * @param {number} index
+     * @returns {void}
+     */
     jumpTo(index) {
         const lastIndex = this._index;
         const startIndex = Math.min(index, lastIndex);
@@ -10127,6 +13372,10 @@ class Game_Interpreter {
     }
 
     // Control Switches
+    /**
+     * @param {RMMZ.CommandParams<121>} params
+     * @returns {boolean}
+     */
     command121(params) {
         for (let i = params[0]; i <= params[1]; i++) {
             $gameSwitches.setValue(i, params[2] === 0);
@@ -10135,6 +13384,10 @@ class Game_Interpreter {
     }
 
     // Control Variables
+    /**
+     * @param {RMMZ.CommandParams<122>} params
+     * @returns {boolean}
+     */
     command122(params) {
         const startId = params[0];
         const endId = params[1];
@@ -10172,6 +13425,12 @@ class Game_Interpreter {
         return true;
     }
 
+    /**
+     * @param {number} type
+     * @param {number} param1
+     * @param {number} [param2]
+     * @returns {number}
+     */
     gameDataOperand(type, param1, param2) {
         let actor, enemy, character;
         switch (type) {
@@ -10271,6 +13530,12 @@ class Game_Interpreter {
         return 0;
     }
 
+    /**
+     * @param {RMMZ.VariableID} variableId
+     * @param {RMMZ.VariableOperationType} operationType
+     * @param {number} value
+     * @returns {void}
+     */
     operateVariable(
         variableId,
         operationType,
@@ -10304,6 +13569,10 @@ class Game_Interpreter {
     }
 
     // Control Self Switch
+    /**
+     * @param {RMMZ.CommandParams<123>} params
+     * @returns {boolean}
+     */
     command123(params) {
         if (this._eventId > 0) {
             const key = [this._mapId, this._eventId, params[0]];
@@ -10313,6 +13582,10 @@ class Game_Interpreter {
     }
 
     // Control Timer
+    /**
+     * @param {RMMZ.CommandParams<124>} params
+     * @returns {boolean}
+     */
     command124(params) {
         if (params[0] === 0) {
             // Start
@@ -10325,6 +13598,10 @@ class Game_Interpreter {
     }
 
     // Change Gold
+    /**
+     * @param {RMMZ.CommandParams<125>} params
+     * @returns {boolean}
+     */
     command125(params) {
         const value = this.operateValue(params[0], params[1], params[2]);
         $gameParty.gainGold(value);
@@ -10332,6 +13609,10 @@ class Game_Interpreter {
     }
 
     // Change Items
+    /**
+     * @param {RMMZ.CommandParams<126>} params
+     * @returns {boolean}
+     */
     command126(params) {
         const value = this.operateValue(params[1], params[2], params[3]);
         $gameParty.gainItem($dataItems[params[0]], value);
@@ -10339,6 +13620,10 @@ class Game_Interpreter {
     }
 
     // Change Weapons
+    /**
+     * @param {RMMZ.CommandParams<127>} params
+     * @returns {boolean}
+     */
     command127(params) {
         const value = this.operateValue(params[1], params[2], params[3]);
         $gameParty.gainItem($dataWeapons[params[0]], value, params[4]);
@@ -10346,6 +13631,10 @@ class Game_Interpreter {
     }
 
     // Change Armors
+    /**
+     * @param {RMMZ.CommandParams<128>} params
+     * @returns {boolean}
+     */
     command128(params) {
         const value = this.operateValue(params[1], params[2], params[3]);
         $gameParty.gainItem($dataArmors[params[0]], value, params[4]);
@@ -10353,6 +13642,10 @@ class Game_Interpreter {
     }
 
     // Change Party Member
+    /**
+     * @param {RMMZ.CommandParams<129>} params
+     * @returns {boolean}
+     */
     command129(params) {
         const actor = $gameActors.actor(params[0]);
         if (actor) {
@@ -10372,18 +13665,30 @@ class Game_Interpreter {
     }
 
     // Change Battle BGM
+    /**
+     * @param {RMMZ.CommandParams<132>} params
+     * @returns {boolean}
+     */
     command132(params) {
         $gameSystem.setBattleBgm(params[0]);
         return true;
     }
 
     // Change Victory ME
+    /**
+     * @param {RMMZ.CommandParams<133>} params
+     * @returns {boolean}
+     */
     command133(params) {
         $gameSystem.setVictoryMe(params[0]);
         return true;
     }
 
     // Change Save Access
+    /**
+     * @param {RMMZ.CommandParams<134>} params
+     * @returns {boolean}
+     */
     command134(params) {
         if (params[0] === 0) {
             $gameSystem.disableSave();
@@ -10394,6 +13699,10 @@ class Game_Interpreter {
     }
 
     // Change Menu Access
+    /**
+     * @param {RMMZ.CommandParams<135>} params
+     * @returns {boolean}
+     */
     command135(params) {
         if (params[0] === 0) {
             $gameSystem.disableMenu();
@@ -10404,6 +13713,10 @@ class Game_Interpreter {
     }
 
     // Change Encounter
+    /**
+     * @param {RMMZ.CommandParams<136>} params
+     * @returns {boolean}
+     */
     command136(params) {
         if (params[0] === 0) {
             $gameSystem.disableEncounter();
@@ -10415,6 +13728,10 @@ class Game_Interpreter {
     }
 
     // Change Formation Access
+    /**
+     * @param {RMMZ.CommandParams<137>} params
+     * @returns {boolean}
+     */
     command137(params) {
         if (params[0] === 0) {
             $gameSystem.disableFormation();
@@ -10425,18 +13742,30 @@ class Game_Interpreter {
     }
 
     // Change Window Color
+    /**
+     * @param {RMMZ.CommandParams<138>} params
+     * @returns {boolean}
+     */
     command138(params) {
         $gameSystem.setWindowTone(params[0]);
         return true;
     }
 
     // Change Defeat ME
+    /**
+     * @param {RMMZ.CommandParams<139>} params
+     * @returns {boolean}
+     */
     command139(params) {
         $gameSystem.setDefeatMe(params[0]);
         return true;
     }
 
     // Change Vehicle BGM
+    /**
+     * @param {RMMZ.CommandParams<140>} params
+     * @returns {boolean}
+     */
     command140(params) {
         const vehicle = $gameMap.vehicle(params[0]);
         if (vehicle) {
@@ -10446,6 +13775,10 @@ class Game_Interpreter {
     }
 
     // Transfer Player
+    /**
+     * @param {RMMZ.CommandParams<201>} params
+     * @returns {boolean}
+     */
     command201(params) {
         if ($gameParty.inBattle() || $gameMessage.isBusy()) {
             return false;
@@ -10468,6 +13801,10 @@ class Game_Interpreter {
     }
 
     // Set Vehicle Location
+    /**
+     * @param {RMMZ.CommandParams<202>} params
+     * @returns {boolean}
+     */
     command202(params) {
         let mapId, x, y;
         if (params[1] === 0) {
@@ -10489,6 +13826,10 @@ class Game_Interpreter {
     }
 
     // Set Event Location
+    /**
+     * @param {RMMZ.CommandParams<203>} params
+     * @returns {boolean}
+     */
     command203(params) {
         const character = this.character(params[0]);
         if (character) {
@@ -10515,6 +13856,10 @@ class Game_Interpreter {
     }
 
     // Scroll Map
+    /**
+     * @param {RMMZ.CommandParams<204>} params
+     * @returns {boolean}
+     */
     command204(params) {
         if (!$gameParty.inBattle()) {
             if ($gameMap.isScrolling()) {
@@ -10530,6 +13875,10 @@ class Game_Interpreter {
     }
 
     // Set Movement Route
+    /**
+     * @param {RMMZ.CommandParams<205>} params
+     * @returns {boolean}
+     */
     command205(params) {
         $gameMap.refreshIfNeeded();
         this._characterId = params[0];
@@ -10544,18 +13893,27 @@ class Game_Interpreter {
     }
 
     // Get on/off Vehicle
+    /** @returns {boolean} */
     command206() {
         $gamePlayer.getOnOffVehicle();
         return true;
     }
 
     // Change Transparency
+    /**
+     * @param {RMMZ.CommandParams<211>} params
+     * @returns {boolean}
+     */
     command211(params) {
         $gamePlayer.setTransparent(params[0] === 0);
         return true;
     }
 
     // Show Animation
+    /**
+     * @param {RMMZ.CommandParams<212>} params
+     * @returns {boolean}
+     */
     command212(params) {
         this._characterId = params[0];
         const character = this.character(this._characterId);
@@ -10569,6 +13927,10 @@ class Game_Interpreter {
     }
 
     // Show Balloon Icon
+    /**
+     * @param {RMMZ.CommandParams<213>} params
+     * @returns {boolean}
+     */
     command213(params) {
         this._characterId = params[0];
         const character = this.character(this._characterId);
@@ -10582,6 +13944,7 @@ class Game_Interpreter {
     }
 
     // Erase Event
+    /** @returns {boolean} */
     command214() {
         if (this.isOnCurrentMap() && this._eventId > 0) {
             $gameMap.eraseEvent(this._eventId);
@@ -10590,6 +13953,10 @@ class Game_Interpreter {
     }
 
     // Change Player Followers
+    /**
+     * @param {RMMZ.CommandParams<216>} params
+     * @returns {boolean}
+     */
     command216(params) {
         if (params[0] === 0) {
             $gamePlayer.showFollowers();
@@ -10601,6 +13968,7 @@ class Game_Interpreter {
     }
 
     // Gather Followers
+    /** @returns {boolean} */
     command217() {
         if (!$gameParty.inBattle()) {
             $gamePlayer.gatherFollowers();
@@ -10610,6 +13978,7 @@ class Game_Interpreter {
     }
 
     // Fadeout Screen
+    /** @returns {boolean} */
     command221() {
         if ($gameMessage.isBusy()) {
             return false;
@@ -10620,6 +13989,7 @@ class Game_Interpreter {
     }
 
     // Fadein Screen
+    /** @returns {boolean} */
     command222() {
         if ($gameMessage.isBusy()) {
             return false;
@@ -10630,6 +14000,10 @@ class Game_Interpreter {
     }
 
     // Tint Screen
+    /**
+     * @param {RMMZ.CommandParams<223>} params
+     * @returns {boolean}
+     */
     command223(params) {
         $gameScreen.startTint(params[0], params[1]);
         if (params[2]) {
@@ -10639,6 +14013,10 @@ class Game_Interpreter {
     }
 
     // Flash Screen
+    /**
+     * @param {RMMZ.CommandParams<224>} params
+     * @returns {boolean}
+     */
     command224(params) {
         $gameScreen.startFlash(params[0], params[1]);
         if (params[2]) {
@@ -10648,6 +14026,10 @@ class Game_Interpreter {
     }
 
     // Shake Screen
+    /**
+     * @param {RMMZ.CommandParams<225>} params
+     * @returns {boolean}
+     */
     command225(params) {
         $gameScreen.startShake(params[0], params[1], params[2]);
         if (params[3]) {
@@ -10657,12 +14039,20 @@ class Game_Interpreter {
     }
 
     // Wait
+    /**
+     * @param {RMMZ.CommandParams<230>} params
+     * @returns {boolean}
+     */
     command230(params) {
         this.wait(params[0]);
         return true;
     }
 
     // Show Picture
+    /**
+     * @param {RMMZ.CommandParams<231>} params
+     * @returns {boolean}
+     */
     command231(params) {
         const point = this.picturePoint(params);
         // prettier-ignore
@@ -10674,6 +14064,10 @@ class Game_Interpreter {
     }
 
     // Move Picture
+    /**
+     * @param {RMMZ.CommandParams<232>} params
+     * @returns {boolean}
+     */
     command232(params) {
         const point = this.picturePoint(params);
         // prettier-ignore
@@ -10687,6 +14081,10 @@ class Game_Interpreter {
         return true;
     }
 
+    /**
+     * @param {RMMZ.CommandParams<231 | 232>} params
+     * @returns {Point}
+     */
     picturePoint(params) {
         const point = new PIXI.Point();
         if (params[3] === 0) {
@@ -10702,12 +14100,20 @@ class Game_Interpreter {
     }
 
     // Rotate Picture
+    /**
+     * @param {RMMZ.CommandParams<233>} params
+     * @returns {boolean}
+     */
     command233(params) {
         $gameScreen.rotatePicture(params[0], params[1]);
         return true;
     }
 
     // Tint Picture
+    /**
+     * @param {RMMZ.CommandParams<234>} params
+     * @returns {boolean}
+     */
     command234(params) {
         $gameScreen.tintPicture(params[0], params[1], params[2]);
         if (params[3]) {
@@ -10717,12 +14123,20 @@ class Game_Interpreter {
     }
 
     // Erase Picture
+    /**
+     * @param {RMMZ.CommandParams<235>} params
+     * @returns {boolean}
+     */
     command235(params) {
         $gameScreen.erasePicture(params[0]);
         return true;
     }
 
     // Set Weather Effect
+    /**
+     * @param {RMMZ.CommandParams<236>} params
+     * @returns {boolean}
+     */
     command236(params) {
         if (!$gameParty.inBattle()) {
             $gameScreen.changeWeather(params[0], params[1], params[2]);
@@ -10734,60 +14148,91 @@ class Game_Interpreter {
     }
 
     // Play BGM
+    /**
+     * @param {RMMZ.CommandParams<241>} params
+     * @returns {boolean}
+     */
     command241(params) {
         AudioManager.playBgm(params[0]);
         return true;
     }
 
     // Fadeout BGM
+    /**
+     * @param {RMMZ.CommandParams<242>} params
+     * @returns {boolean}
+     */
     command242(params) {
         AudioManager.fadeOutBgm(params[0]);
         return true;
     }
 
     // Save BGM
+    /** @returns {boolean} */
     command243() {
         $gameSystem.saveBgm();
         return true;
     }
 
     // Resume BGM
+    /** @returns {boolean} */
     command244() {
         $gameSystem.replayBgm();
         return true;
     }
 
     // Play BGS
+    /**
+     * @param {RMMZ.CommandParams<245>} params
+     * @returns {boolean}
+     */
     command245(params) {
         AudioManager.playBgs(params[0]);
         return true;
     }
 
     // Fadeout BGS
+    /**
+     * @param {RMMZ.CommandParams<246>} params
+     * @returns {boolean}
+     */
     command246(params) {
         AudioManager.fadeOutBgs(params[0]);
         return true;
     }
 
     // Play ME
+    /**
+     * @param {RMMZ.CommandParams<249>} params
+     * @returns {boolean}
+     */
     command249(params) {
         AudioManager.playMe(params[0]);
         return true;
     }
 
     // Play SE
+    /**
+     * @param {RMMZ.CommandParams<250>} params
+     * @returns {boolean}
+     */
     command250(params) {
         AudioManager.playSe(params[0]);
         return true;
     }
 
     // Stop SE
+    /** @returns {boolean} */
     command251() {
         AudioManager.stopSe();
         return true;
     }
 
     // Play Movie
+    /**
+     * @param {RMMZ.CommandParams<261>} params
+     * @returns {boolean}
+     */
     command261(params) {
         if ($gameMessage.isBusy()) {
             return false;
@@ -10801,6 +14246,7 @@ class Game_Interpreter {
         return true;
     }
 
+    /** @returns {".webm" | ".mp4"} */
     videoFileExt() {
         if (Utils.canPlayWebm()) {
             return ".webm";
@@ -10810,6 +14256,10 @@ class Game_Interpreter {
     }
 
     // Change Map Name Display
+    /**
+     * @param {RMMZ.CommandParams<281>} params
+     * @returns {boolean}
+     */
     command281(params) {
         if (params[0] === 0) {
             $gameMap.enableNameDisplay();
@@ -10820,6 +14270,10 @@ class Game_Interpreter {
     }
 
     // Change Tileset
+    /**
+     * @param {RMMZ.CommandParams<282>} params
+     * @returns {boolean}
+     */
     command282(params) {
         const tileset = $dataTilesets[params[0]];
         const allReady = tileset.tilesetNames
@@ -10834,12 +14288,20 @@ class Game_Interpreter {
     }
 
     // Change Battle Background
+    /**
+     * @param {RMMZ.CommandParams<283>} params
+     * @returns {boolean}
+     */
     command283(params) {
         $gameMap.changeBattleback(params[0], params[1]);
         return true;
     }
 
     // Change Parallax
+    /**
+     * @param {RMMZ.CommandParams<284>} params
+     * @returns {boolean}
+     */
     command284(params) {
         // prettier-ignore
         $gameMap.changeParallax(
@@ -10849,6 +14311,10 @@ class Game_Interpreter {
     }
 
     // Get Location Info
+    /**
+     * @param {RMMZ.CommandParams<285>} params
+     * @returns {boolean}
+     */
     command285(params) {
         let x, y, value;
         if (params[2] === 0) {
@@ -10888,6 +14354,10 @@ class Game_Interpreter {
     }
 
     // Battle Processing
+    /**
+     * @param {RMMZ.CommandParams<301>} params
+     * @returns {boolean}
+     */
     command301(params) {
         if (!$gameParty.inBattle()) {
             let troopId;
@@ -10914,6 +14384,7 @@ class Game_Interpreter {
     }
 
     // If Win
+    /** @returns {boolean} */
     command601() {
         if (this._branch[this._indent] !== 0) {
             this.skipBranch();
@@ -10922,6 +14393,7 @@ class Game_Interpreter {
     }
 
     // If Escape
+    /** @returns {boolean} */
     command602() {
         if (this._branch[this._indent] !== 1) {
             this.skipBranch();
@@ -10930,6 +14402,7 @@ class Game_Interpreter {
     }
 
     // If Lose
+    /** @returns {boolean} */
     command603() {
         if (this._branch[this._indent] !== 2) {
             this.skipBranch();
@@ -10938,6 +14411,10 @@ class Game_Interpreter {
     }
 
     // Shop Processing
+    /**
+     * @param {RMMZ.CommandParams<302>} params
+     * @returns {boolean}
+     */
     command302(params) {
         if (!$gameParty.inBattle()) {
             const goods = [params];
@@ -10952,6 +14429,10 @@ class Game_Interpreter {
     }
 
     // Name Input Processing
+    /**
+     * @param {RMMZ.CommandParams<303>} params
+     * @returns {boolean}
+     */
     command303(params) {
         if (!$gameParty.inBattle()) {
             if ($dataActors[params[0]]) {
@@ -10963,6 +14444,10 @@ class Game_Interpreter {
     }
 
     // Change HP
+    /**
+     * @param {RMMZ.CommandParams<311>} params
+     * @returns {boolean}
+     */
     command311(params) {
         const value = this.operateValue(params[2], params[3], params[4]);
         this.iterateActorEx(params[0], params[1], actor => {
@@ -10972,6 +14457,10 @@ class Game_Interpreter {
     }
 
     // Change MP
+    /**
+     * @param {RMMZ.CommandParams<312>} params
+     * @returns {boolean}
+     */
     command312(params) {
         const value = this.operateValue(params[2], params[3], params[4]);
         this.iterateActorEx(params[0], params[1], actor => {
@@ -10981,6 +14470,10 @@ class Game_Interpreter {
     }
 
     // Change TP
+    /**
+     * @param {RMMZ.CommandParams<326>} params
+     * @returns {boolean}
+     */
     command326(params) {
         const value = this.operateValue(params[2], params[3], params[4]);
         this.iterateActorEx(params[0], params[1], actor => {
@@ -10990,6 +14483,10 @@ class Game_Interpreter {
     }
 
     // Change State
+    /**
+     * @param {RMMZ.CommandParams<313>} params
+     * @returns {boolean}
+     */
     command313(params) {
         this.iterateActorEx(params[0], params[1], actor => {
             const alreadyDead = actor.isDead();
@@ -11007,6 +14504,10 @@ class Game_Interpreter {
     }
 
     // Recover All
+    /**
+     * @param {RMMZ.CommandParams<314>} params
+     * @returns {boolean}
+     */
     command314(params) {
         this.iterateActorEx(params[0], params[1], actor => {
             actor.recoverAll();
@@ -11015,6 +14516,10 @@ class Game_Interpreter {
     }
 
     // Change EXP
+    /**
+     * @param {RMMZ.CommandParams<315>} params
+     * @returns {boolean}
+     */
     command315(params) {
         const value = this.operateValue(params[2], params[3], params[4]);
         this.iterateActorEx(params[0], params[1], actor => {
@@ -11024,6 +14529,10 @@ class Game_Interpreter {
     }
 
     // Change Level
+    /**
+     * @param {RMMZ.CommandParams<316>} params
+     * @returns {boolean}
+     */
     command316(params) {
         const value = this.operateValue(params[2], params[3], params[4]);
         this.iterateActorEx(params[0], params[1], actor => {
@@ -11033,6 +14542,10 @@ class Game_Interpreter {
     }
 
     // Change Parameter
+    /**
+     * @param {RMMZ.CommandParams<317>} params
+     * @returns {boolean}
+     */
     command317(params) {
         const value = this.operateValue(params[3], params[4], params[5]);
         this.iterateActorEx(params[0], params[1], actor => {
@@ -11042,6 +14555,10 @@ class Game_Interpreter {
     }
 
     // Change Skill
+    /**
+     * @param {RMMZ.CommandParams<318>} params
+     * @returns {boolean}
+     */
     command318(params) {
         this.iterateActorEx(params[0], params[1], actor => {
             if (params[2] === 0) {
@@ -11054,6 +14571,10 @@ class Game_Interpreter {
     }
 
     // Change Equipment
+    /**
+     * @param {RMMZ.CommandParams<319>} params
+     * @returns {boolean}
+     */
     command319(params) {
         const actor = $gameActors.actor(params[0]);
         if (actor) {
@@ -11063,6 +14584,10 @@ class Game_Interpreter {
     }
 
     // Change Name
+    /**
+     * @param {RMMZ.CommandParams<320>} params
+     * @returns {boolean}
+     */
     command320(params) {
         const actor = $gameActors.actor(params[0]);
         if (actor) {
@@ -11072,6 +14597,10 @@ class Game_Interpreter {
     }
 
     // Change Class
+    /**
+     * @param {RMMZ.CommandParams<321>} params
+     * @returns {boolean}
+     */
     command321(params) {
         const actor = $gameActors.actor(params[0]);
         if (actor && $dataClasses[params[1]]) {
@@ -11081,6 +14610,10 @@ class Game_Interpreter {
     }
 
     // Change Actor Images
+    /**
+     * @param {RMMZ.CommandParams<322>} params
+     * @returns {boolean}
+     */
     command322(params) {
         const actor = $gameActors.actor(params[0]);
         if (actor) {
@@ -11093,6 +14626,10 @@ class Game_Interpreter {
     }
 
     // Change Vehicle Image
+    /**
+     * @param {RMMZ.CommandParams<323>} params
+     * @returns {boolean}
+     */
     command323(params) {
         const vehicle = $gameMap.vehicle(params[0]);
         if (vehicle) {
@@ -11102,6 +14639,10 @@ class Game_Interpreter {
     }
 
     // Change Nickname
+    /**
+     * @param {RMMZ.CommandParams<324>} params
+     * @returns {boolean}
+     */
     command324(params) {
         const actor = $gameActors.actor(params[0]);
         if (actor) {
@@ -11111,6 +14652,10 @@ class Game_Interpreter {
     }
 
     // Change Profile
+    /**
+     * @param {RMMZ.CommandParams<325>} params
+     * @returns {boolean}
+     */
     command325(params) {
         const actor = $gameActors.actor(params[0]);
         if (actor) {
@@ -11120,6 +14665,10 @@ class Game_Interpreter {
     }
 
     // Change Enemy HP
+    /**
+     * @param {RMMZ.CommandParams<331>} params
+     * @returns {boolean}
+     */
     command331(params) {
         const value = this.operateValue(params[1], params[2], params[3]);
         this.iterateEnemyIndex(params[0], enemy => {
@@ -11129,6 +14678,10 @@ class Game_Interpreter {
     }
 
     // Change Enemy MP
+    /**
+     * @param {RMMZ.CommandParams<332>} params
+     * @returns {boolean}
+     */
     command332(params) {
         const value = this.operateValue(params[1], params[2], params[3]);
         this.iterateEnemyIndex(params[0], enemy => {
@@ -11138,6 +14691,10 @@ class Game_Interpreter {
     }
 
     // Change Enemy TP
+    /**
+     * @param {RMMZ.CommandParams<342>} params
+     * @returns {boolean}
+     */
     command342(params) {
         const value = this.operateValue(params[1], params[2], params[3]);
         this.iterateEnemyIndex(params[0], enemy => {
@@ -11147,6 +14704,10 @@ class Game_Interpreter {
     }
 
     // Change Enemy State
+    /**
+     * @param {RMMZ.CommandParams<333>} params
+     * @returns {boolean}
+     */
     command333(params) {
         this.iterateEnemyIndex(params[0], enemy => {
             const alreadyDead = enemy.isDead();
@@ -11164,6 +14725,10 @@ class Game_Interpreter {
     }
 
     // Enemy Recover All
+    /**
+     * @param {RMMZ.CommandParams<334>} params
+     * @returns {boolean}
+     */
     command334(params) {
         this.iterateEnemyIndex(params[0], enemy => {
             enemy.recoverAll();
@@ -11172,6 +14737,10 @@ class Game_Interpreter {
     }
 
     // Enemy Appear
+    /**
+     * @param {RMMZ.CommandParams<335>} params
+     * @returns {boolean}
+     */
     command335(params) {
         this.iterateEnemyIndex(params[0], enemy => {
             enemy.appear();
@@ -11181,6 +14750,10 @@ class Game_Interpreter {
     }
 
     // Enemy Transform
+    /**
+     * @param {RMMZ.CommandParams<336>} params
+     * @returns {boolean}
+     */
     command336(params) {
         this.iterateEnemyIndex(params[0], enemy => {
             enemy.transform(params[1]);
@@ -11190,6 +14763,10 @@ class Game_Interpreter {
     }
 
     // Show Battle Animation
+    /**
+     * @param {RMMZ.CommandParams<337>} params
+     * @returns {boolean}
+     */
     command337(params) {
         let param = params[0];
         if (params[2]) {
@@ -11206,6 +14783,10 @@ class Game_Interpreter {
     }
 
     // Force Action
+    /**
+     * @param {RMMZ.CommandParams<339>} params
+     * @returns {boolean}
+     */
     command339(params) {
         this.iterateBattler(params[0], params[1], battler => {
             if (!battler.isDeathStateAffected()) {
@@ -11218,12 +14799,14 @@ class Game_Interpreter {
     }
 
     // Abort Battle
+    /** @returns {boolean} */
     command340() {
         BattleManager.abort();
         return true;
     }
 
     // Open Menu Screen
+    /** @returns {boolean} */
     command351() {
         if (!$gameParty.inBattle()) {
             SceneManager.push(Scene_Menu);
@@ -11233,6 +14816,7 @@ class Game_Interpreter {
     }
 
     // Open Save Screen
+    /** @returns {boolean} */
     command352() {
         if (!$gameParty.inBattle()) {
             SceneManager.push(Scene_Save);
@@ -11241,18 +14825,21 @@ class Game_Interpreter {
     }
 
     // Game Over
+    /** @returns {boolean} */
     command353() {
         SceneManager.goto(Scene_Gameover);
         return true;
     }
 
     // Return to Title Screen
+    /** @returns {boolean} */
     command354() {
         SceneManager.goto(Scene_Title);
         return true;
     }
 
     // Script
+    /** @returns {boolean} */
     command355() {
         let script = this.currentCommand().parameters[0] + "\n";
         while (this.nextEventCode() === 655) {
@@ -11264,6 +14851,10 @@ class Game_Interpreter {
     }
 
     // Plugin Command MV (deprecated)
+    /**
+     * @param {RMMZ.CommandParams<356>} params
+     * @returns {boolean}
+     */
     command356(params) {
         const args = params[0].split(" ");
         const command = args.shift();
@@ -11276,6 +14867,10 @@ class Game_Interpreter {
     }
 
     // Plugin Command
+    /**
+     * @param {RMMZ.CommandParams<357>} params
+     * @returns {boolean}
+     */
     command357(params) {
         const pluginName = Utils.extractFileName(params[0]);
         PluginManager.callCommand(this, pluginName, params[1], params[3]);

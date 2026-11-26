@@ -178,7 +178,7 @@ class Utils {
     /**
      * The name of the RPG Maker. "MZ" in the current version.
      *
-     * @type string
+     * @type {string}
      * @constant
      */
     static RPGMAKER_NAME = "MZ";
@@ -186,7 +186,7 @@ class Utils {
     /**
      * The version of the RPG Maker.
      *
-     * @type string
+     * @type {string}
      * @constant
      */
     static RPGMAKER_VERSION = "1.10.0";
@@ -197,7 +197,7 @@ class Utils {
      *
      * @param {string} version - The "x.x.x" format string to compare.
      * @returns {boolean} True if the current version is greater than or equal
-     *                    to the given version.
+     * to the given version.
      */
     static checkRMVersion(version) {
         const array1 = this.RPGMAKER_VERSION.split(".");
@@ -399,6 +399,7 @@ class Utils {
     /**
      * Checks whether the string contains any Arabic characters.
      *
+     * @param {string} str
      * @returns {boolean} True if the string contains any Arabic characters.
      */
     static containsArabic(str) {
@@ -412,6 +413,7 @@ class Utils {
      * @param {boolean} hasImages - Whether the image files are encrypted.
      * @param {boolean} hasAudio - Whether the audio files are encrypted.
      * @param {string} key - The encryption key.
+     * @returns {void}
      */
     static setEncryptionInfo(hasImages, hasAudio, key) {
         // [Note] This function is implemented for module independence.
@@ -473,6 +475,7 @@ class Graphics {
     /**
      * Initializes the graphics system.
      *
+     * @returns {Promise<boolean>}
      */
     static async initialize() {
         this._width = 0;
@@ -524,9 +527,8 @@ class Graphics {
     /**
      * The PIXI.Application object.
      *
-     * @readonly
-     * @type PIXI.Application
      * @name Graphics.app
+     * @type {import("pixi.js").Application}
      */
     static get app() {
         return this._app;
@@ -535,9 +537,8 @@ class Graphics {
     /**
      * The context object of Effekseer.
      *
-     * @readonly
-     * @type EffekseerContext
      * @name Graphics.effekseer
+     * @type {effekseer.EffekseerContext}
      */
     static get effekseer() {
         return this._effekseer;
@@ -546,7 +547,8 @@ class Graphics {
     /**
      * Register a handler for tick events.
      *
-     * @param {function} handler - The listener function to be added for updates.
+     * @param {(deltaTime: number) => void} handler - The listener function to be added for updates.
+     * @returns {void}
      */
     static setTickHandler(handler) {
         this._tickHandler = handler;
@@ -554,6 +556,8 @@ class Graphics {
 
     /**
      * Starts the game loop.
+     *
+     * @returns {void}
      */
     static startGameLoop() {
         if (this._app) {
@@ -563,6 +567,8 @@ class Graphics {
 
     /**
      * Stops the game loop.
+     *
+     * @returns {void}
      */
     static stopGameLoop() {
         if (this._app) {
@@ -573,7 +579,8 @@ class Graphics {
     /**
      * Sets the stage to be rendered.
      *
-     * @param {Stage} stage - The stage object to be rendered.
+     * @param {Stage | null} stage - The stage object to be rendered.
+     * @returns {void}
      */
     static setStage(stage) {
         if (this._app) {
@@ -583,6 +590,8 @@ class Graphics {
 
     /**
      * Shows the loading spinner.
+     *
+     * @returns {void}
      */
     static startLoading() {
         if (!document.getElementById("loadingSpinner")) {
@@ -609,7 +618,8 @@ class Graphics {
      *
      * @param {string} name - The name of the error.
      * @param {string} message - The message of the error.
-     * @param {Error} [error] - The error object.
+     * @param {Error | ErrorEvent} [error] - The error object.
+     * @returns {void}
      */
     static printError(name, message, error = null) {
         if (!this._errorPrinter) {
@@ -623,8 +633,9 @@ class Graphics {
     /**
      * Displays a button to try to reload resources.
      *
-     * @param {function} retry - The callback function to be called when the button
-     *                           is pressed.
+     * @param {() => void} retry - The callback function to be called when the button
+     *   is pressed.
+     * @returns {void}
      */
     static showRetryButton(retry) {
         const button = document.createElement("button");
@@ -642,6 +653,8 @@ class Graphics {
 
     /**
      * Erases the loading error text.
+     *
+     * @returns {void}
      */
     static eraseError() {
         if (this._errorPrinter) {
@@ -698,6 +711,8 @@ class Graphics {
 
     /**
      * Shows the game screen.
+     *
+     * @returns {void}
      */
     static showScreen() {
         this._canvas.style.opacity = 1;
@@ -705,6 +720,8 @@ class Graphics {
 
     /**
      * Hides the game screen.
+     *
+     * @returns {void}
      */
     static hideScreen() {
         this._canvas.style.opacity = 0;
@@ -715,6 +732,7 @@ class Graphics {
      *
      * @param {number} width - The width of the game screen.
      * @param {number} height - The height of the game screen.
+     * @returns {void}
      */
     static resize(width, height) {
         this._width = width;
@@ -726,12 +744,13 @@ class Graphics {
     /**
      * The width of the game screen.
      *
-     * @type number
      * @name Graphics.width
+     * @type {number}
      */
     static get width() {
         return this._width;
     }
+    /** @param {number} value */
     static set width(value) {
         if (this._width !== value) {
             this._width = value;
@@ -742,12 +761,13 @@ class Graphics {
     /**
      * The height of the game screen.
      *
-     * @type number
      * @name Graphics.height
+     * @type {number}
      */
     static get height() {
         return this._height;
     }
+    /** @param {number} value */
     static set height(value) {
         if (this._height !== value) {
             this._height = value;
@@ -758,12 +778,13 @@ class Graphics {
     /**
      * The default zoom scale of the game screen.
      *
-     * @type number
      * @name Graphics.defaultScale
+     * @type {number}
      */
     static get defaultScale() {
         return this._defaultScale;
     }
+    /** @param {number} value */
     static set defaultScale(value) {
         if (this._defaultScale !== value) {
             this._defaultScale = value;
@@ -771,6 +792,7 @@ class Graphics {
         }
     }
 
+    /** @returns {void} */
     static _createAllElements() {
         this._createErrorPrinter();
         this._createCanvas();
@@ -778,6 +800,7 @@ class Graphics {
         this._createFPSCounter();
     }
 
+    /** @returns {void} */
     static _updateAllElements() {
         this._updateRealScale();
         this._updateErrorPrinter();
@@ -785,6 +808,10 @@ class Graphics {
         this._updateVideo();
     }
 
+    /**
+     * @param {import("pixi.js").Ticker} ticker
+     * @returns {void}
+     */
     static _onTick(ticker) {
         this._fpsCounter.startTick();
         if (this._tickHandler) {
@@ -796,10 +823,12 @@ class Graphics {
         this._fpsCounter.endTick();
     }
 
+    /** @returns {boolean} */
     static _canRender() {
         return !!this._app.stage;
     }
 
+    /** @returns {void} */
     static _updateRealScale() {
         if (this._stretchEnabled && this._width > 0 && this._height > 0) {
             const h = this._stretchWidth() / this._width;
@@ -811,6 +840,7 @@ class Graphics {
         }
     }
 
+    /** @returns {number} */
     static _stretchWidth() {
         if (Utils.isMobileDevice()) {
             return document.documentElement.clientWidth;
@@ -819,6 +849,7 @@ class Graphics {
         }
     }
 
+    /** @returns {number} */
     static _stretchHeight() {
         if (Utils.isMobileDevice()) {
             // [Note] Mobile browsers often have special operations at the top and
@@ -830,6 +861,11 @@ class Graphics {
         }
     }
 
+    /**
+     * @param {string} [name]
+     * @param {string} [message]
+     * @returns {string}
+     */
     static _makeErrorHtml(name, message /*, error*/) {
         const nameDiv = document.createElement("div");
         const messageDiv = document.createElement("div");
@@ -840,10 +876,12 @@ class Graphics {
         return nameDiv.outerHTML + messageDiv.outerHTML;
     }
 
+    /** @returns {boolean} */
     static _defaultStretchMode() {
         return Utils.isNwjs() || Utils.isMobileDevice();
     }
 
+    /** @returns {void} */
     static _createErrorPrinter() {
         this._errorPrinter = document.createElement("div");
         this._errorPrinter.id = "errorPrinter";
@@ -851,6 +889,7 @@ class Graphics {
         document.body.appendChild(this._errorPrinter);
     }
 
+    /** @returns {void} */
     static _updateErrorPrinter() {
         const width = this._width * 0.8 * this._realScale;
         const height = 100 * this._realScale;
@@ -858,6 +897,7 @@ class Graphics {
         this._errorPrinter.style.height = height + "px";
     }
 
+    /** @returns {void} */
     static _createCanvas() {
         this._canvas = document.createElement("canvas");
         this._canvas.id = "gameCanvas";
@@ -865,6 +905,7 @@ class Graphics {
         document.body.appendChild(this._canvas);
     }
 
+    /** @returns {void} */
     static _updateCanvas() {
         this._canvas.width = this._width;
         this._canvas.height = this._height;
@@ -872,12 +913,14 @@ class Graphics {
         this._centerElement(this._canvas);
     }
 
+    /** @returns {void} */
     static _updateVideo() {
         const width = this._width * this._realScale;
         const height = this._height * this._realScale;
         Video.resize(width, height);
     }
 
+    /** @returns {void} */
     static _createLoadingSpinner() {
         const loadingSpinner = document.createElement("div");
         const loadingSpinnerImage = document.createElement("div");
@@ -887,10 +930,15 @@ class Graphics {
         this._loadingSpinner = loadingSpinner;
     }
 
+    /** @returns {void} */
     static _createFPSCounter() {
         this._fpsCounter = new Graphics.FPSCounter();
     }
 
+    /**
+     * @param {HTMLCanvasElement} element
+     * @returns {void}
+     */
     static _centerElement(element) {
         const width = element.width * this._realScale;
         const height = element.height * this._realScale;
@@ -904,6 +952,7 @@ class Graphics {
         element.style.height = height + "px";
     }
 
+    /** @returns {void} */
     static _disableContextMenu() {
         const elements = document.body.getElementsByTagName("*");
         const oncontextmenu = () => false;
@@ -912,6 +961,7 @@ class Graphics {
         }
     }
 
+    /** @returns {void} */
     static _applyCanvasFilter() {
         if (this._canvas) {
             this._canvas.style.opacity = 0.5;
@@ -920,6 +970,7 @@ class Graphics {
         }
     }
 
+    /** @returns {void} */
     static _clearCanvasFilter() {
         if (this._canvas) {
             this._canvas.style.opacity = 1;
@@ -928,15 +979,21 @@ class Graphics {
         }
     }
 
+    /** @returns {void} */
     static _setupEventHandlers() {
         window.addEventListener("resize", this._onWindowResize.bind(this));
         document.addEventListener("keydown", this._onKeyDown.bind(this));
     }
 
+    /** @returns {void} */
     static _onWindowResize() {
         this._updateAllElements();
     }
 
+    /**
+     * @param {KeyboardEvent} event
+     * @returns {void}
+     */
     static _onKeyDown(event) {
         if (!event.ctrlKey && !event.altKey) {
             switch (event.keyCode) {
@@ -956,15 +1013,18 @@ class Graphics {
         }
     }
 
+    /** @returns {void} */
     static _switchFPSCounter() {
         this._fpsCounter.switchMode();
     }
 
+    /** @returns {void} */
     static _switchStretchMode() {
         this._stretchEnabled = !this._stretchEnabled;
         this._updateAllElements();
     }
 
+    /** @returns {void} */
     static _switchFullScreen() {
         if (this._isFullScreen()) {
             this._cancelFullScreen();
@@ -973,6 +1033,7 @@ class Graphics {
         }
     }
 
+    /** @returns {boolean} */
     static _isFullScreen() {
         return (
             document.fullScreenElement ||
@@ -981,6 +1042,7 @@ class Graphics {
         );
     }
 
+    /** @returns {void} */
     static _requestFullScreen() {
         const element = document.body;
         if (element.requestFullScreen) {
@@ -992,6 +1054,7 @@ class Graphics {
         }
     }
 
+    /** @returns {void} */
     static _cancelFullScreen() {
         if (document.cancelFullScreen) {
             document.cancelFullScreen();
@@ -1002,6 +1065,7 @@ class Graphics {
         }
     }
 
+    /** @returns {Promise<void>} */
     static async _createPixiApp() {
         const app = new PIXI.Application();
         await app.init({
@@ -1015,6 +1079,7 @@ class Graphics {
         this._app = app;
     }
 
+    /** @returns {void} */
     static _createEffekseerContext() {
         if (this._app && window.effekseer) {
             this._effekseer = effekseer.createContext();
@@ -1104,6 +1169,10 @@ Graphics.FPSCounter = class FPSCounter {
  * @param {number} y - The y coordinate.
  */
 class Point extends PIXI.Point {
+    /**
+     * @param {number} [x]
+     * @param {number} [y]
+     */
     constructor(x, y) {
         super(x, y);
     }
@@ -1120,6 +1189,12 @@ class Point extends PIXI.Point {
  * @param {number} height - The height of the rectangle.
  */
 class Rectangle extends PIXI.Rectangle {
+    /**
+     * @param {number} [x]
+     * @param {number} [y]
+     * @param {number} [width]
+     * @param {number} [height]
+     */
     constructor(x, y, width, height) {
         super(x, y, width, height);
     }
@@ -1133,21 +1208,34 @@ class Rectangle extends PIXI.Rectangle {
  * @param {number} height - The height of the bitmap.
  */
 class Bitmap {
+    /** @param {[width?: number, height?: number]} args */
     constructor(...args) {
         this.initialize(...args);
     }
 
+    /**
+     * @param {number} [width]
+     * @param {number} [height]
+     */
     initialize(width, height) {
+        /** @type {HTMLCanvasElement | null} */
         this._canvas = null;
+        /** @type {CanvasRenderingContext2D | null} */
         this._context = null;
         this._textureSource = null;
+        /** @type {HTMLImageElement | null} */
         this._image = null;
+        /** @type {string} */
         this._url = "";
+        /** @type {number} */
         this._paintOpacity = 255;
+        /** @type {boolean} */
         this._smooth = true;
+        /** @type {Array<(bitmap: Bitmap) => void>} */
         this._loadListeners = [];
 
         // "none", "loading", "loaded", or "error"
+        /** @type {string} */
         this._loadingState = "none";
 
         if (width > 0 && height > 0) {
@@ -1157,49 +1245,49 @@ class Bitmap {
         /**
          * The face name of the font.
          *
-         * @type string
+         * @type {string}
          */
         this.fontFace = "sans-serif";
 
         /**
          * The size of the font in pixels.
          *
-         * @type number
+         * @type {number}
          */
         this.fontSize = 16;
 
         /**
          * Whether the font is bold.
          *
-         * @type boolean
+         * @type {boolean}
          */
         this.fontBold = false;
 
         /**
          * Whether the font is italic.
          *
-         * @type boolean
+         * @type {boolean}
          */
         this.fontItalic = false;
 
         /**
          * The color of the text in CSS format.
          *
-         * @type string
+         * @type {string}
          */
         this.textColor = "#ffffff";
 
         /**
          * The color of the outline of the text in CSS format.
          *
-         * @type string
+         * @type {string}
          */
         this.outlineColor = "rgba(0, 0, 0, 0.5)";
 
         /**
          * The width of the outline of the text.
          *
-         * @type number
+         * @type {number}
          */
         this.outlineWidth = 3;
     }
@@ -1263,9 +1351,8 @@ class Bitmap {
     /**
      * The url of the image file.
      *
-     * @readonly
-     * @type string
      * @name Bitmap#url
+     * @type {string}
      */
     get url() {
         return this._url;
@@ -1274,8 +1361,7 @@ class Bitmap {
     /**
      * The PixiJS texture source that holds the bitmap image.
      *
-     * @readonly
-     * @type PIXI.TextureSource
+     * @type {import("pixi.js").TextureSource}
      * @name Bitmap#textureSource
      */
     get textureSource() {
@@ -1285,9 +1371,8 @@ class Bitmap {
     /**
      * The bitmap image.
      *
-     * @readonly
-     * @type HTMLImageElement
      * @name Bitmap#image
+     * @type {HTMLImageElement | null}
      */
     get image() {
         return this._image;
@@ -1296,9 +1381,8 @@ class Bitmap {
     /**
      * The bitmap canvas.
      *
-     * @readonly
-     * @type HTMLCanvasElement
      * @name Bitmap#canvas
+     * @type {HTMLCanvasElement}
      */
     get canvas() {
         this._ensureCanvas();
@@ -1308,9 +1392,8 @@ class Bitmap {
     /**
      * The 2d context of the bitmap canvas.
      *
-     * @readonly
-     * @type CanvasRenderingContext2D
      * @name Bitmap#context
+     * @type {CanvasRenderingContext2D}
      */
     get context() {
         this._ensureCanvas();
@@ -1320,9 +1403,8 @@ class Bitmap {
     /**
      * The width of the bitmap.
      *
-     * @readonly
-     * @type number
      * @name Bitmap#width
+     * @type {number}
      */
     get width() {
         const image = this._canvas || this._image;
@@ -1332,9 +1414,8 @@ class Bitmap {
     /**
      * The height of the bitmap.
      *
-     * @readonly
-     * @type number
      * @name Bitmap#height
+     * @type {number}
      */
     get height() {
         const image = this._canvas || this._image;
@@ -1344,9 +1425,8 @@ class Bitmap {
     /**
      * The rectangle of the bitmap.
      *
-     * @readonly
-     * @type PIXI.Rectangle
      * @name Bitmap#rect
+     * @type {Rectangle}
      */
     get rect() {
         return new PIXI.Rectangle(0, 0, this.width, this.height);
@@ -1355,12 +1435,13 @@ class Bitmap {
     /**
      * Whether the smooth scaling is applied.
      *
-     * @type boolean
      * @name Bitmap#smooth
+     * @type {boolean}
      */
     get smooth() {
         return this._smooth;
     }
+    /** @param {boolean} value */
     set smooth(value) {
         if (this._smooth !== value) {
             this._smooth = value;
@@ -1371,12 +1452,13 @@ class Bitmap {
     /**
      * The opacity of the drawing object in the range (0, 255).
      *
-     * @type number
      * @name Bitmap#paintOpacity
+     * @type {number}
      */
     get paintOpacity() {
         return this._paintOpacity;
     }
+    /** @param {number} value */
     set paintOpacity(value) {
         if (this._paintOpacity !== value) {
             this._paintOpacity = value;
@@ -1386,6 +1468,8 @@ class Bitmap {
 
     /**
      * Destroys the bitmap.
+     *
+     * @returns {void}
      */
     destroy() {
         if (this._textureSource) {
@@ -1400,6 +1484,7 @@ class Bitmap {
      *
      * @param {number} width - The new width of the bitmap.
      * @param {number} height - The new height of the bitmap.
+     * @returns {void}
      */
     resize(width, height) {
         width = Math.max(width || 0, 1);
@@ -1418,8 +1503,9 @@ class Bitmap {
      * @param {number} sh - The height of the source image.
      * @param {number} dx - The x coordinate in the destination.
      * @param {number} dy - The y coordinate in the destination.
-     * @param {number} [dw=sw] The width to draw the image in the destination.
-     * @param {number} [dh=sh] The height to draw the image in the destination.
+     * @param {number} [dw] The width to draw the image in the destination.
+     * @param {number} [dh] The height to draw the image in the destination.
+     * @returns {void}
      */
     blt(source, sx, sy, sw, sh, dx, dy, dw, dh) {
         dw = dw || sw;
@@ -1455,7 +1541,7 @@ class Bitmap {
      *
      * @param {number} x - The x coordinate of the pixel in the bitmap.
      * @param {number} y - The y coordinate of the pixel in the bitmap.
-     * @returns {string} The alpha value.
+     * @returns {number} The alpha value.
      */
     getAlphaPixel(x, y) {
         const data = this.context.getImageData(x, y, 1, 1).data;
@@ -1469,6 +1555,7 @@ class Bitmap {
      * @param {number} y - The y coordinate for the upper-left corner.
      * @param {number} width - The width of the rectangle to clear.
      * @param {number} height - The height of the rectangle to clear.
+     * @returns {void}
      */
     clearRect(x, y, width, height) {
         this.context.clearRect(x, y, width, height);
@@ -1477,6 +1564,8 @@ class Bitmap {
 
     /**
      * Clears the entire bitmap.
+     *
+     * @returns {void}
      */
     clear() {
         this.clearRect(0, 0, this.width, this.height);
@@ -1490,6 +1579,7 @@ class Bitmap {
      * @param {number} width - The width of the rectangle to fill.
      * @param {number} height - The height of the rectangle to fill.
      * @param {string} color - The color of the rectangle in CSS format.
+     * @returns {void}
      */
     fillRect(x, y, width, height, color) {
         const context = this.context;
@@ -1504,6 +1594,7 @@ class Bitmap {
      * Fills the entire bitmap.
      *
      * @param {string} color - The color of the rectangle in CSS format.
+     * @returns {void}
      */
     fillAll(color) {
         this.fillRect(0, 0, this.width, this.height, color);
@@ -1517,6 +1608,7 @@ class Bitmap {
      * @param {number} width - The width of the rectangle to fill.
      * @param {number} height - The height of the rectangle to fill.
      * @param {string} color - The color of the rectangle in CSS format.
+     * @returns {void}
      */
     strokeRect(x, y, width, height, color) {
         const context = this.context;
@@ -1537,7 +1629,8 @@ class Bitmap {
      * @param {number} height - The height of the rectangle to fill.
      * @param {string} color1 - The gradient starting color.
      * @param {string} color2 - The gradient ending color.
-     * @param {boolean} vertical - Whether the gradient should be draw as vertical or not.
+     * @param {boolean} [vertical] - Whether the gradient should be draw as vertical or not.
+     * @returns {void}
      */
     gradientFillRect(
         x, y, width, height, color1, color2, vertical
@@ -1562,6 +1655,7 @@ class Bitmap {
      * @param {number} y - The y coordinate based on the circle center.
      * @param {number} radius - The radius of the circle.
      * @param {string} color - The color of the circle in CSS format.
+     * @returns {void}
      */
     drawCircle(x, y, radius, color) {
         const context = this.context;
@@ -1582,7 +1676,8 @@ class Bitmap {
      * @param {number} y - The y coordinate for the top of the text.
      * @param {number} maxWidth - The maximum allowed width of the text.
      * @param {number} lineHeight - The height of the text line.
-     * @param {string} align - The alignment of the text.
+     * @param {CanvasTextAlign} [align] - The alignment of the text.
+     * @returns {void}
      */
     drawText(text, x, y, maxWidth, lineHeight, align) {
         // [Note] Different browser makes different rendering with
@@ -1628,7 +1723,8 @@ class Bitmap {
     /**
      * Adds a callback function that will be called when the bitmap is loaded.
      *
-     * @param {function} listner - The callback function.
+     * @param {(bitmap: Bitmap) => void} listner - The callback function.
+     * @returns {void}
      */
     addLoadListener(listner) {
         if (!this.isReady()) {
@@ -1640,17 +1736,27 @@ class Bitmap {
 
     /**
      * Tries to load the image again.
+     *
+     * @returns {void}
      */
     retry() {
         this._startLoading();
     }
 
+    /** @returns {string} */
     _makeFontNameText() {
         const italic = this.fontItalic ? "Italic " : "";
         const bold = this.fontBold ? "Bold " : "";
         return italic + bold + this.fontSize + "px " + this.fontFace;
     }
 
+    /**
+     * @param {string} text
+     * @param {number} tx
+     * @param {number} ty
+     * @param {number} maxWidth
+     * @returns {void}
+     */
     _drawTextOutline(text, tx, ty, maxWidth) {
         const context = this.context;
         context.strokeStyle = this.outlineColor;
@@ -1659,12 +1765,24 @@ class Bitmap {
         context.strokeText(text, tx, ty, maxWidth);
     }
 
+    /**
+     * @param {string} text
+     * @param {number} tx
+     * @param {number} ty
+     * @param {number} maxWidth
+     * @returns {void}
+     */
     _drawTextBody(text, tx, ty, maxWidth) {
         const context = this.context;
         context.fillStyle = this.textColor;
         context.fillText(text, tx, ty, maxWidth);
     }
 
+    /**
+     * @param {number} width
+     * @param {number} height
+     * @returns {void}
+     */
     _createCanvas(width, height) {
         this._canvas = document.createElement("canvas");
         this._context = this._canvas.getContext("2d");
@@ -1673,6 +1791,7 @@ class Bitmap {
         this._createTextureSource(this._canvas);
     }
 
+    /** @returns {void} */
     _ensureCanvas() {
         if (!this._canvas) {
             if (this._image) {
@@ -1684,6 +1803,7 @@ class Bitmap {
         }
     }
 
+    /** @returns {void} */
     _destroyCanvas() {
         if (this._canvas) {
             this._canvas.width = 0;
@@ -1692,18 +1812,24 @@ class Bitmap {
         }
     }
 
+    /**
+     * @param {HTMLCanvasElement | HTMLImageElement} resource
+     * @returns {void}
+     */
     _createTextureSource(resource) {
         const Source = resource === this._canvas ? PIXI.CanvasSource : PIXI.ImageSource;
         this._textureSource = new Source({ resource, resolution: 1 });
         this._updateScaleMode();
     }
 
+    /** @returns {void} */
     _updateScaleMode() {
         if (this._textureSource) {
             this._textureSource.scaleMode = this._smooth ? "linear" : "nearest";
         }
     }
 
+    /** @returns {void} */
     _startLoading() {
         this._image = new Image();
         this._image.onload = this._onLoad.bind(this);
@@ -1721,6 +1847,7 @@ class Bitmap {
         }
     }
 
+    /** @returns {void} */
     _startDecrypting() {
         const xhr = new XMLHttpRequest();
         xhr.open("GET", this._url + "_");
@@ -1730,6 +1857,10 @@ class Bitmap {
         xhr.send();
     }
 
+    /**
+     * @param {XMLHttpRequest} xhr
+     * @returns {void}
+     */
     _onXhrLoad(xhr) {
         if (xhr.status < 400) {
             const arrayBuffer = Utils.decryptArrayBuffer(xhr.response);
@@ -1740,6 +1871,7 @@ class Bitmap {
         }
     }
 
+    /** @returns {void} */
     _onLoad() {
         if (Utils.hasEncryptedImages()) {
             URL.revokeObjectURL(this._image.src);
@@ -1749,6 +1881,7 @@ class Bitmap {
         this._callLoadListeners();
     }
 
+    /** @returns {void} */
     _callLoadListeners() {
         while (this._loadListeners.length > 0) {
             const listener = this._loadListeners.shift();
@@ -1756,6 +1889,7 @@ class Bitmap {
         }
     }
 
+    /** @returns {void} */
     _onError() {
         this._loadingState = "error";
     }
@@ -1769,6 +1903,7 @@ class Bitmap {
  * @param {Bitmap} bitmap - The image for the sprite.
  */
 class Sprite extends PIXI.Sprite {
+    /** @param {[bitmap?: Bitmap]} args */
     constructor(...args) {
         super(new PIXI.Texture({
             source: PIXI.Texture.EMPTY.source,
@@ -1780,29 +1915,40 @@ class Sprite extends PIXI.Sprite {
         this.initialize(...args);
     }
 
+    /** @param {Bitmap} [bitmap] */
     initialize(bitmap) {
+        /** @type {number} */
         this.spriteId = Sprite._counter++;
+        /** @type {Bitmap} */
         this._bitmap = bitmap;
+        /** @type {Rectangle} */
         this._frame = new PIXI.Rectangle();
+        /** @type {number} */
         this._hue = 0;
+        /** @type {RMMZ.Color} */
         this._blendColor = [0, 0, 0, 0];
+        /** @type {RMMZ.Color} */
         this._colorTone = [0, 0, 0, 0];
+        /** @type {ColorFilter | null} */
         this._colorFilter = null;
+        /** @type {boolean} */
         this._hidden = false;
         this._onBitmapChange();
     }
 
+    /** @type {number} */
     static _counter = 0;
 
     /**
      * The image for the sprite.
      *
-     * @type Bitmap
      * @name Sprite#bitmap
+     * @type {Bitmap}
      */
     get bitmap() {
         return this._bitmap;
     }
+    /** @param {Bitmap} value */
     set bitmap(value) {
         if (this._bitmap !== value) {
             this._bitmap = value;
@@ -1813,12 +1959,13 @@ class Sprite extends PIXI.Sprite {
     /**
      * The width of the sprite without the scale.
      *
-     * @type number
      * @name Sprite#width
+     * @type {number}
      */
     get width() {
         return this._frame.width;
     }
+    /** @param {number} value */
     set width(value) {
         this._frame.width = value;
         this._refresh();
@@ -1827,12 +1974,13 @@ class Sprite extends PIXI.Sprite {
     /**
      * The height of the sprite without the scale.
      *
-     * @type number
      * @name Sprite#height
+     * @type {number}
      */
     get height() {
         return this._frame.height;
     }
+    /** @param {number} value */
     set height(value) {
         this._frame.height = value;
         this._refresh();
@@ -1841,12 +1989,13 @@ class Sprite extends PIXI.Sprite {
     /**
      * The opacity of the sprite (0 to 255).
      *
-     * @type number
      * @name Sprite#opacity
+     * @type {number}
      */
     get opacity() {
         return this.alpha * 255;
     }
+    /** @param {number} value */
     set opacity(value) {
         this.alpha = value.clamp(0, 255) / 255;
     }
@@ -1854,13 +2003,14 @@ class Sprite extends PIXI.Sprite {
     /**
      * The blend mode to be applied to the sprite.
      *
-     * @type string
      * @name Sprite#blendMode
+     * @type {import("pixi.js").BLEND_MODES}
      */
     get blendMode() {
         return this._colorFilter?.blendMode ?? super.blendMode;
     }
 
+    /** @param {RMMZ.BlendMode} value */
     set blendMode(value) {
         const mode = typeof value === "number" ? Sprite._blendModes[value] ?? "normal" : value;
         if (this._colorFilter) {
@@ -1874,6 +2024,8 @@ class Sprite extends PIXI.Sprite {
 
     /**
      * Destroys the sprite.
+     *
+     * @returns {void}
      */
     destroy() {
         const options = { children: true, texture: true };
@@ -1882,6 +2034,8 @@ class Sprite extends PIXI.Sprite {
 
     /**
      * Updates the sprite for each frame.
+     *
+     * @returns {void}
      */
     update() {
         for (const child of this.children) {
@@ -1893,6 +2047,8 @@ class Sprite extends PIXI.Sprite {
 
     /**
      * Makes the sprite "hidden".
+     *
+     * @returns {void}
      */
     hide() {
         this._hidden = true;
@@ -1901,6 +2057,8 @@ class Sprite extends PIXI.Sprite {
 
     /**
      * Releases the "hidden" state of the sprite.
+     *
+     * @returns {void}
      */
     show() {
         this._hidden = false;
@@ -1909,6 +2067,8 @@ class Sprite extends PIXI.Sprite {
 
     /**
      * Reflects the "hidden" state of the sprite to the visible state.
+     *
+     * @returns {void}
      */
     updateVisibility() {
         this.visible = !this._hidden;
@@ -1919,6 +2079,7 @@ class Sprite extends PIXI.Sprite {
      *
      * @param {number} x - The x coordinate of the sprite.
      * @param {number} y - The y coordinate of the sprite.
+     * @returns {void}
      */
     move(x, y) {
         this.x = x;
@@ -1932,6 +2093,7 @@ class Sprite extends PIXI.Sprite {
      * @param {number} y - The y coordinate of the frame.
      * @param {number} width - The width of the frame.
      * @param {number} height - The height of the frame.
+     * @returns {void}
      */
     setFrame(x, y, width, height) {
         this._refreshFrame = false;
@@ -1954,6 +2116,7 @@ class Sprite extends PIXI.Sprite {
      * Sets the hue rotation value.
      *
      * @param {number} hue - The hue value (-360, 360).
+     * @returns {void}
      */
     setHue(hue) {
         if (this._hue !== Number(hue)) {
@@ -1965,7 +2128,7 @@ class Sprite extends PIXI.Sprite {
     /**
      * Gets the blend color for the sprite.
      *
-     * @returns {array} The blend color [r, g, b, a].
+     * @returns {[ number, number, number, number ]} The blend color [r, g, b, a].
      */
     getBlendColor() {
         return this._blendColor.clone();
@@ -1974,7 +2137,8 @@ class Sprite extends PIXI.Sprite {
     /**
      * Sets the blend color for the sprite.
      *
-     * @param {array} color - The blend color [r, g, b, a].
+     * @param {RMMZ.Color} color - The blend color [r, g, b, a].
+     * @returns {void}
      */
     setBlendColor(color) {
         if (!(color instanceof Array)) {
@@ -1989,7 +2153,7 @@ class Sprite extends PIXI.Sprite {
     /**
      * Gets the color tone for the sprite.
      *
-     * @returns {array} The color tone [r, g, b, gray].
+     * @returns {[ number, number, number, number ]} The color tone [r, g, b, gray].
      */
     getColorTone() {
         return this._colorTone.clone();
@@ -1998,7 +2162,8 @@ class Sprite extends PIXI.Sprite {
     /**
      * Sets the color tone for the sprite.
      *
-     * @param {array} tone - The color tone [r, g, b, gray].
+     * @param {RMMZ.Color} tone - The color tone [r, g, b, gray].
+     * @returns {void}
      */
     setColorTone(tone) {
         if (!(tone instanceof Array)) {
@@ -2010,6 +2175,7 @@ class Sprite extends PIXI.Sprite {
         }
     }
 
+    /** @returns {void} */
     _onBitmapChange() {
         if (this._bitmap) {
             this._refreshFrame = true;
@@ -2020,6 +2186,10 @@ class Sprite extends PIXI.Sprite {
         }
     }
 
+    /**
+     * @param {Bitmap} bitmapLoaded
+     * @returns {void}
+     */
     _onBitmapLoad(bitmapLoaded) {
         if (bitmapLoaded === this._bitmap) {
             if (this._refreshFrame && this._bitmap) {
@@ -2031,6 +2201,7 @@ class Sprite extends PIXI.Sprite {
         }
     }
 
+    /** @returns {void} */
     _refresh() {
         const texture = this.texture;
         const frameX = Math.floor(this._frame.x);
@@ -2054,6 +2225,7 @@ class Sprite extends PIXI.Sprite {
         texture.update();
     }
 
+    /** @returns {void} */
     _createColorFilter() {
         this._colorFilter = new ColorFilter();
         this._colorFilter.blendMode = super.blendMode;
@@ -2061,6 +2233,7 @@ class Sprite extends PIXI.Sprite {
         this.filters = [...(this.filters ?? []), this._colorFilter];
     }
 
+    /** @returns {void} */
     _updateColorFilter() {
         if (!this._colorFilter) {
             this._createColorFilter();
@@ -2092,60 +2265,67 @@ class Tilemap extends PIXI.Container {
     constructor() {
         super();
 
+        /** @type {number} */
         this._width = Graphics.width;
+        /** @type {number} */
         this._height = Graphics.height;
+        /** @type {number} */
         this._margin = 20;
+        /** @type {number} */
         this._mapWidth = 0;
+        /** @type {number} */
         this._mapHeight = 0;
+        /** @type {number[] | null} */
         this._mapData = null;
+        /** @type {Bitmap[]} */
         this._bitmaps = [];
 
         /**
          * The width of each tile.
          *
-         * @type number
+         * @type {number}
          */
         this.tileWidth = 48;
 
         /**
          * The height of each tile.
          *
-         * @type number
+         * @type {number}
          */
         this.tileHeight = 48;
 
         /**
          * The origin point of the tilemap for scrolling.
          *
-         * @type PIXI.Point
+         * @type {import("pixi.js").Point}
          */
         this.origin = new PIXI.Point();
 
         /**
          * The tileset flags.
          *
-         * @type array
+         * @type {any[]}
          */
         this.flags = [];
 
         /**
          * The animation count for autotiles.
          *
-         * @type number
+         * @type {number}
          */
         this.animationCount = 0;
 
         /**
          * Whether the tilemap loops horizontal.
          *
-         * @type boolean
+         * @type {boolean}
          */
         this.horizontalWrap = false;
 
         /**
          * Whether the tilemap loops vertical.
          *
-         * @type boolean
+         * @type {boolean}
          */
         this.verticalWrap = false;
 
@@ -2157,12 +2337,13 @@ class Tilemap extends PIXI.Container {
     /**
      * The width of the tilemap.
      *
-     * @type number
      * @name Tilemap#width
+     * @type {number}
      */
     get width() {
         return this._width;
     }
+    /** @param {number} value */
     set width(value) {
         this._width = value;
     }
@@ -2170,18 +2351,21 @@ class Tilemap extends PIXI.Container {
     /**
      * The height of the tilemap.
      *
-     * @type number
      * @name Tilemap#height
+     * @type {number}
      */
     get height() {
         return this._height;
     }
+    /** @param {number} value */
     set height(value) {
         this._height = value;
     }
 
     /**
      * Destroys the tilemap.
+     *
+     * @returns {void}
      */
     destroy() {
         super.destroy({ children: true });
@@ -2196,7 +2380,8 @@ class Tilemap extends PIXI.Container {
      *
      * @param {number} width - The width of the map in number of tiles.
      * @param {number} height - The height of the map in number of tiles.
-     * @param {array} data - The one dimensional array for the map data.
+     * @param {number[]} data - The one dimensional array for the map data.
+     * @returns {void}
      */
     setData(width, height, data) {
         this._mapWidth = width;
@@ -2207,7 +2392,6 @@ class Tilemap extends PIXI.Container {
     /**
      * Checks whether the tileset is ready to render.
      *
-     * @type boolean
      * @returns {boolean} True if the tilemap is ready.
      */
     isReady() {
@@ -2221,6 +2405,8 @@ class Tilemap extends PIXI.Container {
 
     /**
      * Updates the tilemap for each frame.
+     *
+     * @returns {void}
      */
     update() {
         this.animationCount++;
@@ -2239,7 +2425,8 @@ class Tilemap extends PIXI.Container {
      * from bitmaps that are not yet loaded here brings some maintenance
      * difficulties. For example, PIXI overwrites img.onload internally.
      *
-     * @param {array} bitmaps - The array of the tileset bitmaps.
+     * @param {Bitmap[]} bitmaps - The array of the tileset bitmaps.
+     * @returns {void}
      */
     setBitmaps(bitmaps) {
         this._bitmaps = bitmaps;
@@ -2255,11 +2442,14 @@ class Tilemap extends PIXI.Container {
 
     /**
      * Forces to repaint the entire tilemap.
+     *
+     * @returns {void}
      */
     refresh() {
         this._needsRepaint = true;
     }
 
+    /** @returns {void} */
     _updateLayers() {
         const ox = Math.ceil(this.origin.x);
         const oy = Math.ceil(this.origin.y);
@@ -2284,6 +2474,7 @@ class Tilemap extends PIXI.Container {
         this._sortChildren();
     }
 
+    /** @returns {void} */
     _createLayers() {
         this._tileAtlases = [];
         this._tileShader = Tilemap.createShader();
@@ -2296,6 +2487,7 @@ class Tilemap extends PIXI.Container {
         this._needsRepaint = true;
     }
 
+    /** @returns {void} */
     _updateBitmaps() {
         if (this._needsBitmapsUpdate && this.isReady()) {
             this._updateAtlasTextures();
@@ -2304,6 +2496,7 @@ class Tilemap extends PIXI.Container {
         }
     }
 
+    /** @returns {void} */
     _updateAtlasTextures() {
         // Four tilesheets share each atlas. The shader binds at most three atlases.
         for (let i = 0; i < 3; i++) {
@@ -2335,6 +2528,11 @@ class Tilemap extends PIXI.Container {
         }
     }
 
+    /**
+     * @param {number} startX
+     * @param {number} startY
+     * @returns {void}
+     */
     _addAllSpots(startX, startY) {
         this._lowerLayer.clear();
         this._upperLayer.clear();
@@ -2349,6 +2547,13 @@ class Tilemap extends PIXI.Container {
         }
     }
 
+    /**
+     * @param {number} startX
+     * @param {number} startY
+     * @param {number} x
+     * @param {number} y
+     * @returns {void}
+     */
     _addSpot(startX, startY, x, y) {
         const mx = startX + x;
         const my = startY + y;
@@ -2378,6 +2583,12 @@ class Tilemap extends PIXI.Container {
         }
     }
 
+    /**
+     * @param {RMMZ.TileID} tileId
+     * @param {number} dx
+     * @param {number} dy
+     * @returns {void}
+     */
     _addSpotTile(tileId, dx, dy) {
         if (this._isHigherTile(tileId)) {
             this._addTile(this._upperLayer, tileId, dx, dy);
@@ -2386,6 +2597,13 @@ class Tilemap extends PIXI.Container {
         }
     }
 
+    /**
+     * @param {Tilemap.CombinedLayer} layer
+     * @param {RMMZ.TileID} tileId
+     * @param {number} dx
+     * @param {number} dy
+     * @returns {void}
+     */
     _addTile(layer, tileId, dx, dy) {
         if (Tilemap.isVisibleTile(tileId)) {
             if (Tilemap.isAutotile(tileId)) {
@@ -2396,6 +2614,13 @@ class Tilemap extends PIXI.Container {
         }
     }
 
+    /**
+     * @param {Tilemap.CombinedLayer} layer
+     * @param {RMMZ.TileID} tileId
+     * @param {number} dx
+     * @param {number} dy
+     * @returns {void}
+     */
     _addNormalTile(layer, tileId, dx, dy) {
         let setNumber = 0;
 
@@ -2413,6 +2638,13 @@ class Tilemap extends PIXI.Container {
         layer.addRect(setNumber, sx, sy, dx, dy, w, h);
     }
 
+    /**
+     * @param {Tilemap.CombinedLayer} layer
+     * @param {RMMZ.TileID} tileId
+     * @param {number} dx
+     * @param {number} dy
+     * @returns {void}
+     */
     _addAutotile(layer, tileId, dx, dy) {
         const kind = Tilemap.getAutotileKind(tileId);
         const shape = Tilemap.getAutotileShape(tileId);
@@ -2492,6 +2724,13 @@ class Tilemap extends PIXI.Container {
         }
     }
 
+    /**
+     * @param {Tilemap.CombinedLayer} layer
+     * @param {RMMZ.TileID} tileId
+     * @param {number} dx
+     * @param {number} dy
+     * @returns {void}
+     */
     _addTableEdge(layer, tileId, dx, dy) {
         if (Tilemap.isTileA2(tileId)) {
             const autotileTable = Tilemap.FLOOR_AUTOTILE_TABLE;
@@ -2517,6 +2756,13 @@ class Tilemap extends PIXI.Container {
         }
     }
 
+    /**
+     * @param {Tilemap.CombinedLayer} layer
+     * @param {number} shadowBits
+     * @param {number} dx
+     * @param {number} dy
+     * @returns {void}
+     */
     _addShadow(layer, shadowBits, dx, dy) {
         if (shadowBits & 0x0f) {
             const w1 = this.tileWidth / 2;
@@ -2531,6 +2777,12 @@ class Tilemap extends PIXI.Container {
         }
     }
 
+    /**
+     * @param {number} x
+     * @param {number} y
+     * @param {number} z
+     * @returns {number}
+     */
     _readMapData(x, y, z) {
         if (this._mapData) {
             const width = this._mapWidth;
@@ -2551,18 +2803,28 @@ class Tilemap extends PIXI.Container {
         }
     }
 
+    /**
+     * @param {RMMZ.TileID} tileId
+     * @returns {boolean}
+     */
     _isHigherTile(tileId) {
         return this.flags[tileId] & 0x10;
     }
 
+    /**
+     * @param {RMMZ.TileID} tileId
+     * @returns {boolean}
+     */
     _isTableTile(tileId) {
         return Tilemap.isTileA2(tileId) && this.flags[tileId] & 0x80;
     }
 
+    /** @returns {boolean} */
     _isOverpassPosition(/*mx, my*/) {
         return false;
     }
 
+    /** @returns {void} */
     _sortChildren() {
         const sorted = this.children.slice().sort(this._compareChildOrder);
         for (let i = 0; i < sorted.length; i++) {
@@ -2570,6 +2832,11 @@ class Tilemap extends PIXI.Container {
         }
     }
 
+    /**
+     * @param {Sprite} a
+     * @param {Sprite} b
+     * @returns {number}
+     */
     _compareChildOrder(a, b) {
         if (a.z !== b.z) {
             return a.z - b.z;
@@ -2601,26 +2868,52 @@ class Tilemap extends PIXI.Container {
 
     static TILE_ID_MAX = 8192;
 
+    /**
+     * @param {RMMZ.TileID} tileId
+     * @returns {boolean}
+     */
     static isVisibleTile(tileId) {
         return tileId > 0 && tileId < this.TILE_ID_MAX;
     }
 
+    /**
+     * @param {RMMZ.TileID} tileId
+     * @returns {boolean}
+     */
     static isAutotile(tileId) {
         return tileId >= this.TILE_ID_A1;
     }
 
+    /**
+     * @param {RMMZ.TileID} tileId
+     * @returns {number}
+     */
     static getAutotileKind(tileId) {
         return Math.floor((tileId - this.TILE_ID_A1) / 48);
     }
 
+    /**
+     * @param {RMMZ.TileID} tileId
+     * @returns {number}
+     */
     static getAutotileShape(tileId) {
         return (tileId - this.TILE_ID_A1) % 48;
     }
 
+    /**
+     * @param {number} kind
+     * @param {number} shape
+     * @returns {number}
+     */
     static makeAutotileId(kind, shape) {
         return this.TILE_ID_A1 + kind * 48 + shape;
     }
 
+    /**
+     * @param {number} tileID1
+     * @param {number} tileID2
+     * @returns {boolean}
+     */
     static isSameKindTile(tileID1, tileID2) {
         if (this.isAutotile(tileID1) && this.isAutotile(tileID2)) {
             return this.getAutotileKind(tileID1) === this.getAutotileKind(tileID2);
@@ -2629,26 +2922,50 @@ class Tilemap extends PIXI.Container {
         }
     }
 
+    /**
+     * @param {RMMZ.TileID} tileId
+     * @returns {boolean}
+     */
     static isTileA1(tileId) {
         return tileId >= this.TILE_ID_A1 && tileId < this.TILE_ID_A2;
     }
 
+    /**
+     * @param {RMMZ.TileID} tileId
+     * @returns {boolean}
+     */
     static isTileA2(tileId) {
         return tileId >= this.TILE_ID_A2 && tileId < this.TILE_ID_A3;
     }
 
+    /**
+     * @param {RMMZ.TileID} tileId
+     * @returns {boolean}
+     */
     static isTileA3(tileId) {
         return tileId >= this.TILE_ID_A3 && tileId < this.TILE_ID_A4;
     }
 
+    /**
+     * @param {RMMZ.TileID} tileId
+     * @returns {boolean}
+     */
     static isTileA4(tileId) {
         return tileId >= this.TILE_ID_A4 && tileId < this.TILE_ID_MAX;
     }
 
+    /**
+     * @param {RMMZ.TileID} tileId
+     * @returns {boolean}
+     */
     static isTileA5(tileId) {
         return tileId >= this.TILE_ID_A5 && tileId < this.TILE_ID_A1;
     }
 
+    /**
+     * @param {RMMZ.TileID} tileId
+     * @returns {boolean}
+     */
     static isWaterTile(tileId) {
         if (this.isTileA1(tileId)) {
             return !(
@@ -2659,6 +2976,10 @@ class Tilemap extends PIXI.Container {
         }
     }
 
+    /**
+     * @param {RMMZ.TileID} tileId
+     * @returns {boolean}
+     */
     static isWaterfallTile(tileId) {
         if (tileId >= this.TILE_ID_A1 + 192 && tileId < this.TILE_ID_A2) {
             return this.getAutotileKind(tileId) % 2 === 1;
@@ -2667,24 +2988,44 @@ class Tilemap extends PIXI.Container {
         }
     }
 
+    /**
+     * @param {RMMZ.TileID} tileId
+     * @returns {boolean}
+     */
     static isGroundTile(tileId) {
         return (
             this.isTileA1(tileId) || this.isTileA2(tileId) || this.isTileA5(tileId)
         );
     }
 
+    /**
+     * @param {RMMZ.TileID} tileId
+     * @returns {boolean}
+     */
     static isShadowingTile(tileId) {
         return this.isTileA3(tileId) || this.isTileA4(tileId);
     }
 
+    /**
+     * @param {RMMZ.TileID} tileId
+     * @returns {boolean}
+     */
     static isRoofTile(tileId) {
         return this.isTileA3(tileId) && this.getAutotileKind(tileId) % 16 < 8;
     }
 
+    /**
+     * @param {RMMZ.TileID} tileId
+     * @returns {boolean}
+     */
     static isWallTopTile(tileId) {
         return this.isTileA4(tileId) && this.getAutotileKind(tileId) % 16 < 8;
     }
 
+    /**
+     * @param {RMMZ.TileID} tileId
+     * @returns {boolean}
+     */
     static isWallSideTile(tileId) {
         return (
             (this.isTileA3(tileId) || this.isTileA4(tileId)) &&
@@ -2692,10 +3033,18 @@ class Tilemap extends PIXI.Container {
         );
     }
 
+    /**
+     * @param {RMMZ.TileID} tileId
+     * @returns {boolean}
+     */
     static isWallTile(tileId) {
         return this.isWallTopTile(tileId) || this.isWallSideTile(tileId);
     }
 
+    /**
+     * @param {RMMZ.TileID} tileId
+     * @returns {boolean}
+     */
     static isFloorTypeAutotile(tileId) {
         return (
             (this.isTileA1(tileId) && !this.isWaterfallTile(tileId)) ||
@@ -2704,16 +3053,25 @@ class Tilemap extends PIXI.Container {
         );
     }
 
+    /**
+     * @param {RMMZ.TileID} tileId
+     * @returns {boolean}
+     */
     static isWallTypeAutotile(tileId) {
         return this.isRoofTile(tileId) || this.isWallSideTile(tileId);
     }
 
+    /**
+     * @param {RMMZ.TileID} tileId
+     * @returns {boolean}
+     */
     static isWaterfallTypeAutotile(tileId) {
         return this.isWaterfallTile(tileId);
     }
 
     // Autotile shape number to coordinates of tileset images
     // prettier-ignore
+    /** @type {number[][][]} */
     static FLOOR_AUTOTILE_TABLE = [
         [[2, 4], [1, 4], [2, 3], [1, 3]],
         [[2, 0], [1, 4], [2, 3], [1, 3]],
@@ -2766,6 +3124,7 @@ class Tilemap extends PIXI.Container {
     ];
 
     // prettier-ignore
+    /** @type {number[][][]} */
     static WALL_AUTOTILE_TABLE = [
         [[2, 2], [1, 2], [2, 1], [1, 1]],
         [[0, 2], [1, 2], [0, 1], [1, 1]],
@@ -2786,6 +3145,7 @@ class Tilemap extends PIXI.Container {
     ];
 
     // prettier-ignore
+    /** @type {number[][][]} */
     static WATERFALL_AUTOTILE_TABLE = [
         [[2, 0], [1, 0], [2, 1], [1, 1]],
         [[0, 0], [1, 0], [0, 1], [1, 1]],
@@ -2797,6 +3157,7 @@ class Tilemap extends PIXI.Container {
 // Internal classes
 
 Tilemap.Layer = class Layer extends PIXI.Mesh {
+    /** @param {import("pixi.js").Shader} shader */
     constructor(shader) {
         const vertices = new PIXI.Buffer({
             data: new Float32Array(0),
@@ -2824,9 +3185,13 @@ Tilemap.Layer = class Layer extends PIXI.Mesh {
             indexBuffer: indices
         });
         super({ geometry, shader });
+        /** @type {Array<[ number, number, number, number, number, number, number ]>} */
         this._elements = [];
+        /** @type {Float32Array} */
         this._indexArray = new Uint16Array(0);
+        /** @type {Float32Array} */
         this._vertexArray = new Float32Array(0);
+        /** @type {boolean} */
         this._needsVertexUpdate = false;
         this.onRender = this._updateGeometry;
     }
@@ -2834,26 +3199,40 @@ Tilemap.Layer = class Layer extends PIXI.Mesh {
     // Four vertices per tile must fit in the 16-bit index buffer.
     static MAX_SIZE = 16000;
 
+    /** @returns {void} */
     destroy() {
         const geometry = this.geometry;
         super.destroy();
         geometry.destroy(true);
     }
 
+    /** @returns {void} */
     clear() {
         this._elements.length = 0;
         this._needsVertexUpdate = true;
     }
 
+    /** @returns {number} */
     size() {
         return this._elements.length;
     }
 
+    /**
+     * @param {number} setNumber
+     * @param {number} sx
+     * @param {number} sy
+     * @param {number} dx
+     * @param {number} dy
+     * @param {number} w
+     * @param {number} h
+     * @returns {void}
+     */
     addRect(setNumber, sx, sy, dx, dy, w, h) {
         this._elements.push([setNumber, sx, sy, dx, dy, w, h]);
         this._needsVertexUpdate = true;
     }
 
+    /** @returns {void} */
     _updateGeometry() {
         if (this._needsVertexUpdate) {
             this._updateIndexBuffer();
@@ -2863,6 +3242,7 @@ Tilemap.Layer = class Layer extends PIXI.Mesh {
         this.renderable = this._elements.length > 0;
     }
 
+    /** @returns {void} */
     _updateIndexBuffer() {
         const count = this._elements.length;
         const indexCount = count * 6;
@@ -2887,6 +3267,7 @@ Tilemap.Layer = class Layer extends PIXI.Mesh {
         }
     }
 
+    /** @returns {void} */
     _updateVertexBuffer() {
         const numElements = this._elements.length;
         const required = numElements * 4 * 9;
@@ -2952,6 +3333,7 @@ Tilemap.Layer = class Layer extends PIXI.Mesh {
 };
 
 Tilemap.CombinedLayer = class CombinedLayer extends PIXI.Container {
+    /** @param {import("pixi.js").Shader} shader */
     constructor(shader) {
         super();
         for (let i = 0; i < 2; i++) {
@@ -2959,16 +3341,28 @@ Tilemap.CombinedLayer = class CombinedLayer extends PIXI.Container {
         }
     }
 
+    /** @returns {void} */
     clear() {
         for (const child of this.children) {
             child.clear();
         }
     }
 
+    /** @returns {number} */
     size() {
         return this.children.reduce((r, child) => r + child.size(), 0);
     }
 
+    /**
+     * @param {number} setNumber
+     * @param {number} sx
+     * @param {number} sy
+     * @param {number} dx
+     * @param {number} dy
+     * @param {number} w
+     * @param {number} h
+     * @returns {void}
+     */
     // prettier-ignore
     addRect(
         setNumber, sx, sy, dx, dy, w, h
@@ -3045,6 +3439,7 @@ Tilemap.createShader = function() {
  * @param {Bitmap} bitmap - The image for the tiling sprite.
  */
 class TilingSprite extends PIXI.TilingSprite {
+    /** @param {[bitmap?: Bitmap]} args */
     constructor(...args) {
         super({
             texture: new PIXI.Texture({
@@ -3057,16 +3452,19 @@ class TilingSprite extends PIXI.TilingSprite {
         this.initialize(...args);
     }
 
+    /** @param {Bitmap} [bitmap] */
     initialize(bitmap) {
+        /** @type {Bitmap} */
         this._bitmap = bitmap;
         this.width = 0;
         this.height = 0;
+        /** @type {Rectangle} */
         this._frame = new PIXI.Rectangle();
 
         /**
          * The origin point of the tiling sprite for scrolling.
          *
-         * @type PIXI.Point
+         * @type {import("pixi.js").Point}
          */
         this.origin = new PIXI.Point();
 
@@ -3076,12 +3474,13 @@ class TilingSprite extends PIXI.TilingSprite {
     /**
      * The image for the tiling sprite.
      *
-     * @type Bitmap
      * @name TilingSprite#bitmap
+     * @type {Bitmap}
      */
     get bitmap() {
         return this._bitmap;
     }
+    /** @param {Bitmap} value */
     set bitmap(value) {
         if (this._bitmap !== value) {
             this._bitmap = value;
@@ -3092,18 +3491,21 @@ class TilingSprite extends PIXI.TilingSprite {
     /**
      * The opacity of the tiling sprite (0 to 255).
      *
-     * @type number
      * @name TilingSprite#opacity
+     * @type {number}
      */
     get opacity() {
         return this.alpha * 255;
     }
+    /** @param {number} value */
     set opacity(value) {
         this.alpha = value.clamp(0, 255) / 255;
     }
 
     /**
      * Destroys the tiling sprite.
+     *
+     * @returns {void}
      */
     destroy() {
         const options = { children: true, texture: true };
@@ -3112,6 +3514,8 @@ class TilingSprite extends PIXI.TilingSprite {
 
     /**
      * Updates the tiling sprite for each frame.
+     *
+     * @returns {void}
      */
     update() {
         for (const child of this.children) {
@@ -3128,6 +3532,7 @@ class TilingSprite extends PIXI.TilingSprite {
      * @param {number} y - The y coordinate of the tiling sprite.
      * @param {number} width - The width of the tiling sprite.
      * @param {number} height - The height of the tiling sprite.
+     * @returns {void}
      */
     move(x, y, width, height) {
         this.x = x || 0;
@@ -3143,6 +3548,7 @@ class TilingSprite extends PIXI.TilingSprite {
      * @param {number} y - The y coordinate of the frame.
      * @param {number} width - The width of the frame.
      * @param {number} height - The height of the frame.
+     * @returns {void}
      */
     setFrame(x, y, width, height) {
         this._frame.x = x;
@@ -3152,11 +3558,13 @@ class TilingSprite extends PIXI.TilingSprite {
         this._refresh();
     }
 
+    /** @returns {void} */
     _updateTilePosition() {
         this.tilePosition.x = Math.round(-this.origin.x);
         this.tilePosition.y = Math.round(-this.origin.y);
     }
 
+    /** @returns {void} */
     _onBitmapChange() {
         if (this._bitmap) {
             this._bitmap.addLoadListener(bitmap => {
@@ -3168,6 +3576,7 @@ class TilingSprite extends PIXI.TilingSprite {
         this._refresh();
     }
 
+    /** @returns {void} */
     _refresh() {
         const texture = this.texture;
         const source = this._bitmap?.textureSource;
@@ -3199,11 +3608,15 @@ class TilingSprite extends PIXI.TilingSprite {
 class ScreenSprite extends PIXI.Container {
     constructor() {
         super();
+        /** @type {import("pixi.js").Graphics} */
         this._graphics = new PIXI.Graphics();
         this.addChild(this._graphics);
         this.opacity = 0;
+        /** @type {number} */
         this._red = -1;
+        /** @type {number} */
         this._green = -1;
+        /** @type {number} */
         this._blue = -1;
         this.setBlack();
     }
@@ -3211,18 +3624,21 @@ class ScreenSprite extends PIXI.Container {
     /**
      * The opacity of the sprite (0 to 255).
      *
-     * @type number
      * @name ScreenSprite#opacity
+     * @type {number}
      */
     get opacity() {
         return this.alpha * 255;
     }
+    /** @param {number} value */
     set opacity(value) {
         this.alpha = value.clamp(0, 255) / 255;
     }
 
     /**
      * Destroys the screen sprite.
+     *
+     * @returns {void}
      */
     destroy() {
         const options = { children: true, texture: true };
@@ -3231,6 +3647,8 @@ class ScreenSprite extends PIXI.Container {
 
     /**
      * Sets black to the color of the screen sprite.
+     *
+     * @returns {void}
      */
     setBlack() {
         this.setColor(0, 0, 0);
@@ -3238,6 +3656,8 @@ class ScreenSprite extends PIXI.Container {
 
     /**
      * Sets white to the color of the screen sprite.
+     *
+     * @returns {void}
      */
     setWhite() {
         this.setColor(255, 255, 255);
@@ -3249,6 +3669,7 @@ class ScreenSprite extends PIXI.Container {
      * @param {number} r - The red value in the range (0, 255).
      * @param {number} g - The green value in the range (0, 255).
      * @param {number} b - The blue value in the range (0, 255).
+     * @returns {void}
      */
     setColor(r, g, b) {
         if (this._red !== r || this._green !== g || this._blue !== b) {
@@ -3272,6 +3693,7 @@ class ScreenSprite extends PIXI.Container {
  * @extends PIXI.Container
  */
 class Window extends PIXI.Container {
+    /** @param {[]} args */
     constructor(...args) {
         super();
         this.initialize(...args);
@@ -3279,27 +3701,47 @@ class Window extends PIXI.Container {
 
     initialize() {
         this.onRender = this._updateWindowParts;
+        /** @type {boolean} */
         this._isWindow = true;
+        /** @type {Bitmap} */
         this._windowskin = null;
+        /** @type {number} */
         this._width = 0;
+        /** @type {number} */
         this._height = 0;
+        /** @type {Rectangle} */
         this._cursorRect = new PIXI.Rectangle();
+        /** @type {number} */
         this._openness = 255;
+        /** @type {number} */
         this._animationCount = 0;
 
+        /** @type {number} */
         this._padding = 12;
+        /** @type {number} */
         this._margin = 4;
+        /** @type {RMMZ.Color} */
         this._colorTone = [0, 0, 0, 0];
+        /** @type {import("pixi.js").ContainerChild[]} */
         this._innerChildren = [];
 
+        /** @type {import("pixi.js").Container} */
         this._container = null;
+        /** @type {Sprite} */
         this._backSprite = null;
+        /** @type {Sprite} */
         this._frameSprite = null;
+        /** @type {Sprite} */
         this._contentsBackSprite = null;
+        /** @type {Sprite} */
         this._cursorSprite = null;
+        /** @type {Sprite} */
         this._contentsSprite = null;
+        /** @type {Sprite} */
         this._downArrowSprite = null;
+        /** @type {Sprite} */
         this._upArrowSprite = null;
+        /** @type {Sprite} */
         this._pauseSignSprite = null;
 
         this._createAllParts();
@@ -3307,49 +3749,49 @@ class Window extends PIXI.Container {
         /**
          * The origin point of the window for scrolling.
          *
-         * @type PIXI.Point
+         * @type {import("pixi.js").Point}
          */
         this.origin = new PIXI.Point();
 
         /**
          * The active state for the window.
          *
-         * @type boolean
+         * @type {boolean}
          */
         this.active = true;
 
         /**
          * The visibility of the frame.
          *
-         * @type boolean
+         * @type {boolean}
          */
         this.frameVisible = true;
 
         /**
          * The visibility of the cursor.
          *
-         * @type boolean
+         * @type {boolean}
          */
         this.cursorVisible = true;
 
         /**
          * The visibility of the down scroll arrow.
          *
-         * @type boolean
+         * @type {boolean}
          */
         this.downArrowVisible = false;
 
         /**
          * The visibility of the up scroll arrow.
          *
-         * @type boolean
+         * @type {boolean}
          */
         this.upArrowVisible = false;
 
         /**
          * The visibility of the pause sign.
          *
-         * @type boolean
+         * @type {boolean}
          */
         this.pause = false;
     }
@@ -3357,12 +3799,13 @@ class Window extends PIXI.Container {
     /**
      * The image used as a window skin.
      *
-     * @type Bitmap
      * @name Window#windowskin
+     * @type {Bitmap}
      */
     get windowskin() {
         return this._windowskin;
     }
+    /** @param {Bitmap} value */
     set windowskin(value) {
         if (this._windowskin !== value) {
             this._windowskin = value;
@@ -3373,12 +3816,13 @@ class Window extends PIXI.Container {
     /**
      * The bitmap used for the window contents.
      *
-     * @type Bitmap
      * @name Window#contents
+     * @type {Bitmap}
      */
     get contents() {
         return this._contentsSprite.bitmap;
     }
+    /** @param {Bitmap} value */
     set contents(value) {
         this._contentsSprite.bitmap = value;
     }
@@ -3386,12 +3830,13 @@ class Window extends PIXI.Container {
     /**
      * The bitmap used for the window contents background.
      *
-     * @type Bitmap
      * @name Window#contentsBack
+     * @type {Bitmap}
      */
     get contentsBack() {
         return this._contentsBackSprite.bitmap;
     }
+    /** @param {Bitmap} value */
     set contentsBack(value) {
         this._contentsBackSprite.bitmap = value;
     }
@@ -3399,12 +3844,13 @@ class Window extends PIXI.Container {
     /**
      * The width of the window in pixels.
      *
-     * @type number
      * @name Window#width
+     * @type {number}
      */
     get width() {
         return this._width;
     }
+    /** @param {number} value */
     set width(value) {
         this._width = value;
         this._refreshAllParts();
@@ -3413,12 +3859,13 @@ class Window extends PIXI.Container {
     /**
      * The height of the window in pixels.
      *
-     * @type number
      * @name Window#height
+     * @type {number}
      */
     get height() {
         return this._height;
     }
+    /** @param {number} value */
     set height(value) {
         this._height = value;
         this._refreshAllParts();
@@ -3427,12 +3874,13 @@ class Window extends PIXI.Container {
     /**
      * The size of the padding between the frame and contents.
      *
-     * @type number
      * @name Window#padding
+     * @type {number}
      */
     get padding() {
         return this._padding;
     }
+    /** @param {number} value */
     set padding(value) {
         this._padding = value;
         this._refreshAllParts();
@@ -3441,12 +3889,13 @@ class Window extends PIXI.Container {
     /**
      * The size of the margin for the window background.
      *
-     * @type number
      * @name Window#margin
+     * @type {number}
      */
     get margin() {
         return this._margin;
     }
+    /** @param {number} value */
     set margin(value) {
         this._margin = value;
         this._refreshAllParts();
@@ -3455,12 +3904,13 @@ class Window extends PIXI.Container {
     /**
      * The opacity of the window without contents (0 to 255).
      *
-     * @type number
      * @name Window#opacity
+     * @type {number}
      */
     get opacity() {
         return this._container.alpha * 255;
     }
+    /** @param {number} value */
     set opacity(value) {
         this._container.alpha = value.clamp(0, 255) / 255;
     }
@@ -3468,12 +3918,13 @@ class Window extends PIXI.Container {
     /**
      * The opacity of the window background (0 to 255).
      *
-     * @type number
      * @name Window#backOpacity
+     * @type {number}
      */
     get backOpacity() {
         return this._backSprite.alpha * 255;
     }
+    /** @param {number} value */
     set backOpacity(value) {
         this._backSprite.alpha = value.clamp(0, 255) / 255;
     }
@@ -3481,12 +3932,13 @@ class Window extends PIXI.Container {
     /**
      * The opacity of the window contents (0 to 255).
      *
-     * @type number
      * @name Window#contentsOpacity
+     * @type {number}
      */
     get contentsOpacity() {
         return this._contentsSprite.alpha * 255;
     }
+    /** @param {number} value */
     set contentsOpacity(value) {
         this._contentsSprite.alpha = value.clamp(0, 255) / 255;
     }
@@ -3494,12 +3946,13 @@ class Window extends PIXI.Container {
     /**
      * The openness of the window (0 to 255).
      *
-     * @type number
      * @name Window#openness
+     * @type {number}
      */
     get openness() {
         return this._openness;
     }
+    /** @param {number} value */
     set openness(value) {
         if (this._openness !== value) {
             this._openness = value.clamp(0, 255);
@@ -3511,9 +3964,8 @@ class Window extends PIXI.Container {
     /**
      * The width of the content area in pixels.
      *
-     * @readonly
-     * @type number
      * @name Window#innerWidth
+     * @type {number}
      */
     get innerWidth() {
         return Math.max(0, this._width - this._padding * 2);
@@ -3522,9 +3974,8 @@ class Window extends PIXI.Container {
     /**
      * The height of the content area in pixels.
      *
-     * @readonly
-     * @type number
      * @name Window#innerHeight
+     * @type {number}
      */
     get innerHeight() {
         return Math.max(0, this._height - this._padding * 2);
@@ -3533,9 +3984,8 @@ class Window extends PIXI.Container {
     /**
      * The rectangle of the content area.
      *
-     * @readonly
-     * @type PIXI.Rectangle
      * @name Window#innerRect
+     * @type {Rectangle}
      */
     get innerRect() {
         return new PIXI.Rectangle(
@@ -3548,6 +3998,8 @@ class Window extends PIXI.Container {
 
     /**
      * Destroys the window.
+     *
+     * @returns {void}
      */
     destroy() {
         const options = { children: true, texture: true };
@@ -3556,6 +4008,8 @@ class Window extends PIXI.Container {
 
     /**
      * Updates the window for each frame.
+     *
+     * @returns {void}
      */
     update() {
         if (this.active) {
@@ -3575,6 +4029,7 @@ class Window extends PIXI.Container {
      * @param {number} y - The y coordinate of the window.
      * @param {number} width - The width of the window.
      * @param {number} height - The height of the window.
+     * @returns {void}
      */
     move(x, y, width, height) {
         this.x = x || 0;
@@ -3611,6 +4066,7 @@ class Window extends PIXI.Container {
      * @param {number} y - The y coordinate of the cursor.
      * @param {number} width - The width of the cursor.
      * @param {number} height - The height of the cursor.
+     * @returns {void}
      */
     setCursorRect(x, y, width, height) {
         const cw = Math.floor(width || 0);
@@ -3629,6 +4085,7 @@ class Window extends PIXI.Container {
      *
      * @param {number} x - The amount of horizontal movement.
      * @param {number} y - The amount of vertical movement.
+     * @returns {void}
      */
     moveCursorBy(x, y) {
         this._cursorRect.x += x;
@@ -3640,6 +4097,7 @@ class Window extends PIXI.Container {
      *
      * @param {number} x - The amount of horizontal movement.
      * @param {number} y - The amount of vertical movement.
+     * @returns {void}
      */
     moveInnerChildrenBy(x, y) {
         for (const child of this._innerChildren) {
@@ -3654,6 +4112,7 @@ class Window extends PIXI.Container {
      * @param {number} r - The red value in the range (-255, 255).
      * @param {number} g - The green value in the range (-255, 255).
      * @param {number} b - The blue value in the range (-255, 255).
+     * @returns {void}
      */
     setTone(r, g, b) {
         const tone = this._colorTone;
@@ -3666,8 +4125,8 @@ class Window extends PIXI.Container {
     /**
      * Adds a child between the background and contents.
      *
-     * @param {object} child - The child to add.
-     * @returns {object} The child that was added.
+     * @param {import("pixi.js").ContainerChild} child - The child to add.
+     * @returns {import("pixi.js").ContainerChild} The child that was added.
      */
     addChildToBack(child) {
         const containerIndex = this.children.indexOf(this._container);
@@ -3677,14 +4136,15 @@ class Window extends PIXI.Container {
     /**
      * Adds a child to the client area.
      *
-     * @param {object} child - The child to add.
-     * @returns {object} The child that was added.
+     * @param {import("pixi.js").ContainerChild} child - The child to add.
+     * @returns {import("pixi.js").ContainerChild} The child that was added.
      */
     addInnerChild(child) {
         this._innerChildren.push(child);
         return this._clientArea.addChild(child);
     }
 
+    /** @returns {void} */
     _updateWindowParts() {
         this._updateClientArea();
         this._updateFrame();
@@ -3696,11 +4156,13 @@ class Window extends PIXI.Container {
         this._updateFilterArea();
     }
 
+    /** @returns {import("pixi.js").Rectangle} */
     openBounds() {
         const height = this.height * this.openness / 255;
         return new PIXI.Rectangle(this.x, this.y + (this.height - height) / 2, this.width, height);
     }
 
+    /** @returns {void} */
     _createAllParts() {
         this._createContainer();
         this._createBackSprite();
@@ -3713,17 +4175,20 @@ class Window extends PIXI.Container {
         this._createPauseSignSprites();
     }
 
+    /** @returns {void} */
     _createContainer() {
         this._container = new PIXI.Container();
         this.addChild(this._container);
     }
 
+    /** @returns {void} */
     _createBackSprite() {
         this._backSprite = new Sprite();
         this._backSprite.addChild(new TilingSprite());
         this._container.addChild(this._backSprite);
     }
 
+    /** @returns {void} */
     _createFrameSprite() {
         this._frameSprite = new Sprite();
         for (let i = 0; i < 8; i++) {
@@ -3732,6 +4197,7 @@ class Window extends PIXI.Container {
         this._container.addChild(this._frameSprite);
     }
 
+    /** @returns {void} */
     _createClientArea() {
         this._clientArea = new Sprite();
         this._clientArea.filters = [new PIXI.AlphaFilter()];
@@ -3740,11 +4206,13 @@ class Window extends PIXI.Container {
         this.addChild(this._clientArea);
     }
 
+    /** @returns {void} */
     _createContentsBackSprite() {
         this._contentsBackSprite = new Sprite();
         this._clientArea.addChild(this._contentsBackSprite);
     }
 
+    /** @returns {void} */
     _createCursorSprite() {
         this._cursorSprite = new Sprite();
         for (let i = 0; i < 9; i++) {
@@ -3753,11 +4221,13 @@ class Window extends PIXI.Container {
         this._clientArea.addChild(this._cursorSprite);
     }
 
+    /** @returns {void} */
     _createContentsSprite() {
         this._contentsSprite = new Sprite();
         this._clientArea.addChild(this._contentsSprite);
     }
 
+    /** @returns {void} */
     _createArrowSprites() {
         this._downArrowSprite = new Sprite();
         this.addChild(this._downArrowSprite);
@@ -3765,15 +4235,18 @@ class Window extends PIXI.Container {
         this.addChild(this._upArrowSprite);
     }
 
+    /** @returns {void} */
     _createPauseSignSprites() {
         this._pauseSignSprite = new Sprite();
         this.addChild(this._pauseSignSprite);
     }
 
+    /** @returns {void} */
     _onWindowskinLoad() {
         this._refreshAllParts();
     }
 
+    /** @returns {void} */
     _refreshAllParts() {
         this._refreshBack();
         this._refreshFrame();
@@ -3782,6 +4255,7 @@ class Window extends PIXI.Container {
         this._refreshPauseSign();
     }
 
+    /** @returns {void} */
     _refreshBack() {
         const m = this._margin;
         const w = Math.max(0, this._width - m * 2);
@@ -3802,6 +4276,7 @@ class Window extends PIXI.Container {
         sprite.setColorTone(this._colorTone);
     }
 
+    /** @returns {void} */
     _refreshFrame() {
         const drect = { x: 0, y: 0, width: this._width, height: this._height };
         const srect = { x: 96, y: 0, width: 96, height: 96 };
@@ -3812,6 +4287,7 @@ class Window extends PIXI.Container {
         this._setRectPartsGeometry(this._frameSprite, srect, drect, m);
     }
 
+    /** @returns {void} */
     _refreshCursor() {
         const drect = this._cursorRect.clone();
         const srect = { x: 96, y: 96, width: 48, height: 48 };
@@ -3822,6 +4298,13 @@ class Window extends PIXI.Container {
         this._setRectPartsGeometry(this._cursorSprite, srect, drect, m);
     }
 
+    /**
+     * @param {Sprite} sprite
+     * @param {Rectangle} srect
+     * @param {Rectangle} drect
+     * @param {number} m
+     * @returns {void}
+     */
     _setRectPartsGeometry(sprite, srect, drect, m) {
         const sx = srect.x;
         const sy = srect.y;
@@ -3872,6 +4355,7 @@ class Window extends PIXI.Container {
         }
     }
 
+    /** @returns {void} */
     _refreshArrows() {
         const w = this._width;
         const h = this._height;
@@ -3891,6 +4375,7 @@ class Window extends PIXI.Container {
         this._upArrowSprite.move(w / 2, q);
     }
 
+    /** @returns {void} */
     _refreshPauseSign() {
         const sx = 144;
         const sy = 96;
@@ -3903,6 +4388,7 @@ class Window extends PIXI.Container {
         this._pauseSignSprite.alpha = 0;
     }
 
+    /** @returns {void} */
     _updateClientArea() {
         const pad = this._padding;
         this._clientArea.move(pad, pad);
@@ -3915,10 +4401,12 @@ class Window extends PIXI.Container {
         }
     }
 
+    /** @returns {void} */
     _updateFrame() {
         this._frameSprite.visible = this.frameVisible;
     }
 
+    /** @returns {void} */
     _updateContentsBack() {
         const bitmap = this._contentsBackSprite.bitmap;
         if (bitmap) {
@@ -3926,6 +4414,7 @@ class Window extends PIXI.Container {
         }
     }
 
+    /** @returns {void} */
     _updateCursor() {
         this._cursorSprite.alpha = this._makeCursorAlpha();
         this._cursorSprite.visible = this.isOpen() && this.cursorVisible;
@@ -3933,6 +4422,7 @@ class Window extends PIXI.Container {
         this._cursorSprite.y = this._cursorRect.y;
     }
 
+    /** @returns {number} */
     _makeCursorAlpha() {
         const blinkCount = this._animationCount % 40;
         const baseAlpha = this.contentsOpacity / 255;
@@ -3946,6 +4436,7 @@ class Window extends PIXI.Container {
         return baseAlpha;
     }
 
+    /** @returns {void} */
     _updateContents() {
         const bitmap = this._contentsSprite.bitmap;
         if (bitmap) {
@@ -3953,11 +4444,13 @@ class Window extends PIXI.Container {
         }
     }
 
+    /** @returns {void} */
     _updateArrows() {
         this._downArrowSprite.visible = this.isOpen() && this.downArrowVisible;
         this._upArrowSprite.visible = this.isOpen() && this.upArrowVisible;
     }
 
+    /** @returns {void} */
     _updatePauseSign() {
         const sprite = this._pauseSignSprite;
         const x = Math.floor(this._animationCount / 16) % 2;
@@ -3974,6 +4467,7 @@ class Window extends PIXI.Container {
         sprite.visible = this.isOpen();
     }
 
+    /** @returns {void} */
     _updateFilterArea() {
         const filterArea = this._clientArea.filterArea;
         filterArea.x = this.origin.x;
@@ -3996,6 +4490,7 @@ class WindowLayer extends PIXI.Container {
         this.onRender = this._updateWindowMasks;
     }
 
+    /** @param {RMMZ.Window} window */
     addWindow(window) {
         if (window._isWindow) {
             const overlayIndex = this.children.findIndex(child => !child._isWindow);
@@ -4008,6 +4503,8 @@ class WindowLayer extends PIXI.Container {
 
     /**
      * Updates the window layer for each frame.
+     *
+     * @returns {void}
      */
     update() {
         for (const child of this.children) {
@@ -4017,6 +4514,7 @@ class WindowLayer extends PIXI.Container {
         }
     }
 
+    /** @returns {void} */
     _updateWindowMasks() {
         const layout = this.children.filter(child => child._isWindow).map(window => ({
             window,
@@ -4046,6 +4544,11 @@ class WindowLayer extends PIXI.Container {
         }
     }
 
+    /**
+     * @param {RMMZ.Window} window
+     * @param {import("pixi.js").Rectangle} bounds
+     * @param {import("pixi.js").Rectangle[]} occluders
+     */
     _applyWindowMask(window, bounds, occluders) {
         if (!window._windowLayerMask) {
             window._windowLayerMask = window.addChild(new PIXI.Graphics());
@@ -4062,6 +4565,11 @@ class WindowLayer extends PIXI.Container {
         window.mask = mask;
     }
 
+    /**
+     * @param {import("pixi.js").Rectangle} rect
+     * @param {import("pixi.js").Rectangle} occluder
+     * @returns {import("pixi.js").Rectangle[]}
+     */
     static subtractRect(rect, occluder) {
         if (!rect.intersects(occluder)) return [rect];
         const left = Math.max(occluder.left, rect.left);
@@ -4088,8 +4596,11 @@ class Weather extends PIXI.Container {
     constructor() {
         super();
 
+        /** @type {number} */
         this._width = Graphics.width;
+        /** @type {number} */
         this._height = Graphics.height;
+        /** @type {Array<Sprite & { ax: number; ay: number; }>} */
         this._sprites = [];
 
         this._createBitmaps();
@@ -4098,27 +4609,29 @@ class Weather extends PIXI.Container {
         /**
          * The type of the weather in ["none", "rain", "storm", "snow"].
          *
-         * @type string
+         * @type {string}
          */
         this.type = "none";
 
         /**
          * The power of the weather in the range (0, 9).
          *
-         * @type number
+         * @type {number}
          */
         this.power = 0;
 
         /**
          * The origin point of the weather for scrolling.
          *
-         * @type PIXI.Point
+         * @type {import("pixi.js").Point}
          */
         this.origin = new PIXI.Point();
     }
 
     /**
      * Destroys the weather.
+     *
+     * @returns {void}
      */
     destroy() {
         const options = { children: true, texture: true };
@@ -4130,12 +4643,15 @@ class Weather extends PIXI.Container {
 
     /**
      * Updates the weather for each frame.
+     *
+     * @returns {void}
      */
     update() {
         this._updateDimmer();
         this._updateAllSprites();
     }
 
+    /** @returns {void} */
     _createBitmaps() {
         this._rainBitmap = new Bitmap(1, 60);
         this._rainBitmap.fillAll("white");
@@ -4145,16 +4661,19 @@ class Weather extends PIXI.Container {
         this._snowBitmap.drawCircle(4, 4, 4, "white");
     }
 
+    /** @returns {void} */
     _createDimmer() {
         this._dimmerSprite = new ScreenSprite();
         this._dimmerSprite.setColor(80, 80, 80);
         this.addChild(this._dimmerSprite);
     }
 
+    /** @returns {void} */
     _updateDimmer() {
         this._dimmerSprite.opacity = Math.floor(this.power * 6);
     }
 
+    /** @returns {void} */
     _updateAllSprites() {
         const maxSprites = Math.floor(this.power * 10);
         while (this._sprites.length < maxSprites) {
@@ -4170,6 +4689,7 @@ class Weather extends PIXI.Container {
         }
     }
 
+    /** @returns {void} */
     _addSprite() {
         const sprite = new Sprite(this.viewport);
         sprite.opacity = 0;
@@ -4177,10 +4697,15 @@ class Weather extends PIXI.Container {
         this.addChild(sprite);
     }
 
+    /** @returns {void} */
     _removeSprite() {
         this.removeChild(this._sprites.pop());
     }
 
+    /**
+     * @param {Sprite & { ax: number; ay: number; }} sprite
+     * @returns {void}
+     */
     _updateSprite(sprite) {
         switch (this.type) {
             case "rain":
@@ -4198,6 +4723,10 @@ class Weather extends PIXI.Container {
         }
     }
 
+    /**
+     * @param {Sprite & { ax: number; ay: number; }} sprite
+     * @returns {void}
+     */
     _updateRainSprite(sprite) {
         sprite.bitmap = this._rainBitmap;
         sprite.rotation = Math.PI / 16;
@@ -4206,6 +4735,10 @@ class Weather extends PIXI.Container {
         sprite.opacity -= 6;
     }
 
+    /**
+     * @param {Sprite & { ax: number; ay: number; }} sprite
+     * @returns {void}
+     */
     _updateStormSprite(sprite) {
         sprite.bitmap = this._stormBitmap;
         sprite.rotation = Math.PI / 8;
@@ -4214,6 +4747,10 @@ class Weather extends PIXI.Container {
         sprite.opacity -= 8;
     }
 
+    /**
+     * @param {Sprite & { ax: number; ay: number; }} sprite
+     * @returns {void}
+     */
     _updateSnowSprite(sprite) {
         sprite.bitmap = this._snowBitmap;
         sprite.rotation = Math.PI / 16;
@@ -4222,6 +4759,10 @@ class Weather extends PIXI.Container {
         sprite.opacity -= 3;
     }
 
+    /**
+     * @param {Sprite & { ax: number; ay: number; }} sprite
+     * @returns {void}
+     */
     _rebornSprite(sprite) {
         sprite.ax = Math.randomInt(Graphics.width + 100) - 100 + this.origin.x;
         sprite.ay = Math.randomInt(Graphics.height + 200) - 200 + this.origin.y;
@@ -4258,6 +4799,7 @@ class ColorFilter extends PIXI.Filter {
      * Sets the hue rotation value.
      *
      * @param {number} hue - The hue value (-360, 360).
+     * @returns {void}
      */
     setHue(hue) {
         this.uniforms.hue = Number(hue);
@@ -4266,7 +4808,8 @@ class ColorFilter extends PIXI.Filter {
     /**
      * Sets the color tone.
      *
-     * @param {array} tone - The color tone [r, g, b, gray].
+     * @param {RMMZ.Color} tone - The color tone [r, g, b, gray].
+     * @returns {void}
      */
     setColorTone(tone) {
         if (!(tone instanceof Array)) {
@@ -4278,7 +4821,8 @@ class ColorFilter extends PIXI.Filter {
     /**
      * Sets the blend color.
      *
-     * @param {array} color - The blend color [r, g, b, a].
+     * @param {RMMZ.Color} color - The blend color [r, g, b, a].
+     * @returns {void}
      */
     setBlendColor(color) {
         if (!(color instanceof Array)) {
@@ -4291,11 +4835,13 @@ class ColorFilter extends PIXI.Filter {
      * Sets the brightness.
      *
      * @param {number} brightness - The brightness (0 to 255).
+     * @returns {void}
      */
     setBrightness(brightness) {
         this.uniforms.brightness = Number(brightness);
     }
 
+    /** @returns {string} */
     static _fragmentSrc() {
         const src =
             "in vec2 vTextureCoord;" +
@@ -4392,6 +4938,7 @@ class ColorFilter extends PIXI.Filter {
  * @extends PIXI.Container
  */
 class Stage extends PIXI.Container {
+    /** @param {[]} args */
     constructor(...args) {
         super();
         this.initialize(...args);
@@ -4402,6 +4949,8 @@ class Stage extends PIXI.Container {
 
     /**
      * Destroys the stage.
+     *
+     * @returns {void}
      */
     destroy() {
         const options = { children: true, texture: true };
@@ -4416,12 +4965,15 @@ class Stage extends PIXI.Container {
  * @param {string} url - The url of the audio file.
  */
 class WebAudio {
+    /** @param {[url: string]} args */
     constructor(...args) {
         this.initialize(...args);
     }
 
+    /** @param {string} url */
     initialize(url) {
         this.clear();
+        /** @type {string} */
         this._url = url;
         this._startLoading();
     }
@@ -4445,12 +4997,14 @@ class WebAudio {
      * Sets the master volume for all audio.
      *
      * @param {number} value - The master volume (0 to 1).
+     * @returns {void}
      */
     static setMasterVolume(value) {
         this._masterVolume = value;
         this._resetVolume();
     }
 
+    /** @returns {void} */
     static _createContext() {
         try {
             const AudioContext = window.AudioContext || window.webkitAudioContext;
@@ -4460,10 +5014,12 @@ class WebAudio {
         }
     }
 
+    /** @returns {number} */
     static _currentTime() {
         return this._context ? this._context.currentTime : 0;
     }
 
+    /** @returns {void} */
     static _createMasterGainNode() {
         const context = this._context;
         if (context) {
@@ -4473,6 +5029,7 @@ class WebAudio {
         }
     }
 
+    /** @returns {void} */
     static _setupEventHandlers() {
         const onUserGesture = this._onUserGesture.bind(this);
         const onVisibilityChange = this._onVisibilityChange.bind(this);
@@ -4482,6 +5039,7 @@ class WebAudio {
         document.addEventListener("visibilitychange", onVisibilityChange);
     }
 
+    /** @returns {void} */
     static _onUserGesture() {
         const context = this._context;
         if (context && context.state === "suspended") {
@@ -4489,6 +5047,7 @@ class WebAudio {
         }
     }
 
+    /** @returns {void} */
     static _onVisibilityChange() {
         if (document.visibilityState === "hidden") {
             this._onHide();
@@ -4497,22 +5056,26 @@ class WebAudio {
         }
     }
 
+    /** @returns {void} */
     static _onHide() {
         if (this._shouldMuteOnHide()) {
             this._fadeOut(1);
         }
     }
 
+    /** @returns {void} */
     static _onShow() {
         if (this._shouldMuteOnHide()) {
             this._fadeIn(1);
         }
     }
 
+    /** @returns {boolean} */
     static _shouldMuteOnHide() {
         return Utils.isMobileDevice() && !window.navigator.standalone;
     }
 
+    /** @returns {void} */
     static _resetVolume() {
         if (this._masterGainNode) {
             const gain = this._masterGainNode.gain;
@@ -4522,6 +5085,10 @@ class WebAudio {
         }
     }
 
+    /**
+     * @param {number} duration
+     * @returns {void}
+     */
     static _fadeIn(duration) {
         if (this._masterGainNode) {
             const gain = this._masterGainNode.gain;
@@ -4532,6 +5099,10 @@ class WebAudio {
         }
     }
 
+    /**
+     * @param {number} duration
+     * @returns {void}
+     */
     static _fadeOut(duration) {
         if (this._masterGainNode) {
             const gain = this._masterGainNode.gain;
@@ -4544,6 +5115,8 @@ class WebAudio {
 
     /**
      * Clears the audio data.
+     *
+     * @returns {void}
      */
     clear() {
         this.stop();
@@ -4578,9 +5151,8 @@ class WebAudio {
     /**
      * The url of the audio file.
      *
-     * @readonly
-     * @type string
      * @name WebAudio#url
+     * @type {string}
      */
     get url() {
         return this._url;
@@ -4589,12 +5161,13 @@ class WebAudio {
     /**
      * The volume of the audio.
      *
-     * @type number
      * @name WebAudio#volume
+     * @type {number}
      */
     get volume() {
         return this._volume;
     }
+    /** @param {number} value */
     set volume(value) {
         this._volume = value;
         if (this._gainNode) {
@@ -4608,12 +5181,13 @@ class WebAudio {
     /**
      * The pitch of the audio.
      *
-     * @type number
      * @name WebAudio#pitch
+     * @type {number}
      */
     get pitch() {
         return this._pitch;
     }
+    /** @param {number} value */
     set pitch(value) {
         if (this._pitch !== value) {
             this._pitch = value;
@@ -4626,12 +5200,13 @@ class WebAudio {
     /**
      * The pan of the audio.
      *
-     * @type number
      * @name WebAudio#pan
+     * @type {number}
      */
     get pan() {
         return this._pan;
     }
+    /** @param {number} value */
     set pan(value) {
         this._pan = value;
         this._updatePanner();
@@ -4668,7 +5243,8 @@ class WebAudio {
      * Plays the audio.
      *
      * @param {boolean} loop - Whether the audio data play in a loop.
-     * @param {number} offset - The start position to play in seconds.
+     * @param {number} [offset] - The start position to play in seconds.
+     * @returns {void}
      */
     play(loop, offset) {
         this._loop = loop;
@@ -4683,6 +5259,8 @@ class WebAudio {
 
     /**
      * Stops the audio.
+     *
+     * @returns {void}
      */
     stop() {
         this._isPlaying = false;
@@ -4699,6 +5277,8 @@ class WebAudio {
 
     /**
      * Destroys the audio.
+     *
+     * @returns {void}
      */
     destroy() {
         this._destroyDecoder();
@@ -4709,6 +5289,7 @@ class WebAudio {
      * Performs the audio fade-in.
      *
      * @param {number} duration - Fade-in time in seconds.
+     * @returns {void}
      */
     fadeIn(duration) {
         if (this.isReady()) {
@@ -4727,6 +5308,7 @@ class WebAudio {
      * Performs the audio fade-out.
      *
      * @param {number} duration - Fade-out time in seconds.
+     * @returns {void}
      */
     fadeOut(duration) {
         if (this._gainNode) {
@@ -4741,6 +5323,8 @@ class WebAudio {
 
     /**
      * Gets the seek position of the audio.
+     *
+     * @returns {number}
      */
     seek() {
         if (WebAudio._context) {
@@ -4759,7 +5343,8 @@ class WebAudio {
     /**
      * Adds a callback function that will be called when the audio data is loaded.
      *
-     * @param {function} listner - The callback function.
+     * @param {() => void} listner - The callback function.
+     * @returns {void}
      */
     addLoadListener(listner) {
         this._loadListeners.push(listner);
@@ -4768,7 +5353,8 @@ class WebAudio {
     /**
      * Adds a callback function that will be called when the playback is stopped.
      *
-     * @param {function} listner - The callback function.
+     * @param {() => void} listner - The callback function.
+     * @returns {void}
      */
     addStopListener(listner) {
         this._stopListeners.push(listner);
@@ -4776,6 +5362,8 @@ class WebAudio {
 
     /**
      * Tries to load the audio again.
+     *
+     * @returns {void}
      */
     retry() {
         this._startLoading();
@@ -4784,6 +5372,7 @@ class WebAudio {
         }
     }
 
+    /** @returns {void} */
     _startLoading() {
         if (WebAudio._context) {
             const url = this._realUrl();
@@ -4803,10 +5392,12 @@ class WebAudio {
         }
     }
 
+    /** @returns {boolean} */
     _shouldUseDecoder() {
         return !Utils.canPlayOgg() && typeof VorbisDecoder === "function";
     }
 
+    /** @returns {void} */
     _createDecoder() {
         this._decoder = new VorbisDecoder(
             WebAudio._context,
@@ -4815,6 +5406,7 @@ class WebAudio {
         );
     }
 
+    /** @returns {void} */
     _destroyDecoder() {
         if (this._decoder) {
             this._decoder.destroy();
@@ -4822,10 +5414,15 @@ class WebAudio {
         }
     }
 
+    /** @returns {string} */
     _realUrl() {
         return this._url + (Utils.hasEncryptedAudio() ? "_" : "");
     }
 
+    /**
+     * @param {string} url
+     * @returns {void}
+     */
     _startXhrLoading(url) {
         const xhr = new XMLHttpRequest();
         xhr.open("GET", url);
@@ -4835,6 +5432,10 @@ class WebAudio {
         xhr.send();
     }
 
+    /**
+     * @param {string} url
+     * @returns {void}
+     */
     _startFetching(url) {
         const options = { credentials: "same-origin" };
         fetch(url, options)
@@ -4842,6 +5443,10 @@ class WebAudio {
             .catch(() => this._onError());
     }
 
+    /**
+     * @param {XMLHttpRequest} xhr
+     * @returns {void}
+     */
     _onXhrLoad(xhr) {
         if (xhr.status < 400) {
             this._data = new Uint8Array(xhr.response);
@@ -4852,6 +5457,10 @@ class WebAudio {
         }
     }
 
+    /**
+     * @param {Response} response
+     * @returns {void}
+     */
     _onFetch(response) {
         if (response.ok) {
             const reader = response.body.getReader();
@@ -4878,6 +5487,7 @@ class WebAudio {
         }
     }
 
+    /** @returns {void} */
     _onError() {
         if (this._sourceNodes.length > 0) {
             this._stopSourceNode();
@@ -4886,12 +5496,17 @@ class WebAudio {
         this._isError = true;
     }
 
+    /**
+     * @param {Uint8Array} value
+     * @returns {void}
+     */
     _onFetchProcess(value) {
         this._fetchedSize += value.length;
         this._fetchedData.push(value);
         this._updateBufferOnFetch();
     }
 
+    /** @returns {void} */
     _updateBufferOnFetch() {
         const currentTime = WebAudio._currentTime();
         const deltaTime = currentTime - this._lastUpdateTime;
@@ -4904,6 +5519,7 @@ class WebAudio {
         }
     }
 
+    /** @returns {void} */
     _concatenateFetchedData() {
         const currentData = this._data;
         const currentSize = currentData ? currentData.length : 0;
@@ -4922,12 +5538,14 @@ class WebAudio {
         this._fetchedSize = 0;
     }
 
+    /** @returns {void} */
     _updateBuffer() {
         const arrayBuffer = this._readableBuffer();
         this._readLoopComments(arrayBuffer);
         this._decodeAudioData(arrayBuffer);
     }
 
+    /** @returns {ArrayBufferLike} */
     _readableBuffer() {
         if (Utils.hasEncryptedAudio()) {
             return Utils.decryptArrayBuffer(this._data.buffer);
@@ -4936,6 +5554,10 @@ class WebAudio {
         }
     }
 
+    /**
+     * @param {ArrayBuffer} arrayBuffer
+     * @returns {void}
+     */
     _decodeAudioData(arrayBuffer) {
         if (this._shouldUseDecoder()) {
             if (this._decoder) {
@@ -4951,6 +5573,10 @@ class WebAudio {
         }
     }
 
+    /**
+     * @param {AudioBuffer} buffer
+     * @returns {void}
+     */
     _onDecode(buffer) {
         if (!this._shouldUseDecoder()) {
             this._buffers = [];
@@ -4971,6 +5597,7 @@ class WebAudio {
         this._onLoad();
     }
 
+    /** @returns {void} */
     _refreshSourceNode() {
         if (this._shouldUseDecoder()) {
             const index = this._buffers.length - 1;
@@ -4991,6 +5618,10 @@ class WebAudio {
         }
     }
 
+    /**
+     * @param {number} offset
+     * @returns {void}
+     */
     _startPlaying(offset) {
         if (this._loopLengthTime > 0) {
             while (offset >= this._loopStartTime + this._loopLengthTime) {
@@ -5007,12 +5638,17 @@ class WebAudio {
         this._createEndTimer();
     }
 
+    /** @returns {void} */
     _startAllSourceNodes() {
         for (let i = 0; i < this._sourceNodes.length; i++) {
             this._startSourceNode(i);
         }
     }
 
+    /**
+     * @param {number} index
+     * @returns {void}
+     */
     _startSourceNode(index) {
         const sourceNode = this._sourceNodes[index];
         const seekPos = this.seek();
@@ -5068,6 +5704,7 @@ class WebAudio {
         chunkStart += sourceNode.buffer.duration;
     }
 
+    /** @returns {void} */
     _stopSourceNode() {
         for (const sourceNode of this._sourceNodes) {
             try {
@@ -5079,6 +5716,7 @@ class WebAudio {
         }
     }
 
+    /** @returns {void} */
     _createPannerNode() {
         this._pannerNode = WebAudio._context.createPanner();
         this._pannerNode.panningModel = "equalpower";
@@ -5086,6 +5724,7 @@ class WebAudio {
         this._updatePanner();
     }
 
+    /** @returns {void} */
     _createGainNode() {
         const currentTime = WebAudio._currentTime();
         this._gainNode = WebAudio._context.createGain();
@@ -5093,12 +5732,17 @@ class WebAudio {
         this._gainNode.connect(this._pannerNode);
     }
 
+    /** @returns {void} */
     _createAllSourceNodes() {
         for (let i = 0; i < this._buffers.length; i++) {
             this._createSourceNode(i);
         }
     }
 
+    /**
+     * @param {number} index
+     * @returns {void}
+     */
     _createSourceNode(index) {
         const sourceNode = WebAudio._context.createBufferSource();
         const currentTime = WebAudio._currentTime();
@@ -5111,6 +5755,7 @@ class WebAudio {
         this._sourceNodes[index] = sourceNode;
     }
 
+    /** @returns {void} */
     _removeNodes() {
         if (this._sourceNodes && this._sourceNodes.length > 0) {
             this._stopSourceNode();
@@ -5120,6 +5765,7 @@ class WebAudio {
         }
     }
 
+    /** @returns {void} */
     _createEndTimer() {
         if (this._sourceNodes.length > 0 && !this._loop) {
             const endTime = this._startTime + this._totalTime / this._pitch;
@@ -5128,6 +5774,7 @@ class WebAudio {
         }
     }
 
+    /** @returns {void} */
     _removeEndTimer() {
         if (this._endTimer) {
             clearTimeout(this._endTimer);
@@ -5135,6 +5782,7 @@ class WebAudio {
         }
     }
 
+    /** @returns {void} */
     _updatePanner() {
         if (this._pannerNode) {
             const x = this._pan;
@@ -5143,6 +5791,7 @@ class WebAudio {
         }
     }
 
+    /** @returns {void} */
     _onLoad() {
         while (this._loadListeners.length > 0) {
             const listner = this._loadListeners.shift();
@@ -5150,6 +5799,10 @@ class WebAudio {
         }
     }
 
+    /**
+     * @param {ArrayBuffer} arrayBuffer
+     * @returns {void}
+     */
     _readLoopComments(arrayBuffer) {
         const view = new DataView(arrayBuffer);
         let index = 0;
@@ -5193,6 +5846,12 @@ class WebAudio {
         }
     }
 
+    /**
+     * @param {DataView} view
+     * @param {number} index
+     * @param {number} size
+     * @returns {void}
+     */
     _readMetaData(view, index, size) {
         for (let i = index; i < index + size - 10; i++) {
             if (this._readFourCharacters(view, i) === "LOOP") {
@@ -5222,6 +5881,11 @@ class WebAudio {
         }
     }
 
+    /**
+     * @param {DataView} view
+     * @param {number} index
+     * @returns {string}
+     */
     _readFourCharacters(view, index) {
         let string = "";
         if (index <= view.byteLength - 4) {
@@ -5248,6 +5912,7 @@ class Video {
      *
      * @param {number} width - The width of the video.
      * @param {number} height - The height of the video.
+     * @returns {void}
      */
     static initialize(width, height) {
         this._element = null;
@@ -5263,6 +5928,7 @@ class Video {
      *
      * @param {number} width - The width of the video.
      * @param {number} height - The height of the video.
+     * @returns {void}
      */
     static resize(width, height) {
         if (this._element) {
@@ -5275,6 +5941,7 @@ class Video {
      * Starts playback of a video.
      *
      * @param {string} src - The url of the video.
+     * @returns {void}
      */
     static play(src) {
         this._element.src = src;
@@ -5298,6 +5965,7 @@ class Video {
      * Sets the volume for videos.
      *
      * @param {number} volume - The volume for videos (0 to 1).
+     * @returns {void}
      */
     static setVolume(volume) {
         this._volume = volume;
@@ -5306,6 +5974,7 @@ class Video {
         }
     }
 
+    /** @returns {void} */
     static _createElement() {
         this._element = document.createElement("video");
         this._element.id = "gameVideo";
@@ -5322,6 +5991,7 @@ class Video {
         document.body.appendChild(this._element);
     }
 
+    /** @returns {void} */
     static _onLoad() {
         this._element.volume = this._volume;
         this._element.play();
@@ -5329,6 +5999,7 @@ class Video {
         this._loading = false;
     }
 
+    /** @returns {void} */
     static _onError() {
         this._updateVisibility(false);
         const retry = () => {
@@ -5337,10 +6008,15 @@ class Video {
         throw ["LoadError", this._element.src, retry];
     }
 
+    /** @returns {void} */
     static _onEnd() {
         this._updateVisibility(false);
     }
 
+    /**
+     * @param {boolean} videoVisible
+     * @returns {void}
+     */
     static _updateVisibility(videoVisible) {
         if (videoVisible) {
             Graphics.hideScreen();
@@ -5350,10 +6026,12 @@ class Video {
         this._element.style.opacity = videoVisible ? 1 : 0;
     }
 
+    /** @returns {boolean} */
     static _isVisible() {
         return this._element.style.opacity > 0;
     }
 
+    /** @returns {void} */
     static _setupEventHandlers() {
         const onUserGesture = this._onUserGesture.bind(this);
         document.addEventListener("keydown", onUserGesture);
@@ -5361,6 +6039,7 @@ class Video {
         document.addEventListener("touchend", onUserGesture);
     }
 
+    /** @returns {void} */
     static _onUserGesture() {
         if (!this._element.src && this._element.paused) {
             this._element.play().catch(() => 0);
@@ -5380,6 +6059,8 @@ class Input {
 
     /**
      * Initializes the input system.
+     *
+     * @returns {void}
      */
     static initialize() {
         this.clear();
@@ -5389,21 +6070,21 @@ class Input {
     /**
      * The wait time of the key repeat in frames.
      *
-     * @type number
+     * @type {number}
      */
     static keyRepeatWait = 24;
 
     /**
      * The interval of the key repeat in frames.
      *
-     * @type number
+     * @type {number}
      */
     static keyRepeatInterval = 6;
 
     /**
      * A hash table to convert from a virtual key code to a mapped key name.
      *
-     * @type Object
+     * @type {{ readonly 9: "tab"; readonly 13: "ok"; readonly 16: "shift"; readonly 17: "control"; readonly 18: "control"; readonly 27: "escape"; readonly 32: "ok"; readonly 33: "pageup"; readonly 34: "pagedown"; readonly 37: "left"; readonly 38: "up"; readonly 39: "right"; readonly 40: "down"; readonly 45: "escape"; readonly 81: "pageup"; readonly 87: "pagedown"; readonly 88: "escape"; readonly 90: "ok"; readonly 96: "escape"; readonly 98: "down"; readonly 100: "left"; readonly 102: "right"; readonly 104: "up"; readonly 120: "debug"; }}
      */
     static keyMapper = {
         9: "tab", // tab
@@ -5435,7 +6116,7 @@ class Input {
     /**
      * A hash table to convert from a gamepad button to a mapped key name.
      *
-     * @type Object
+     * @type {{ readonly 0: "ok"; readonly 1: "cancel"; readonly 2: "shift"; readonly 3: "menu"; readonly 4: "pageup"; readonly 5: "pagedown"; readonly 12: "up"; readonly 13: "down"; readonly 14: "left"; readonly 15: "right"; }}
      */
     static gamepadMapper = {
         0: "ok", // A
@@ -5452,6 +6133,8 @@ class Input {
 
     /**
      * Clears all the input data.
+     *
+     * @returns {void}
      */
     static clear() {
         this._currentState = {};
@@ -5468,6 +6151,8 @@ class Input {
 
     /**
      * Updates the input data.
+     *
+     * @returns {void}
      */
     static update() {
         this._pollGamepads();
@@ -5559,9 +6244,8 @@ class Input {
     /**
      * The four direction value as a number of the numpad, or 0 for neutral.
      *
-     * @readonly
-     * @type number
      * @name Input.dir4
+     * @type {RMMZ.Direction}
      */
     static get dir4() {
         return this._dir4;
@@ -5570,9 +6254,8 @@ class Input {
     /**
      * The eight direction value as a number of the numpad, or 0 for neutral.
      *
-     * @readonly
-     * @type number
      * @name Input.dir8
+     * @type {RMMZ.Direction}
      */
     static get dir8() {
         return this._dir8;
@@ -5581,24 +6264,32 @@ class Input {
     /**
      * The time of the last input in milliseconds.
      *
-     * @readonly
-     * @type number
+     * @type {number}
      * @name Input.date
      */
     static get date() {
         return this._date;
     }
 
+    /**
+     * @param {string} buttonName
+     * @returns {void}
+     */
     static virtualClick(buttonName) {
         this._virtualButton = buttonName;
     }
 
+    /** @returns {void} */
     static _setupEventHandlers() {
         document.addEventListener("keydown", this._onKeyDown.bind(this));
         document.addEventListener("keyup", this._onKeyUp.bind(this));
         window.addEventListener("blur", this._onLostFocus.bind(this));
     }
 
+    /**
+     * @param {KeyboardEvent} event
+     * @returns {void}
+     */
     static _onKeyDown(event) {
         if (this._shouldPreventDefault(event.keyCode)) {
             event.preventDefault();
@@ -5613,6 +6304,10 @@ class Input {
         }
     }
 
+    /**
+     * @param {number} keyCode
+     * @returns {boolean}
+     */
     static _shouldPreventDefault(keyCode) {
         switch (keyCode) {
             case 8: // backspace
@@ -5628,6 +6323,10 @@ class Input {
         return false;
     }
 
+    /**
+     * @param {KeyboardEvent} event
+     * @returns {void}
+     */
     static _onKeyUp(event) {
         const buttonName = this.keyMapper[event.keyCode];
         if (buttonName) {
@@ -5635,10 +6334,12 @@ class Input {
         }
     }
 
+    /** @returns {void} */
     static _onLostFocus() {
         this.clear();
     }
 
+    /** @returns {void} */
     static _pollGamepads() {
         if (navigator.getGamepads) {
             const gamepads = navigator.getGamepads();
@@ -5652,6 +6353,10 @@ class Input {
         }
     }
 
+    /**
+     * @param {Gamepad} gamepad
+     * @returns {void}
+     */
     static _updateGamepadState(gamepad) {
         const lastState = this._gamepadStates[gamepad.index] || [];
         const newState = [];
@@ -5686,6 +6391,7 @@ class Input {
         this._gamepadStates[gamepad.index] = newState;
     }
 
+    /** @returns {void} */
     static _updateDirection() {
         let x = this._signX();
         let y = this._signY();
@@ -5704,18 +6410,25 @@ class Input {
         this._dir4 = this._makeNumpadDirection(x, y);
     }
 
+    /** @returns {number} */
     static _signX() {
         const left = this.isPressed("left") ? 1 : 0;
         const right = this.isPressed("right") ? 1 : 0;
         return right - left;
     }
 
+    /** @returns {number} */
     static _signY() {
         const up = this.isPressed("up") ? 1 : 0;
         const down = this.isPressed("down") ? 1 : 0;
         return down - up;
     }
 
+    /**
+     * @param {number} x
+     * @param {number} y
+     * @returns {number}
+     */
     static _makeNumpadDirection(x, y) {
         if (x === 0 && y === 0) {
             return 0;
@@ -5724,6 +6437,10 @@ class Input {
         }
     }
 
+    /**
+     * @param {string} keyName
+     * @returns {boolean}
+     */
     static _isEscapeCompatible(keyName) {
         return keyName === "cancel" || keyName === "menu";
     }
@@ -5741,6 +6458,8 @@ class TouchInput {
 
     /**
      * Initializes the touch system.
+     *
+     * @returns {void}
      */
     static initialize() {
         this.clear();
@@ -5750,26 +6469,28 @@ class TouchInput {
     /**
      * The wait time of the pseudo key repeat in frames.
      *
-     * @type number
+     * @type {number}
      */
     static keyRepeatWait = 24;
 
     /**
      * The interval of the pseudo key repeat in frames.
      *
-     * @type number
+     * @type {number}
      */
     static keyRepeatInterval = 6;
 
     /**
      * The threshold number of pixels to treat as moved.
      *
-     * @type number
+     * @type {number}
      */
     static moveThreshold = 10;
 
     /**
      * Clears all the touch data.
+     *
+     * @returns {void}
      */
     static clear() {
         this._mousePressed = false;
@@ -5788,6 +6509,8 @@ class TouchInput {
 
     /**
      * Updates the touch data.
+     *
+     * @returns {void}
      */
     static update() {
         this._currentState = this._newState;
@@ -5889,9 +6612,8 @@ class TouchInput {
     /**
      * The horizontal scroll amount.
      *
-     * @readonly
-     * @type number
      * @name TouchInput.wheelX
+     * @type {number}
      */
     static get wheelX() {
         return this._currentState.wheelX;
@@ -5900,9 +6622,8 @@ class TouchInput {
     /**
      * The vertical scroll amount.
      *
-     * @readonly
-     * @type number
      * @name TouchInput.wheelY
+     * @type {number}
      */
     static get wheelY() {
         return this._currentState.wheelY;
@@ -5911,9 +6632,8 @@ class TouchInput {
     /**
      * The x coordinate on the canvas area of the latest touch event.
      *
-     * @readonly
-     * @type number
      * @name TouchInput.x
+     * @type {number}
      */
     static get x() {
         return this._x;
@@ -5922,9 +6642,8 @@ class TouchInput {
     /**
      * The y coordinate on the canvas area of the latest touch event.
      *
-     * @readonly
-     * @type number
      * @name TouchInput.y
+     * @type {number}
      */
     static get y() {
         return this._y;
@@ -5933,14 +6652,14 @@ class TouchInput {
     /**
      * The time of the last input in milliseconds.
      *
-     * @readonly
-     * @type number
      * @name TouchInput.date
+     * @type {number}
      */
     static get date() {
         return this._date;
     }
 
+    /** @returns {{ triggered: boolean; cancelled: boolean; moved: boolean; hovered: boolean; released: boolean; wheelX: number; wheelY: number; }} */
     static _createNewState() {
         return {
             triggered: false,
@@ -5953,6 +6672,7 @@ class TouchInput {
         };
     }
 
+    /** @returns {void} */
     static _setupEventHandlers() {
         const pf = { passive: false };
         document.addEventListener("mousedown", this._onMouseDown.bind(this));
@@ -5966,6 +6686,10 @@ class TouchInput {
         window.addEventListener("blur", this._onLostFocus.bind(this));
     }
 
+    /**
+     * @param {MouseEvent} event
+     * @returns {void}
+     */
     static _onMouseDown(event) {
         if (event.button === 0) {
             this._onLeftButtonDown(event);
@@ -5976,6 +6700,10 @@ class TouchInput {
         }
     }
 
+    /**
+     * @param {MouseEvent} event
+     * @returns {void}
+     */
     static _onLeftButtonDown(event) {
         const x = Graphics.pageToCanvasX(event.pageX);
         const y = Graphics.pageToCanvasY(event.pageY);
@@ -5986,10 +6714,15 @@ class TouchInput {
         }
     }
 
+    /** @returns {void} */
     static _onMiddleButtonDown(/*event*/) {
         //
     }
 
+    /**
+     * @param {MouseEvent} event
+     * @returns {void}
+     */
     static _onRightButtonDown(event) {
         const x = Graphics.pageToCanvasX(event.pageX);
         const y = Graphics.pageToCanvasY(event.pageY);
@@ -5998,6 +6731,10 @@ class TouchInput {
         }
     }
 
+    /**
+     * @param {MouseEvent} event
+     * @returns {void}
+     */
     static _onMouseMove(event) {
         const x = Graphics.pageToCanvasX(event.pageX);
         const y = Graphics.pageToCanvasY(event.pageY);
@@ -6008,6 +6745,10 @@ class TouchInput {
         }
     }
 
+    /**
+     * @param {MouseEvent} event
+     * @returns {void}
+     */
     static _onMouseUp(event) {
         if (event.button === 0) {
             const x = Graphics.pageToCanvasX(event.pageX);
@@ -6017,12 +6758,20 @@ class TouchInput {
         }
     }
 
+    /**
+     * @param {WheelEvent} event
+     * @returns {void}
+     */
     static _onWheel(event) {
         this._newState.wheelX += event.deltaX;
         this._newState.wheelY += event.deltaY;
         event.preventDefault();
     }
 
+    /**
+     * @param {TouchEvent} event
+     * @returns {void}
+     */
     static _onTouchStart(event) {
         for (const touch of event.changedTouches) {
             const x = Graphics.pageToCanvasX(touch.pageX);
@@ -6043,6 +6792,10 @@ class TouchInput {
         }
     }
 
+    /**
+     * @param {TouchEvent} event
+     * @returns {void}
+     */
     static _onTouchMove(event) {
         for (const touch of event.changedTouches) {
             const x = Graphics.pageToCanvasX(touch.pageX);
@@ -6051,6 +6804,10 @@ class TouchInput {
         }
     }
 
+    /**
+     * @param {TouchEvent} event
+     * @returns {void}
+     */
     static _onTouchEnd(event) {
         for (const touch of event.changedTouches) {
             const x = Graphics.pageToCanvasX(touch.pageX);
@@ -6060,14 +6817,21 @@ class TouchInput {
         }
     }
 
+    /** @returns {void} */
     static _onTouchCancel(/*event*/) {
         this._screenPressed = false;
     }
 
+    /** @returns {void} */
     static _onLostFocus() {
         this.clear();
     }
 
+    /**
+     * @param {number} x
+     * @param {number} y
+     * @returns {void}
+     */
     static _onTrigger(x, y) {
         this._newState.triggered = true;
         this._x = x;
@@ -6078,12 +6842,22 @@ class TouchInput {
         this._date = Date.now();
     }
 
+    /**
+     * @param {number} x
+     * @param {number} y
+     * @returns {void}
+     */
     static _onCancel(x, y) {
         this._newState.cancelled = true;
         this._x = x;
         this._y = y;
     }
 
+    /**
+     * @param {number} x
+     * @param {number} y
+     * @returns {void}
+     */
     static _onMove(x, y) {
         const dx = Math.abs(x - this._triggerX);
         const dy = Math.abs(y - this._triggerY);
@@ -6097,12 +6871,22 @@ class TouchInput {
         }
     }
 
+    /**
+     * @param {number} x
+     * @param {number} y
+     * @returns {void}
+     */
     static _onHover(x, y) {
         this._newState.hovered = true;
         this._x = x;
         this._y = y;
     }
 
+    /**
+     * @param {number} x
+     * @param {number} y
+     * @returns {void}
+     */
     static _onRelease(x, y) {
         this._newState.released = true;
         this._x = x;
@@ -6123,15 +6907,15 @@ class JsonEx {
     /**
      * The maximum depth of objects.
      *
-     * @type number
      * @default 100
+     * @type {number}
      */
     static maxDepth = 100;
 
     /**
      * Converts an object to a JSON string with object information.
      *
-     * @param {object} object - The object to be converted.
+     * @param {any} object - The object to be converted.
      * @returns {string} The JSON string.
      */
     static stringify(object) {
@@ -6142,7 +6926,7 @@ class JsonEx {
      * Parses a JSON string and reconstructs the corresponding object.
      *
      * @param {string} json - The JSON string.
-     * @returns {object} The reconstructed object.
+     * @returns {any} The reconstructed object.
      */
     static parse(json) {
         return this._decode(JSON.parse(json));
@@ -6151,8 +6935,8 @@ class JsonEx {
     /**
      * Makes a deep copy of the specified object.
      *
-     * @param {object} object - The object to be copied.
-     * @returns {object} The copied object.
+     * @param {any} object - The object to be copied.
+     * @returns {any} The copied object.
      */
     static makeDeepCopy(object) {
         return this.parse(this.stringify(object));
@@ -6162,6 +6946,10 @@ class JsonEx {
      * Encodes constructor names for serialization. Circular references
      * are unsupported because handling them in MV was too complicated
      * and expensive.
+     *
+     * @param {any} value
+     * @param {number} depth
+     * @returns {any}
      */
     static _encode(value, depth) {
         if (depth >= this.maxDepth) {
@@ -6180,6 +6968,10 @@ class JsonEx {
         return value;
     }
 
+    /**
+     * @param {any} value
+     * @returns {any}
+     */
     static _decode(value) {
         const type = Object.prototype.toString.call(value);
         if (type === "[object Object]" || type === "[object Array]") {

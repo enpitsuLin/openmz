@@ -9,7 +9,7 @@
     "allowImportingTsExtensions": true,
     "strict": true,
     "types": [
-      "./src/env.d.ts",
+      "./types/env.d.ts",
       "typescript/lib/lib.es2021",
       "typescript/lib/lib.dom",
       "typescript/lib/lib.dom.iterable",
@@ -25,6 +25,7 @@
   },
   "include": [
     "src",
+    "types",
     "tests/**/*.test.ts"
   ]
 }

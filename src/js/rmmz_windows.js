@@ -4,10 +4,12 @@
  * The superclass of all windows within the game.
  */
 class Window_Base extends Window {
+    /** @param {[rect: Rectangle]} args */
     constructor(...args) {
         super(...args);
     }
 
+    /** @param {Rectangle} rect */
     initialize(rect) {
         super.initialize();
         this.loadWindowskin();
@@ -17,11 +19,18 @@ class Window_Base extends Window {
         this.updateBackOpacity();
         this.updateTone();
         this.createContents();
+        /** @type {boolean} */
         this._opening = false;
+        /** @type {boolean} */
         this._closing = false;
+        /** @type {Sprite | null} */
         this._dimmerSprite = null;
     }
 
+    /**
+     * @param {import("pixi.js").DestroyOptions} [options]
+     * @returns {void}
+     */
     destroy(options) {
         this.destroyContents();
         if (this._dimmerSprite) {
@@ -30,6 +39,10 @@ class Window_Base extends Window {
         super.destroy(options);
     }
 
+    /**
+     * @param {Rectangle} rect
+     * @returns {void}
+     */
     checkRectObject(rect) {
         if (typeof rect !== "object" || !("x" in rect)) {
             // Probably MV plugin is used
@@ -37,49 +50,63 @@ class Window_Base extends Window {
         }
     }
 
+    /** @returns {number} */
     lineHeight() {
         return 36;
     }
 
+    /** @returns {number} */
     itemWidth() {
         return this.innerWidth;
     }
 
+    /** @returns {number} */
     itemHeight() {
         return this.lineHeight();
     }
 
+    /** @returns {number} */
     itemPadding() {
         return 8;
     }
 
+    /** @returns {Rectangle} */
     baseTextRect() {
         const rect = new PIXI.Rectangle(0, 0, this.innerWidth, this.innerHeight);
         rect.pad(-this.itemPadding(), 0);
         return rect;
     }
 
+    /** @returns {void} */
     loadWindowskin() {
         this.windowskin = ImageManager.loadSystem("Window");
     }
 
+    /** @returns {void} */
     updatePadding() {
         this.padding = $gameSystem.windowPadding();
     }
 
+    /** @returns {void} */
     updateBackOpacity() {
         this.backOpacity = $gameSystem.windowOpacity();
     }
 
+    /**
+     * @param {number} numLines
+     * @returns {number}
+     */
     fittingHeight(numLines) {
         return numLines * this.itemHeight() + $gameSystem.windowPadding() * 2;
     }
 
+    /** @returns {void} */
     updateTone() {
         const tone = $gameSystem.windowTone();
         this.setTone(tone[0], tone[1], tone[2]);
     }
 
+    /** @returns {void} */
     createContents() {
         const width = this.contentsWidth();
         const height = this.contentsHeight();
@@ -89,6 +116,7 @@ class Window_Base extends Window {
         this.resetFontSettings();
     }
 
+    /** @returns {void} */
     destroyContents() {
         if (this.contents) {
             this.contents.destroy();
@@ -98,25 +126,30 @@ class Window_Base extends Window {
         }
     }
 
+    /** @returns {number} */
     contentsWidth() {
         return this.innerWidth;
     }
 
+    /** @returns {number} */
     contentsHeight() {
         return this.innerHeight;
     }
 
+    /** @returns {void} */
     resetFontSettings() {
         this.contents.fontFace = $gameSystem.mainFontFace();
         this.contents.fontSize = $gameSystem.mainFontSize();
         this.resetTextColor();
     }
 
+    /** @returns {void} */
     resetTextColor() {
         this.changeTextColor(ColorManager.normalColor());
         this.changeOutlineColor(ColorManager.outlineColor());
     }
 
+    /** @returns {void} */
     update() {
         super.update();
         this.updateTone();
@@ -125,6 +158,7 @@ class Window_Base extends Window {
         this.updateBackgroundDimmer();
     }
 
+    /** @returns {void} */
     updateOpen() {
         if (this._opening) {
             this.openness += 32;
@@ -134,6 +168,7 @@ class Window_Base extends Window {
         }
     }
 
+    /** @returns {void} */
     updateClose() {
         if (this._closing) {
             this.openness -= 32;
@@ -143,6 +178,7 @@ class Window_Base extends Window {
         }
     }
 
+    /** @returns {void} */
     open() {
         if (!this.isOpen()) {
             this._opening = true;
@@ -150,6 +186,7 @@ class Window_Base extends Window {
         this._closing = false;
     }
 
+    /** @returns {void} */
     close() {
         if (!this.isClosed()) {
             this._closing = true;
@@ -157,50 +194,77 @@ class Window_Base extends Window {
         this._opening = false;
     }
 
+    /** @returns {boolean} */
     isOpening() {
         return this._opening;
     }
 
+    /** @returns {boolean} */
     isClosing() {
         return this._closing;
     }
 
+    /** @returns {void} */
     show() {
         this.visible = true;
     }
 
+    /** @returns {void} */
     hide() {
         this.visible = false;
     }
 
+    /** @returns {void} */
     activate() {
         this.active = true;
     }
 
+    /** @returns {void} */
     deactivate() {
         this.active = false;
     }
 
+    /** @returns {string} */
     systemColor() {
         return ColorManager.systemColor();
     }
 
+    /** @returns {number} */
     translucentOpacity() {
         return 160;
     }
 
+    /**
+     * @param {string} color
+     * @returns {void}
+     */
     changeTextColor(color) {
         this.contents.textColor = color;
     }
 
+    /**
+     * @param {string} color
+     * @returns {void}
+     */
     changeOutlineColor(color) {
         this.contents.outlineColor = color;
     }
 
+    /**
+     * @param {boolean | number} enabled
+     * @returns {void}
+     */
     changePaintOpacity(enabled) {
         this.contents.paintOpacity = enabled ? 255 : this.translucentOpacity();
     }
 
+    /**
+     * @param {number} x
+     * @param {number} y
+     * @param {number} width
+     * @param {number} height
+     * @returns {void}
+     */
     drawRect(x, y, width, height) {
         const outlineColor = this.contents.outlineColor;
         const mainColor = this.contents.textColor;
@@ -208,14 +272,33 @@ class Window_Base extends Window {
         this.contents.fillRect(x + 1, y + 1, width - 2, height - 2, mainColor);
     }
 
+    /**
+     * @param {string | number} text
+     * @param {number} x
+     * @param {number} y
+     * @param {number} [maxWidth]
+     * @param {CanvasTextAlign} [align]
+     * @returns {void}
+     */
     drawText(text, x, y, maxWidth, align) {
         this.contents.drawText(text, x, y, maxWidth, this.lineHeight(), align);
     }
 
+    /**
+     * @param {string} text
+     * @returns {number}
+     */
     textWidth(text) {
         return this.contents.measureTextWidth(text);
     }
 
+    /**
+     * @param {string} text
+     * @param {number} x
+     * @param {number} y
+     * @param {number} width
+     * @returns {number}
+     */
     drawTextEx(text, x, y, width) {
         this.resetFontSettings();
         const textState = this.createTextState(text, x, y, width);
@@ -223,6 +306,10 @@ class Window_Base extends Window {
         return textState.outputWidth;
     }
 
+    /**
+     * @param {string} text
+     * @returns {{ width: number; height: number; }}
+     */
     textSizeEx(text) {
         this.resetFontSettings();
         const textState = this.createTextState(text, 0, 0, 0);
@@ -231,6 +318,13 @@ class Window_Base extends Window {
         return { width: textState.outputWidth, height: textState.outputHeight };
     }
 
+    /**
+     * @param {string} text
+     * @param {number} x
+     * @param {number} y
+     * @param {number} width
+     * @returns {{ text: string; index: number; x: number; y: number; width: number; height: number; startX: number; startY: number; rtl: boolean; buffer: string; drawing: boolean; outputWidth: number; outputHeight: number; }}
+     */
     createTextState(text, x, y, width) {
         const rtl = Utils.containsArabic(text);
         const textState = {};
@@ -250,6 +344,10 @@ class Window_Base extends Window {
         return textState;
     }
 
+    /**
+     * @param {{ text: string; index: number; x: number; y: number; width: number; height: number; startX: number; startY: number; rtl: boolean; buffer: string; drawing: boolean; outputWidth: number; outputHeight: number; }} textState
+     * @returns {void}
+     */
     processAllText(textState) {
         while (textState.index < textState.text.length) {
             this.processCharacter(textState);
@@ -257,6 +355,10 @@ class Window_Base extends Window {
         this.flushTextState(textState);
     }
 
+    /**
+     * @param {{ text: string; index: number; x: number; y: number; width: number; height: number; startX: number; startY: number; rtl: boolean; buffer: string; drawing: boolean; outputWidth: number; outputHeight: number; }} textState
+     * @returns {void}
+     */
     flushTextState(textState) {
         const text = textState.buffer;
         const rtl = textState.rtl;
@@ -276,11 +378,19 @@ class Window_Base extends Window {
         textState.outputHeight = y - textState.startY + height;
     }
 
+    /**
+     * @param {boolean} rtl
+     * @returns {"" | "\u202B"}
+     */
     createTextBuffer(rtl) {
         // U+202B: RIGHT-TO-LEFT EMBEDDING
         return rtl ? "\u202B" : "";
     }
 
+    /**
+     * @param {string} text
+     * @returns {string}
+     */
     convertEscapeCharacters(text) {
         /* eslint no-control-regex: 0 */
         text = text.replace(/\\/g, "\x1b");
@@ -300,16 +410,28 @@ class Window_Base extends Window {
         return text;
     }
 
+    /**
+     * @param {RMMZ.ActorID} n
+     * @returns {string}
+     */
     actorName(n) {
         const actor = n >= 1 ? $gameActors.actor(n) : null;
         return actor ? actor.name() : "";
     }
 
+    /**
+     * @param {number} n
+     * @returns {string}
+     */
     partyMemberName(n) {
         const actor = n >= 1 ? $gameParty.members()[n - 1] : null;
         return actor ? actor.name() : "";
     }
 
+    /**
+     * @param {{ text: string; index: number; x: number; y: number; width: number; height: number; startX: number; startY: number; rtl: boolean; buffer: string; drawing: boolean; outputWidth: number; outputHeight: number; }} textState
+     * @returns {void}
+     */
     processCharacter(textState) {
         const c = textState.text[textState.index++];
         if (c.charCodeAt(0) < 0x20) {
@@ -320,6 +442,11 @@ class Window_Base extends Window {
         }
     }
 
+    /**
+     * @param {{ text: string; index: number; x: number; y: number; width: number; height: number; startX: number; startY: number; rtl: boolean; buffer: string; drawing: boolean; outputWidth: number; outputHeight: number; }} textState
+     * @param {string} c
+     * @returns {void}
+     */
     processControlCharacter(textState, c) {
         if (c === "\n") {
             this.processNewLine(textState);
@@ -330,12 +457,20 @@ class Window_Base extends Window {
         }
     }
 
+    /**
+     * @param {{ text: string; index: number; x: number; y: number; width: number; height: number; startX: number; startY: number; rtl: boolean; buffer: string; drawing: boolean; outputWidth: number; outputHeight: number; }} textState
+     * @returns {void}
+     */
     processNewLine(textState) {
         textState.x = textState.startX;
         textState.y += textState.height;
         textState.height = this.calcTextHeight(textState);
     }
 
+    /**
+     * @param {{ text: string; index: number; x: number; y: number; width: number; height: number; startX: number; startY: number; rtl: boolean; buffer: string; drawing: boolean; outputWidth: number; outputHeight: number; }} textState
+     * @returns {string}
+     */
     obtainEscapeCode(textState) {
         const regExp = /^[$.|^!><{}\\]|^[A-Z]+/i;
         const arr = regExp.exec(textState.text.slice(textState.index));
@@ -347,6 +482,10 @@ class Window_Base extends Window {
         }
     }
 
+    /**
+     * @param {{ text: string; index: number; x: number; y: number; width: number; height: number; startX: number; startY: number; rtl: boolean; buffer: string; drawing: boolean; outputWidth: number; outputHeight: number; }} textState
+     * @returns {number}
+     */
     obtainEscapeParam(textState) {
         const regExp = /^\[\d+\]/;
         const arr = regExp.exec(textState.text.slice(textState.index));
@@ -358,6 +497,11 @@ class Window_Base extends Window {
         }
     }
 
+    /**
+     * @param {"C" | "I" | "PX" | "PY" | "FS" | "{" | "}"} code
+     * @param {{ text: string; index: number; x: number; y: number; width: number; height: number; startX: number; startY: number; rtl: boolean; buffer: string; drawing: boolean; outputWidth: number; outputHeight: number; }} textState
+     * @returns {void}
+     */
     processEscapeCharacter(code, textState) {
         switch (code) {
             case "C":
@@ -384,10 +528,19 @@ class Window_Base extends Window {
         }
     }
 
+    /**
+     * @param {number} colorIndex
+     * @returns {void}
+     */
     processColorChange(colorIndex) {
         this.changeTextColor(ColorManager.textColor(colorIndex));
     }
 
+    /**
+     * @param {number} iconIndex
+     * @param {{ text: string; index: number; x: number; y: number; width: number; height: number; startX: number; startY: number; rtl: boolean; buffer: string; drawing: boolean; outputWidth: number; outputHeight: number; }} textState
+     * @returns {void}
+     */
     processDrawIcon(iconIndex, textState) {
         const deltaX = ImageManager.standardIconWidth - ImageManager.iconWidth;
         const deltaY = ImageManager.standardIconHeight - ImageManager.iconHeight;
@@ -399,18 +552,24 @@ class Window_Base extends Window {
         textState.x += ImageManager.standardIconWidth + 4;
     }
 
+    /** @returns {void} */
     makeFontBigger() {
         if (this.contents.fontSize <= 96) {
             this.contents.fontSize += 12;
         }
     }
 
+    /** @returns {void} */
     makeFontSmaller() {
         if (this.contents.fontSize >= 24) {
             this.contents.fontSize -= 12;
         }
     }
 
+    /**
+     * @param {Partial<{ text: string; index: number; x: number; y: number; width: number; height: number; startX: number; startY: number; rtl: boolean; buffer: string; drawing: boolean; outputWidth: number; outputHeight: number; }> & { text: string; }} textState
+     * @returns {number}
+     */
     calcTextHeight(textState) {
         const lineSpacing = this.lineHeight() - $gameSystem.mainFontSize();
         const lastFontSize = this.contents.fontSize;
@@ -420,6 +579,10 @@ class Window_Base extends Window {
         return textHeight;
     }
 
+    /**
+     * @param {string} line
+     * @returns {number}
+     */
     maxFontSizeInLine(line) {
         let maxFontSize = this.contents.fontSize;
         const regExp = /\x1b({|}|FS)(\[(\d+)])?/gi;
@@ -443,6 +606,12 @@ class Window_Base extends Window {
         return maxFontSize;
     }
 
+    /**
+     * @param {number} iconIndex
+     * @param {number} x
+     * @param {number} y
+     * @returns {void}
+     */
     drawIcon(iconIndex, x, y) {
         const bitmap = ImageManager.loadSystem("IconSet");
         const pw = ImageManager.iconWidth;
@@ -453,6 +622,15 @@ class Window_Base extends Window {
     }
 
     // prettier-ignore
+    /**
+     * @param {string} faceName
+     * @param {number} faceIndex
+     * @param {number} x
+     * @param {number} y
+     * @param {number} [width]
+     * @param {number} [height]
+     * @returns {void}
+     */
     drawFace(
         faceName, faceIndex, x, y, width, height
     ) {
@@ -471,6 +649,13 @@ class Window_Base extends Window {
     }
 
     // prettier-ignore
+    /**
+     * @param {string} characterName
+     * @param {number} characterIndex
+     * @param {number} x
+     * @param {number} y
+     * @returns {void}
+     */
     drawCharacter(
         characterName, characterIndex, x, y
     ) {
@@ -484,6 +669,13 @@ class Window_Base extends Window {
         this.contents.blt(bitmap, sx, sy, pw, ph, x - pw / 2, y - ph);
     }
 
+    /**
+     * @param {RMMZ.DataItemBase | null} item
+     * @param {number} x
+     * @param {number} y
+     * @param {number} width
+     * @returns {void}
+     */
     drawItemName(item, x, y, width) {
         if (item) {
             const iconY = y + (this.lineHeight() - ImageManager.iconHeight) / 2;
@@ -496,6 +688,14 @@ class Window_Base extends Window {
         }
     }
 
+    /**
+     * @param {number} value
+     * @param {string} unit
+     * @param {number} x
+     * @param {number} y
+     * @param {number} width
+     * @returns {void}
+     */
     drawCurrencyValue(value, unit, x, y, width) {
         const unitWidth = Math.min(80, this.textWidth(unit));
         this.resetTextColor();
@@ -504,6 +704,10 @@ class Window_Base extends Window {
         this.drawText(unit, x + width - unitWidth, y, unitWidth, "right");
     }
 
+    /**
+     * @param {RMMZ.TextWindowBackgroundType} type
+     * @returns {void}
+     */
     setBackgroundType(type) {
         if (type === 0) {
             this.opacity = 255;
@@ -517,6 +721,7 @@ class Window_Base extends Window {
         }
     }
 
+    /** @returns {void} */
     showBackgroundDimmer() {
         if (!this._dimmerSprite) {
             this.createDimmerSprite();
@@ -529,6 +734,7 @@ class Window_Base extends Window {
         this.updateBackgroundDimmer();
     }
 
+    /** @returns {void} */
     createDimmerSprite() {
         this._dimmerSprite = new Sprite();
         this._dimmerSprite.bitmap = new Bitmap(0, 0);
@@ -536,18 +742,21 @@ class Window_Base extends Window {
         this.addChildToBack(this._dimmerSprite);
     }
 
+    /** @returns {void} */
     hideBackgroundDimmer() {
         if (this._dimmerSprite) {
             this._dimmerSprite.visible = false;
         }
     }
 
+    /** @returns {void} */
     updateBackgroundDimmer() {
         if (this._dimmerSprite) {
             this._dimmerSprite.opacity = this.openness;
         }
     }
 
+    /** @returns {void} */
     refreshDimmerBitmap() {
         if (this._dimmerSprite) {
             const bitmap = this._dimmerSprite.bitmap;
@@ -564,14 +773,17 @@ class Window_Base extends Window {
         }
     }
 
+    /** @returns {void} */
     playCursorSound() {
         SoundManager.playCursor();
     }
 
+    /** @returns {void} */
     playOkSound() {
         SoundManager.playOk();
     }
 
+    /** @returns {void} */
     playBuzzerSound() {
         SoundManager.playBuzzer();
     }
@@ -581,19 +793,26 @@ class Window_Base extends Window {
  * The window class with scroll functions.
  */
 class Window_Scrollable extends Window_Base {
+    /** @param {[rect: Rectangle]} args */
     constructor(...args) {
         super(...args);
     }
 
+    /** @param {Rectangle} rect */
     initialize(rect) {
         super.initialize(rect);
+        /** @type {number} */
         this._scrollX = 0;
+        /** @type {number} */
         this._scrollY = 0;
+        /** @type {number} */
         this._scrollBaseX = 0;
+        /** @type {number} */
         this._scrollBaseY = 0;
         this.clearScrollStatus();
     }
 
+    /** @returns {void} */
     clearScrollStatus() {
         this._scrollTargetX = 0;
         this._scrollTargetY = 0;
@@ -606,22 +825,31 @@ class Window_Scrollable extends Window_Base {
         this._scrollLastCursorVisible = false;
     }
 
+    /** @returns {number} */
     scrollX() {
         return this._scrollX;
     }
 
+    /** @returns {number} */
     scrollY() {
         return this._scrollY;
     }
 
+    /** @returns {number} */
     scrollBaseX() {
         return this._scrollBaseX;
     }
 
+    /** @returns {number} */
     scrollBaseY() {
         return this._scrollBaseY;
     }
 
+    /**
+     * @param {number} x
+     * @param {number} y
+     * @returns {void}
+     */
     scrollTo(x, y) {
         const scrollX = x.clamp(0, this.maxScrollX());
         const scrollY = y.clamp(0, this.maxScrollY());
@@ -632,16 +860,31 @@ class Window_Scrollable extends Window_Base {
         }
     }
 
+    /**
+     * @param {number} x
+     * @param {number} y
+     * @returns {void}
+     */
     scrollBy(x, y) {
         this.scrollTo(this._scrollX + x, this._scrollY + y);
     }
 
+    /**
+     * @param {number} x
+     * @param {number} y
+     * @returns {void}
+     */
     smoothScrollTo(x, y) {
         this._scrollTargetX = x.clamp(0, this.maxScrollX());
         this._scrollTargetY = y.clamp(0, this.maxScrollY());
         this._scrollDuration = Input.keyRepeatInterval;
     }
 
+    /**
+     * @param {number} x
+     * @param {number} y
+     * @returns {void}
+     */
     smoothScrollBy(x, y) {
         if (this._scrollDuration === 0) {
             this._scrollTargetX = this.scrollX();
@@ -650,43 +893,63 @@ class Window_Scrollable extends Window_Base {
         this.smoothScrollTo(this._scrollTargetX + x, this._scrollTargetY + y);
     }
 
+    /**
+     * @param {number} x
+     * @param {number} y
+     * @returns {void}
+     */
     setScrollAccel(x, y) {
         this._scrollAccelX = x;
         this._scrollAccelY = y;
     }
 
+    /** @returns {number} */
     overallWidth() {
         return this.innerWidth;
     }
 
+    /** @returns {number} */
     overallHeight() {
         return this.innerHeight;
     }
 
+    /** @returns {number} */
     maxScrollX() {
         return Math.max(0, this.overallWidth() - this.innerWidth);
     }
 
+    /** @returns {number} */
     maxScrollY() {
         return Math.max(0, this.overallHeight() - this.innerHeight);
     }
 
+    /** @returns {number} */
     scrollBlockWidth() {
         return this.itemWidth();
     }
 
+    /** @returns {number} */
     scrollBlockHeight() {
         return this.itemHeight();
     }
 
+    /**
+     * @param {number} n
+     * @returns {void}
+     */
     smoothScrollDown(n) {
         this.smoothScrollBy(0, this.itemHeight() * n);
     }
 
+    /**
+     * @param {number} n
+     * @returns {void}
+     */
     smoothScrollUp(n) {
         this.smoothScrollBy(0, -this.itemHeight() * n);
     }
 
+    /** @returns {void} */
     update() {
         super.update();
         this.processWheelScroll();
@@ -697,6 +960,7 @@ class Window_Scrollable extends Window_Base {
         this.updateOrigin();
     }
 
+    /** @returns {void} */
     processWheelScroll() {
         if (this.isWheelScrollEnabled() && this.isTouchedInsideFrame()) {
             const threshold = 20;
@@ -709,6 +973,7 @@ class Window_Scrollable extends Window_Base {
         }
     }
 
+    /** @returns {void} */
     processTouchScroll() {
         if (this.isTouchScrollEnabled()) {
             if (TouchInput.isTriggered() && this.isTouchedInsideFrame()) {
@@ -724,24 +989,29 @@ class Window_Scrollable extends Window_Base {
         }
     }
 
+    /** @returns {boolean} */
     isWheelScrollEnabled() {
         return this.isScrollEnabled();
     }
 
+    /** @returns {boolean} */
     isTouchScrollEnabled() {
         return this.isScrollEnabled();
     }
 
+    /** @returns {boolean} */
     isScrollEnabled() {
         return true;
     }
 
+    /** @returns {boolean} */
     isTouchedInsideFrame() {
         const touchPos = new PIXI.Point(TouchInput.x, TouchInput.y);
         const localPos = this.toLocal(touchPos);
         return this.innerRect.contains(localPos.x, localPos.y);
     }
 
+    /** @returns {void} */
     onTouchScrollStart() {
         this._scrollTouching = true;
         this._scrollLastTouchX = TouchInput.x;
@@ -750,6 +1020,7 @@ class Window_Scrollable extends Window_Base {
         this.setScrollAccel(0, 0);
     }
 
+    /** @returns {void} */
     onTouchScroll() {
         const accelX = this._scrollLastTouchX - TouchInput.x;
         const accelY = this._scrollLastTouchY - TouchInput.y;
@@ -759,11 +1030,13 @@ class Window_Scrollable extends Window_Base {
         this.cursorVisible = false;
     }
 
+    /** @returns {void} */
     onTouchScrollEnd() {
         this._scrollTouching = false;
         this.cursorVisible = this._scrollLastCursorVisible;
     }
 
+    /** @returns {void} */
     updateSmoothScroll() {
         if (this._scrollDuration > 0) {
             const d = this._scrollDuration;
@@ -774,6 +1047,7 @@ class Window_Scrollable extends Window_Base {
         }
     }
 
+    /** @returns {void} */
     updateScrollAccel() {
         if (this._scrollAccelX !== 0 || this._scrollAccelY !== 0) {
             this.scrollBy(this._scrollAccelX, this._scrollAccelY);
@@ -788,11 +1062,13 @@ class Window_Scrollable extends Window_Base {
         }
     }
 
+    /** @returns {void} */
     updateArrows() {
         this.downArrowVisible = this._scrollY < this.maxScrollY();
         this.upArrowVisible = this._scrollY > 0;
     }
 
+    /** @returns {void} */
     updateOrigin() {
         const blockWidth = this.scrollBlockWidth() || 1;
         const blockHeight = this.scrollBlockHeight() || 1;
@@ -806,6 +1082,11 @@ class Window_Scrollable extends Window_Base {
         this.origin.y = this._scrollY % blockHeight;
     }
 
+    /**
+     * @param {number} baseX
+     * @param {number} baseY
+     * @returns {void}
+     */
     updateScrollBase(baseX, baseY) {
         const deltaX = baseX - this._scrollBaseX;
         const deltaY = baseY - this._scrollBaseY;
@@ -815,6 +1096,7 @@ class Window_Scrollable extends Window_Base {
         this.moveInnerChildrenBy(-deltaX, -deltaY);
     }
 
+    /** @returns {void} */
     paint() {
         // to be overridden
     }
@@ -824,151 +1106,212 @@ class Window_Scrollable extends Window_Base {
  * The window class with cursor movement functions.
  */
 class Window_Selectable extends Window_Scrollable {
+    /** @param {[rect: Rectangle]} args */
     constructor(...args) {
         super(...args);
     }
 
+    /** @param {Rectangle} rect */
     initialize(rect) {
         super.initialize(rect);
+        /** @type {number} */
         this._index = -1;
+        /** @type {boolean} */
         this._cursorFixed = false;
+        /** @type {boolean} */
         this._cursorAll = false;
+        /** @type {Window_Help | null} */
         this._helpWindow = null;
+        /** @type {Record<string, () => void>} */
         this._handlers = {};
+        /** @type {boolean} */
         this._doubleTouch = false;
+        /** @type {boolean} */
         this._canRepeat = true;
         this.deactivate();
     }
 
+    /** @returns {number} */
     index() {
         return this._index;
     }
 
+    /** @returns {boolean} */
     cursorFixed() {
         return this._cursorFixed;
     }
 
+    /**
+     * @param {boolean} cursorFixed
+     * @returns {void}
+     */
     setCursorFixed(cursorFixed) {
         this._cursorFixed = cursorFixed;
     }
 
+    /** @returns {boolean} */
     cursorAll() {
         return this._cursorAll;
     }
 
+    /**
+     * @param {boolean} cursorAll
+     * @returns {void}
+     */
     setCursorAll(cursorAll) {
         this._cursorAll = cursorAll;
     }
 
+    /** @returns {number} */
     maxCols() {
         return 1;
     }
 
+    /** @returns {number} */
     maxItems() {
         return 0;
     }
 
+    /** @returns {number} */
     colSpacing() {
         return 8;
     }
 
+    /** @returns {number} */
     rowSpacing() {
         return 4;
     }
 
+    /** @returns {number} */
     itemWidth() {
         return Math.floor(this.innerWidth / this.maxCols());
     }
 
+    /** @returns {number} */
     itemHeight() {
         return super.itemHeight() + 8;
     }
 
+    /** @returns {number} */
     contentsHeight() {
         return this.innerHeight + this.itemHeight();
     }
 
+    /** @returns {number} */
     maxRows() {
         return Math.max(Math.ceil(this.maxItems() / this.maxCols()), 1);
     }
 
+    /** @returns {number} */
     overallHeight() {
         return this.maxRows() * this.itemHeight();
     }
 
+    /** @returns {void} */
     activate() {
         super.activate();
         this.reselect();
     }
 
+    /** @returns {void} */
     deactivate() {
         super.deactivate();
         this.reselect();
     }
 
+    /**
+     * @param {number} index
+     * @returns {void}
+     */
     select(index) {
         this._index = index;
         this.refreshCursor();
         this.callUpdateHelp();
     }
 
+    /**
+     * @param {number} index
+     * @returns {void}
+     */
     forceSelect(index) {
         this.select(index);
         this.ensureCursorVisible(false);
     }
 
+    /**
+     * @param {number} index
+     * @returns {void}
+     */
     smoothSelect(index) {
         this.select(index);
         this.ensureCursorVisible(true);
     }
 
+    /** @returns {void} */
     deselect() {
         this.select(-1);
     }
 
+    /** @returns {void} */
     reselect() {
         this.select(this._index);
         this.ensureCursorVisible(true);
         this.cursorVisible = true;
     }
 
+    /** @returns {number} */
     row() {
         return Math.floor(this.index() / this.maxCols());
     }
 
+    /** @returns {number} */
     topRow() {
         return Math.floor(this.scrollY() / this.itemHeight());
     }
 
+    /** @returns {number} */
     maxTopRow() {
         return Math.max(0, this.maxRows() - this.maxPageRows());
     }
 
+    /**
+     * @param {number} row
+     * @returns {void}
+     */
     setTopRow(row) {
         this.scrollTo(this.scrollX(), row * this.itemHeight());
     }
 
+    /** @returns {number} */
     maxPageRows() {
         return Math.floor(this.innerHeight / this.itemHeight());
     }
 
+    /** @returns {number} */
     maxPageItems() {
         return this.maxPageRows() * this.maxCols();
     }
 
+    /** @returns {number} */
     maxVisibleItems() {
         const visibleRows = Math.ceil(this.contentsHeight() / this.itemHeight());
         return visibleRows * this.maxCols();
     }
 
+    /** @returns {boolean} */
     isHorizontal() {
         return this.maxPageRows() === 1;
     }
 
+    /** @returns {number} */
     topIndex() {
         return this.topRow() * this.maxCols();
     }
 
+    /**
+     * @param {number} index
+     * @returns {Rectangle}
+     */
     itemRect(index) {
         const maxCols = this.maxCols();
         const itemWidth = this.itemWidth();
@@ -984,6 +1327,10 @@ class Window_Selectable extends Window_Scrollable {
         return new PIXI.Rectangle(x, y, width, height);
     }
 
+    /**
+     * @param {number} index
+     * @returns {Rectangle}
+     */
     itemRectWithPadding(index) {
         const rect = this.itemRect(index);
         const padding = this.itemPadding();
@@ -992,6 +1339,10 @@ class Window_Selectable extends Window_Scrollable {
         return rect;
     }
 
+    /**
+     * @param {number} index
+     * @returns {Rectangle}
+     */
     itemLineRect(index) {
         const rect = this.itemRectWithPadding(index);
         const padding = (rect.height - this.lineHeight()) / 2;
@@ -1000,41 +1351,62 @@ class Window_Selectable extends Window_Scrollable {
         return rect;
     }
 
+    /**
+     * @param {Window_Help} helpWindow
+     * @returns {void}
+     */
     setHelpWindow(helpWindow) {
         this._helpWindow = helpWindow;
         this.callUpdateHelp();
     }
 
+    /** @returns {void} */
     showHelpWindow() {
         if (this._helpWindow) {
             this._helpWindow.show();
         }
     }
 
+    /** @returns {void} */
     hideHelpWindow() {
         if (this._helpWindow) {
             this._helpWindow.hide();
         }
     }
 
+    /**
+     * @param {string} symbol
+     * @param {() => void} method
+     * @returns {void}
+     */
     setHandler(symbol, method) {
         this._handlers[symbol] = method;
     }
 
+    /**
+     * @param {string} symbol
+     * @returns {boolean}
+     */
     isHandled(symbol) {
         return !!this._handlers[symbol];
     }
 
+    /**
+     * @param {string} symbol
+     * @returns {void}
+     */
     callHandler(symbol) {
         if (this.isHandled(symbol)) {
             this._handlers[symbol]();
         }
     }
 
+    /** @returns {boolean} */
     isOpenAndActive() {
         return this.isOpen() && this.visible && this.active;
     }
 
+    /** @returns {boolean} */
     isCursorMovable() {
         return (
             this.isOpenAndActive() &&
@@ -1044,6 +1416,10 @@ class Window_Selectable extends Window_Scrollable {
         );
     }
 
+    /**
+     * @param {boolean} wrap
+     * @returns {void}
+     */
     cursorDown(wrap) {
         const index = this.index();
         const maxItems = this.maxItems();
@@ -1053,6 +1429,10 @@ class Window_Selectable extends Window_Scrollable {
         }
     }
 
+    /**
+     * @param {boolean} wrap
+     * @returns {void}
+     */
     cursorUp(wrap) {
         const index = Math.max(0, this.index());
         const maxItems = this.maxItems();
@@ -1062,6 +1442,10 @@ class Window_Selectable extends Window_Scrollable {
         }
     }
 
+    /**
+     * @param {boolean} wrap
+     * @returns {void}
+     */
     cursorRight(wrap) {
         const index = this.index();
         const maxItems = this.maxItems();
@@ -1072,6 +1456,10 @@ class Window_Selectable extends Window_Scrollable {
         }
     }
 
+    /**
+     * @param {boolean} wrap
+     * @returns {void}
+     */
     cursorLeft(wrap) {
         const index = Math.max(0, this.index());
         const maxItems = this.maxItems();
@@ -1082,6 +1470,7 @@ class Window_Selectable extends Window_Scrollable {
         }
     }
 
+    /** @returns {void} */
     cursorPagedown() {
         const index = this.index();
         const maxItems = this.maxItems();
@@ -1091,6 +1480,7 @@ class Window_Selectable extends Window_Scrollable {
         }
     }
 
+    /** @returns {void} */
     cursorPageup() {
         const index = this.index();
         if (this.topRow() > 0) {
@@ -1099,10 +1489,12 @@ class Window_Selectable extends Window_Scrollable {
         }
     }
 
+    /** @returns {boolean} */
     isScrollEnabled() {
         return this.active || this.index() < 0;
     }
 
+    /** @returns {void} */
     update() {
         this.processCursorMove();
         this.processHandling();
@@ -1110,6 +1502,7 @@ class Window_Selectable extends Window_Scrollable {
         super.update();
     }
 
+    /** @returns {void} */
     processCursorMove() {
         if (this.isCursorMovable()) {
             const lastIndex = this.index();
@@ -1137,6 +1530,7 @@ class Window_Selectable extends Window_Scrollable {
         }
     }
 
+    /** @returns {void} */
     processHandling() {
         if (this.isOpenAndActive()) {
             if (this.isOkEnabled() && this.isOkTriggered()) {
@@ -1154,6 +1548,7 @@ class Window_Selectable extends Window_Scrollable {
         }
     }
 
+    /** @returns {void} */
     processTouch() {
         if (this.isOpenAndActive()) {
             if (this.isHoverEnabled() && TouchInput.isHovered()) {
@@ -1169,10 +1564,15 @@ class Window_Selectable extends Window_Scrollable {
         }
     }
 
+    /** @returns {boolean} */
     isHoverEnabled() {
         return true;
     }
 
+    /**
+     * @param {boolean} trigger
+     * @returns {void}
+     */
     onTouchSelect(trigger) {
         this._doubleTouch = false;
         if (this.isCursorMovable()) {
@@ -1190,6 +1590,7 @@ class Window_Selectable extends Window_Scrollable {
         }
     }
 
+    /** @returns {void} */
     onTouchOk() {
         if (this.isTouchOkEnabled()) {
             const hitIndex = this.hitIndex();
@@ -1203,18 +1604,25 @@ class Window_Selectable extends Window_Scrollable {
         }
     }
 
+    /** @returns {void} */
     onTouchCancel() {
         if (this.isCancelEnabled()) {
             this.processCancel();
         }
     }
 
+    /** @returns {number} */
     hitIndex() {
         const touchPos = new PIXI.Point(TouchInput.x, TouchInput.y);
         const localPos = this.toLocal(touchPos);
         return this.hitTest(localPos.x, localPos.y);
     }
 
+    /**
+     * @param {number} x
+     * @param {number} y
+     * @returns {number}
+     */
     hitTest(x, y) {
         if (this.innerRect.contains(x, y)) {
             const cx = this.origin.x + x - this.padding;
@@ -1233,6 +1641,7 @@ class Window_Selectable extends Window_Scrollable {
         return -1;
     }
 
+    /** @returns {boolean} */
     isTouchOkEnabled() {
         return (
             this.isOkEnabled() &&
@@ -1240,22 +1649,27 @@ class Window_Selectable extends Window_Scrollable {
         );
     }
 
+    /** @returns {boolean} */
     isOkEnabled() {
         return this.isHandled("ok");
     }
 
+    /** @returns {boolean} */
     isCancelEnabled() {
         return this.isHandled("cancel");
     }
 
+    /** @returns {boolean} */
     isOkTriggered() {
         return this._canRepeat ? Input.isRepeated("ok") : Input.isTriggered("ok");
     }
 
+    /** @returns {boolean} */
     isCancelTriggered() {
         return Input.isRepeated("cancel");
     }
 
+    /** @returns {void} */
     processOk() {
         if (this.isCurrentItemEnabled()) {
             this.playOkSound();
@@ -1267,10 +1681,12 @@ class Window_Selectable extends Window_Scrollable {
         }
     }
 
+    /** @returns {void} */
     callOkHandler() {
         this.callHandler("ok");
     }
 
+    /** @returns {void} */
     processCancel() {
         SoundManager.playCancel();
         this.updateInputData();
@@ -1278,28 +1694,36 @@ class Window_Selectable extends Window_Scrollable {
         this.callCancelHandler();
     }
 
+    /** @returns {void} */
     callCancelHandler() {
         this.callHandler("cancel");
     }
 
+    /** @returns {void} */
     processPageup() {
         this.updateInputData();
         this.deactivate();
         this.callHandler("pageup");
     }
 
+    /** @returns {void} */
     processPagedown() {
         this.updateInputData();
         this.deactivate();
         this.callHandler("pagedown");
     }
 
+    /** @returns {void} */
     updateInputData() {
         Input.update();
         TouchInput.update();
         this.clearScrollStatus();
     }
 
+    /**
+     * @param {boolean} smooth
+     * @returns {void}
+     */
     ensureCursorVisible(smooth) {
         if (this._cursorAll) {
             this.scrollTo(0, 0);
@@ -1324,26 +1748,34 @@ class Window_Selectable extends Window_Scrollable {
         }
     }
 
+    /** @returns {void} */
     callUpdateHelp() {
         if (this.active && this._helpWindow) {
             this.updateHelp();
         }
     }
 
+    /** @returns {void} */
     updateHelp() {
         this._helpWindow.clear();
     }
 
+    /**
+     * @param {RMMZ.DataItemBase | null} item
+     * @returns {void}
+     */
     setHelpWindowItem(item) {
         if (this._helpWindow) {
             this._helpWindow.setItem(item);
         }
     }
 
+    /** @returns {boolean} */
     isCurrentItemEnabled() {
         return true;
     }
 
+    /** @returns {void} */
     drawAllItems() {
         const topIndex = this.topIndex();
         for (let i = 0; i < this.maxVisibleItems(); i++) {
@@ -1355,21 +1787,37 @@ class Window_Selectable extends Window_Scrollable {
         }
     }
 
+    /**
+     * @param {number} index
+     * @returns {void}
+     */
     drawItem(/*index*/) {
         //
     }
 
+    /**
+     * @param {number} index
+     * @returns {void}
+     */
     clearItem(index) {
         const rect = this.itemRect(index);
         this.contents.clearRect(rect.x, rect.y, rect.width, rect.height);
         this.contentsBack.clearRect(rect.x, rect.y, rect.width, rect.height);
     }
 
+    /**
+     * @param {number} index
+     * @returns {void}
+     */
     drawItemBackground(index) {
         const rect = this.itemRect(index);
         this.drawBackgroundRect(rect);
     }
 
+    /**
+     * @param {Rectangle} rect
+     * @returns {void}
+     */
     drawBackgroundRect(rect) {
         const c1 = ColorManager.itemBackColor1();
         const c2 = ColorManager.itemBackColor2();
@@ -1381,6 +1829,10 @@ class Window_Selectable extends Window_Scrollable {
         this.contentsBack.strokeRect(x, y, w, h, c1);
     }
 
+    /**
+     * @param {number} index
+     * @returns {void}
+     */
     redrawItem(index) {
         if (index >= 0) {
             this.clearItem(index);
@@ -1389,14 +1841,17 @@ class Window_Selectable extends Window_Scrollable {
         }
     }
 
+    /** @returns {void} */
     redrawCurrentItem() {
         this.redrawItem(this.index());
     }
 
+    /** @returns {void} */
     refresh() {
         this.paint();
     }
 
+    /** @returns {void} */
     paint() {
         if (this.contents) {
             this.contents.clear();
@@ -1405,6 +1860,7 @@ class Window_Selectable extends Window_Scrollable {
         }
     }
 
+    /** @returns {void} */
     refreshCursor() {
         if (this._cursorAll) {
             this.refreshCursorForAll();
@@ -1416,6 +1872,7 @@ class Window_Selectable extends Window_Scrollable {
         }
     }
 
+    /** @returns {void} */
     refreshCursorForAll() {
         const maxItems = this.maxItems();
         if (maxItems > 0) {
@@ -1432,10 +1889,12 @@ class Window_Selectable extends Window_Scrollable {
  * The superclass of windows for selecting a command.
  */
 class Window_Command extends Window_Selectable {
+    /** @param {[rect: Rectangle]} args */
     constructor(...args) {
         super(...args);
     }
 
+    /** @param {Rectangle} rect */
     initialize(rect) {
         super.initialize(rect);
         this.refresh();
@@ -1443,57 +1902,91 @@ class Window_Command extends Window_Selectable {
         this.activate();
     }
 
+    /** @returns {number} */
     maxItems() {
         return this._list.length;
     }
 
+    /** @returns {void} */
     clearCommandList() {
         this._list = [];
     }
 
+    /** @returns {void} */
     makeCommandList() {
         //
     }
 
     // prettier-ignore
+    /**
+     * @param {string} name
+     * @param {string} symbol
+     * @param {boolean} [enabled]
+     * @param {number | null} [ext]
+     * @returns {void}
+     */
     addCommand(
         name, symbol, enabled = true, ext = null
     ) {
         this._list.push({ name: name, symbol: symbol, enabled: enabled, ext: ext });
     }
 
+    /**
+     * @param {number} index
+     * @returns {string}
+     */
     commandName(index) {
         return this._list[index].name;
     }
 
+    /**
+     * @param {number} index
+     * @returns {string}
+     */
     commandSymbol(index) {
         return this._list[index].symbol;
     }
 
+    /**
+     * @param {number} index
+     * @returns {boolean}
+     */
     isCommandEnabled(index) {
         return this._list[index].enabled;
     }
 
+    /** @returns {{ name: string; symbol: string; enabled: boolean; ext: number | null; } | null} */
     currentData() {
         return this.index() >= 0 ? this._list[this.index()] : null;
     }
 
+    /** @returns {boolean} */
     isCurrentItemEnabled() {
         return this.currentData() ? this.currentData().enabled : false;
     }
 
+    /** @returns {string | null} */
     currentSymbol() {
         return this.currentData() ? this.currentData().symbol : null;
     }
 
+    /** @returns {number | null} */
     currentExt() {
         return this.currentData() ? this.currentData().ext : null;
     }
 
+    /**
+     * @param {string | null} symbol
+     * @returns {number}
+     */
     findSymbol(symbol) {
         return this._list.findIndex(item => item.symbol === symbol);
     }
 
+    /**
+     * @param {string | null} symbol
+     * @returns {void}
+     */
     selectSymbol(symbol) {
         const index = this.findSymbol(symbol);
         if (index >= 0) {
@@ -1503,10 +1996,18 @@ class Window_Command extends Window_Selectable {
         }
     }
 
+    /**
+     * @param {number} ext
+     * @returns {number}
+     */
     findExt(ext) {
         return this._list.findIndex(item => item.ext === ext);
     }
 
+    /**
+     * @param {number} ext
+     * @returns {void}
+     */
     selectExt(ext) {
         const index = this.findExt(ext);
         if (index >= 0) {
@@ -1516,6 +2017,10 @@ class Window_Command extends Window_Selectable {
         }
     }
 
+    /**
+     * @param {number} index
+     * @returns {void}
+     */
     drawItem(index) {
         const rect = this.itemLineRect(index);
         const align = this.itemTextAlign();
@@ -1524,14 +2029,17 @@ class Window_Command extends Window_Selectable {
         this.drawText(this.commandName(index), rect.x, rect.y, rect.width, align);
     }
 
+    /** @returns {CanvasTextAlign} */
     itemTextAlign() {
         return "center";
     }
 
+    /** @returns {boolean} */
     isOkEnabled() {
         return true;
     }
 
+    /** @returns {void} */
     callOkHandler() {
         const symbol = this.currentSymbol();
         if (this.isHandled(symbol)) {
@@ -1543,6 +2051,7 @@ class Window_Command extends Window_Selectable {
         }
     }
 
+    /** @returns {void} */
     refresh() {
         this.clearCommandList();
         this.makeCommandList();
@@ -1562,10 +2071,12 @@ class Window_HorzCommand extends Window_Command {
         super.initialize(rect);
     }
 
+    /** @returns {number} */
     maxCols() {
         return 4;
     }
 
+    /** @returns {"center"} */
     itemTextAlign() {
         return "center";
     }
@@ -1575,15 +2086,22 @@ class Window_HorzCommand extends Window_Command {
  * The window for displaying the description of the selected item.
  */
 class Window_Help extends Window_Base {
+    /** @param {[rect: Rectangle]} args */
     constructor(...args) {
         super(...args);
     }
 
+    /** @param {Rectangle} rect */
     initialize(rect) {
         super.initialize(rect);
+        /** @type {string} */
         this._text = "";
     }
 
+    /**
+     * @param {string} text
+     * @returns {void}
+     */
     setText(text) {
         if (this._text !== text) {
             this._text = text;
@@ -1591,14 +2109,20 @@ class Window_Help extends Window_Base {
         }
     }
 
+    /** @returns {void} */
     clear() {
         this.setText("");
     }
 
+    /**
+     * @param {RMMZ.DataItemBase | null} item
+     * @returns {void}
+     */
     setItem(item) {
         this.setText(item ? item.description : "");
     }
 
+    /** @returns {void} */
     refresh() {
         const rect = this.baseTextRect();
         this.contents.clear();
@@ -1610,19 +2134,23 @@ class Window_Help extends Window_Base {
  * The window for displaying the party's gold.
  */
 class Window_Gold extends Window_Selectable {
+    /** @param {[rect: Rectangle]} args */
     constructor(...args) {
         super(...args);
     }
 
+    /** @param {Rectangle} rect */
     initialize(rect) {
         super.initialize(rect);
         this.refresh();
     }
 
+    /** @returns {number} */
     colSpacing() {
         return 0;
     }
 
+    /** @returns {void} */
     refresh() {
         const rect = this.itemLineRect(0);
         const x = rect.x;
@@ -1632,14 +2160,17 @@ class Window_Gold extends Window_Selectable {
         this.drawCurrencyValue(this.value(), this.currencyUnit(), x, y, width);
     }
 
+    /** @returns {number} */
     value() {
         return $gameParty.gold();
     }
 
+    /** @returns {string} */
     currencyUnit() {
         return TextManager.currencyUnit;
     }
 
+    /** @returns {void} */
     open() {
         this.refresh();
         super.open();
@@ -1650,33 +2181,45 @@ class Window_Gold extends Window_Selectable {
  * The superclass of windows for displaying actor status.
  */
 class Window_StatusBase extends Window_Selectable {
+    /** @param {[rect: Rectangle]} args */
     constructor(...args) {
         super(...args);
     }
 
+    /** @param {Rectangle} rect */
     initialize(rect) {
         super.initialize(rect);
+        /** @type {Record<string, Sprite>} */
         this._additionalSprites = {};
         this.loadFaceImages();
     }
 
+    /** @returns {void} */
     loadFaceImages() {
         for (const actor of $gameParty.members()) {
             ImageManager.loadFace(actor.faceName());
         }
     }
 
+    /** @returns {void} */
     refresh() {
         this.hideAdditionalSprites();
         super.refresh();
     }
 
+    /** @returns {void} */
     hideAdditionalSprites() {
         for (const sprite of Object.values(this._additionalSprites)) {
             sprite.hide();
         }
     }
 
+    /**
+     * @param {Game_Actor} actor
+     * @param {number} x
+     * @param {number} y
+     * @returns {void}
+     */
     placeActorName(actor, x, y) {
         const key = "actor%1-name".format(actor.actorId());
         const sprite = this.createInnerSprite(key, Sprite_Name);
@@ -1685,6 +2228,12 @@ class Window_StatusBase extends Window_Selectable {
         sprite.show();
     }
 
+    /**
+     * @param {Game_Actor} actor
+     * @param {number} x
+     * @param {number} y
+     * @returns {void}
+     */
     placeStateIcon(actor, x, y) {
         const key = "actor%1-stateIcon".format(actor.actorId());
         const sprite = this.createInnerSprite(key, Sprite_StateIcon);
@@ -1693,6 +2242,13 @@ class Window_StatusBase extends Window_Selectable {
         sprite.show();
     }
 
+    /**
+     * @param {Game_Actor} actor
+     * @param {"time" | "hp" | "mp" | "tp"} type
+     * @param {number} x
+     * @param {number} y
+     * @returns {void}
+     */
     placeGauge(actor, type, x, y) {
         const key = "actor%1-gauge-%2".format(actor.actorId(), type);
         const sprite = this.createInnerSprite(key, Sprite_Gauge);
@@ -1701,6 +2257,12 @@ class Window_StatusBase extends Window_Selectable {
         sprite.show();
     }
 
+    /**
+     * @template {Sprite} T
+     * @param {string} key
+     * @param {new () => T} spriteClass
+     * @returns {T}
+     */
     createInnerSprite(key, spriteClass) {
         const dict = this._additionalSprites;
         if (dict[key]) {
@@ -1713,12 +2275,24 @@ class Window_StatusBase extends Window_Selectable {
         }
     }
 
+    /**
+     * @param {Game_Actor} actor
+     * @param {number} x
+     * @param {number} y
+     * @returns {void}
+     */
     placeTimeGauge(actor, x, y) {
         if (BattleManager.isTpb()) {
             this.placeGauge(actor, "time", x, y);
         }
     }
 
+    /**
+     * @param {Game_Actor} actor
+     * @param {number} x
+     * @param {number} y
+     * @returns {void}
+     */
     placeBasicGauges(actor, x, y) {
         this.placeGauge(actor, "hp", x, y);
         this.placeGauge(actor, "mp", x, y + this.gaugeLineHeight());
@@ -1727,39 +2301,81 @@ class Window_StatusBase extends Window_Selectable {
         }
     }
 
+    /** @returns {number} */
     gaugeLineHeight() {
         return 24;
     }
 
+    /**
+     * @param {Game_Actor} actor
+     * @param {number} x
+     * @param {number} y
+     * @returns {void}
+     */
     drawActorCharacter(actor, x, y) {
         this.drawCharacter(actor.characterName(), actor.characterIndex(), x, y);
     }
 
     // prettier-ignore
+    /**
+     * @param {Game_Actor} actor
+     * @param {number} x
+     * @param {number} y
+     * @param {number} [width]
+     * @param {number} [height]
+     * @returns {void}
+     */
     drawActorFace(
         actor, x, y, width, height
     ) {
         this.drawFace(actor.faceName(), actor.faceIndex(), x, y, width, height);
     }
 
+    /**
+     * @param {Game_Actor} actor
+     * @param {number} x
+     * @param {number} y
+     * @param {number} [width]
+     * @returns {void}
+     */
     drawActorName(actor, x, y, width) {
         width = width || 168;
         this.changeTextColor(ColorManager.hpColor(actor));
         this.drawText(actor.name(), x, y, width);
     }
 
+    /**
+     * @param {Game_Actor} actor
+     * @param {number} x
+     * @param {number} y
+     * @param {number} [width]
+     * @returns {void}
+     */
     drawActorClass(actor, x, y, width) {
         width = width || 168;
         this.resetTextColor();
         this.drawText(actor.currentClass().name, x, y, width);
     }
 
+    /**
+     * @param {Game_Actor} actor
+     * @param {number} x
+     * @param {number} y
+     * @param {number} [width]
+     * @returns {void}
+     */
     drawActorNickname(actor, x, y, width) {
         width = width || 270;
         this.resetTextColor();
         this.drawText(actor.nickname(), x, y, width);
     }
 
+    /**
+     * @param {Game_Actor} actor
+     * @param {number} x
+     * @param {number} y
+     * @returns {void}
+     */
     drawActorLevel(actor, x, y) {
         this.changeTextColor(ColorManager.systemColor());
         this.drawText(TextManager.levelA, x, y, 48);
@@ -1767,6 +2383,13 @@ class Window_StatusBase extends Window_Selectable {
         this.drawText(actor.level, x + 84, y, 36, "right");
     }
 
+    /**
+     * @param {Game_Actor} actor
+     * @param {number} x
+     * @param {number} y
+     * @param {number} [width]
+     * @returns {void}
+     */
     drawActorIcons(actor, x, y, width) {
         width = width || 144;
         const delta = ImageManager.standardIconWidth - ImageManager.iconWidth;
@@ -1779,6 +2402,12 @@ class Window_StatusBase extends Window_Selectable {
         }
     }
 
+    /**
+     * @param {Game_Actor} actor
+     * @param {number} x
+     * @param {number} y
+     * @returns {void}
+     */
     drawActorSimpleStatus(actor, x, y) {
         const lineHeight = this.lineHeight();
         const x2 = x + 180;
@@ -1789,6 +2418,11 @@ class Window_StatusBase extends Window_Selectable {
         this.placeBasicGauges(actor, x2, y + lineHeight);
     }
 
+    /**
+     * @param {Game_Actor} actor
+     * @param {number} index
+     * @returns {string}
+     */
     actorSlotName(actor, index) {
         const slots = actor.equipSlots();
         return $dataSystem.equipTypes[slots[index]];
@@ -1799,22 +2433,28 @@ class Window_StatusBase extends Window_Selectable {
  * The window for selecting a command on the menu screen.
  */
 class Window_MenuCommand extends Window_Command {
+    /** @param {[rect: Rectangle]} args */
     constructor(...args) {
         super(...args);
     }
 
+    /** @param {Rectangle} rect */
     initialize(rect) {
         super.initialize(rect);
         this.selectLast();
+        /** @type {boolean} */
         this._canRepeat = false;
     }
 
+    /** @type {string | null} */
     static _lastCommandSymbol = null;
 
+    /** @returns {void} */
     static initCommandPosition() {
         this._lastCommandSymbol = null;
     }
 
+    /** @returns {void} */
     makeCommandList() {
         this.addMainCommands();
         this.addFormationCommand();
@@ -1824,6 +2464,7 @@ class Window_MenuCommand extends Window_Command {
         this.addGameEndCommand();
     }
 
+    /** @returns {void} */
     addMainCommands() {
         const enabled = this.areMainCommandsEnabled();
         if (this.needsCommand("item")) {
@@ -1840,6 +2481,7 @@ class Window_MenuCommand extends Window_Command {
         }
     }
 
+    /** @returns {void} */
     addFormationCommand() {
         if (this.needsCommand("formation")) {
             const enabled = this.isFormationEnabled();
@@ -1847,10 +2489,12 @@ class Window_MenuCommand extends Window_Command {
         }
     }
 
+    /** @returns {void} */
     addOriginalCommands() {
         //
     }
 
+    /** @returns {void} */
     addOptionsCommand() {
         if (this.needsCommand("options")) {
             const enabled = this.isOptionsEnabled();
@@ -1858,6 +2502,7 @@ class Window_MenuCommand extends Window_Command {
         }
     }
 
+    /** @returns {void} */
     addSaveCommand() {
         if (this.needsCommand("save")) {
             const enabled = this.isSaveEnabled();
@@ -1865,11 +2510,16 @@ class Window_MenuCommand extends Window_Command {
         }
     }
 
+    /** @returns {void} */
     addGameEndCommand() {
         const enabled = this.isGameEndEnabled();
         this.addCommand(TextManager.gameEnd, "gameEnd", enabled);
     }
 
+    /**
+     * @param {string} name
+     * @returns {boolean}
+     */
     needsCommand(name) {
         const table = ["item", "skill", "equip", "status", "formation", "save"];
         const index = table.indexOf(name);
@@ -1879,31 +2529,38 @@ class Window_MenuCommand extends Window_Command {
         return true;
     }
 
+    /** @returns {boolean} */
     areMainCommandsEnabled() {
         return $gameParty.exists();
     }
 
+    /** @returns {boolean} */
     isFormationEnabled() {
         return $gameParty.size() >= 2 && $gameSystem.isFormationEnabled();
     }
 
+    /** @returns {boolean} */
     isOptionsEnabled() {
         return true;
     }
 
+    /** @returns {boolean} */
     isSaveEnabled() {
         return !DataManager.isEventTest() && $gameSystem.isSaveEnabled();
     }
 
+    /** @returns {boolean} */
     isGameEndEnabled() {
         return true;
     }
 
+    /** @returns {void} */
     processOk() {
         Window_MenuCommand._lastCommandSymbol = this.currentSymbol();
         super.processOk();
     }
 
+    /** @returns {void} */
     selectLast() {
         this.selectSymbol(Window_MenuCommand._lastCommandSymbol);
     }
@@ -1913,39 +2570,58 @@ class Window_MenuCommand extends Window_Command {
  * The window for displaying party member status on the menu screen.
  */
 class Window_MenuStatus extends Window_StatusBase {
+    /** @param {[rect: Rectangle]} args */
     constructor(...args) {
         super(...args);
     }
 
+    /** @param {Rectangle} rect */
     initialize(rect) {
         super.initialize(rect);
+        /** @type {boolean} */
         this._formationMode = false;
+        /** @type {number} */
         this._pendingIndex = -1;
         this.refresh();
     }
 
+    /** @returns {number} */
     maxItems() {
         return $gameParty.size();
     }
 
+    /** @returns {number} */
     numVisibleRows() {
         return 4;
     }
 
+    /** @returns {number} */
     itemHeight() {
         return Math.floor(this.innerHeight / this.numVisibleRows());
     }
 
+    /**
+     * @param {number} index
+     * @returns {import("..").Game_Actor}
+     */
     actor(index) {
         return $gameParty.members()[index];
     }
 
+    /**
+     * @param {number} index
+     * @returns {void}
+     */
     drawItem(index) {
         this.drawPendingItemBackground(index);
         this.drawItemImage(index);
         this.drawItemStatus(index);
     }
 
+    /**
+     * @param {number} index
+     * @returns {void}
+     */
     drawPendingItemBackground(index) {
         if (index === this._pendingIndex) {
             const rect = this.itemRect(index);
@@ -1956,6 +2632,10 @@ class Window_MenuStatus extends Window_StatusBase {
         }
     }
 
+    /**
+     * @param {number} index
+     * @returns {void}
+     */
     drawItemImage(index) {
         const actor = this.actor(index);
         const rect = this.itemRect(index);
@@ -1966,6 +2646,10 @@ class Window_MenuStatus extends Window_StatusBase {
         this.changePaintOpacity(true);
     }
 
+    /**
+     * @param {number} index
+     * @returns {void}
+     */
     drawItemStatus(index) {
         const actor = this.actor(index);
         const rect = this.itemRect(index);
@@ -1974,12 +2658,14 @@ class Window_MenuStatus extends Window_StatusBase {
         this.drawActorSimpleStatus(actor, x, y);
     }
 
+    /** @returns {void} */
     processOk() {
         super.processOk();
         const actor = this.actor(this.index());
         $gameParty.setMenuActor(actor);
     }
 
+    /** @returns {boolean} */
     isCurrentItemEnabled() {
         if (this._formationMode) {
             const actor = this.actor(this.index());
@@ -1989,22 +2675,33 @@ class Window_MenuStatus extends Window_StatusBase {
         }
     }
 
+    /** @returns {void} */
     selectLast() {
         this.smoothSelect($gameParty.menuActor().index() || 0);
     }
 
+    /** @returns {boolean} */
     formationMode() {
         return this._formationMode;
     }
 
+    /**
+     * @param {boolean} formationMode
+     * @returns {void}
+     */
     setFormationMode(formationMode) {
         this._formationMode = formationMode;
     }
 
+    /** @returns {number} */
     pendingIndex() {
         return this._pendingIndex;
     }
 
+    /**
+     * @param {number} index
+     * @returns {void}
+     */
     setPendingIndex(index) {
         const lastPendingIndex = this._pendingIndex;
         this._pendingIndex = index;
@@ -2017,15 +2714,18 @@ class Window_MenuStatus extends Window_StatusBase {
  * The window for selecting a target actor on the item and skill screens.
  */
 class Window_MenuActor extends Window_MenuStatus {
+    /** @param {[rect: Rectangle]} args */
     constructor(...args) {
         super(...args);
     }
 
+    /** @param {Rectangle} rect */
     initialize(rect) {
         super.initialize(rect);
         this.hide();
     }
 
+    /** @returns {void} */
     processOk() {
         if (!this.cursorAll()) {
             $gameParty.setTargetActor($gameParty.members()[this.index()]);
@@ -2033,10 +2733,15 @@ class Window_MenuActor extends Window_MenuStatus {
         this.callOkHandler();
     }
 
+    /** @returns {void} */
     selectLast() {
         this.forceSelect($gameParty.targetActor().index() || 0);
     }
 
+    /**
+     * @param {RMMZ.ActionItem} item
+     * @returns {void}
+     */
     selectForItem(item) {
         const actor = $gameParty.menuActor();
         const action = new Game_Action(actor);
@@ -2071,10 +2776,12 @@ class Window_ItemCategory extends Window_HorzCommand {
         super.initialize(rect);
     }
 
+    /** @returns {number} */
     maxCols() {
         return 4;
     }
 
+    /** @returns {void} */
     update() {
         super.update();
         if (this._itemWindow) {
@@ -2082,6 +2789,7 @@ class Window_ItemCategory extends Window_HorzCommand {
         }
     }
 
+    /** @returns {void} */
     makeCommandList() {
         if (this.needsCommand("item")) {
             this.addCommand(TextManager.item, "item");
@@ -2097,6 +2805,10 @@ class Window_ItemCategory extends Window_HorzCommand {
         }
     }
 
+    /**
+     * @param {string} name
+     * @returns {boolean}
+     */
     needsCommand(name) {
         const table = ["item", "weapon", "armor", "keyItem"];
         const index = table.indexOf(name);
@@ -2106,10 +2818,15 @@ class Window_ItemCategory extends Window_HorzCommand {
         return true;
     }
 
+    /**
+     * @param {Window_ItemList} itemWindow
+     * @returns {void}
+     */
     setItemWindow(itemWindow) {
         this._itemWindow = itemWindow;
     }
 
+    /** @returns {boolean} */
     needsSelection() {
         return this.maxItems() >= 2;
     }
@@ -2125,10 +2842,16 @@ class Window_ItemList extends Window_Selectable {
 
     initialize(rect) {
         super.initialize(rect);
+        /** @type {string | null} */
         this._category = "none";
+        /** @type {(RMMZ.DataItemBase | null)[]} */
         this._data = [];
     }
 
+    /**
+     * @param {string | null} category
+     * @returns {void}
+     */
     setCategory(category) {
         if (this._category !== category) {
             this._category = category;
@@ -2137,30 +2860,43 @@ class Window_ItemList extends Window_Selectable {
         }
     }
 
+    /** @returns {number} */
     maxCols() {
         return 2;
     }
 
+    /** @returns {number} */
     colSpacing() {
         return 16;
     }
 
+    /** @returns {number} */
     maxItems() {
         return this._data ? this._data.length : 1;
     }
 
+    /** @returns {RMMZ.DataItemBase | null} */
     item() {
         return this.itemAt(this.index());
     }
 
+    /**
+     * @param {number} index
+     * @returns {RMMZ.DataItemBase | null}
+     */
     itemAt(index) {
         return this._data && index >= 0 ? this._data[index] : null;
     }
 
+    /** @returns {boolean} */
     isCurrentItemEnabled() {
         return this.isEnabled(this.item());
     }
 
+    /**
+     * @param {RMMZ.DataItemBase | null} item
+     * @returns {boolean}
+     */
     includes(item) {
         switch (this._category) {
             case "item":
@@ -2176,6 +2912,7 @@ class Window_ItemList extends Window_Selectable {
         }
     }
 
+    /** @returns {boolean} */
     needsNumber() {
         if (this._category === "keyItem") {
             return $dataSystem.optKeyItemsNumber;
@@ -2184,10 +2921,15 @@ class Window_ItemList extends Window_Selectable {
         }
     }
 
+    /**
+     * @param {RMMZ.DataItemBase | null} item
+     * @returns {boolean}
+     */
     isEnabled(item) {
         return $gameParty.canUse(item);
     }
 
+    /** @returns {void} */
     makeItemList() {
         this._data = $gameParty.allItems().filter(item => this.includes(item));
         if (this.includes(null)) {
@@ -2195,11 +2937,16 @@ class Window_ItemList extends Window_Selectable {
         }
     }
 
+    /** @returns {void} */
     selectLast() {
         const index = this._data.indexOf($gameParty.lastItem());
         this.forceSelect(index >= 0 ? index : 0);
     }
 
+    /**
+     * @param {number} index
+     * @returns {void}
+     */
     drawItem(index) {
         const item = this.itemAt(index);
         if (item) {
@@ -2212,10 +2959,18 @@ class Window_ItemList extends Window_Selectable {
         }
     }
 
+    /** @returns {number} */
     numberWidth() {
         return this.textWidth("000");
     }
 
+    /**
+     * @param {RMMZ.DataItemBase} item
+     * @param {number} x
+     * @param {number} y
+     * @param {number} width
+     * @returns {void}
+     */
     drawItemNumber(item, x, y, width) {
         if (this.needsNumber()) {
             this.drawText(":", x, y, width - this.textWidth("00"), "right");
@@ -2223,10 +2978,12 @@ class Window_ItemList extends Window_Selectable {
         }
     }
 
+    /** @returns {void} */
     updateHelp() {
         this.setHelpWindowItem(this.item());
     }
 
+    /** @returns {void} */
     refresh() {
         this.makeItemList();
         super.refresh();
@@ -2243,9 +3000,14 @@ class Window_SkillType extends Window_Command {
 
     initialize(rect) {
         super.initialize(rect);
+        /** @type {Game_Actor | null} */
         this._actor = null;
     }
 
+    /**
+     * @param {Game_Actor} actor
+     * @returns {void}
+     */
     setActor(actor) {
         if (this._actor !== actor) {
             this._actor = actor;
@@ -2254,6 +3016,7 @@ class Window_SkillType extends Window_Command {
         }
     }
 
+    /** @returns {void} */
     makeCommandList() {
         if (this._actor) {
             const skillTypes = this._actor.skillTypes();
@@ -2264,6 +3027,7 @@ class Window_SkillType extends Window_Command {
         }
     }
 
+    /** @returns {void} */
     update() {
         super.update();
         if (this._skillWindow) {
@@ -2271,10 +3035,15 @@ class Window_SkillType extends Window_Command {
         }
     }
 
+    /**
+     * @param {Window_SkillList} skillWindow
+     * @returns {void}
+     */
     setSkillWindow(skillWindow) {
         this._skillWindow = skillWindow;
     }
 
+    /** @returns {void} */
     selectLast() {
         const skill = this._actor.lastMenuSkill();
         if (skill) {
@@ -2295,9 +3064,14 @@ class Window_SkillStatus extends Window_StatusBase {
 
     initialize(rect) {
         super.initialize(rect);
+        /** @type {Game_Actor | null} */
         this._actor = null;
     }
 
+    /**
+     * @param {Game_Actor} actor
+     * @returns {void}
+     */
     setActor(actor) {
         if (this._actor !== actor) {
             this._actor = actor;
@@ -2305,6 +3079,7 @@ class Window_SkillStatus extends Window_StatusBase {
         }
     }
 
+    /** @returns {void} */
     refresh() {
         super.refresh();
         if (this._actor) {
@@ -2327,11 +3102,18 @@ class Window_SkillList extends Window_Selectable {
 
     initialize(rect) {
         super.initialize(rect);
+        /** @type {Game_Actor | null} */
         this._actor = null;
+        /** @type {RMMZ.SkillType} */
         this._stypeId = 0;
+        /** @type {RMMZ.DataSkill[]} */
         this._data = [];
     }
 
+    /**
+     * @param {Game_Actor} actor
+     * @returns {void}
+     */
     setActor(actor) {
         if (this._actor !== actor) {
             this._actor = actor;
@@ -2340,6 +3122,10 @@ class Window_SkillList extends Window_Selectable {
         }
     }
 
+    /**
+     * @param {RMMZ.SkillType} stypeId
+     * @returns {void}
+     */
     setStypeId(stypeId) {
         if (this._stypeId !== stypeId) {
             this._stypeId = stypeId;
@@ -2348,38 +3134,56 @@ class Window_SkillList extends Window_Selectable {
         }
     }
 
+    /** @returns {number} */
     maxCols() {
         return 2;
     }
 
+    /** @returns {number} */
     colSpacing() {
         return 16;
     }
 
+    /** @returns {number} */
     maxItems() {
         return this._data ? this._data.length : 1;
     }
 
+    /** @returns {RMMZ.DataSkill | null} */
     item() {
         return this.itemAt(this.index());
     }
 
+    /**
+     * @param {number} index
+     * @returns {RMMZ.DataSkill | null}
+     */
     itemAt(index) {
         return this._data && index >= 0 ? this._data[index] : null;
     }
 
+    /** @returns {boolean} */
     isCurrentItemEnabled() {
         return this.isEnabled(this._data[this.index()]);
     }
 
+    /**
+     * @param {RMMZ.DataSkill} item
+     * @returns {boolean}
+     */
     includes(item) {
         return item && item.stypeId === this._stypeId;
     }
 
+    /**
+     * @param {RMMZ.DataSkill} item
+     * @returns {boolean}
+     */
     isEnabled(item) {
         return this._actor && this._actor.canUse(item);
     }
 
+    /** @returns {void} */
     makeItemList() {
         if (this._actor) {
             this._data = this._actor.skills().filter(item => this.includes(item));
@@ -2388,11 +3192,16 @@ class Window_SkillList extends Window_Selectable {
         }
     }
 
+    /** @returns {void} */
     selectLast() {
         const index = this._data.indexOf(this._actor.lastSkill());
         this.forceSelect(index >= 0 ? index : 0);
     }
 
+    /**
+     * @param {number} index
+     * @returns {void}
+     */
     drawItem(index) {
         const skill = this.itemAt(index);
         if (skill) {
@@ -2405,10 +3214,18 @@ class Window_SkillList extends Window_Selectable {
         }
     }
 
+    /** @returns {number} */
     costWidth() {
         return this.textWidth("000");
     }
 
+    /**
+     * @param {RMMZ.DataSkill} skill
+     * @param {number} x
+     * @param {number} y
+     * @param {number} width
+     * @returns {void}
+     */
     drawSkillCost(skill, x, y, width) {
         if (this._actor.skillTpCost(skill) > 0) {
             this.changeTextColor(ColorManager.tpCostColor());
@@ -2419,10 +3236,12 @@ class Window_SkillList extends Window_Selectable {
         }
     }
 
+    /** @returns {void} */
     updateHelp() {
         this.setHelpWindowItem(this.item());
     }
 
+    /** @returns {void} */
     refresh() {
         this.makeItemList();
         super.refresh();
@@ -2433,17 +3252,25 @@ class Window_SkillList extends Window_Selectable {
  * The window for displaying parameter changes on the equipment screen.
  */
 class Window_EquipStatus extends Window_StatusBase {
+    /** @param {[rect: Rectangle]} args */
     constructor(...args) {
         super(...args);
     }
 
+    /** @param {Rectangle} rect */
     initialize(rect) {
         super.initialize(rect);
+        /** @type {Game_Actor | null} */
         this._actor = null;
+        /** @type {Game_Actor | null} */
         this._tempActor = null;
         this.refresh();
     }
 
+    /**
+     * @param {Game_Actor} actor
+     * @returns {void}
+     */
     setActor(actor) {
         if (this._actor !== actor) {
             this._actor = actor;
@@ -2451,10 +3278,12 @@ class Window_EquipStatus extends Window_StatusBase {
         }
     }
 
+    /** @returns {number} */
     colSpacing() {
         return 0;
     }
 
+    /** @returns {void} */
     refresh() {
         this.contents.clear();
         if (this._actor) {
@@ -2465,6 +3294,10 @@ class Window_EquipStatus extends Window_StatusBase {
         }
     }
 
+    /**
+     * @param {Game_Actor | null} tempActor
+     * @returns {void}
+     */
     setTempActor(tempActor) {
         if (this._tempActor !== tempActor) {
             this._tempActor = tempActor;
@@ -2472,6 +3305,7 @@ class Window_EquipStatus extends Window_StatusBase {
         }
     }
 
+    /** @returns {void} */
     drawAllParams() {
         for (let i = 0; i < 6; i++) {
             const x = this.itemPadding();
@@ -2480,6 +3314,12 @@ class Window_EquipStatus extends Window_StatusBase {
         }
     }
 
+    /**
+     * @param {number} x
+     * @param {number} y
+     * @param {RMMZ.ParamID} paramId
+     * @returns {void}
+     */
     drawItem(x, y, paramId) {
         const paramX = this.paramX();
         const paramWidth = this.paramWidth();
@@ -2494,24 +3334,47 @@ class Window_EquipStatus extends Window_StatusBase {
         }
     }
 
+    /**
+     * @param {number} x
+     * @param {number} y
+     * @param {RMMZ.ParamID} paramId
+     * @returns {void}
+     */
     drawParamName(x, y, paramId) {
         const width = this.paramX() - this.itemPadding() * 2;
         this.changeTextColor(ColorManager.systemColor());
         this.drawText(TextManager.param(paramId), x, y, width);
     }
 
+    /**
+     * @param {number} x
+     * @param {number} y
+     * @param {RMMZ.ParamID} paramId
+     * @returns {void}
+     */
     drawCurrentParam(x, y, paramId) {
         const paramWidth = this.paramWidth();
         this.resetTextColor();
         this.drawText(this._actor.param(paramId), x, y, paramWidth, "right");
     }
 
+    /**
+     * @param {number} x
+     * @param {number} y
+     * @returns {void}
+     */
     drawRightArrow(x, y) {
         const rightArrowWidth = this.rightArrowWidth();
         this.changeTextColor(ColorManager.systemColor());
         this.drawText("\u2192", x, y, rightArrowWidth, "center");
     }
 
+    /**
+     * @param {number} x
+     * @param {number} y
+     * @param {RMMZ.ParamID} paramId
+     * @returns {void}
+     */
     drawNewParam(x, y, paramId) {
         const paramWidth = this.paramWidth();
         const newValue = this._tempActor.param(paramId);
@@ -2520,14 +3383,17 @@ class Window_EquipStatus extends Window_StatusBase {
         this.drawText(newValue, x, y, paramWidth, "right");
     }
 
+    /** @returns {number} */
     rightArrowWidth() {
         return 32;
     }
 
+    /** @returns {number} */
     paramWidth() {
         return 48;
     }
 
+    /** @returns {number} */
     paramX() {
         const itemPadding = this.itemPadding();
         const rightArrowWidth = this.rightArrowWidth();
@@ -2535,6 +3401,10 @@ class Window_EquipStatus extends Window_StatusBase {
         return this.innerWidth - itemPadding - paramWidth * 2 - rightArrowWidth;
     }
 
+    /**
+     * @param {number} index
+     * @returns {number}
+     */
     paramY(index) {
         const faceHeight = ImageManager.standardFaceHeight;
         return faceHeight + Math.floor(this.lineHeight() * (index + 1.5));
@@ -2553,10 +3423,12 @@ class Window_EquipCommand extends Window_HorzCommand {
         super.initialize(rect);
     }
 
+    /** @returns {number} */
     maxCols() {
         return 3;
     }
 
+    /** @returns {void} */
     makeCommandList() {
         this.addCommand(TextManager.equip2, "equip");
         this.addCommand(TextManager.optimize, "optimize");
@@ -2568,16 +3440,23 @@ class Window_EquipCommand extends Window_HorzCommand {
  * The window for selecting an equipment slot on the equipment screen.
  */
 class Window_EquipSlot extends Window_StatusBase {
+    /** @param {[rect: Rectangle]} args */
     constructor(...args) {
         super(...args);
     }
 
+    /** @param {Rectangle} rect */
     initialize(rect) {
         super.initialize(rect);
+        /** @type {Game_Actor | null} */
         this._actor = null;
         this.refresh();
     }
 
+    /**
+     * @param {Game_Actor} actor
+     * @returns {void}
+     */
     setActor(actor) {
         if (this._actor !== actor) {
             this._actor = actor;
@@ -2585,6 +3464,7 @@ class Window_EquipSlot extends Window_StatusBase {
         }
     }
 
+    /** @returns {void} */
     update() {
         super.update();
         if (this._itemWindow) {
@@ -2592,18 +3472,28 @@ class Window_EquipSlot extends Window_StatusBase {
         }
     }
 
+    /** @returns {number} */
     maxItems() {
         return this._actor ? this._actor.equipSlots().length : 0;
     }
 
+    /** @returns {import("..").DataEquipment | null} */
     item() {
         return this.itemAt(this.index());
     }
 
+    /**
+     * @param {number} index
+     * @returns {import("..").DataEquipment | null}
+     */
     itemAt(index) {
         return this._actor ? this._actor.equips()[index] : null;
     }
 
+    /**
+     * @param {number} index
+     * @returns {void}
+     */
     drawItem(index) {
         if (this._actor) {
             const slotName = this.actorSlotName(this._actor, index);
@@ -2619,27 +3509,42 @@ class Window_EquipSlot extends Window_StatusBase {
         }
     }
 
+    /** @returns {number} */
     slotNameWidth() {
         return 138;
     }
 
+    /**
+     * @param {number} index
+     * @returns {boolean}
+     */
     isEnabled(index) {
         return this._actor ? this._actor.isEquipChangeOk(index) : false;
     }
 
+    /** @returns {boolean} */
     isCurrentItemEnabled() {
         return this.isEnabled(this.index());
     }
 
+    /**
+     * @param {Window_EquipStatus} statusWindow
+     * @returns {void}
+     */
     setStatusWindow(statusWindow) {
         this._statusWindow = statusWindow;
         this.callUpdateHelp();
     }
 
+    /**
+     * @param {Window_EquipItem} itemWindow
+     * @returns {void}
+     */
     setItemWindow(itemWindow) {
         this._itemWindow = itemWindow;
     }
 
+    /** @returns {void} */
     updateHelp() {
         super.updateHelp();
         this.setHelpWindowItem(this.item());
@@ -2659,18 +3564,26 @@ class Window_EquipItem extends Window_ItemList {
 
     initialize(rect) {
         super.initialize(rect);
+        /** @type {Game_Actor | null} */
         this._actor = null;
+        /** @type {RMMZ.EquipmentSlotID} */
         this._slotId = 0;
     }
 
+    /** @returns {number} */
     maxCols() {
         return 1;
     }
 
+    /** @returns {number} */
     colSpacing() {
         return 8;
     }
 
+    /**
+     * @param {Game_Actor} actor
+     * @returns {void}
+     */
     setActor(actor) {
         if (this._actor !== actor) {
             this._actor = actor;
@@ -2679,6 +3592,10 @@ class Window_EquipItem extends Window_ItemList {
         }
     }
 
+    /**
+     * @param {RMMZ.EquipmentSlotID} slotId
+     * @returns {void}
+     */
     setSlotId(slotId) {
         if (this._slotId !== slotId) {
             this._slotId = slotId;
@@ -2687,6 +3604,10 @@ class Window_EquipItem extends Window_ItemList {
         }
     }
 
+    /**
+     * @param {RMMZ.DataItemBase | null} item
+     * @returns {boolean}
+     */
     includes(item) {
         if (item === null) {
             return true;
@@ -2698,6 +3619,7 @@ class Window_EquipItem extends Window_ItemList {
         );
     }
 
+    /** @returns {number} */
     etypeId() {
         if (this._actor && this._slotId >= 0) {
             return this._actor.equipSlots()[this._slotId];
@@ -2706,19 +3628,26 @@ class Window_EquipItem extends Window_ItemList {
         }
     }
 
+    /** @returns {boolean} */
     isEnabled(/*item*/) {
         return true;
     }
 
+    /** @returns {void} */
     selectLast() {
         //
     }
 
+    /**
+     * @param {Window_EquipStatus} statusWindow
+     * @returns {void}
+     */
     setStatusWindow(statusWindow) {
         this._statusWindow = statusWindow;
         this.callUpdateHelp();
     }
 
+    /** @returns {void} */
     updateHelp() {
         super.updateHelp();
         if (this._actor && this._statusWindow && this._slotId >= 0) {
@@ -2728,6 +3657,7 @@ class Window_EquipItem extends Window_ItemList {
         }
     }
 
+    /** @returns {void} */
     playOkSound() {
         //
     }
@@ -2737,17 +3667,24 @@ class Window_EquipItem extends Window_ItemList {
  * The window for displaying full status on the status screen.
  */
 class Window_Status extends Window_StatusBase {
+    /** @param {[rect: Rectangle]} args */
     constructor(...args) {
         super(...args);
     }
 
+    /** @param {Rectangle} rect */
     initialize(rect) {
         super.initialize(rect);
+        /** @type {Game_Actor | null} */
         this._actor = null;
         this.refresh();
         this.activate();
     }
 
+    /**
+     * @param {Game_Actor} actor
+     * @returns {void}
+     */
     setActor(actor) {
         if (this._actor !== actor) {
             this._actor = actor;
@@ -2755,6 +3692,7 @@ class Window_Status extends Window_StatusBase {
         }
     }
 
+    /** @returns {void} */
     refresh() {
         super.refresh();
         if (this._actor) {
@@ -2763,6 +3701,7 @@ class Window_Status extends Window_StatusBase {
         }
     }
 
+    /** @returns {void} */
     drawBlock1() {
         const y = this.block1Y();
         this.drawActorName(this._actor, 6, y, 168);
@@ -2770,10 +3709,12 @@ class Window_Status extends Window_StatusBase {
         this.drawActorNickname(this._actor, 432, y, 270);
     }
 
+    /** @returns {number} */
     block1Y() {
         return 0;
     }
 
+    /** @returns {void} */
     drawBlock2() {
         const y = this.block2Y();
         this.drawActorFace(this._actor, 12, y);
@@ -2781,6 +3722,7 @@ class Window_Status extends Window_StatusBase {
         this.drawExpInfo(456, y);
     }
 
+    /** @returns {number} */
     block2Y() {
         const lineHeight = this.lineHeight();
         const min = lineHeight;
@@ -2788,6 +3730,11 @@ class Window_Status extends Window_StatusBase {
         return Math.floor((lineHeight * 1.4).clamp(min, max));
     }
 
+    /**
+     * @param {number} x
+     * @param {number} y
+     * @returns {void}
+     */
     drawBasicInfo(x, y) {
         const lineHeight = this.lineHeight();
         this.drawActorLevel(this._actor, x, y + lineHeight * 0);
@@ -2795,6 +3742,11 @@ class Window_Status extends Window_StatusBase {
         this.placeBasicGauges(this._actor, x, y + lineHeight * 2);
     }
 
+    /**
+     * @param {number} x
+     * @param {number} y
+     * @returns {void}
+     */
     drawExpInfo(x, y) {
         const lineHeight = this.lineHeight();
         const expTotal = TextManager.expTotal.format(TextManager.exp);
@@ -2807,6 +3759,7 @@ class Window_Status extends Window_StatusBase {
         this.drawText(this.expNextValue(), x, y + lineHeight * 3, 270, "right");
     }
 
+    /** @returns {number | "-------"} */
     expTotalValue() {
         if (this._actor.isMaxLevel()) {
             return "-------";
@@ -2815,6 +3768,7 @@ class Window_Status extends Window_StatusBase {
         }
     }
 
+    /** @returns {number | "-------"} */
     expNextValue() {
         if (this._actor.isMaxLevel()) {
             return "-------";
@@ -2834,9 +3788,14 @@ class Window_StatusParams extends Window_StatusBase {
 
     initialize(rect) {
         super.initialize(rect);
+        /** @type {Game_Actor | null} */
         this._actor = null;
     }
 
+    /**
+     * @param {Game_Actor} actor
+     * @returns {void}
+     */
     setActor(actor) {
         if (this._actor !== actor) {
             this._actor = actor;
@@ -2844,14 +3803,20 @@ class Window_StatusParams extends Window_StatusBase {
         }
     }
 
+    /** @returns {number} */
     maxItems() {
         return 6;
     }
 
+    /** @returns {number} */
     itemHeight() {
         return this.lineHeight();
     }
 
+    /**
+     * @param {number} index
+     * @returns {void}
+     */
     drawItem(index) {
         const rect = this.itemLineRect(index);
         const paramId = index + 2;
@@ -2863,6 +3828,10 @@ class Window_StatusParams extends Window_StatusBase {
         this.drawText(value, rect.x + 160, rect.y, 60, "right");
     }
 
+    /**
+     * @param {number} index
+     * @returns {void}
+     */
     drawItemBackground(/*index*/) {
         //
     }
@@ -2878,9 +3847,14 @@ class Window_StatusEquip extends Window_StatusBase {
 
     initialize(rect) {
         super.initialize(rect);
+        /** @type {Game_Actor | null} */
         this._actor = null;
     }
 
+    /**
+     * @param {Game_Actor} actor
+     * @returns {void}
+     */
     setActor(actor) {
         if (this._actor !== actor) {
             this._actor = actor;
@@ -2888,14 +3862,20 @@ class Window_StatusEquip extends Window_StatusBase {
         }
     }
 
+    /** @returns {number} */
     maxItems() {
         return this._actor ? this._actor.equipSlots().length : 0;
     }
 
+    /** @returns {number} */
     itemHeight() {
         return this.lineHeight();
     }
 
+    /**
+     * @param {number} index
+     * @returns {void}
+     */
     drawItem(index) {
         const rect = this.itemLineRect(index);
         const equips = this._actor.equips();
@@ -2907,6 +3887,7 @@ class Window_StatusEquip extends Window_StatusBase {
         this.drawItemName(item, rect.x + sw, rect.y, rect.width - sw);
     }
 
+    /** @returns {void} */
     drawItemBackground(/*index*/) {
         //
     }
@@ -2924,17 +3905,20 @@ class Window_Options extends Window_Command {
         super.initialize(rect);
     }
 
+    /** @returns {void} */
     makeCommandList() {
         this.addGeneralOptions();
         this.addVolumeOptions();
     }
 
+    /** @returns {void} */
     addGeneralOptions() {
         this.addCommand(TextManager.alwaysDash, "alwaysDash");
         this.addCommand(TextManager.commandRemember, "commandRemember");
         this.addCommand(TextManager.touchUI, "touchUI");
     }
 
+    /** @returns {void} */
     addVolumeOptions() {
         this.addCommand(TextManager.bgmVolume, "bgmVolume");
         this.addCommand(TextManager.bgsVolume, "bgsVolume");
@@ -2942,6 +3926,10 @@ class Window_Options extends Window_Command {
         this.addCommand(TextManager.seVolume, "seVolume");
     }
 
+    /**
+     * @param {number} index
+     * @returns {void}
+     */
     drawItem(index) {
         const title = this.commandName(index);
         const status = this.statusText(index);
@@ -2954,10 +3942,15 @@ class Window_Options extends Window_Command {
         this.drawText(status, rect.x + titleWidth, rect.y, statusWidth, "right");
     }
 
+    /** @returns {number} */
     statusWidth() {
         return 120;
     }
 
+    /**
+     * @param {number} index
+     * @returns {string}
+     */
     statusText(index) {
         const symbol = this.commandSymbol(index);
         const value = this.getConfigValue(symbol);
@@ -2968,18 +3961,31 @@ class Window_Options extends Window_Command {
         }
     }
 
+    /**
+     * @param {"alwaysDash" | "commandRemember" | "touchUI" | ("bgmVolume" | "bgsVolume" | "meVolume" | "seVolume")} symbol
+     * @returns {symbol is "bgmVolume" | "bgsVolume" | "meVolume" | "seVolume"}
+     */
     isVolumeSymbol(symbol) {
         return symbol.includes("Volume");
     }
 
+    /**
+     * @param {boolean} value
+     * @returns {"ON" | "OFF"}
+     */
     booleanStatusText(value) {
         return value ? "ON" : "OFF";
     }
 
+    /**
+     * @param {number} value
+     * @returns {string}
+     */
     volumeStatusText(value) {
         return value + "%";
     }
 
+    /** @returns {void} */
     processOk() {
         const index = this.index();
         const symbol = this.commandSymbol(index);
@@ -2990,6 +3996,7 @@ class Window_Options extends Window_Command {
         }
     }
 
+    /** @returns {void} */
     cursorRight() {
         const index = this.index();
         const symbol = this.commandSymbol(index);
@@ -3000,6 +4007,7 @@ class Window_Options extends Window_Command {
         }
     }
 
+    /** @returns {void} */
     cursorLeft() {
         const index = this.index();
         const symbol = this.commandSymbol(index);
@@ -3010,6 +4018,13 @@ class Window_Options extends Window_Command {
         }
     }
 
+    /**
+     * @template {"bgmVolume" | "bgsVolume" | "meVolume" | "seVolume"} T
+     * @param {T} symbol
+     * @param {boolean} forward
+     * @param {boolean} wrap
+     * @returns {void}
+     */
     changeVolume(symbol, forward, wrap) {
         const lastValue = this.getConfigValue(symbol);
         const offset = this.volumeOffset();
@@ -3021,10 +4036,16 @@ class Window_Options extends Window_Command {
         }
     }
 
+    /** @returns {number} */
     volumeOffset() {
         return 20;
     }
 
+    /**
+     * @param {"alwaysDash" | "commandRemember" | "touchUI" | ("bgmVolume" | "bgsVolume" | "meVolume" | "seVolume")} symbol
+     * @param {boolean | number} value
+     * @returns {void}
+     */
     changeValue(symbol, value) {
         const lastValue = this.getConfigValue(symbol);
         if (lastValue !== value) {
@@ -3034,10 +4055,21 @@ class Window_Options extends Window_Command {
         }
     }
 
+    /**
+     * @template {"alwaysDash" | "commandRemember" | "touchUI" | ("bgmVolume" | "bgsVolume" | "meVolume" | "seVolume")} T
+     * @param {T} symbol
+     * @returns {typeof ConfigManager[T]}
+     */
     getConfigValue(symbol) {
         return ConfigManager[symbol];
     }
 
+    /**
+     * @template {"alwaysDash" | "commandRemember" | "touchUI" | ("bgmVolume" | "bgsVolume" | "meVolume" | "seVolume")} T
+     * @param {T} symbol
+     * @param {typeof ConfigManager[T]} volume
+     * @returns {void}
+     */
     setConfigValue(symbol, volume) {
         ConfigManager[symbol] = volume;
     }
@@ -3047,35 +4079,51 @@ class Window_Options extends Window_Command {
  * The window for selecting a save file on the save and load screens.
  */
 class Window_SavefileList extends Window_Selectable {
+    /** @param {[rect: Rectangle]} args */
     constructor(...args) {
         super(...args);
     }
 
+    /** @param {Rectangle} rect */
     initialize(rect) {
         super.initialize(rect);
         this.activate();
+        /** @type {("save" | "load") | null} */
         this._mode = null;
+        /** @type {boolean} */
         this._autosave = false;
     }
 
+    /**
+     * @param {"save" | "load"} mode
+     * @param {boolean} autosave
+     * @returns {void}
+     */
     setMode(mode, autosave) {
         this._mode = mode;
         this._autosave = autosave;
         this.refresh();
     }
 
+    /** @returns {number} */
     maxItems() {
         return DataManager.maxSavefiles() - (this._autosave ? 0 : 1);
     }
 
+    /** @returns {number} */
     numVisibleRows() {
         return 5;
     }
 
+    /** @returns {number} */
     itemHeight() {
         return Math.floor(this.innerHeight / this.numVisibleRows());
     }
 
+    /**
+     * @param {number} index
+     * @returns {void}
+     */
     drawItem(index) {
         const savefileId = this.indexToSavefileId(index);
         const info = DataManager.savefileInfo(savefileId);
@@ -3088,14 +4136,26 @@ class Window_SavefileList extends Window_Selectable {
         }
     }
 
+    /**
+     * @param {number} index
+     * @returns {number}
+     */
     indexToSavefileId(index) {
         return index + (this._autosave ? 0 : 1);
     }
 
+    /**
+     * @param {number} savefileId
+     * @returns {number}
+     */
     savefileIdToIndex(savefileId) {
         return savefileId - (this._autosave ? 0 : 1);
     }
 
+    /**
+     * @param {number} savefileId
+     * @returns {boolean}
+     */
     isEnabled(savefileId) {
         if (this._mode === "save") {
             return savefileId > 0;
@@ -3104,16 +4164,27 @@ class Window_SavefileList extends Window_Selectable {
         }
     }
 
+    /** @returns {number} */
     savefileId() {
         return this.indexToSavefileId(this.index());
     }
 
+    /**
+     * @param {number} savefileId
+     * @returns {void}
+     */
     selectSavefile(savefileId) {
         const index = Math.max(0, this.savefileIdToIndex(savefileId));
         this.select(index);
         this.setTopRow(index - 2);
     }
 
+    /**
+     * @param {number} savefileId
+     * @param {number} x
+     * @param {number} y
+     * @returns {void}
+     */
     drawTitle(savefileId, x, y) {
         if (savefileId === 0) {
             this.drawText(TextManager.autosave, x, y, 180);
@@ -3122,6 +4193,11 @@ class Window_SavefileList extends Window_Selectable {
         }
     }
 
+    /**
+     * @param {RMMZ.DataSaveInfo} info
+     * @param {Rectangle} rect
+     * @returns {void}
+     */
     drawContents(info, rect) {
         const bottom = rect.y + rect.height;
         if (rect.width >= 420) {
@@ -3134,6 +4210,12 @@ class Window_SavefileList extends Window_Selectable {
         }
     }
 
+    /**
+     * @param {RMMZ.DataSaveInfo} info
+     * @param {number} x
+     * @param {number} y
+     * @returns {void}
+     */
     drawPartyCharacters(info, x, y) {
         if (info.characters) {
             let characterX = x;
@@ -3144,12 +4226,20 @@ class Window_SavefileList extends Window_Selectable {
         }
     }
 
+    /**
+     * @param {RMMZ.DataSaveInfo} info
+     * @param {number} x
+     * @param {number} y
+     * @param {number} width
+     * @returns {void}
+     */
     drawPlaytime(info, x, y, width) {
         if (info.playtime) {
             this.drawText(info.playtime, x, y, width, "right");
         }
     }
 
+    /** @returns {void} */
     playOkSound() {
         //
     }
@@ -3167,15 +4257,21 @@ class Window_ShopCommand extends Window_HorzCommand {
         super.initialize(rect);
     }
 
+    /**
+     * @param {boolean} purchaseOnly
+     * @returns {void}
+     */
     setPurchaseOnly(purchaseOnly) {
         this._purchaseOnly = purchaseOnly;
         this.refresh();
     }
 
+    /** @returns {number} */
     maxCols() {
         return 3;
     }
 
+    /** @returns {void} */
     makeCommandList() {
         this.addCommand(TextManager.buy, "buy");
         this.addCommand(TextManager.sell, "sell", !this._purchaseOnly);
@@ -3193,51 +4289,77 @@ class Window_ShopBuy extends Window_Selectable {
 
     initialize(rect) {
         super.initialize(rect);
+        /** @type {number} */
         this._money = 0;
     }
 
+    /**
+     * @param {RMMZ.ShopGoods[]} shopGoods
+     * @returns {void}
+     */
     setupGoods(shopGoods) {
         this._shopGoods = shopGoods;
         this.refresh();
         this.select(0);
     }
 
+    /** @returns {number} */
     maxItems() {
         return this._data ? this._data.length : 1;
     }
 
+    /** @returns {RMMZ.DataPricedItemBase | null} */
     item() {
         return this.itemAt(this.index());
     }
 
+    /**
+     * @param {number} index
+     * @returns {RMMZ.DataPricedItemBase | null}
+     */
     itemAt(index) {
         return this._data && index >= 0 ? this._data[index] : null;
     }
 
+    /**
+     * @param {number} money
+     * @returns {void}
+     */
     setMoney(money) {
         this._money = money;
         this.refresh();
     }
 
+    /** @returns {boolean} */
     isCurrentItemEnabled() {
         return this.isEnabled(this._data[this.index()]);
     }
 
+    /**
+     * @param {RMMZ.DataPricedItemBase} item
+     * @returns {number}
+     */
     price(item) {
         return this._price[this._data.indexOf(item)] || 0;
     }
 
+    /**
+     * @param {RMMZ.DataPricedItemBase | null} item
+     * @returns {boolean}
+     */
     isEnabled(item) {
         return (
             item && this.price(item) <= this._money && !$gameParty.hasMaxItems(item)
         );
     }
 
+    /** @returns {void} */
     refresh() {
         this.makeItemList();
         super.refresh();
     }
 
+    /** @returns {void} */
     makeItemList() {
         this._data = [];
         this._price = [];
@@ -3250,6 +4372,10 @@ class Window_ShopBuy extends Window_Selectable {
         }
     }
 
+    /**
+     * @param {RMMZ.ShopGoods} goods
+     * @returns {import("../data").DataItem | import("../data").DataWeapon | import("../data").DataArmor | null}
+     */
     goodsToItem(goods) {
         switch (goods[0]) {
             case 0:
@@ -3263,6 +4389,10 @@ class Window_ShopBuy extends Window_Selectable {
         }
     }
 
+    /**
+     * @param {number} index
+     * @returns {void}
+     */
     drawItem(index) {
         const item = this.itemAt(index);
         const price = this.price(item);
@@ -3276,15 +4406,21 @@ class Window_ShopBuy extends Window_Selectable {
         this.changePaintOpacity(true);
     }
 
+    /** @returns {number} */
     priceWidth() {
         return 96;
     }
 
+    /**
+     * @param {Window_ShopStatus} statusWindow
+     * @returns {void}
+     */
     setStatusWindow(statusWindow) {
         this._statusWindow = statusWindow;
         this.callUpdateHelp();
     }
 
+    /** @returns {void} */
     updateHelp() {
         this.setHelpWindowItem(this.item());
         if (this._statusWindow) {
@@ -3305,6 +4441,10 @@ class Window_ShopSell extends Window_ItemList {
         super.initialize(rect);
     }
 
+    /**
+     * @param {RMMZ.DataPricedItemBase | null} item
+     * @returns {boolean}
+     */
     isEnabled(item) {
         return item && item.price > 0;
     }
@@ -3315,30 +4455,46 @@ class Window_ShopSell extends Window_ItemList {
  * screen.
  */
 class Window_ShopNumber extends Window_Selectable {
+    /** @param {[rect: Rectangle]} args */
     constructor(...args) {
         super(...args);
     }
 
+    /** @param {Rectangle} rect */
     initialize(rect) {
         super.initialize(rect);
+        /** @type {RMMZ.DataPricedItemBase | null} */
         this._item = null;
+        /** @type {number} */
         this._max = 1;
+        /** @type {number} */
         this._price = 0;
+        /** @type {number} */
         this._number = 1;
+        /** @type {string} */
         this._currencyUnit = TextManager.currencyUnit;
         this.createButtons();
         this.select(0);
+        /** @type {boolean} */
         this._canRepeat = false;
     }
 
+    /** @returns {boolean} */
     isScrollEnabled() {
         return false;
     }
 
+    /** @returns {number} */
     number() {
         return this._number;
     }
 
+    /**
+     * @param {RMMZ.DataPricedItemBase | null} item
+     * @param {number} max
+     * @param {number} price
+     * @returns {void}
+     */
     setup(item, max, price) {
         this._item = item;
         this._max = Math.floor(max);
@@ -3348,11 +4504,16 @@ class Window_ShopNumber extends Window_Selectable {
         this.refresh();
     }
 
+    /**
+     * @param {string} currencyUnit
+     * @returns {void}
+     */
     setCurrencyUnit(currencyUnit) {
         this._currencyUnit = currencyUnit;
         this.refresh();
     }
 
+    /** @returns {void} */
     createButtons() {
         this._buttons = [];
         if (ConfigManager.touchUI) {
@@ -3369,6 +4530,7 @@ class Window_ShopNumber extends Window_Selectable {
         }
     }
 
+    /** @returns {void} */
     placeButtons() {
         const sp = this.buttonSpacing();
         const totalWidth = this.totalButtonWidth();
@@ -3380,15 +4542,18 @@ class Window_ShopNumber extends Window_Selectable {
         }
     }
 
+    /** @returns {number} */
     totalButtonWidth() {
         const sp = this.buttonSpacing();
         return this._buttons.reduce((r, button) => r + button.width + sp, -sp);
     }
 
+    /** @returns {number} */
     buttonSpacing() {
         return 8;
     }
 
+    /** @returns {void} */
     refresh() {
         super.refresh();
         this.drawItemBackground(0);
@@ -3399,6 +4564,7 @@ class Window_ShopNumber extends Window_Selectable {
         this.drawTotalPrice();
     }
 
+    /** @returns {void} */
     drawCurrentItemName() {
         const padding = this.itemPadding();
         const x = padding * 2;
@@ -3407,6 +4573,7 @@ class Window_ShopNumber extends Window_Selectable {
         this.drawItemName(this._item, x, y, width);
     }
 
+    /** @returns {void} */
     drawMultiplicationSign() {
         const sign = this.multiplicationSign();
         const width = this.textWidth(sign);
@@ -3416,16 +4583,19 @@ class Window_ShopNumber extends Window_Selectable {
         this.drawText(sign, x, y, width);
     }
 
+    /** @returns {string} */
     multiplicationSign() {
         return "\u00d7";
     }
 
+    /** @returns {number} */
     multiplicationSignX() {
         const sign = this.multiplicationSign();
         const width = this.textWidth(sign);
         return this.cursorX() - width * 2;
     }
 
+    /** @returns {void} */
     drawNumber() {
         const x = this.cursorX();
         const y = this.itemNameY();
@@ -3434,6 +4604,7 @@ class Window_ShopNumber extends Window_Selectable {
         this.drawText(this._number, x, y, width, "right");
     }
 
+    /** @returns {void} */
     drawHorzLine() {
         const padding = this.itemPadding();
         const lineHeight = this.lineHeight();
@@ -3445,6 +4616,7 @@ class Window_ShopNumber extends Window_Selectable {
         this.drawRect(x, y, width, 5);
     }
 
+    /** @returns {void} */
     drawTotalPrice() {
         const padding = this.itemPadding();
         const total = this._price * this._number;
@@ -3453,42 +4625,51 @@ class Window_ShopNumber extends Window_Selectable {
         this.drawCurrencyValue(total, this._currencyUnit, 0, y, width);
     }
 
+    /** @returns {number} */
     itemNameY() {
         return Math.floor(this.innerHeight / 2 - this.lineHeight() * 1.5);
     }
 
+    /** @returns {number} */
     totalPriceY() {
         return Math.floor(this.itemNameY() + this.lineHeight() * 2);
     }
 
+    /** @returns {number} */
     buttonY() {
         return Math.floor(this.totalPriceY() + this.lineHeight() * 2);
     }
 
+    /** @returns {number} */
     cursorWidth() {
         const padding = this.itemPadding();
         const digitWidth = this.textWidth("0");
         return this.maxDigits() * digitWidth + padding * 2;
     }
 
+    /** @returns {number} */
     cursorX() {
         const padding = this.itemPadding();
         return this.innerWidth - this.cursorWidth() - padding * 2;
     }
 
+    /** @returns {number} */
     maxDigits() {
         return 2;
     }
 
+    /** @returns {void} */
     update() {
         super.update();
         this.processNumberChange();
     }
 
+    /** @returns {void} */
     playOkSound() {
         //
     }
 
+    /** @returns {void} */
     processNumberChange() {
         if (this.isOpenAndActive()) {
             if (Input.isRepeated("right")) {
@@ -3506,6 +4687,10 @@ class Window_ShopNumber extends Window_Selectable {
         }
     }
 
+    /**
+     * @param {number} amount
+     * @returns {void}
+     */
     changeNumber(amount) {
         const lastNumber = this._number;
         this._number = (this._number + amount).clamp(1, this._max);
@@ -3515,6 +4700,7 @@ class Window_ShopNumber extends Window_Selectable {
         }
     }
 
+    /** @returns {Rectangle} */
     itemRect() {
         const rect = new PIXI.Rectangle();
         rect.x = this.cursorX();
@@ -3524,26 +4710,32 @@ class Window_ShopNumber extends Window_Selectable {
         return rect;
     }
 
+    /** @returns {boolean} */
     isTouchOkEnabled() {
         return false;
     }
 
+    /** @returns {void} */
     onButtonUp() {
         this.changeNumber(1);
     }
 
+    /** @returns {void} */
     onButtonUp2() {
         this.changeNumber(10);
     }
 
+    /** @returns {void} */
     onButtonDown() {
         this.changeNumber(-1);
     }
 
+    /** @returns {void} */
     onButtonDown2() {
         this.changeNumber(-10);
     }
 
+    /** @returns {void} */
     onButtonOk() {
         this.processOk();
     }
@@ -3554,17 +4746,22 @@ class Window_ShopNumber extends Window_Selectable {
  * equipment on the shop screen.
  */
 class Window_ShopStatus extends Window_StatusBase {
+    /** @param {[rect: Rectangle]} args */
     constructor(...args) {
         super(...args);
     }
 
+    /** @param {Rectangle} rect */
     initialize(rect) {
         super.initialize(rect);
+        /** @type {RMMZ.DataPricedItemBase | null} */
         this._item = null;
+        /** @type {number} */
         this._pageIndex = 0;
         this.refresh();
     }
 
+    /** @returns {void} */
     refresh() {
         this.contents.clear();
         if (this._item) {
@@ -3577,15 +4774,25 @@ class Window_ShopStatus extends Window_StatusBase {
         }
     }
 
+    /**
+     * @param {RMMZ.DataPricedItemBase | null} item
+     * @returns {void}
+     */
     setItem(item) {
         this._item = item;
         this.refresh();
     }
 
+    /** @returns {boolean} */
     isEquipItem() {
         return DataManager.isWeapon(this._item) || DataManager.isArmor(this._item);
     }
 
+    /**
+     * @param {number} x
+     * @param {number} y
+     * @returns {void}
+     */
     drawPossession(x, y) {
         const width = this.innerWidth - this.itemPadding() - x;
         const possessionWidth = this.textWidth("0000");
@@ -3595,6 +4802,11 @@ class Window_ShopStatus extends Window_StatusBase {
         this.drawText($gameParty.numItems(this._item), x, y, width, "right");
     }
 
+    /**
+     * @param {number} x
+     * @param {number} y
+     * @returns {void}
+     */
     drawEquipInfo(x, y) {
         const members = this.statusMembers();
         for (let i = 0; i < members.length; i++) {
@@ -3603,22 +4815,31 @@ class Window_ShopStatus extends Window_StatusBase {
         }
     }
 
+    /** @returns {Game_Actor[]} */
     statusMembers() {
         const start = this._pageIndex * this.pageSize();
         const end = start + this.pageSize();
         return $gameParty.members().slice(start, end);
     }
 
+    /** @returns {number} */
     pageSize() {
         return 4;
     }
 
+    /** @returns {number} */
     maxPages() {
         return Math.floor(
             ($gameParty.size() + this.pageSize() - 1) / this.pageSize()
         );
     }
 
+    /**
+     * @param {number} x
+     * @param {number} y
+     * @param {Game_Actor} actor
+     * @returns {void}
+     */
     drawActorEquipInfo(x, y, actor) {
         const item1 = this.currentEquippedItem(actor, this._item.etypeId);
         const width = this.innerWidth - x - this.itemPadding();
@@ -3634,6 +4855,13 @@ class Window_ShopStatus extends Window_StatusBase {
     }
 
     // prettier-ignore
+    /**
+     * @param {number} x
+     * @param {number} y
+     * @param {Game_Actor} actor
+     * @param {RMMZ.DataEquipment | null} item1
+     * @returns {void}
+     */
     drawActorParamChange(
         x, y, actor, item1
     ) {
@@ -3645,10 +4873,16 @@ class Window_ShopStatus extends Window_StatusBase {
         this.drawText((change > 0 ? "+" : "") + change, x, y, width, "right");
     }
 
+    /** @returns {RMMZ.ParamID} */
     paramId() {
         return DataManager.isWeapon(this._item) ? 2 : 3;
     }
 
+    /**
+     * @param {Game_Actor} actor
+     * @param {RMMZ.EquipmentType} etypeId
+     * @returns {RMMZ.DataEquipment | null}
+     */
     currentEquippedItem(actor, etypeId) {
         const list = [];
         const equips = actor.equips();
@@ -3670,21 +4904,25 @@ class Window_ShopStatus extends Window_StatusBase {
         return worstItem;
     }
 
+    /** @returns {void} */
     update() {
         super.update();
         this.updatePage();
     }
 
+    /** @returns {void} */
     updatePage() {
         if (this.isPageChangeEnabled() && this.isPageChangeRequested()) {
             this.changePage();
         }
     }
 
+    /** @returns {boolean} */
     isPageChangeEnabled() {
         return this.visible && this.maxPages() >= 2;
     }
 
+    /** @returns {boolean} */
     isPageChangeRequested() {
         if (Input.isTriggered("shift")) {
             return true;
@@ -3695,6 +4933,7 @@ class Window_ShopStatus extends Window_StatusBase {
         return false;
     }
 
+    /** @returns {void} */
     changePage() {
         this._pageIndex = (this._pageIndex + 1) % this.maxPages();
         this.refresh();
@@ -3706,20 +4945,32 @@ class Window_ShopStatus extends Window_StatusBase {
  * The window for editing an actor's name on the name input screen.
  */
 class Window_NameEdit extends Window_StatusBase {
+    /** @param {[rect: Rectangle]} args */
     constructor(...args) {
         super(...args);
     }
 
+    /** @param {Rectangle} rect */
     initialize(rect) {
         super.initialize(rect);
+        /** @type {Game_Actor | null} */
         this._actor = null;
+        /** @type {number} */
         this._maxLength = 0;
+        /** @type {string} */
         this._name = "";
+        /** @type {number} */
         this._index = 0;
+        /** @type {string} */
         this._defaultName = 0;
         this.deactivate();
     }
 
+    /**
+     * @param {Game_Actor} actor
+     * @param {number} maxLength
+     * @returns {void}
+     */
     setup(actor, maxLength) {
         this._actor = actor;
         this._maxLength = maxLength;
@@ -3729,10 +4980,12 @@ class Window_NameEdit extends Window_StatusBase {
         ImageManager.loadFace(actor.faceName());
     }
 
+    /** @returns {string} */
     name() {
         return this._name;
     }
 
+    /** @returns {boolean} */
     restoreDefault() {
         this._name = this._defaultName;
         this._index = this._name.length;
@@ -3740,6 +4993,10 @@ class Window_NameEdit extends Window_StatusBase {
         return this._name.length > 0;
     }
 
+    /**
+     * @param {string} ch
+     * @returns {boolean}
+     */
     add(ch) {
         if (this._index < this._maxLength) {
             this._name += ch;
@@ -3751,6 +5008,7 @@ class Window_NameEdit extends Window_StatusBase {
         }
     }
 
+    /** @returns {boolean} */
     back() {
         if (this._index > 0) {
             this._index--;
@@ -3762,21 +5020,28 @@ class Window_NameEdit extends Window_StatusBase {
         }
     }
 
+    /** @returns {number} */
     faceWidth() {
         return 144;
     }
 
+    /** @returns {number} */
     charWidth() {
         const text = $gameSystem.isJapanese() ? "\uff21" : "A";
         return this.textWidth(text);
     }
 
+    /** @returns {number} */
     left() {
         const nameCenter = (this.innerWidth + this.faceWidth()) / 2;
         const nameWidth = (this._maxLength + 1) * this.charWidth();
         return Math.min(nameCenter - nameWidth / 2, this.innerWidth - nameWidth);
     }
 
+    /**
+     * @param {number} index
+     * @returns {Rectangle}
+     */
     itemRect(index) {
         const x = this.left() + index * this.charWidth();
         const y = 54;
@@ -3785,6 +5050,10 @@ class Window_NameEdit extends Window_StatusBase {
         return new PIXI.Rectangle(x, y, width, height);
     }
 
+    /**
+     * @param {number} index
+     * @returns {Rectangle}
+     */
     underlineRect(index) {
         const rect = this.itemRect(index);
         rect.x++;
@@ -3794,10 +5063,15 @@ class Window_NameEdit extends Window_StatusBase {
         return rect;
     }
 
+    /** @returns {string} */
     underlineColor() {
         return ColorManager.normalColor();
     }
 
+    /**
+     * @param {number} index
+     * @returns {void}
+     */
     drawUnderline(index) {
         const rect = this.underlineRect(index);
         const color = this.underlineColor();
@@ -3806,12 +5080,17 @@ class Window_NameEdit extends Window_StatusBase {
         this.contents.paintOpacity = 255;
     }
 
+    /**
+     * @param {number} index
+     * @returns {void}
+     */
     drawChar(index) {
         const rect = this.itemRect(index);
         this.resetTextColor();
         this.drawText(this._name[index] || "", rect.x, rect.y);
     }
 
+    /** @returns {void} */
     refresh() {
         this.contents.clear();
         this.drawActorFace(this._actor, 0, 0);
@@ -3835,6 +5114,7 @@ class Window_NameInput extends Window_Selectable {
     }
 
     // prettier-ignore
+    /** @type {string[]} */
     static LATIN1 = [ "A","B","C","D","E",  "a","b","c","d","e",
               "F","G","H","I","J",  "f","g","h","i","j",
               "K","L","M","N","O",  "k","l","m","n","o",
@@ -3846,6 +5126,7 @@ class Window_NameInput extends Window_Selectable {
               "/","=","@","<",">",  ":",";"," ","Page","OK" ];
 
     // prettier-ignore
+    /** @type {string[]} */
     static LATIN2 = [ "Á","É","Í","Ó","Ú",  "á","é","í","ó","ú",
               "À","È","Ì","Ò","Ù",  "à","è","ì","ò","ù",
               "Â","Ê","Î","Ô","Û",  "â","ê","î","ô","û",
@@ -3857,6 +5138,7 @@ class Window_NameInput extends Window_Selectable {
               "Ĳ","Œ","ĳ","œ","ß",  "«","»"," ","Page","OK" ];
 
     // prettier-ignore
+    /** @type {string[]} */
     static RUSSIA = [ "А","Б","В","Г","Д",  "а","б","в","г","д",
               "Е","Ё","Ж","З","И",  "е","ё","ж","з","и",
               "Й","К","Л","М","Н",  "й","к","л","м","н",
@@ -3868,6 +5150,7 @@ class Window_NameInput extends Window_Selectable {
               "5","6","7","8","9",  ":",";"," ","","OK" ];
 
     // prettier-ignore
+    /** @type {string[]} */
     static JAPAN1 = [ "あ","い","う","え","お",  "が","ぎ","ぐ","げ","ご",
               "か","き","く","け","こ",  "ざ","じ","ず","ぜ","ぞ",
               "さ","し","す","せ","そ",  "だ","ぢ","づ","で","ど",
@@ -3879,6 +5162,7 @@ class Window_NameInput extends Window_Selectable {
               "ら","り","る","れ","ろ",  "ゔ","を","　","カナ","決定" ];
 
     // prettier-ignore
+    /** @type {string[]} */
     static JAPAN2 = [ "ア","イ","ウ","エ","オ",  "ガ","ギ","グ","ゲ","ゴ",
               "カ","キ","ク","ケ","コ",  "ザ","ジ","ズ","ゼ","ゾ",
               "サ","シ","ス","セ","ソ",  "ダ","ヂ","ヅ","デ","ド",
@@ -3890,6 +5174,7 @@ class Window_NameInput extends Window_Selectable {
               "ラ","リ","ル","レ","ロ",  "ヴ","ヲ","　","英数","決定" ];
 
     // prettier-ignore
+    /** @type {string[]} */
     static JAPAN3 = [ "Ａ","Ｂ","Ｃ","Ｄ","Ｅ",  "ａ","ｂ","ｃ","ｄ","ｅ",
               "Ｆ","Ｇ","Ｈ","Ｉ","Ｊ",  "ｆ","ｇ","ｈ","ｉ","ｊ",
               "Ｋ","Ｌ","Ｍ","Ｎ","Ｏ",  "ｋ","ｌ","ｍ","ｎ","ｏ",
@@ -3902,11 +5187,18 @@ class Window_NameInput extends Window_Selectable {
 
     initialize(rect) {
         super.initialize(rect);
+        /** @type {Window_NameEdit | null} */
         this._editWindow = null;
+        /** @type {number} */
         this._page = 0;
+        /** @type {number} */
         this._index = 0;
     }
 
+    /**
+     * @param {Window_NameEdit} editWindow
+     * @returns {void}
+     */
     setEditWindow(editWindow) {
         this._editWindow = editWindow;
         this.refresh();
@@ -3914,6 +5206,7 @@ class Window_NameInput extends Window_Selectable {
         this.activate();
     }
 
+    /** @returns {string[][]} */
     table() {
         if ($gameSystem.isJapanese()) {
             return [
@@ -3928,34 +5221,45 @@ class Window_NameInput extends Window_Selectable {
         }
     }
 
+    /** @returns {number} */
     maxCols() {
         return 10;
     }
 
+    /** @returns {number} */
     maxItems() {
         return 90;
     }
 
+    /** @returns {number} */
     itemWidth() {
         return Math.floor((this.innerWidth - this.groupSpacing()) / 10);
     }
 
+    /** @returns {number} */
     groupSpacing() {
         return 24;
     }
 
+    /** @returns {string} */
     character() {
         return this._index < 88 ? this.table()[this._page][this._index] : "";
     }
 
+    /** @returns {boolean} */
     isPageChange() {
         return this._index === 88;
     }
 
+    /** @returns {boolean} */
     isOk() {
         return this._index === 89;
     }
 
+    /**
+     * @param {number} index
+     * @returns {Rectangle}
+     */
     itemRect(index) {
         const itemWidth = this.itemWidth();
         const itemHeight = this.itemHeight();
@@ -3971,6 +5275,10 @@ class Window_NameInput extends Window_Selectable {
         return new PIXI.Rectangle(x, y, width, height);
     }
 
+    /**
+     * @param {number} index
+     * @returns {void}
+     */
     drawItem(index) {
         const table = this.table();
         const character = table[this._page][index];
@@ -3978,27 +5286,41 @@ class Window_NameInput extends Window_Selectable {
         this.drawText(character, rect.x, rect.y, rect.width, "center");
     }
 
+    /** @returns {void} */
     updateCursor() {
         const rect = this.itemRect(this._index);
         this.setCursorRect(rect.x, rect.y, rect.width, rect.height);
     }
 
+    /** @returns {boolean} */
     isCursorMovable() {
         return this.active;
     }
 
+    /**
+     * @param {boolean} wrap
+     * @returns {void}
+     */
     cursorDown(wrap) {
         if (this._index < 80 || wrap) {
             this._index = (this._index + 10) % 90;
         }
     }
 
+    /**
+     * @param {boolean} wrap
+     * @returns {void}
+     */
     cursorUp(wrap) {
         if (this._index >= 10 || wrap) {
             this._index = (this._index + 80) % 90;
         }
     }
 
+    /**
+     * @param {boolean} wrap
+     * @returns {void}
+     */
     cursorRight(wrap) {
         if (this._index % 10 < 9) {
             this._index++;
@@ -4007,6 +5329,10 @@ class Window_NameInput extends Window_Selectable {
         }
     }
 
+    /**
+     * @param {boolean} wrap
+     * @returns {void}
+     */
     cursorLeft(wrap) {
         if (this._index % 10 > 0) {
             this._index--;
@@ -4015,16 +5341,19 @@ class Window_NameInput extends Window_Selectable {
         }
     }
 
+    /** @returns {void} */
     cursorPagedown() {
         this._page = (this._page + 1) % this.table().length;
         this.refresh();
     }
 
+    /** @returns {void} */
     cursorPageup() {
         this._page = (this._page + this.table().length - 1) % this.table().length;
         this.refresh();
     }
 
+    /** @returns {void} */
     processCursorMove() {
         const lastPage = this._page;
         super.processCursorMove();
@@ -4034,6 +5363,7 @@ class Window_NameInput extends Window_Selectable {
         }
     }
 
+    /** @returns {void} */
     processHandling() {
         if (this.isOpen() && this.active) {
             if (Input.isTriggered("shift")) {
@@ -4048,14 +5378,17 @@ class Window_NameInput extends Window_Selectable {
         }
     }
 
+    /** @returns {boolean} */
     isCancelEnabled() {
         return true;
     }
 
+    /** @returns {void} */
     processCancel() {
         this.processBack();
     }
 
+    /** @returns {void} */
     processJump() {
         if (this._index !== 89) {
             this._index = 89;
@@ -4063,12 +5396,14 @@ class Window_NameInput extends Window_Selectable {
         }
     }
 
+    /** @returns {void} */
     processBack() {
         if (this._editWindow.back()) {
             SoundManager.playCancel();
         }
     }
 
+    /** @returns {void} */
     processOk() {
         if (this.character()) {
             this.onNameAdd();
@@ -4080,6 +5415,7 @@ class Window_NameInput extends Window_Selectable {
         }
     }
 
+    /** @returns {void} */
     onNameAdd() {
         if (this._editWindow.add(this.character())) {
             this.playOkSound();
@@ -4088,6 +5424,7 @@ class Window_NameInput extends Window_Selectable {
         }
     }
 
+    /** @returns {void} */
     onNameOk() {
         if (this._editWindow.name() === "") {
             if (this._editWindow.restoreDefault()) {
@@ -4106,6 +5443,7 @@ class Window_NameInput extends Window_Selectable {
  * The window for displaying a speaker name above the message window.
  */
 class Window_NameBox extends Window_Base {
+    /** @param {[]} args */
     constructor(...args) {
         super(...args);
     }
@@ -4113,13 +5451,22 @@ class Window_NameBox extends Window_Base {
     initialize() {
         super.initialize(new PIXI.Rectangle());
         this.openness = 0;
+        /** @type {string} */
         this._name = "";
     }
 
+    /**
+     * @param {Window_Message} messageWindow
+     * @returns {void}
+     */
     setMessageWindow(messageWindow) {
         this._messageWindow = messageWindow;
     }
 
+    /**
+     * @param {string} name
+     * @returns {void}
+     */
     setName(name) {
         if (this._name !== name) {
             this._name = name;
@@ -4127,10 +5474,12 @@ class Window_NameBox extends Window_Base {
         }
     }
 
+    /** @returns {void} */
     clear() {
         this.setName("");
     }
 
+    /** @returns {void} */
     start() {
         this.updatePlacement();
         this.updateBackground();
@@ -4138,6 +5487,7 @@ class Window_NameBox extends Window_Base {
         this.refresh();
     }
 
+    /** @returns {void} */
     updatePlacement() {
         this.width = this.windowWidth();
         this.height = this.windowHeight();
@@ -4154,10 +5504,12 @@ class Window_NameBox extends Window_Base {
         }
     }
 
+    /** @returns {void} */
     updateBackground() {
         this.setBackgroundType($gameMessage.background());
     }
 
+    /** @returns {number} */
     windowWidth() {
         if (this._name) {
             const textWidth = this.textSizeEx(this._name).width;
@@ -4169,10 +5521,12 @@ class Window_NameBox extends Window_Base {
         }
     }
 
+    /** @returns {number} */
     windowHeight() {
         return this.fittingHeight(1);
     }
 
+    /** @returns {void} */
     refresh() {
         const rect = this.baseTextRect();
         this.contents.clear();
@@ -4184,6 +5538,7 @@ class Window_NameBox extends Window_Base {
  * The window used for the event command [Show Choices].
  */
 class Window_ChoiceList extends Window_Command {
+    /** @param {[]} args */
     constructor(...args) {
         super(...args);
     }
@@ -4193,14 +5548,21 @@ class Window_ChoiceList extends Window_Command {
         this.createCancelButton();
         this.openness = 0;
         this.deactivate();
+        /** @type {RMMZ.TextWindowBackgroundType} */
         this._background = 0;
+        /** @type {boolean} */
         this._canRepeat = false;
     }
 
+    /**
+     * @param {Window_Message} messageWindow
+     * @returns {void}
+     */
     setMessageWindow(messageWindow) {
         this._messageWindow = messageWindow;
     }
 
+    /** @returns {void} */
     createCancelButton() {
         if (ConfigManager.touchUI) {
             this._cancelButton = new Sprite_Button("cancel");
@@ -4209,6 +5571,7 @@ class Window_ChoiceList extends Window_Command {
         }
     }
 
+    /** @returns {void} */
     start() {
         this.updatePlacement();
         this.updateBackground();
@@ -4221,21 +5584,25 @@ class Window_ChoiceList extends Window_Command {
         this.activate();
     }
 
+    /** @returns {void} */
     update() {
         super.update();
         this.updateCancelButton();
     }
 
+    /** @returns {void} */
     updateCancelButton() {
         if (this._cancelButton) {
             this._cancelButton.visible = this.needsCancelButton() && this.isOpen();
         }
     }
 
+    /** @returns {void} */
     selectDefault() {
         this.select($gameMessage.choiceDefaultType());
     }
 
+    /** @returns {void} */
     updatePlacement() {
         this.x = this.windowX();
         this.y = this.windowY();
@@ -4243,11 +5610,13 @@ class Window_ChoiceList extends Window_Command {
         this.height = this.windowHeight();
     }
 
+    /** @returns {void} */
     updateBackground() {
         this._background = $gameMessage.choiceBackground();
         this.setBackgroundType(this._background);
     }
 
+    /** @returns {void} */
     placeCancelButton() {
         if (this._cancelButton) {
             const spacing = 8;
@@ -4262,6 +5631,7 @@ class Window_ChoiceList extends Window_Command {
         }
     }
 
+    /** @returns {number} */
     windowX() {
         const positionType = $gameMessage.choicePositionType();
         if (positionType === 1) {
@@ -4273,6 +5643,7 @@ class Window_ChoiceList extends Window_Command {
         }
     }
 
+    /** @returns {number} */
     windowY() {
         const messageY = this._messageWindow.y;
         if (messageY >= Graphics.boxHeight / 2) {
@@ -4282,20 +5653,24 @@ class Window_ChoiceList extends Window_Command {
         }
     }
 
+    /** @returns {number} */
     windowWidth() {
         const width = this.maxChoiceWidth() + this.colSpacing() + this.padding * 2;
         return Math.min(width, Graphics.boxWidth);
     }
 
+    /** @returns {number} */
     windowHeight() {
         return this.fittingHeight(this.numVisibleRows());
     }
 
+    /** @returns {number} */
     numVisibleRows() {
         const choices = $gameMessage.choices();
         return Math.min(choices.length, this.maxLines());
     }
 
+    /** @returns {4 | 8} */
     maxLines() {
         const messageWindow = this._messageWindow;
         const messageY = messageWindow ? messageWindow.y : 0;
@@ -4308,6 +5683,7 @@ class Window_ChoiceList extends Window_Command {
         }
     }
 
+    /** @returns {number} */
     maxChoiceWidth() {
         let maxWidth = 96;
         const choices = $gameMessage.choices();
@@ -4321,6 +5697,7 @@ class Window_ChoiceList extends Window_Command {
         return maxWidth;
     }
 
+    /** @returns {void} */
     makeCommandList() {
         const choices = $gameMessage.choices();
         for (const choice of choices) {
@@ -4328,25 +5705,33 @@ class Window_ChoiceList extends Window_Command {
         }
     }
 
+    /**
+     * @param {number} index
+     * @returns {void}
+     */
     drawItem(index) {
         const rect = this.itemLineRect(index);
         this.drawTextEx(this.commandName(index), rect.x, rect.y, rect.width);
     }
 
+    /** @returns {boolean} */
     isCancelEnabled() {
         return $gameMessage.choiceCancelType() !== -1;
     }
 
+    /** @returns {boolean} */
     needsCancelButton() {
         return $gameMessage.choiceCancelType() === -2;
     }
 
+    /** @returns {void} */
     callOkHandler() {
         $gameMessage.onChoice(this.index());
         this._messageWindow.terminateMessage();
         this.close();
     }
 
+    /** @returns {void} */
     callCancelHandler() {
         $gameMessage.onChoice($gameMessage.choiceCancelType());
         this._messageWindow.terminateMessage();
@@ -4358,24 +5743,33 @@ class Window_ChoiceList extends Window_Command {
  * The window used for the event command [Input Number].
  */
 class Window_NumberInput extends Window_Selectable {
+    /** @param {[]} args */
     constructor(...args) {
         super(...args);
     }
 
     initialize() {
         super.initialize(new PIXI.Rectangle());
+        /** @type {number} */
         this._number = 0;
+        /** @type {number} */
         this._maxDigits = 1;
         this.openness = 0;
         this.createButtons();
         this.deactivate();
+        /** @type {boolean} */
         this._canRepeat = false;
     }
 
+    /**
+     * @param {Window_Message} messageWindow
+     * @returns {void}
+     */
     setMessageWindow(messageWindow) {
         this._messageWindow = messageWindow;
     }
 
+    /** @returns {void} */
     start() {
         this._maxDigits = $gameMessage.numInputMaxDigits();
         this._number = $gameVariables.value($gameMessage.numInputVariableId());
@@ -4389,6 +5783,7 @@ class Window_NumberInput extends Window_Selectable {
         this.select(0);
     }
 
+    /** @returns {void} */
     updatePlacement() {
         const messageY = this._messageWindow.y;
         const spacing = 8;
@@ -4402,12 +5797,14 @@ class Window_NumberInput extends Window_Selectable {
         }
     }
 
+    /** @returns {number} */
     windowWidth() {
         const totalItemWidth = this.maxCols() * this.itemWidth();
         const totalButtonWidth = this.totalButtonWidth();
         return Math.max(totalItemWidth, totalButtonWidth) + this.padding * 2;
     }
 
+    /** @returns {number} */
     windowHeight() {
         if (ConfigManager.touchUI) {
             return this.fittingHeight(1) + this.buttonSpacing() + 48;
@@ -4416,18 +5813,25 @@ class Window_NumberInput extends Window_Selectable {
         }
     }
 
+    /** @returns {number} */
     maxCols() {
         return this._maxDigits;
     }
 
+    /** @returns {number} */
     maxItems() {
         return this._maxDigits;
     }
 
+    /** @returns {number} */
     itemWidth() {
         return 48;
     }
 
+    /**
+     * @param {number} index
+     * @returns {Rectangle}
+     */
     itemRect(index) {
         const rect = super.itemRect(index);
         const innerMargin = this.innerWidth - this.maxCols() * this.itemWidth();
@@ -4435,14 +5839,17 @@ class Window_NumberInput extends Window_Selectable {
         return rect;
     }
 
+    /** @returns {boolean} */
     isScrollEnabled() {
         return false;
     }
 
+    /** @returns {boolean} */
     isHoverEnabled() {
         return false;
     }
 
+    /** @returns {void} */
     createButtons() {
         this._buttons = [];
         if (ConfigManager.touchUI) {
@@ -4457,6 +5864,7 @@ class Window_NumberInput extends Window_Selectable {
         }
     }
 
+    /** @returns {void} */
     placeButtons() {
         const sp = this.buttonSpacing();
         const totalWidth = this.totalButtonWidth();
@@ -4468,24 +5876,29 @@ class Window_NumberInput extends Window_Selectable {
         }
     }
 
+    /** @returns {number} */
     totalButtonWidth() {
         const sp = this.buttonSpacing();
         return this._buttons.reduce((r, button) => r + button.width + sp, -sp);
     }
 
+    /** @returns {number} */
     buttonSpacing() {
         return 8;
     }
 
+    /** @returns {number} */
     buttonY() {
         return this.itemHeight() + this.buttonSpacing();
     }
 
+    /** @returns {void} */
     update() {
         super.update();
         this.processDigitChange();
     }
 
+    /** @returns {void} */
     processDigitChange() {
         if (this.isOpenAndActive()) {
             if (Input.isRepeated("up")) {
@@ -4496,6 +5909,10 @@ class Window_NumberInput extends Window_Selectable {
         }
     }
 
+    /**
+     * @param {boolean} up
+     * @returns {void}
+     */
     changeDigit(up) {
         const index = this.index();
         const place = Math.pow(10, this._maxDigits - 1 - index);
@@ -4511,18 +5928,22 @@ class Window_NumberInput extends Window_Selectable {
         this.playCursorSound();
     }
 
+    /** @returns {boolean} */
     isTouchOkEnabled() {
         return false;
     }
 
+    /** @returns {boolean} */
     isOkEnabled() {
         return true;
     }
 
+    /** @returns {boolean} */
     isCancelEnabled() {
         return false;
     }
 
+    /** @returns {void} */
     processOk() {
         this.playOkSound();
         $gameVariables.setValue($gameMessage.numInputVariableId(), this._number);
@@ -4532,6 +5953,10 @@ class Window_NumberInput extends Window_Selectable {
         this.close();
     }
 
+    /**
+     * @param {number} index
+     * @returns {void}
+     */
     drawItem(index) {
         const rect = this.itemLineRect(index);
         const align = "center";
@@ -4541,14 +5966,17 @@ class Window_NumberInput extends Window_Selectable {
         this.drawText(c, rect.x, rect.y, rect.width, align);
     }
 
+    /** @returns {void} */
     onButtonUp() {
         this.changeDigit(true);
     }
 
+    /** @returns {void} */
     onButtonDown() {
         this.changeDigit(false);
     }
 
+    /** @returns {void} */
     onButtonOk() {
         this.processOk();
     }
@@ -4558,10 +5986,12 @@ class Window_NumberInput extends Window_Selectable {
  * The window used for the event command [Select Item].
  */
 class Window_EventItem extends Window_ItemList {
+    /** @param {[rect: Rectangle]} args */
     constructor(...args) {
         super(...args);
     }
 
+    /** @param {Rectangle} rect */
     initialize(rect) {
         super.initialize(rect);
         this.createCancelButton();
@@ -4572,10 +6002,15 @@ class Window_EventItem extends Window_ItemList {
         this._canRepeat = false;
     }
 
+    /**
+     * @param {Window_Message} messageWindow
+     * @returns {void}
+     */
     setMessageWindow(messageWindow) {
         this._messageWindow = messageWindow;
     }
 
+    /** @returns {void} */
     createCancelButton() {
         if (ConfigManager.touchUI) {
             this._cancelButton = new Sprite_Button("cancel");
@@ -4584,6 +6019,7 @@ class Window_EventItem extends Window_ItemList {
         }
     }
 
+    /** @returns {void} */
     start() {
         this.refresh();
         this.updatePlacement();
@@ -4593,17 +6029,20 @@ class Window_EventItem extends Window_ItemList {
         this.activate();
     }
 
+    /** @returns {void} */
     update() {
         super.update();
         this.updateCancelButton();
     }
 
+    /** @returns {void} */
     updateCancelButton() {
         if (this._cancelButton) {
             this._cancelButton.visible = this.isOpen();
         }
     }
 
+    /** @returns {void} */
     updatePlacement() {
         if (this._messageWindow.y >= Graphics.boxHeight / 2) {
             this.y = 0;
@@ -4612,6 +6051,7 @@ class Window_EventItem extends Window_ItemList {
         }
     }
 
+    /** @returns {void} */
     placeCancelButton() {
         if (this._cancelButton) {
             const spacing = 8;
@@ -4628,11 +6068,16 @@ class Window_EventItem extends Window_ItemList {
         }
     }
 
+    /**
+     * @param {RMMZ.DataItemBase} item
+     * @returns {boolean}
+     */
     includes(item) {
         const itypeId = $gameMessage.itemChoiceItypeId();
         return DataManager.isItem(item) && item.itypeId === itypeId;
     }
 
+    /** @returns {boolean} */
     needsNumber() {
         const itypeId = $gameMessage.itemChoiceItypeId();
         if (itypeId === 2) {
@@ -4647,10 +6092,12 @@ class Window_EventItem extends Window_ItemList {
         }
     }
 
+    /** @returns {boolean} */
     isEnabled(/*item*/) {
         return true;
     }
 
+    /** @returns {void} */
     onOk() {
         const item = this.item();
         const itemId = item ? item.id : 0;
@@ -4659,6 +6106,7 @@ class Window_EventItem extends Window_ItemList {
         this.close();
     }
 
+    /** @returns {void} */
     onCancel() {
         $gameVariables.setValue($gameMessage.itemChoiceVariableId(), 0);
         this._messageWindow.terminateMessage();
@@ -4670,56 +6118,91 @@ class Window_EventItem extends Window_ItemList {
  * The window for displaying text messages.
  */
 class Window_Message extends Window_Base {
+    /** @param {[rect: Rectangle]} args */
     constructor(...args) {
         super(...args);
     }
 
+    /** @param {Rectangle} rect */
     initialize(rect) {
         super.initialize(rect);
         this.openness = 0;
         this.initMembers();
     }
 
+    /** @returns {void} */
     initMembers() {
+        /** @type {RMMZ.TextWindowBackgroundType} */
         this._background = 0;
+        /** @type {RMMZ.TextWindowPositionType} */
         this._positionType = 2;
+        /** @type {number} */
         this._waitCount = 0;
+        /** @type {Bitmap | null} */
         this._faceBitmap = null;
+        /** @type {{ text: string; index: number; x: number; y: number; width: number; height: number; startX: number; startY: number; rtl: boolean; buffer: string; drawing: boolean; outputWidth: number; outputHeight: number; } | null} */
         this._textState = null;
+        /** @type {Window_Gold | null} */
         this._goldWindow = null;
+        /** @type {Window_NameBox | null} */
         this._nameBoxWindow = null;
+        /** @type {Window_ChoiceList | null} */
         this._choiceListWindow = null;
+        /** @type {Window_NumberInput | null} */
         this._numberInputWindow = null;
+        /** @type {Window_EventItem | null} */
         this._eventItemWindow = null;
         this.clearFlags();
     }
 
+    /**
+     * @param {Window_Gold} goldWindow
+     * @returns {void}
+     */
     setGoldWindow(goldWindow) {
         this._goldWindow = goldWindow;
     }
 
+    /**
+     * @param {Window_NameBox} nameBoxWindow
+     * @returns {void}
+     */
     setNameBoxWindow(nameBoxWindow) {
         this._nameBoxWindow = nameBoxWindow;
     }
 
+    /**
+     * @param {Window_ChoiceList} choiceListWindow
+     * @returns {void}
+     */
     setChoiceListWindow(choiceListWindow) {
         this._choiceListWindow = choiceListWindow;
     }
 
+    /**
+     * @param {Window_NumberInput} numberInputWindow
+     * @returns {void}
+     */
     setNumberInputWindow(numberInputWindow) {
         this._numberInputWindow = numberInputWindow;
     }
 
+    /**
+     * @param {Window_EventItem} eventItemWindow
+     * @returns {void}
+     */
     setEventItemWindow(eventItemWindow) {
         this._eventItemWindow = eventItemWindow;
     }
 
+    /** @returns {void} */
     clearFlags() {
         this._showFast = false;
         this._lineShowFast = false;
         this._pauseSkip = false;
     }
 
+    /** @returns {void} */
     update() {
         this.checkToNotClose();
         super.update();
@@ -4742,20 +6225,24 @@ class Window_Message extends Window_Base {
         }
     }
 
+    /** @returns {void} */
     checkToNotClose() {
         if (this.isOpen() && this.isClosing() && this.doesContinue()) {
             this.open();
         }
     }
 
+    /** @returns {void} */
     synchronizeNameBox() {
         this._nameBoxWindow.openness = this.openness;
     }
 
+    /** @returns {boolean} */
     canStart() {
         return $gameMessage.hasText() && !$gameMessage.scrollMode();
     }
 
+    /** @returns {void} */
     startMessage() {
         const text = $gameMessage.allText();
         const textState = this.createTextState(text, 0, 0, 0);
@@ -4769,6 +6256,10 @@ class Window_Message extends Window_Base {
         this._nameBoxWindow.start();
     }
 
+    /**
+     * @param {{ text: string; index: number; x: number; y: number; width: number; height: number; startX: number; startY: number; rtl: boolean; buffer: string; drawing: boolean; outputWidth: number; outputHeight: number; }} textState
+     * @returns {number}
+     */
     newLineX(textState) {
         const faceExists = $gameMessage.faceName() !== "";
         const faceWidth = ImageManager.standardFaceWidth;
@@ -4777,6 +6268,7 @@ class Window_Message extends Window_Base {
         return textState.rtl ? this.innerWidth - margin : margin;
     }
 
+    /** @returns {void} */
     updatePlacement() {
         const goldWindow = this._goldWindow;
         this._positionType = $gameMessage.positionType();
@@ -4786,17 +6278,20 @@ class Window_Message extends Window_Base {
         }
     }
 
+    /** @returns {void} */
     updateBackground() {
         this._background = $gameMessage.background();
         this.setBackgroundType(this._background);
     }
 
+    /** @returns {void} */
     terminateMessage() {
         this.close();
         this._goldWindow.close();
         $gameMessage.clear();
     }
 
+    /** @returns {boolean} */
     updateWait() {
         if (this._waitCount > 0) {
             this._waitCount--;
@@ -4806,12 +6301,14 @@ class Window_Message extends Window_Base {
         }
     }
 
+    /** @returns {void} */
     cancelWait() {
         if ($gameSystem.isMessageSkipEnabled()) {
             this._waitCount = 0;
         }
     }
 
+    /** @returns {boolean} */
     updateLoading() {
         if (this._faceBitmap) {
             if (this._faceBitmap.isReady()) {
@@ -4826,6 +6323,7 @@ class Window_Message extends Window_Base {
         }
     }
 
+    /** @returns {boolean} */
     updateInput() {
         if (this.isAnySubWindowActive()) {
             return true;
@@ -4843,6 +6341,7 @@ class Window_Message extends Window_Base {
         return false;
     }
 
+    /** @returns {boolean} */
     isAnySubWindowActive() {
         return (
             this._choiceListWindow.active ||
@@ -4851,6 +6350,7 @@ class Window_Message extends Window_Base {
         );
     }
 
+    /** @returns {boolean} */
     updateMessage() {
         const textState = this._textState;
         if (textState) {
@@ -4874,6 +6374,10 @@ class Window_Message extends Window_Base {
         }
     }
 
+    /**
+     * @param {{ text: string; index: number; x: number; y: number; width: number; height: number; startX: number; startY: number; rtl: boolean; buffer: string; drawing: boolean; outputWidth: number; outputHeight: number; }} textState
+     * @returns {boolean}
+     */
     shouldBreakHere(textState) {
         if (this.canBreakHere(textState)) {
             if (!this._showFast && !this._lineShowFast) {
@@ -4886,6 +6390,10 @@ class Window_Message extends Window_Base {
         return false;
     }
 
+    /**
+     * @param {{ text: string; index: number; x: number; y: number; width: number; height: number; startX: number; startY: number; rtl: boolean; buffer: string; drawing: boolean; outputWidth: number; outputHeight: number; }} textState
+     * @returns {boolean}
+     */
     canBreakHere(textState) {
         if (!this.isEndOfText(textState)) {
             const c = textState.text[textState.index];
@@ -4900,6 +6408,7 @@ class Window_Message extends Window_Base {
         return true;
     }
 
+    /** @returns {void} */
     onEndOfText() {
         if (!this.startInput()) {
             if (!this._pauseSkip) {
@@ -4911,6 +6420,7 @@ class Window_Message extends Window_Base {
         this._textState = null;
     }
 
+    /** @returns {boolean} */
     startInput() {
         if ($gameMessage.isChoice()) {
             this._choiceListWindow.start();
@@ -4926,6 +6436,7 @@ class Window_Message extends Window_Base {
         }
     }
 
+    /** @returns {boolean} */
     isTriggered() {
         return (
             Input.isRepeated("ok") ||
@@ -4934,6 +6445,7 @@ class Window_Message extends Window_Base {
         );
     }
 
+    /** @returns {boolean} */
     doesContinue() {
         return (
             $gameMessage.hasText() &&
@@ -4942,6 +6454,7 @@ class Window_Message extends Window_Base {
         );
     }
 
+    /** @returns {boolean} */
     areSettingsChanged() {
         return (
             this._background !== $gameMessage.background() ||
@@ -4949,12 +6462,17 @@ class Window_Message extends Window_Base {
         );
     }
 
+    /** @returns {void} */
     updateShowFast() {
         if (this.isTriggered()) {
             this._showFast = true;
         }
     }
 
+    /**
+     * @param {{ text: string; index: number; x: number; y: number; width: number; height: number; startX: number; startY: number; rtl: boolean; buffer: string; drawing: boolean; outputWidth: number; outputHeight: number; }} textState
+     * @returns {void}
+     */
     newPage(textState) {
         this.contents.clear();
         this.resetFontSettings();
@@ -4966,14 +6484,17 @@ class Window_Message extends Window_Base {
         textState.height = this.calcTextHeight(textState);
     }
 
+    /** @returns {void} */
     updateSpeakerName() {
         this._nameBoxWindow.setName($gameMessage.speakerName());
     }
 
+    /** @returns {void} */
     loadMessageFace() {
         this._faceBitmap = ImageManager.loadFace($gameMessage.faceName());
     }
 
+    /** @returns {void} */
     drawMessageFace() {
         const faceName = $gameMessage.faceName();
         const faceIndex = $gameMessage.faceIndex();
@@ -4984,6 +6505,11 @@ class Window_Message extends Window_Base {
         this.drawFace(faceName, faceIndex, x, 0, width, height);
     }
 
+    /**
+     * @param {{ text: string; index: number; x: number; y: number; width: number; height: number; startX: number; startY: number; rtl: boolean; buffer: string; drawing: boolean; outputWidth: number; outputHeight: number; }} textState
+     * @param {string} c
+     * @returns {void}
+     */
     processControlCharacter(textState, c) {
         super.processControlCharacter(textState, c);
         if (c === "\f") {
@@ -4991,6 +6517,10 @@ class Window_Message extends Window_Base {
         }
     }
 
+    /**
+     * @param {{ text: string; index: number; x: number; y: number; width: number; height: number; startX: number; startY: number; rtl: boolean; buffer: string; drawing: boolean; outputWidth: number; outputHeight: number; }} textState
+     * @returns {void}
+     */
     processNewLine(textState) {
         this._lineShowFast = false;
         super.processNewLine(textState);
@@ -4999,6 +6529,10 @@ class Window_Message extends Window_Base {
         }
     }
 
+    /**
+     * @param {{ text: string; index: number; x: number; y: number; width: number; height: number; startX: number; startY: number; rtl: boolean; buffer: string; drawing: boolean; outputWidth: number; outputHeight: number; }} textState
+     * @returns {void}
+     */
     processNewPage(textState) {
         if (textState.text[textState.index] === "\n") {
             textState.index++;
@@ -5007,10 +6541,18 @@ class Window_Message extends Window_Base {
         this.startPause();
     }
 
+    /**
+     * @param {{ text: string; index: number; x: number; y: number; width: number; height: number; startX: number; startY: number; rtl: boolean; buffer: string; drawing: boolean; outputWidth: number; outputHeight: number; }} textState
+     * @returns {boolean}
+     */
     isEndOfText(textState) {
         return textState.index >= textState.text.length;
     }
 
+    /**
+     * @param {{ text: string; index: number; x: number; y: number; width: number; height: number; startX: number; startY: number; rtl: boolean; buffer: string; drawing: boolean; outputWidth: number; outputHeight: number; }} textState
+     * @returns {boolean}
+     */
     needsNewPage(textState) {
         return (
             !this.isEndOfText(textState) &&
@@ -5018,6 +6560,11 @@ class Window_Message extends Window_Base {
         );
     }
 
+    /**
+     * @param {("$" | "." | "|" | "!" | ">" | "<" | "^") | ("C" | "I" | "PX" | "PY" | "FS" | "{" | "}")} code
+     * @param {{ text: string; index: number; x: number; y: number; width: number; height: number; startX: number; startY: number; rtl: boolean; buffer: string; drawing: boolean; outputWidth: number; outputHeight: number; }} textState
+     * @returns {void}
+     */
     processEscapeCharacter(code, textState) {
         switch (code) {
             case "$":
@@ -5047,15 +6594,21 @@ class Window_Message extends Window_Base {
         }
     }
 
+    /**
+     * @param {number} count
+     * @returns {void}
+     */
     startWait(count) {
         this._waitCount = count;
     }
 
+    /** @returns {void} */
     startPause() {
         this.startWait(10);
         this.pause = true;
     }
 
+    /** @returns {boolean} */
     isWaiting() {
         return this.pause || this._waitCount > 0;
     }
@@ -5066,23 +6619,29 @@ class Window_Message extends Window_Base {
  * is handled as a window for convenience.
  */
 class Window_ScrollText extends Window_Base {
+    /** @param {[rect: Rectangle]} args */
     constructor(...args) {
         super(...args);
     }
 
+    /** @param {Rectangle} rect */
     initialize(rect) {
         super.initialize(new PIXI.Rectangle());
         this.opacity = 0;
         this.hide();
+        /** @type {Rectangle} */
         this._reservedRect = rect;
+        /** @type {string | null} */
         this._text = "";
         this._maxBitmapHeight = 2048;
+        /** @type {number} */
         this._allTextHeight = 0;
         this._blockHeight = 0;
         this._blockIndex = 0;
         this._scrollY = 0;
     }
 
+    /** @returns {void} */
     update() {
         super.update();
         if ($gameMessage.scrollMode()) {
@@ -5095,6 +6654,7 @@ class Window_ScrollText extends Window_Base {
         }
     }
 
+    /** @returns {void} */
     startMessage() {
         this._text = $gameMessage.allText();
         if (this._text) {
@@ -5111,6 +6671,7 @@ class Window_ScrollText extends Window_Base {
         }
     }
 
+    /** @returns {void} */
     refresh() {
         const rect = this.baseTextRect();
         const y = rect.y - this._scrollY + (this._scrollY % this._blockHeight);
@@ -5118,11 +6679,13 @@ class Window_ScrollText extends Window_Base {
         this.drawTextEx(this._text, rect.x, y, rect.width);
     }
 
+    /** @returns {void} */
     updatePlacement() {
         const rect = this._reservedRect;
         this.move(rect.x, rect.y, rect.width, rect.height);
     }
 
+    /** @returns {number} */
     contentsHeight() {
         if (this._allTextHeight > 0) {
             return Math.min(this._allTextHeight, this._maxBitmapHeight);
@@ -5131,6 +6694,7 @@ class Window_ScrollText extends Window_Base {
         }
     }
 
+    /** @returns {void} */
     updateMessage() {
         this._scrollY += this.scrollSpeed();
         if (this._scrollY >= this._allTextHeight) {
@@ -5145,6 +6709,7 @@ class Window_ScrollText extends Window_Base {
         }
     }
 
+    /** @returns {number} */
     scrollSpeed() {
         let speed = $gameMessage.scrollSpeed() / 2;
         if (this.isFastForward()) {
@@ -5153,6 +6718,7 @@ class Window_ScrollText extends Window_Base {
         return speed;
     }
 
+    /** @returns {boolean} */
     isFastForward() {
         if ($gameMessage.scrollNoFast()) {
             return false;
@@ -5165,10 +6731,12 @@ class Window_ScrollText extends Window_Base {
         }
     }
 
+    /** @returns {number} */
     fastForwardRate() {
         return 3;
     }
 
+    /** @returns {void} */
     terminateMessage() {
         this._text = null;
         $gameMessage.clear();
@@ -5180,18 +6748,22 @@ class Window_ScrollText extends Window_Base {
  * The window for displaying the map name on the map screen.
  */
 class Window_MapName extends Window_Base {
+    /** @param {[rect: Rectangle]} args */
     constructor(...args) {
         super(...args);
     }
 
+    /** @param {Rectangle} rect */
     initialize(rect) {
         super.initialize(rect);
         this.opacity = 0;
         this.contentsOpacity = 0;
+        /** @type {number} */
         this._showCount = 0;
         this.refresh();
     }
 
+    /** @returns {void} */
     update() {
         super.update();
         if (this._showCount > 0 && $gameMap.isNameDisplayEnabled()) {
@@ -5202,23 +6774,28 @@ class Window_MapName extends Window_Base {
         }
     }
 
+    /** @returns {void} */
     updateFadeIn() {
         this.contentsOpacity += 16;
     }
 
+    /** @returns {void} */
     updateFadeOut() {
         this.contentsOpacity -= 16;
     }
 
+    /** @returns {void} */
     open() {
         this.refresh();
         this._showCount = 150;
     }
 
+    /** @returns {void} */
     close() {
         this._showCount = 0;
     }
 
+    /** @returns {void} */
     refresh() {
         this.contents.clear();
         if ($gameMap.displayName()) {
@@ -5228,6 +6805,13 @@ class Window_MapName extends Window_Base {
         }
     }
 
+    /**
+     * @param {number} x
+     * @param {number} y
+     * @param {number} width
+     * @param {number} height
+     * @returns {void}
+     */
     drawBackground(x, y, width, height) {
         const color1 = ColorManager.dimColor1();
         const color2 = ColorManager.dimColor2();
@@ -5242,52 +6826,71 @@ class Window_MapName extends Window_Base {
  * handled as a window for convenience.
  */
 class Window_BattleLog extends Window_Base {
+    /** @param {[rect: Rectangle]} args */
     constructor(...args) {
         super(...args);
     }
 
+    /** @param {Rectangle} rect */
     initialize(rect) {
         super.initialize(rect);
         this.opacity = 0;
+        /** @type {string[]} */
         this._lines = [];
+        /** @type {((Window_BattleLog["performActionStart"] extends (...args: any[]) => any ? { name: "performActionStart"; params: Parameters<Window_BattleLog["performActionStart"]>; } : never) | (Window_BattleLog["performAction"] extends (...args: any[]) => any ? { name: "performAction"; params: Parameters<Window_BattleLog["performAction"]>; } : never) | (Window_BattleLog["performActionEnd"] extends (...args: any[]) => any ? { name: "performActionEnd"; params: Parameters<Window_BattleLog["performActionEnd"]>; } : never) | (Window_BattleLog["performCounter"] extends (...args: any[]) => any ? { name: "performCounter"; params: Parameters<Window_BattleLog["performCounter"]>; } : never) | (Window_BattleLog["performReflection"] extends (...args: any[]) => any ? { name: "performReflection"; params: Parameters<Window_BattleLog["performReflection"]>; } : never) | (Window_BattleLog["performSubstitute"] extends (...args: any[]) => any ? { name: "performSubstitute"; params: Parameters<Window_BattleLog["performSubstitute"]>; } : never) | (Window_BattleLog["performMiss"] extends (...args: any[]) => any ? { name: "performMiss"; params: Parameters<Window_BattleLog["performMiss"]>; } : never) | (Window_BattleLog["performEvasion"] extends (...args: any[]) => any ? { name: "performEvasion"; params: Parameters<Window_BattleLog["performEvasion"]>; } : never) | (Window_BattleLog["performMagicEvasion"] extends (...args: any[]) => any ? { name: "performMagicEvasion"; params: Parameters<Window_BattleLog["performMagicEvasion"]>; } : never) | (Window_BattleLog["performDamage"] extends (...args: any[]) => any ? { name: "performDamage"; params: Parameters<Window_BattleLog["performDamage"]>; } : never) | (Window_BattleLog["performRecovery"] extends (...args: any[]) => any ? { name: "performRecovery"; params: Parameters<Window_BattleLog["performRecovery"]>; } : never) | (Window_BattleLog["performCollapse"] extends (...args: any[]) => any ? { name: "performCollapse"; params: Parameters<Window_BattleLog["performCollapse"]>; } : never) | (Window_BattleLog["pushBaseLine"] extends (...args: any[]) => any ? { name: "pushBaseLine"; params: Parameters<Window_BattleLog["pushBaseLine"]>; } : never) | (Window_BattleLog["popBaseLine"] extends (...args: any[]) => any ? { name: "popBaseLine"; params: Parameters<Window_BattleLog["popBaseLine"]>; } : never) | (Window_BattleLog["addText"] extends (...args: any[]) => any ? { name: "addText"; params: Parameters<Window_BattleLog["addText"]>; } : never) | (Window_BattleLog["popupDamage"] extends (...args: any[]) => any ? { name: "popupDamage"; params: Parameters<Window_BattleLog["popupDamage"]>; } : never) | (Window_BattleLog["wait"] extends (...args: any[]) => any ? { name: "wait"; params: Parameters<Window_BattleLog["wait"]>; } : never) | (Window_BattleLog["waitForMovement"] extends (...args: any[]) => any ? { name: "waitForMovement"; params: Parameters<Window_BattleLog["waitForMovement"]>; } : never) | (Window_BattleLog["waitForNewLine"] extends (...args: any[]) => any ? { name: "waitForNewLine"; params: Parameters<Window_BattleLog["waitForNewLine"]>; } : never) | (Window_BattleLog["waitForEffect"] extends (...args: any[]) => any ? { name: "waitForEffect"; params: Parameters<Window_BattleLog["waitForEffect"]>; } : never) | (Window_BattleLog["showAnimation"] extends (...args: any[]) => any ? { name: "showAnimation"; params: Parameters<Window_BattleLog["showAnimation"]>; } : never) | (Window_BattleLog["clear"] extends (...args: any[]) => any ? { name: "clear"; params: Parameters<Window_BattleLog["clear"]>; } : never))[]} */
         this._methods = [];
+        /** @type {number} */
         this._waitCount = 0;
+        /** @type {RMMZ.WaitMode} */
         this._waitMode = "";
+        /** @type {number[]} */
         this._baseLineStack = [];
+        /** @type {Spriteset_Battle | null} */
         this._spriteset = null;
         this.refresh();
     }
 
+    /**
+     * @param {Spriteset_Battle} spriteset
+     * @returns {void}
+     */
     setSpriteset(spriteset) {
         this._spriteset = spriteset;
     }
 
+    /** @returns {number} */
     maxLines() {
         return 10;
     }
 
+    /** @returns {number} */
     numLines() {
         return this._lines.length;
     }
 
+    /** @returns {number} */
     messageSpeed() {
         return 16;
     }
 
+    /** @returns {boolean | "video" | "scroll" | "image" | "message" | "transfer" | "route" | "animation" | "balloon" | "gather" | "action" | "effect" | "movement"} */
     isBusy() {
         return this._waitCount > 0 || this._waitMode || this._methods.length > 0;
     }
 
+    /** @returns {void} */
     update() {
         if (!this.updateWait()) {
             this.callNextMethod();
         }
     }
 
+    /** @returns {boolean} */
     updateWait() {
         return this.updateWaitCount() || this.updateWaitMode();
     }
 
+    /** @returns {boolean} */
     updateWaitCount() {
         if (this._waitCount > 0) {
             this._waitCount -= this.isFastForward() ? 3 : 1;
@@ -5299,6 +6902,7 @@ class Window_BattleLog extends Window_Base {
         return false;
     }
 
+    /** @returns {boolean} */
     updateWaitMode() {
         let waiting = false;
         switch (this._waitMode) {
@@ -5315,10 +6919,15 @@ class Window_BattleLog extends Window_Base {
         return waiting;
     }
 
+    /**
+     * @param {RMMZ.WaitMode} waitMode
+     * @returns {void}
+     */
     setWaitMode(waitMode) {
         this._waitMode = waitMode;
     }
 
+    /** @returns {void} */
     callNextMethod() {
         if (this._methods.length > 0) {
             const method = this._methods.shift();
@@ -5330,6 +6939,7 @@ class Window_BattleLog extends Window_Base {
         }
     }
 
+    /** @returns {boolean} */
     isFastForward() {
         return (
             Input.isLongPressed("ok") ||
@@ -5338,39 +6948,54 @@ class Window_BattleLog extends Window_Base {
         );
     }
 
+    /**
+     * @template T
+     * @param {T} methodName
+     * @returns {void}
+     */
     push(methodName) {
         const methodArgs = Array.prototype.slice.call(arguments, 1);
         this._methods.push({ name: methodName, params: methodArgs });
     }
 
+    /** @returns {void} */
     clear() {
         this._lines = [];
         this._baseLineStack = [];
         this.refresh();
     }
 
+    /** @returns {void} */
     wait() {
         this._waitCount = this.messageSpeed();
     }
 
+    /** @returns {void} */
     waitForEffect() {
         this.setWaitMode("effect");
     }
 
+    /** @returns {void} */
     waitForMovement() {
         this.setWaitMode("movement");
     }
 
+    /**
+     * @param {string} text
+     * @returns {void}
+     */
     addText(text) {
         this._lines.push(text);
         this.refresh();
         this.wait();
     }
 
+    /** @returns {void} */
     pushBaseLine() {
         this._baseLineStack.push(this._lines.length);
     }
 
+    /** @returns {void} */
     popBaseLine() {
         const baseLine = this._baseLineStack.pop();
         while (this._lines.length > baseLine) {
@@ -5378,6 +7003,7 @@ class Window_BattleLog extends Window_Base {
         }
     }
 
+    /** @returns {void} */
     waitForNewLine() {
         let baseLine = 0;
         if (this._baseLineStack.length > 0) {
@@ -5388,61 +7014,122 @@ class Window_BattleLog extends Window_Base {
         }
     }
 
+    /**
+     * @param {RMMZ.ActionTarget} target
+     * @returns {void}
+     */
     popupDamage(target) {
         if (target.shouldPopupDamage()) {
             target.startDamagePopup();
         }
     }
 
+    /**
+     * @param {RMMZ.ActionTarget} subject
+     * @param {Game_Action} action
+     * @returns {void}
+     */
     performActionStart(subject, action) {
         subject.performActionStart(action);
     }
 
+    /**
+     * @param {RMMZ.ActionTarget} subject
+     * @param {Game_Action} action
+     * @returns {void}
+     */
     performAction(subject, action) {
         subject.performAction(action);
     }
 
+    /**
+     * @param {RMMZ.ActionTarget} subject
+     * @returns {void}
+     */
     performActionEnd(subject) {
         subject.performActionEnd();
     }
 
+    /**
+     * @param {RMMZ.ActionTarget} target
+     * @returns {void}
+     */
     performDamage(target) {
         target.performDamage();
     }
 
+    /**
+     * @param {RMMZ.ActionTarget} target
+     * @returns {void}
+     */
     performMiss(target) {
         target.performMiss();
     }
 
+    /**
+     * @param {RMMZ.ActionTarget} target
+     * @returns {void}
+     */
     performRecovery(target) {
         target.performRecovery();
     }
 
+    /**
+     * @param {RMMZ.ActionTarget} target
+     * @returns {void}
+     */
     performEvasion(target) {
         target.performEvasion();
     }
 
+    /**
+     * @param {RMMZ.ActionTarget} target
+     * @returns {void}
+     */
     performMagicEvasion(target) {
         target.performMagicEvasion();
     }
 
+    /**
+     * @param {RMMZ.ActionTarget} target
+     * @returns {void}
+     */
     performCounter(target) {
         target.performCounter();
     }
 
+    /**
+     * @param {RMMZ.ActionTarget} target
+     * @returns {void}
+     */
     performReflection(target) {
         target.performReflection();
     }
 
+    /**
+     * @param {RMMZ.ActionTarget} substitute
+     * @param {RMMZ.ActionTarget} target
+     * @returns {void}
+     */
     performSubstitute(substitute, target) {
         substitute.performSubstitute(target);
     }
 
+    /**
+     * @param {RMMZ.ActionTarget} target
+     * @returns {void}
+     */
     performCollapse(target) {
         target.performCollapse();
     }
 
     // prettier-ignore
+    /**
+     * @param {RMMZ.ActionTarget} subject
+     * @param {RMMZ.ActionTarget[]} targets
+     * @param {RMMZ.AnimationID} animationId
+     * @returns {void}
+     */
     showAnimation(
         subject, targets, animationId
     ) {
@@ -5453,6 +7140,11 @@ class Window_BattleLog extends Window_Base {
         }
     }
 
+    /**
+     * @param {RMMZ.ActionTarget} subject
+     * @param {RMMZ.ActionTarget[]} targets
+     * @returns {void}
+     */
     showAttackAnimation(subject, targets) {
         if (subject.isActor()) {
             this.showActorAttackAnimation(subject, targets);
@@ -5462,6 +7154,11 @@ class Window_BattleLog extends Window_Base {
     }
 
     // prettier-ignore
+    /**
+     * @param {Game_Actor} subject
+     * @param {RMMZ.ActionTarget[]} targets
+     * @returns {void}
+     */
     showActorAttackAnimation(
         subject, targets
     ) {
@@ -5469,6 +7166,11 @@ class Window_BattleLog extends Window_Base {
         this.showNormalAnimation(targets, subject.attackAnimationId2(), true);
     }
 
+    /**
+     * @param {Game_Enemy} subject
+     * @param {RMMZ.ActionTarget[]} targets
+     * @returns {void}
+     */
     // prettier-ignore
     showEnemyAttackAnimation(
         /* subject, targets */
@@ -5477,6 +7179,12 @@ class Window_BattleLog extends Window_Base {
     }
 
     // prettier-ignore
+    /**
+     * @param {RMMZ.ActionTarget[]} targets
+     * @param {RMMZ.AnimationID} animationId
+     * @param {boolean} [mirror]
+     * @returns {void}
+     */
     showNormalAnimation(
         targets, animationId, mirror
     ) {
@@ -5486,6 +7194,7 @@ class Window_BattleLog extends Window_Base {
         }
     }
 
+    /** @returns {void} */
     refresh() {
         this.drawBackground();
         this.contents.clear();
@@ -5494,6 +7203,7 @@ class Window_BattleLog extends Window_Base {
         }
     }
 
+    /** @returns {void} */
     drawBackground() {
         const rect = this.backRect();
         const color = this.backColor();
@@ -5503,11 +7213,16 @@ class Window_BattleLog extends Window_Base {
         this.contentsBack.paintOpacity = 255;
     }
 
+    /** @returns {Rectangle} */
     backRect() {
         const height = this.numLines() * this.itemHeight();
         return new PIXI.Rectangle(0, 0, this.innerWidth, height);
     }
 
+    /**
+     * @param {number} index
+     * @returns {Rectangle}
+     */
     lineRect(index) {
         const itemHeight = this.itemHeight();
         const padding = this.itemPadding();
@@ -5518,24 +7233,37 @@ class Window_BattleLog extends Window_Base {
         return new PIXI.Rectangle(x, y, width, height);
     }
 
+    /** @returns {string} */
     backColor() {
         return "#000000";
     }
 
+    /** @returns {number} */
     backPaintOpacity() {
         return 64;
     }
 
+    /**
+     * @param {number} index
+     * @returns {void}
+     */
     drawLineText(index) {
         const rect = this.lineRect(index);
         this.contents.clearRect(rect.x, rect.y, rect.width, rect.height);
         this.drawTextEx(this._lines[index], rect.x, rect.y, rect.width);
     }
 
+    /** @returns {void} */
     startTurn() {
         this.push("wait");
     }
 
+    /**
+     * @param {RMMZ.ActionTarget} subject
+     * @param {Game_Action} action
+     * @param {RMMZ.ActionTarget[]} targets
+     * @returns {void}
+     */
     startAction(subject, action, targets) {
         const item = action.item();
         this.push("performActionStart", subject, action);
@@ -5545,12 +7273,20 @@ class Window_BattleLog extends Window_Base {
         this.displayAction(subject, item);
     }
 
+    /**
+     * @param {RMMZ.ActionTarget} subject
+     * @returns {void}
+     */
     endAction(subject) {
         this.push("waitForNewLine");
         this.push("clear");
         this.push("performActionEnd", subject);
     }
 
+    /**
+     * @param {RMMZ.ActionTarget} subject
+     * @returns {void}
+     */
     displayCurrentState(subject) {
         const stateText = subject.mostImportantStateText();
         if (stateText) {
@@ -5560,10 +7296,19 @@ class Window_BattleLog extends Window_Base {
         }
     }
 
+    /**
+     * @param {RMMZ.ActionTarget} subject
+     * @returns {void}
+     */
     displayRegeneration(subject) {
         this.push("popupDamage", subject);
     }
 
+    /**
+     * @param {RMMZ.ActionTarget} subject
+     * @param {RMMZ.DataItemBase} item
+     * @returns {void}
+     */
     displayAction(subject, item) {
         const numMethods = this._methods.length;
         if (DataManager.isSkill(item)) {
@@ -5577,22 +7322,41 @@ class Window_BattleLog extends Window_Base {
         }
     }
 
+    /**
+     * @param {string} fmt
+     * @param {RMMZ.ActionTarget} subject
+     * @param {RMMZ.DataItemBase} item
+     * @returns {void}
+     */
     displayItemMessage(fmt, subject, item) {
         if (fmt) {
             this.push("addText", fmt.format(subject.name(), item.name));
         }
     }
 
+    /**
+     * @param {RMMZ.ActionTarget} target
+     * @returns {void}
+     */
     displayCounter(target) {
         this.push("performCounter", target);
         this.push("addText", TextManager.counterAttack.format(target.name()));
     }
 
+    /**
+     * @param {RMMZ.ActionTarget} target
+     * @returns {void}
+     */
     displayReflection(target) {
         this.push("performReflection", target);
         this.push("addText", TextManager.magicReflection.format(target.name()));
     }
 
+    /**
+     * @param {RMMZ.ActionTarget} substitute
+     * @param {RMMZ.ActionTarget} target
+     * @returns {void}
+     */
     displaySubstitute(substitute, target) {
         const substName = substitute.name();
         const text = TextManager.substitute.format(substName, target.name());
@@ -5600,6 +7364,11 @@ class Window_BattleLog extends Window_Base {
         this.push("addText", text);
     }
 
+    /**
+     * @param {RMMZ.ActionTarget} subject
+     * @param {RMMZ.ActionTarget} target
+     * @returns {void}
+     */
     displayActionResults(subject, target) {
         if (target.result().used) {
             this.push("pushBaseLine");
@@ -5614,12 +7383,20 @@ class Window_BattleLog extends Window_Base {
         }
     }
 
+    /**
+     * @param {RMMZ.ActionTarget} target
+     * @returns {void}
+     */
     displayFailure(target) {
         if (target.result().isHit() && !target.result().success) {
             this.push("addText", TextManager.actionFailure.format(target.name()));
         }
     }
 
+    /**
+     * @param {RMMZ.ActionTarget} target
+     * @returns {void}
+     */
     displayCritical(target) {
         if (target.result().critical) {
             if (target.isActor()) {
@@ -5630,6 +7407,10 @@ class Window_BattleLog extends Window_Base {
         }
     }
 
+    /**
+     * @param {RMMZ.ActionTarget} target
+     * @returns {void}
+     */
     displayDamage(target) {
         if (target.result().missed) {
             this.displayMiss(target);
@@ -5642,6 +7423,10 @@ class Window_BattleLog extends Window_Base {
         }
     }
 
+    /**
+     * @param {RMMZ.ActionTarget} target
+     * @returns {void}
+     */
     displayMiss(target) {
         let fmt;
         if (target.result().physical) {
@@ -5654,6 +7439,10 @@ class Window_BattleLog extends Window_Base {
         this.push("addText", fmt.format(target.name()));
     }
 
+    /**
+     * @param {RMMZ.ActionTarget} target
+     * @returns {void}
+     */
     displayEvasion(target) {
         let fmt;
         if (target.result().physical) {
@@ -5666,6 +7455,10 @@ class Window_BattleLog extends Window_Base {
         this.push("addText", fmt.format(target.name()));
     }
 
+    /**
+     * @param {RMMZ.ActionTarget} target
+     * @returns {void}
+     */
     displayHpDamage(target) {
         if (target.result().hpAffected) {
             if (target.result().hpDamage > 0 && !target.result().drain) {
@@ -5678,6 +7471,10 @@ class Window_BattleLog extends Window_Base {
         }
     }
 
+    /**
+     * @param {RMMZ.ActionTarget} target
+     * @returns {void}
+     */
     displayMpDamage(target) {
         if (target.isAlive() && target.result().mpDamage !== 0) {
             if (target.result().mpDamage < 0) {
@@ -5687,6 +7484,10 @@ class Window_BattleLog extends Window_Base {
         }
     }
 
+    /**
+     * @param {RMMZ.ActionTarget} target
+     * @returns {void}
+     */
     displayTpDamage(target) {
         if (target.isAlive() && target.result().tpDamage !== 0) {
             if (target.result().tpDamage < 0) {
@@ -5696,6 +7497,10 @@ class Window_BattleLog extends Window_Base {
         }
     }
 
+    /**
+     * @param {RMMZ.ActionTarget} target
+     * @returns {void}
+     */
     displayAffectedStatus(target) {
         if (target.result().isStatusAffected()) {
             this.push("pushBaseLine");
@@ -5706,6 +7511,10 @@ class Window_BattleLog extends Window_Base {
         }
     }
 
+    /**
+     * @param {RMMZ.ActionTarget} target
+     * @returns {void}
+     */
     displayAutoAffectedStatus(target) {
         if (target.result().isStatusAffected()) {
             this.displayAffectedStatus(target, null);
@@ -5713,11 +7522,19 @@ class Window_BattleLog extends Window_Base {
         }
     }
 
+    /**
+     * @param {RMMZ.ActionTarget} target
+     * @returns {void}
+     */
     displayChangedStates(target) {
         this.displayAddedStates(target);
         this.displayRemovedStates(target);
     }
 
+    /**
+     * @param {RMMZ.ActionTarget} target
+     * @returns {void}
+     */
     displayAddedStates(target) {
         const result = target.result();
         const states = result.addedStateObjects();
@@ -5735,6 +7552,10 @@ class Window_BattleLog extends Window_Base {
         }
     }
 
+    /**
+     * @param {RMMZ.ActionTarget} target
+     * @returns {void}
+     */
     displayRemovedStates(target) {
         const result = target.result();
         const states = result.removedStateObjects();
@@ -5747,6 +7568,10 @@ class Window_BattleLog extends Window_Base {
         }
     }
 
+    /**
+     * @param {RMMZ.ActionTarget} target
+     * @returns {void}
+     */
     displayChangedBuffs(target) {
         const result = target.result();
         this.displayBuffs(target, result.addedBuffs, TextManager.buffAdd);
@@ -5754,6 +7579,12 @@ class Window_BattleLog extends Window_Base {
         this.displayBuffs(target, result.removedBuffs, TextManager.buffRemove);
     }
 
+    /**
+     * @param {RMMZ.ActionTarget} target
+     * @param {RMMZ.ParamID[]} buffs
+     * @param {string} fmt
+     * @returns {void}
+     */
     displayBuffs(target, buffs, fmt) {
         for (const paramId of buffs) {
             const text = fmt.format(target.name(), TextManager.param(paramId));
@@ -5763,6 +7594,10 @@ class Window_BattleLog extends Window_Base {
         }
     }
 
+    /**
+     * @param {RMMZ.ActionTarget} target
+     * @returns {string}
+     */
     makeHpDamageText(target) {
         const result = target.result();
         const damage = result.hpDamage;
@@ -5783,6 +7618,10 @@ class Window_BattleLog extends Window_Base {
         }
     }
 
+    /**
+     * @param {RMMZ.ActionTarget} target
+     * @returns {string}
+     */
     makeMpDamageText(target) {
         const result = target.result();
         const damage = result.mpDamage;
@@ -5802,6 +7641,10 @@ class Window_BattleLog extends Window_Base {
         }
     }
 
+    /**
+     * @param {RMMZ.ActionTarget} target
+     * @returns {string}
+     */
     makeTpDamageText(target) {
         const result = target.result();
         const damage = result.tpDamage;
@@ -5823,21 +7666,25 @@ class Window_BattleLog extends Window_Base {
  * The window for selecting whether to fight or escape on the battle screen.
  */
 class Window_PartyCommand extends Window_Command {
+    /** @param {[rect: Rectangle]} args */
     constructor(...args) {
         super(...args);
     }
 
+    /** @param {Rectangle} rect */
     initialize(rect) {
         super.initialize(rect);
         this.openness = 0;
         this.deactivate();
     }
 
+    /** @returns {void} */
     makeCommandList() {
         this.addCommand(TextManager.fight, "fight");
         this.addCommand(TextManager.escape, "escape", BattleManager.canEscape());
     }
 
+    /** @returns {void} */
     setup() {
         this.refresh();
         this.forceSelect(0);
@@ -5850,17 +7697,21 @@ class Window_PartyCommand extends Window_Command {
  * The window for selecting an actor's action on the battle screen.
  */
 class Window_ActorCommand extends Window_Command {
+    /** @param {[rect: Rectangle]} args */
     constructor(...args) {
         super(...args);
     }
 
+    /** @param {Rectangle} rect */
     initialize(rect) {
         super.initialize(rect);
         this.openness = 0;
         this.deactivate();
+        /** @type {Game_Actor | null} */
         this._actor = null;
     }
 
+    /** @returns {void} */
     makeCommandList() {
         if (this._actor) {
             this.addAttackCommand();
@@ -5870,10 +7721,12 @@ class Window_ActorCommand extends Window_Command {
         }
     }
 
+    /** @returns {void} */
     addAttackCommand() {
         this.addCommand(TextManager.attack, "attack", this._actor.canAttack());
     }
 
+    /** @returns {void} */
     addSkillCommands() {
         const skillTypes = this._actor.skillTypes();
         for (const stypeId of skillTypes) {
@@ -5882,14 +7735,20 @@ class Window_ActorCommand extends Window_Command {
         }
     }
 
+    /** @returns {void} */
     addGuardCommand() {
         this.addCommand(TextManager.guard, "guard", this._actor.canGuard());
     }
 
+    /** @returns {void} */
     addItemCommand() {
         this.addCommand(TextManager.item, "item");
     }
 
+    /**
+     * @param {Game_Actor | null} actor
+     * @returns {void}
+     */
     setup(actor) {
         this._actor = actor;
         this.refresh();
@@ -5898,10 +7757,12 @@ class Window_ActorCommand extends Window_Command {
         this.open();
     }
 
+    /** @returns {Game_Actor | null} */
     actor() {
         return this._actor;
     }
 
+    /** @returns {void} */
     processOk() {
         if (this._actor) {
             if (ConfigManager.commandRemember) {
@@ -5913,6 +7774,7 @@ class Window_ActorCommand extends Window_Command {
         super.processOk();
     }
 
+    /** @returns {void} */
     selectLast() {
         this.forceSelect(0);
         if (this._actor && ConfigManager.commandRemember) {
@@ -5932,51 +7794,69 @@ class Window_ActorCommand extends Window_Command {
  * The window for displaying the status of party members on the battle screen.
  */
 class Window_BattleStatus extends Window_StatusBase {
+    /** @param {[rect: Rectangle]} args */
     constructor(...args) {
         super(...args);
     }
 
+    /** @param {Rectangle} rect */
     initialize(rect) {
         super.initialize(rect);
         this.frameVisible = false;
         this.openness = 0;
+        /** @type {number} */
         this._bitmapsReady = 0;
         this.preparePartyRefresh();
     }
 
+    /** @returns {number} */
     extraHeight() {
         return 10;
     }
 
+    /** @returns {number} */
     maxCols() {
         return 4;
     }
 
+    /** @returns {number} */
     itemHeight() {
         return this.innerHeight;
     }
 
+    /** @returns {number} */
     maxItems() {
         return $gameParty.battleMembers().length;
     }
 
+    /** @returns {number} */
     rowSpacing() {
         return 0;
     }
 
+    /** @returns {void} */
     updatePadding() {
         this.padding = 8;
     }
 
+    /**
+     * @param {number} index
+     * @returns {Game_Actor}
+     */
     actor(index) {
         return $gameParty.battleMembers()[index];
     }
 
+    /**
+     * @param {Game_Actor | null} actor
+     * @returns {void}
+     */
     selectActor(actor) {
         const members = $gameParty.battleMembers();
         this.select(members.indexOf(actor));
     }
 
+    /** @returns {void} */
     update() {
         super.update();
         if ($gameTemp.isBattleRefreshRequested()) {
@@ -5984,6 +7864,7 @@ class Window_BattleStatus extends Window_StatusBase {
         }
     }
 
+    /** @returns {void} */
     preparePartyRefresh() {
         $gameTemp.clearBattleRefreshRequest();
         this._bitmapsReady = 0;
@@ -5993,6 +7874,7 @@ class Window_BattleStatus extends Window_StatusBase {
         }
     }
 
+    /** @returns {void} */
     performPartyRefresh() {
         this._bitmapsReady++;
         if (this._bitmapsReady >= $gameParty.members().length) {
@@ -6000,17 +7882,29 @@ class Window_BattleStatus extends Window_StatusBase {
         }
     }
 
+    /**
+     * @param {number} index
+     * @returns {void}
+     */
     drawItem(index) {
         this.drawItemImage(index);
         this.drawItemStatus(index);
     }
 
+    /**
+     * @param {number} index
+     * @returns {void}
+     */
     drawItemImage(index) {
         const actor = this.actor(index);
         const rect = this.faceRect(index);
         this.drawActorFace(actor, rect.x, rect.y, rect.width, rect.height);
     }
 
+    /**
+     * @param {number} index
+     * @returns {void}
+     */
     drawItemStatus(index) {
         const actor = this.actor(index);
         const rect = this.itemRectWithPadding(index);
@@ -6026,6 +7920,10 @@ class Window_BattleStatus extends Window_StatusBase {
         this.placeBasicGauges(actor, basicGaugesX, basicGaugesY);
     }
 
+    /**
+     * @param {number} index
+     * @returns {Rectangle}
+     */
     faceRect(index) {
         const rect = this.itemRect(index);
         rect.pad(-1);
@@ -6033,26 +7931,50 @@ class Window_BattleStatus extends Window_StatusBase {
         return rect;
     }
 
+    /**
+     * @param {Rectangle} rect
+     * @returns {number}
+     */
     nameX(rect) {
         return rect.x;
     }
 
+    /**
+     * @param {Rectangle} rect
+     * @returns {number}
+     */
     nameY(rect) {
         return this.basicGaugesY(rect) - this.gaugeLineHeight();
     }
 
+    /**
+     * @param {Rectangle} rect
+     * @returns {number}
+     */
     stateIconX(rect) {
         return rect.x + rect.width - ImageManager.standardIconWidth / 2 + 4;
     }
 
+    /**
+     * @param {Rectangle} rect
+     * @returns {number}
+     */
     stateIconY(rect) {
         return rect.y + ImageManager.standardIconHeight / 2 + 4;
     }
 
+    /**
+     * @param {Rectangle} rect
+     * @returns {number}
+     */
     basicGaugesX(rect) {
         return rect.x;
     }
 
+    /**
+     * @param {Rectangle} rect
+     * @returns {number}
+     */
     basicGaugesY(rect) {
         const bottom = rect.y + rect.height - this.extraHeight();
         const numGauges = $dataSystem.optDisplayTp ? 3 : 2;
@@ -6064,32 +7986,41 @@ class Window_BattleStatus extends Window_StatusBase {
  * The window for selecting a target actor on the battle screen.
  */
 class Window_BattleActor extends Window_BattleStatus {
+    /** @param {[rect: Rectangle]} args */
     constructor(...args) {
         super(...args);
     }
 
+    /** @param {Rectangle} rect */
     initialize(rect) {
         super.initialize(rect);
         this.openness = 255;
         this.hide();
     }
 
+    /** @returns {void} */
     show() {
         this.forceSelect(0);
         $gameTemp.clearTouchState();
         super.show();
     }
 
+    /** @returns {void} */
     hide() {
         super.hide();
         $gameParty.select(null);
     }
 
+    /**
+     * @param {number} index
+     * @returns {void}
+     */
     select(index) {
         super.select(index);
         $gameParty.select(this.actor(index));
     }
 
+    /** @returns {void} */
     processTouch() {
         super.processTouch();
         if (this.isOpenAndActive()) {
@@ -6112,34 +8043,45 @@ class Window_BattleActor extends Window_BattleStatus {
  * The window for selecting a target enemy on the battle screen.
  */
 class Window_BattleEnemy extends Window_Selectable {
+    /** @param {[rect: Rectangle]} args */
     constructor(...args) {
         super(...args);
     }
 
+    /** @param {Rectangle} rect */
     initialize(rect) {
+        /** @type {Game_Enemy[]} */
         this._enemies = [];
         super.initialize(rect);
         this.refresh();
         this.hide();
     }
 
+    /** @returns {number} */
     maxCols() {
         return 2;
     }
 
+    /** @returns {number} */
     maxItems() {
         return this._enemies.length;
     }
 
+    /** @returns {Game_Enemy} */
     enemy() {
         return this._enemies[this.index()];
     }
 
+    /** @returns {number} */
     enemyIndex() {
         const enemy = this.enemy();
         return enemy ? enemy.index() : -1;
     }
 
+    /**
+     * @param {number} index
+     * @returns {void}
+     */
     drawItem(index) {
         this.resetTextColor();
         const name = this._enemies[index].name();
@@ -6147,6 +8089,7 @@ class Window_BattleEnemy extends Window_Selectable {
         this.drawText(name, rect.x, rect.y, rect.width);
     }
 
+    /** @returns {void} */
     show() {
         this.refresh();
         this.forceSelect(0);
@@ -6154,21 +8097,28 @@ class Window_BattleEnemy extends Window_Selectable {
         super.show();
     }
 
+    /** @returns {void} */
     hide() {
         super.hide();
         $gameTroop.select(null);
     }
 
+    /** @returns {void} */
     refresh() {
         this._enemies = $gameTroop.aliveMembers();
         super.refresh();
     }
 
+    /**
+     * @param {number} index
+     * @returns {void}
+     */
     select(index) {
         super.select(index);
         $gameTroop.select(this.enemy());
     }
 
+    /** @returns {void} */
     processTouch() {
         super.processTouch();
         if (this.isOpenAndActive()) {
@@ -6190,21 +8140,25 @@ class Window_BattleEnemy extends Window_Selectable {
  * The window for selecting a skill to use on the battle screen.
  */
 class Window_BattleSkill extends Window_SkillList {
+    /** @param {[rect: Rectangle]} args */
     constructor(...args) {
         super(...args);
     }
 
+    /** @param {Rectangle} rect */
     initialize(rect) {
         super.initialize(rect);
         this.hide();
     }
 
+    /** @returns {void} */
     show() {
         this.selectLast();
         this.showHelpWindow();
         super.show();
     }
 
+    /** @returns {void} */
     hide() {
         this.hideHelpWindow();
         super.hide();
@@ -6215,25 +8169,33 @@ class Window_BattleSkill extends Window_SkillList {
  * The window for selecting an item to use on the battle screen.
  */
 class Window_BattleItem extends Window_ItemList {
+    /** @param {[rect: Rectangle]} args */
     constructor(...args) {
         super(...args);
     }
 
+    /** @param {Rectangle} rect */
     initialize(rect) {
         super.initialize(rect);
         this.hide();
     }
 
+    /**
+     * @param {RMMZ.DataItemBase} item
+     * @returns {boolean}
+     */
     includes(item) {
         return $gameParty.canUse(item);
     }
 
+    /** @returns {void} */
     show() {
         this.selectLast();
         this.showHelpWindow();
         super.show();
     }
 
+    /** @returns {void} */
     hide() {
         this.hideHelpWindow();
         super.hide();
@@ -6244,22 +8206,27 @@ class Window_BattleItem extends Window_ItemList {
  * The window for selecting New Game/Continue on the title screen.
  */
 class Window_TitleCommand extends Window_Command {
+    /** @param {[rect: Rectangle]} args */
     constructor(...args) {
         super(...args);
     }
 
+    /** @param {Rectangle} rect */
     initialize(rect) {
         super.initialize(rect);
         this.openness = 0;
         this.selectLast();
     }
 
+    /** @type {string | null} */
     static _lastCommandSymbol = null;
 
+    /** @returns {void} */
     static initCommandPosition() {
         this._lastCommandSymbol = null;
     }
 
+    /** @returns {void} */
     makeCommandList() {
         const continueEnabled = this.isContinueEnabled();
         this.addCommand(TextManager.newGame, "newGame");
@@ -6267,15 +8234,18 @@ class Window_TitleCommand extends Window_Command {
         this.addCommand(TextManager.options, "options");
     }
 
+    /** @returns {boolean} */
     isContinueEnabled() {
         return DataManager.isAnySavefileExists();
     }
 
+    /** @returns {void} */
     processOk() {
         Window_TitleCommand._lastCommandSymbol = this.currentSymbol();
         super.processOk();
     }
 
+    /** @returns {void} */
     selectLast() {
         if (Window_TitleCommand._lastCommandSymbol) {
             this.selectSymbol(Window_TitleCommand._lastCommandSymbol);
@@ -6289,16 +8259,19 @@ class Window_TitleCommand extends Window_Command {
  * The window for selecting "Go to Title" on the game end screen.
  */
 class Window_GameEnd extends Window_Command {
+    /** @param {[rect: Rectangle]} args */
     constructor(...args) {
         super(...args);
     }
 
+    /** @param {Rectangle} rect */
     initialize(rect) {
         super.initialize(rect);
         this.openness = 0;
         this.open();
     }
 
+    /** @returns {void} */
     makeCommandList() {
         this.addCommand(TextManager.toTitle, "toTitle");
         this.addCommand(TextManager.cancel, "cancel");
@@ -6309,16 +8282,22 @@ class Window_GameEnd extends Window_Command {
  * The window for selecting a block of switches/variables on the debug screen.
  */
 class Window_DebugRange extends Window_Selectable {
+    /** @param {[rect: Rectangle]} args */
     constructor(...args) {
         super(...args);
     }
 
+    /** @type {number} */
     static lastTopRow = 0;
 
+    /** @type {number} */
     static lastIndex = 0;
 
+    /** @param {Rectangle} rect */
     initialize(rect) {
+        /** @type {number} */
         this._maxSwitches = Math.ceil(($dataSystem.switches.length - 1) / 10);
+        /** @type {number} */
         this._maxVariables = Math.ceil(($dataSystem.variables.length - 1) / 10);
         super.initialize(rect);
         this.refresh();
@@ -6327,10 +8306,12 @@ class Window_DebugRange extends Window_Selectable {
         this.activate();
     }
 
+    /** @returns {number} */
     maxItems() {
         return this._maxSwitches + this._maxVariables;
     }
 
+    /** @returns {void} */
     update() {
         super.update();
         if (this._editWindow) {
@@ -6340,10 +8321,18 @@ class Window_DebugRange extends Window_Selectable {
         }
     }
 
+    /**
+     * @param {number} [index]
+     * @returns {"switch" | "variable"}
+     */
     mode(index) {
         return this.isSwitchMode(index) ? "switch" : "variable";
     }
 
+    /**
+     * @param {number} index
+     * @returns {number}
+     */
     topId(index) {
         if (this.isSwitchMode(index)) {
             return index * 10 + 1;
@@ -6352,10 +8341,18 @@ class Window_DebugRange extends Window_Selectable {
         }
     }
 
+    /**
+     * @param {number} [index]
+     * @returns {boolean}
+     */
     isSwitchMode(index) {
         return index < this._maxSwitches;
     }
 
+    /**
+     * @param {number} index
+     * @returns {void}
+     */
     drawItem(index) {
         const rect = this.itemLineRect(index);
         const c = this.isSwitchMode(index) ? "S" : "V";
@@ -6365,6 +8362,7 @@ class Window_DebugRange extends Window_Selectable {
         this.drawText(text, rect.x, rect.y, rect.width);
     }
 
+    /** @returns {boolean} */
     isCancelTriggered() {
         return (
             Window_Selectable.prototype.isCancelTriggered() ||
@@ -6372,12 +8370,17 @@ class Window_DebugRange extends Window_Selectable {
         );
     }
 
+    /** @returns {void} */
     processCancel() {
         super.processCancel();
         Window_DebugRange.lastTopRow = this.topRow();
         Window_DebugRange.lastIndex = this.index();
     }
 
+    /**
+     * @param {Window_DebugEdit} editWindow
+     * @returns {void}
+     */
     setEditWindow(editWindow) {
         this._editWindow = editWindow;
     }
@@ -6387,21 +8390,30 @@ class Window_DebugRange extends Window_Selectable {
  * The window for displaying switches and variables on the debug screen.
  */
 class Window_DebugEdit extends Window_Selectable {
+    /** @param {[rect: Rectangle]} args */
     constructor(...args) {
         super(...args);
     }
 
+    /** @param {Rectangle} rect */
     initialize(rect) {
         super.initialize(rect);
+        /** @type {"switch" | "variable"} */
         this._mode = "switch";
+        /** @type {number} */
         this._topId = 1;
         this.refresh();
     }
 
+    /** @returns {number} */
     maxItems() {
         return 10;
     }
 
+    /**
+     * @param {number} index
+     * @returns {void}
+     */
     drawItem(index) {
         const dataId = this._topId + index;
         const idText = dataId.padZero(4) + ":";
@@ -6418,6 +8430,10 @@ class Window_DebugEdit extends Window_Selectable {
         this.drawText(status, rect.x + rect.width, rect.y, statusWidth, "right");
     }
 
+    /**
+     * @param {RMMZ.SwitchID | RMMZ.VariableID} dataId
+     * @returns {string}
+     */
     itemName(dataId) {
         if (this._mode === "switch") {
             return $dataSystem.switches[dataId];
@@ -6426,6 +8442,10 @@ class Window_DebugEdit extends Window_Selectable {
         }
     }
 
+    /**
+     * @param {RMMZ.SwitchID | RMMZ.VariableID} dataId
+     * @returns {string}
+     */
     itemStatus(dataId) {
         if (this._mode === "switch") {
             return $gameSwitches.value(dataId) ? "[ON]" : "[OFF]";
@@ -6434,6 +8454,10 @@ class Window_DebugEdit extends Window_Selectable {
         }
     }
 
+    /**
+     * @param {"switch" | "variable"} mode
+     * @returns {void}
+     */
     setMode(mode) {
         if (this._mode !== mode) {
             this._mode = mode;
@@ -6441,6 +8465,10 @@ class Window_DebugEdit extends Window_Selectable {
         }
     }
 
+    /**
+     * @param {RMMZ.SwitchID | RMMZ.VariableID} id
+     * @returns {void}
+     */
     setTopId(id) {
         if (this._topId !== id) {
             this._topId = id;
@@ -6448,10 +8476,12 @@ class Window_DebugEdit extends Window_Selectable {
         }
     }
 
+    /** @returns {number} */
     currentId() {
         return this._topId + this.index();
     }
 
+    /** @returns {void} */
     update() {
         super.update();
         if (this.active) {
@@ -6463,6 +8493,7 @@ class Window_DebugEdit extends Window_Selectable {
         }
     }
 
+    /** @returns {void} */
     updateSwitch() {
         if (Input.isRepeated("ok")) {
             const switchId = this.currentId();
@@ -6472,6 +8503,7 @@ class Window_DebugEdit extends Window_Selectable {
         }
     }
 
+    /** @returns {void} */
     updateVariable() {
         const variableId = this.currentId();
         const value = $gameVariables.value(variableId);
@@ -6485,6 +8517,7 @@ class Window_DebugEdit extends Window_Selectable {
         }
     }
 
+    /** @returns {0 | 1 | 10 | -1 | -10} */
     deltaForVariable() {
         if (Input.isRepeated("right")) {
             return 1;
