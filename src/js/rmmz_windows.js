@@ -738,7 +738,7 @@ class Window_Scrollable extends Window_Base {
 
     isTouchedInsideFrame() {
         const touchPos = new PIXI.Point(TouchInput.x, TouchInput.y);
-        const localPos = this.worldTransform.applyInverse(touchPos);
+        const localPos = this.toLocal(touchPos);
         return this.innerRect.contains(localPos.x, localPos.y);
     }
 
@@ -1211,7 +1211,7 @@ class Window_Selectable extends Window_Scrollable {
 
     hitIndex() {
         const touchPos = new PIXI.Point(TouchInput.x, TouchInput.y);
-        const localPos = this.worldTransform.applyInverse(touchPos);
+        const localPos = this.toLocal(touchPos);
         return this.hitTest(localPos.x, localPos.y);
     }
 

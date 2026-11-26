@@ -1903,9 +1903,9 @@ class SceneManager {
 
     static _elapsedTime = 0;
 
-    static run(sceneClass) {
+    static async run(sceneClass) {
         try {
-            this.initialize();
+            await this.initialize();
             this.goto(sceneClass);
             Graphics.startGameLoop();
         } catch (e) {
@@ -1913,10 +1913,10 @@ class SceneManager {
         }
     }
 
-    static initialize() {
+    static async initialize() {
         this.checkBrowser();
         this.checkPluginErrors();
-        this.initGraphics();
+        await this.initGraphics();
         this.initAudio();
         this.initVideo();
         this.initInput();
@@ -1942,10 +1942,8 @@ class SceneManager {
         PluginManager.checkErrors();
     }
 
-    static initGraphics() {
-        if (!Graphics.initialize()) {
-            throw new Error("Failed to initialize graphics.");
-        }
+    static async initGraphics() {
+        await Graphics.initialize();
         Graphics.setTickHandler(this.update.bind(this));
     }
 

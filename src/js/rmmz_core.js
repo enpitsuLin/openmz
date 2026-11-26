@@ -473,9 +473,8 @@ class Graphics {
     /**
      * Initializes the graphics system.
      *
-     * @returns {boolean} True if the graphics system is available.
      */
-    static initialize() {
+    static async initialize() {
         this._width = 0;
         this._height = 0;
         this._defaultScale = 1;
@@ -518,10 +517,8 @@ class Graphics {
         this._createAllElements();
         this._disableContextMenu();
         this._setupEventHandlers();
-        this._createPixiApp();
+        await this._createPixiApp();
         this._createEffekseerContext();
-
-        return !!this._app;
     }
 
     /**
@@ -788,10 +785,10 @@ class Graphics {
         this._updateVideo();
     }
 
-    static _onTick(deltaTime) {
+    static _onTick(ticker) {
         this._fpsCounter.startTick();
         if (this._tickHandler) {
-            this._tickHandler(deltaTime);
+            this._tickHandler(ticker.deltaTime);
         }
         if (this._canRender()) {
             this._app.render();
@@ -1005,35 +1002,25 @@ class Graphics {
         }
     }
 
-    static _createPixiApp() {
-        try {
-            this._setupPixi();
-            this._app = new PIXI.Application({
-                view: this._canvas,
-                autoStart: false
-            });
-            this._app.ticker.remove(this._app.render, this._app);
-            this._app.ticker.add(this._onTick, this);
-        } catch (e) {
-            this._app = null;
-        }
-    }
-
-    static _setupPixi() {
-        PIXI.utils.skipHello();
-        PIXI.settings.GC_MAX_IDLE = 600;
+    static async _createPixiApp() {
+        const app = new PIXI.Application();
+        await app.init({
+            canvas: this._canvas,
+            preference: "webgl",
+            autoStart: false,
+            gcMaxUnusedTime: 10000
+        });
+        app.ticker.remove(app.render, app);
+        app.ticker.add(this._onTick, this);
+        this._app = app;
     }
 
     static _createEffekseerContext() {
         if (this._app && window.effekseer) {
-            try {
-                this._effekseer = effekseer.createContext();
-                if (this._effekseer) {
-                    this._effekseer.init(this._app.renderer.gl);
-                    this._effekseer.setRestorationOfStatesFlag(false);
-                }
-            } catch (e) {
-                this._app = null;
+            this._effekseer = effekseer.createContext();
+            if (this._effekseer) {
+                this._effekseer.init(this._app.renderer.gl);
+                this._effekseer.setRestorationOfStatesFlag(true);
             }
         }
     }
@@ -1153,7 +1140,7 @@ class Bitmap {
     initialize(width, height) {
         this._canvas = null;
         this._context = null;
-        this._baseTexture = null;
+        this._textureSource = null;
         this._image = null;
         this._url = "";
         this._paintOpacity = 255;
@@ -1241,18 +1228,17 @@ class Bitmap {
         const width = Graphics.width;
         const height = Graphics.height;
         const bitmap = new Bitmap(width, height);
-        const renderTexture = PIXI.RenderTexture.create(width, height);
+        const renderTexture = PIXI.RenderTexture.create({ width, height });
         if (stage) {
             const renderer = Graphics.app.renderer;
-            renderer.render(stage, renderTexture);
-            stage.worldTransform.identity();
+            renderer.render({ container: stage, target: renderTexture });
             const canvas = renderer.extract.canvas(renderTexture);
             bitmap.context.drawImage(canvas, 0, 0);
             canvas.width = 0;
             canvas.height = 0;
         }
-        renderTexture.destroy({ destroyBase: true });
-        bitmap.baseTexture.update();
+        renderTexture.destroy(true);
+        bitmap.textureSource.update();
         return bitmap;
     }
 
@@ -1286,14 +1272,14 @@ class Bitmap {
     }
 
     /**
-     * The base texture that holds the image.
+     * The PixiJS texture source that holds the bitmap image.
      *
      * @readonly
-     * @type PIXI.BaseTexture
-     * @name Bitmap#baseTexture
+     * @type PIXI.TextureSource
+     * @name Bitmap#textureSource
      */
-    get baseTexture() {
-        return this._baseTexture;
+    get textureSource() {
+        return this._textureSource;
     }
 
     /**
@@ -1402,9 +1388,9 @@ class Bitmap {
      * Destroys the bitmap.
      */
     destroy() {
-        if (this._baseTexture) {
-            this._baseTexture.destroy();
-            this._baseTexture = null;
+        if (this._textureSource) {
+            this._textureSource.destroy();
+            this._textureSource = null;
         }
         this._destroyCanvas();
     }
@@ -1418,10 +1404,8 @@ class Bitmap {
     resize(width, height) {
         width = Math.max(width || 0, 1);
         height = Math.max(height || 0, 1);
-        this.canvas.width = width;
-        this.canvas.height = height;
-        this.baseTexture.width = width;
-        this.baseTexture.height = height;
+        this._ensureCanvas();
+        this._textureSource.resize(width, height);
     }
 
     /**
@@ -1444,7 +1428,7 @@ class Bitmap {
             const image = source._canvas || source._image;
             this.context.globalCompositeOperation = "source-over";
             this.context.drawImage(image, sx, sy, sw, sh, dx, dy, dw, dh);
-            this._baseTexture.update();
+            this._textureSource.update();
         } catch (e) {
             //
         }
@@ -1488,7 +1472,7 @@ class Bitmap {
      */
     clearRect(x, y, width, height) {
         this.context.clearRect(x, y, width, height);
-        this._baseTexture.update();
+        this._textureSource.update();
     }
 
     /**
@@ -1513,7 +1497,7 @@ class Bitmap {
         context.fillStyle = color;
         context.fillRect(x, y, width, height);
         context.restore();
-        this._baseTexture.update();
+        this._textureSource.update();
     }
 
     /**
@@ -1540,7 +1524,7 @@ class Bitmap {
         context.strokeStyle = color;
         context.strokeRect(x, y, width, height);
         context.restore();
-        this._baseTexture.update();
+        this._textureSource.update();
     }
 
     // prettier-ignore
@@ -1568,7 +1552,7 @@ class Bitmap {
         context.fillStyle = grad;
         context.fillRect(x, y, width, height);
         context.restore();
-        this._baseTexture.update();
+        this._textureSource.update();
     }
 
     /**
@@ -1587,7 +1571,7 @@ class Bitmap {
         context.arc(x, y, radius, 0, Math.PI * 2, false);
         context.fill();
         context.restore();
-        this._baseTexture.update();
+        this._textureSource.update();
     }
 
     /**
@@ -1623,7 +1607,7 @@ class Bitmap {
         context.globalAlpha = alpha;
         this._drawTextBody(text, tx, ty, maxWidth);
         context.restore();
-        this._baseTexture.update();
+        this._textureSource.update();
     }
 
     /**
@@ -1686,7 +1670,7 @@ class Bitmap {
         this._context = this._canvas.getContext("2d");
         this._canvas.width = width;
         this._canvas.height = height;
-        this._createBaseTexture(this._canvas);
+        this._createTextureSource(this._canvas);
     }
 
     _ensureCanvas() {
@@ -1708,21 +1692,15 @@ class Bitmap {
         }
     }
 
-    _createBaseTexture(source) {
-        this._baseTexture = new PIXI.BaseTexture(source);
-        this._baseTexture.mipmap = false;
-        this._baseTexture.width = source.width;
-        this._baseTexture.height = source.height;
+    _createTextureSource(resource) {
+        const Source = resource === this._canvas ? PIXI.CanvasSource : PIXI.ImageSource;
+        this._textureSource = new Source({ resource, resolution: 1 });
         this._updateScaleMode();
     }
 
     _updateScaleMode() {
-        if (this._baseTexture) {
-            if (this._smooth) {
-                this._baseTexture.scaleMode = PIXI.SCALE_MODES.LINEAR;
-            } else {
-                this._baseTexture.scaleMode = PIXI.SCALE_MODES.NEAREST;
-            }
+        if (this._textureSource) {
+            this._textureSource.scaleMode = this._smooth ? "linear" : "nearest";
         }
     }
 
@@ -1767,7 +1745,7 @@ class Bitmap {
             URL.revokeObjectURL(this._image.src);
         }
         this._loadingState = "loaded";
-        this._createBaseTexture(this._image);
+        this._createTextureSource(this._image);
         this._callLoadListeners();
     }
 
@@ -1792,29 +1770,27 @@ class Bitmap {
  */
 class Sprite extends PIXI.Sprite {
     constructor(...args) {
-        if (!Sprite._emptyBaseTexture) {
-            Sprite._emptyBaseTexture = new PIXI.BaseTexture();
-            Sprite._emptyBaseTexture.setSize(1, 1);
-        }
-        const frame = new PIXI.Rectangle();
-        super(new PIXI.Texture(Sprite._emptyBaseTexture, frame));
+        super(new PIXI.Texture({
+            source: PIXI.Texture.EMPTY.source,
+            frame: new PIXI.Rectangle(),
+            dynamic: true
+        }));
+        // Engine sprites can have overlays and other child sprites.
+        this.allowChildren = true;
         this.initialize(...args);
     }
 
     initialize(bitmap) {
         this.spriteId = Sprite._counter++;
         this._bitmap = bitmap;
-        this._frame = this.texture.frame;
+        this._frame = new PIXI.Rectangle();
         this._hue = 0;
         this._blendColor = [0, 0, 0, 0];
         this._colorTone = [0, 0, 0, 0];
         this._colorFilter = null;
-        this._blendMode = PIXI.BLEND_MODES.NORMAL;
         this._hidden = false;
         this._onBitmapChange();
     }
-
-    static _emptyBaseTexture = null;
 
     static _counter = 0;
 
@@ -1878,22 +1854,23 @@ class Sprite extends PIXI.Sprite {
     /**
      * The blend mode to be applied to the sprite.
      *
-     * @type number
+     * @type string
      * @name Sprite#blendMode
      */
     get blendMode() {
-        if (this._colorFilter) {
-            return this._colorFilter.blendMode;
-        } else {
-            return this._blendMode;
-        }
+        return this._colorFilter?.blendMode ?? super.blendMode;
     }
+
     set blendMode(value) {
-        this._blendMode = value;
+        const mode = typeof value === "number" ? Sprite._blendModes[value] ?? "normal" : value;
         if (this._colorFilter) {
-            this._colorFilter.blendMode = value;
+            this._colorFilter.blendMode = mode;
+        } else {
+            super.blendMode = mode;
         }
     }
+
+    static _blendModes = ["normal", "add", "multiply", "screen"];
 
     /**
      * Destroys the sprite.
@@ -2039,7 +2016,7 @@ class Sprite extends PIXI.Sprite {
             this._bitmap.addLoadListener(this._onBitmapLoad.bind(this));
         } else {
             this._refreshFrame = false;
-            this.texture.frame = new PIXI.Rectangle();
+            this._refresh();
         }
     }
 
@@ -2050,8 +2027,8 @@ class Sprite extends PIXI.Sprite {
                 this._frame.width = this._bitmap.width;
                 this._frame.height = this._bitmap.height;
             }
+            this._refresh();
         }
-        this._refresh();
     }
 
     _refresh() {
@@ -2060,35 +2037,28 @@ class Sprite extends PIXI.Sprite {
         const frameY = Math.floor(this._frame.y);
         const frameW = Math.floor(this._frame.width);
         const frameH = Math.floor(this._frame.height);
-        const baseTexture = this._bitmap ? this._bitmap.baseTexture : null;
-        const baseTextureW = baseTexture ? baseTexture.width : 0;
-        const baseTextureH = baseTexture ? baseTexture.height : 0;
-        const realX = frameX.clamp(0, baseTextureW);
-        const realY = frameY.clamp(0, baseTextureH);
-        const realW = (frameW - realX + frameX).clamp(0, baseTextureW - realX);
-        const realH = (frameH - realY + frameY).clamp(0, baseTextureH - realY);
-        const frame = new PIXI.Rectangle(realX, realY, realW, realH);
-        if (texture) {
-            this.pivot.x = frameX - realX;
-            this.pivot.y = frameY - realY;
-            if (baseTexture) {
-                texture.baseTexture = baseTexture;
-                try {
-                    texture.frame = frame;
-                } catch (e) {
-                    texture.frame = new PIXI.Rectangle();
-                }
-            }
-            texture._updateID++;
+        const textureSource = this._bitmap ? this._bitmap.textureSource : null;
+        const textureSourceW = textureSource ? textureSource.width : 0;
+        const textureSourceH = textureSource ? textureSource.height : 0;
+        const realX = frameX.clamp(0, textureSourceW);
+        const realY = frameY.clamp(0, textureSourceH);
+        const realW = (frameW - realX + frameX).clamp(0, textureSourceW - realX);
+        const realH = (frameH - realY + frameY).clamp(0, textureSourceH - realY);
+        this.pivot.x = frameX - realX;
+        this.pivot.y = frameY - realY;
+        texture.frame.copyFrom({ x: realX, y: realY, width: realW, height: realH });
+        const source = textureSource ?? PIXI.Texture.EMPTY.source;
+        if (texture.source !== source) {
+            texture.source = source;
         }
+        texture.update();
     }
 
     _createColorFilter() {
         this._colorFilter = new ColorFilter();
-        if (!this.filters) {
-            this.filters = [];
-        }
-        this.filters.push(this._colorFilter);
+        this._colorFilter.blendMode = super.blendMode;
+        super.blendMode = "normal";
+        this.filters = [...(this.filters ?? []), this._colorFilter];
     }
 
     _updateColorFilter() {
@@ -2180,6 +2150,7 @@ class Tilemap extends PIXI.Container {
         this.verticalWrap = false;
 
         this._createLayers();
+        this.onRender = this._updateLayers;
         this.refresh();
     }
 
@@ -2213,8 +2184,11 @@ class Tilemap extends PIXI.Container {
      * Destroys the tilemap.
      */
     destroy() {
-        const options = { children: true, texture: true };
-        super.destroy(options);
+        super.destroy({ children: true });
+        this._tileShader.destroy();
+        for (const atlas of this._tileAtlases) {
+            atlas.destroy();
+        }
     }
 
     /**
@@ -2286,10 +2260,7 @@ class Tilemap extends PIXI.Container {
         this._needsRepaint = true;
     }
 
-    /**
-     * Updates the transform on all children of this container for rendering.
-     */
-    updateTransform() {
+    _updateLayers() {
         const ox = Math.ceil(this.origin.x);
         const oy = Math.ceil(this.origin.y);
         const startX = Math.floor((ox - this._margin) / this.tileWidth);
@@ -2311,13 +2282,14 @@ class Tilemap extends PIXI.Container {
             this._needsRepaint = false;
         }
         this._sortChildren();
-        super.updateTransform();
     }
 
     _createLayers() {
-        this._lowerLayer = new Tilemap.CombinedLayer();
+        this._tileAtlases = [];
+        this._tileShader = Tilemap.createShader();
+        this._lowerLayer = new Tilemap.CombinedLayer(this._tileShader);
         this._lowerLayer.z = 0;
-        this._upperLayer = new Tilemap.CombinedLayer();
+        this._upperLayer = new Tilemap.CombinedLayer(this._tileShader);
         this._upperLayer.z = 4;
         this.addChild(this._lowerLayer);
         this.addChild(this._upperLayer);
@@ -2326,9 +2298,40 @@ class Tilemap extends PIXI.Container {
 
     _updateBitmaps() {
         if (this._needsBitmapsUpdate && this.isReady()) {
-            this._lowerLayer.setBitmaps(this._bitmaps);
+            this._updateAtlasTextures();
             this._needsBitmapsUpdate = false;
             this._needsRepaint = true;
+        }
+    }
+
+    _updateAtlasTextures() {
+        // Four tilesheets share each atlas. The shader binds at most three atlases.
+        for (let i = 0; i < 3; i++) {
+            const bitmaps = this._bitmaps.slice(i * 4, i * 4 + 4);
+            if (!this._tileAtlases[i]) {
+                const canvas = document.createElement("canvas");
+                canvas.width = canvas.height = 2048;
+                this._tileAtlases[i] = new PIXI.CanvasSource({
+                    resource: canvas,
+                    resolution: 1,
+                    scaleMode: "nearest"
+                });
+            }
+            const source = this._tileAtlases[i];
+            const context = source.resource.getContext("2d");
+            context.clearRect(0, 0, 2048, 2048);
+            for (let j = 0; j < bitmaps.length; j++) {
+                const bitmap = bitmaps[j];
+                const image = bitmap?.image || bitmap?.canvas;
+                if (image?.width && image.height) {
+                    const width = Math.min(image.width, 1024);
+                    const height = Math.min(image.height, 1024);
+                    context.drawImage(image, 0, 0, width, height,
+                        1024 * (j % 2), 1024 * (j >> 1), width, height);
+                }
+            }
+            source.update();
+            this._tileShader.resources["uSampler" + i] = source;
         }
     }
 
@@ -2561,7 +2564,10 @@ class Tilemap extends PIXI.Container {
     }
 
     _sortChildren() {
-        this.children.sort(this._compareChildOrder.bind(this));
+        const sorted = this.children.slice().sort(this._compareChildOrder);
+        for (let i = 0; i < sorted.length; i++) {
+            sorted[i].zIndex = i;
+        }
     }
 
     _compareChildOrder(a, b) {
@@ -2790,42 +2796,48 @@ class Tilemap extends PIXI.Container {
 
 // Internal classes
 
-Tilemap.Layer = class Layer extends PIXI.Container {
-    constructor() {
-        super();
+Tilemap.Layer = class Layer extends PIXI.Mesh {
+    constructor(shader) {
+        const vertices = new PIXI.Buffer({
+            data: new Float32Array(0),
+            usage: PIXI.BufferUsage.VERTEX | PIXI.BufferUsage.COPY_DST,
+            shrinkToFit: false
+        });
+        const indices = new PIXI.Buffer({
+            data: new Uint16Array(0),
+            usage: PIXI.BufferUsage.INDEX | PIXI.BufferUsage.COPY_DST,
+            shrinkToFit: false
+        });
+        const attribute = (format, offset) => ({
+            buffer: vertices,
+            format,
+            stride: 9 * Float32Array.BYTES_PER_ELEMENT,
+            offset: offset * Float32Array.BYTES_PER_ELEMENT
+        });
+        const geometry = new PIXI.Geometry({
+            attributes: {
+                aTextureId: attribute("float32", 0),
+                aFrame: attribute("float32x4", 1),
+                aSource: attribute("float32x2", 5),
+                aPosition: attribute("float32x2", 7)
+            },
+            indexBuffer: indices
+        });
+        super({ geometry, shader });
         this._elements = [];
-        this._indexBuffer = null;
-        this._indexArray = new Float32Array(0);
-        this._vertexBuffer = null;
+        this._indexArray = new Uint16Array(0);
         this._vertexArray = new Float32Array(0);
-        this._vao = null;
-        this._needsTexturesUpdate = false;
         this._needsVertexUpdate = false;
-        this._images = [];
-        this._state = PIXI.State.for2d();
-        this._createVao();
+        this.onRender = this._updateGeometry;
     }
 
-    static MAX_GL_TEXTURES = 3;
-
-    static VERTEX_STRIDE = 9 * 4;
-
+    // Four vertices per tile must fit in the 16-bit index buffer.
     static MAX_SIZE = 16000;
 
     destroy() {
-        if (this._vao) {
-            this._vao.destroy();
-            this._indexBuffer.destroy();
-            this._vertexBuffer.destroy();
-        }
-        this._indexBuffer = null;
-        this._vertexBuffer = null;
-        this._vao = null;
-    }
-
-    setBitmaps(bitmaps) {
-        this._images = bitmaps.map(bitmap => bitmap.image || bitmap.canvas);
-        this._needsTexturesUpdate = true;
+        const geometry = this.geometry;
+        super.destroy();
+        geometry.destroy(true);
     }
 
     clear() {
@@ -2839,78 +2851,45 @@ Tilemap.Layer = class Layer extends PIXI.Container {
 
     addRect(setNumber, sx, sy, dx, dy, w, h) {
         this._elements.push([setNumber, sx, sy, dx, dy, w, h]);
+        this._needsVertexUpdate = true;
     }
 
-    render(renderer) {
-        const gl = renderer.gl;
-        const tilemapRenderer = renderer.plugins.rpgtilemap;
-        const shader = tilemapRenderer.getShader();
-        const matrix = shader.uniforms.uProjectionMatrix;
-
-        renderer.batch.setObjectRenderer(tilemapRenderer);
-        renderer.projection.projectionMatrix.copyTo(matrix);
-        matrix.append(this.worldTransform);
-        renderer.shader.bind(shader);
-
-        if (this._needsTexturesUpdate) {
-            tilemapRenderer.updateTextures(renderer, this._images);
-            this._needsTexturesUpdate = false;
-        }
-        tilemapRenderer.bindTextures(renderer);
-        renderer.geometry.bind(this._vao, shader);
-        this._updateIndexBuffer();
+    _updateGeometry() {
         if (this._needsVertexUpdate) {
+            this._updateIndexBuffer();
             this._updateVertexBuffer();
             this._needsVertexUpdate = false;
         }
-        renderer.geometry.updateBuffers();
-
-        const numElements = this._elements.length;
-        if (numElements > 0) {
-            renderer.state.set(this._state);
-            renderer.geometry.draw(gl.TRIANGLES, numElements * 6, 0);
-        }
-    }
-
-    isReady() {
-        if (this._images.length === 0) {
-            return false;
-        }
-        for (const texture of this._images) {
-            if (!texture || !texture.valid) {
-                return false;
-            }
-        }
-        return true;
-    }
-
-    _createVao() {
-        const ib = new PIXI.Buffer(null, true, true);
-        const vb = new PIXI.Buffer(null, true, false);
-        const stride = Tilemap.Layer.VERTEX_STRIDE;
-        const type = PIXI.TYPES.FLOAT;
-        const geometry = new PIXI.Geometry();
-        this._indexBuffer = ib;
-        this._vertexBuffer = vb;
-        this._vao = geometry
-            .addIndex(this._indexBuffer)
-            .addAttribute("aTextureId", vb, 1, false, type, stride, 0)
-            .addAttribute("aFrame", vb, 4, false, type, stride, 1 * 4)
-            .addAttribute("aSource", vb, 2, false, type, stride, 5 * 4)
-            .addAttribute("aDest", vb, 2, false, type, stride, 7 * 4);
+        this.renderable = this._elements.length > 0;
     }
 
     _updateIndexBuffer() {
-        const numElements = this._elements.length;
-        if (this._indexArray.length < numElements * 6 * 2) {
-            this._indexArray = PIXI.utils.createIndicesForQuads(numElements * 2);
-            this._indexBuffer.update(this._indexArray);
+        const count = this._elements.length;
+        const indexCount = count * 6;
+        if (this._indexArray.length < indexCount) {
+            const capacity = Math.min(count * 2, Tilemap.Layer.MAX_SIZE);
+            const indices = new Uint16Array(capacity * 6);
+            for (let i = 0; i < capacity; i++) {
+                const index = i * 6;
+                const vertex = i * 4;
+                indices[index] = vertex;
+                indices[index + 1] = vertex + 1;
+                indices[index + 2] = vertex + 2;
+                indices[index + 3] = vertex;
+                indices[index + 4] = vertex + 2;
+                indices[index + 5] = vertex + 3;
+            }
+            this._indexArray = indices;
+        }
+        const indexBuffer = this.geometry.getIndex();
+        if (indexBuffer.data.length !== indexCount) {
+            indexBuffer.data = this._indexArray.subarray(0, indexCount);
         }
     }
 
     _updateVertexBuffer() {
         const numElements = this._elements.length;
-        const required = numElements * Tilemap.Layer.VERTEX_STRIDE;
+        const required = numElements * 4 * 9;
         if (this._vertexArray.length < required) {
             this._vertexArray = new Float32Array(required * 2);
         }
@@ -2968,26 +2947,15 @@ Tilemap.Layer = class Layer extends PIXI.Container {
             vertexArray[index++] = dx;
             vertexArray[index++] = dy + h;
         }
-        this._vertexBuffer.update(vertexArray);
+        this.geometry.getBuffer("aPosition").setDataWithSize(vertexArray, required, true);
     }
 };
 
 Tilemap.CombinedLayer = class CombinedLayer extends PIXI.Container {
-    constructor() {
+    constructor(shader) {
         super();
         for (let i = 0; i < 2; i++) {
-            this.addChild(new Tilemap.Layer());
-        }
-    }
-
-    destroy() {
-        const options = { children: true, texture: true };
-        super.destroy(options);
-    }
-
-    setBitmaps(bitmaps) {
-        for (const child of this.children) {
-            child.setBitmaps(bitmaps);
+            this.addChild(new Tilemap.Layer(shader));
         }
     }
 
@@ -3013,129 +2981,61 @@ Tilemap.CombinedLayer = class CombinedLayer extends PIXI.Container {
         }
     }
 
-    isReady() {
-        return this.children.every(child => child.isReady());
-    }
 };
 
-Tilemap.Renderer = class Renderer extends PIXI.ObjectRenderer {
-    constructor(renderer) {
-        super(renderer);
-        this._shader = null;
-        this._images = [];
-        this._internalTextures = [];
-        this._clearBuffer = new Uint8Array(1024 * 1024 * 4);
-        this.contextChange();
-    }
+Tilemap.createShader = function() {
+    const vertex = `
+        in float aTextureId;
+        in vec4 aFrame;
+        in vec2 aSource;
+        in vec2 aPosition;
+        uniform mat3 uProjectionMatrix;
+        uniform mat3 uWorldTransformMatrix;
+        uniform mat3 uTransformMatrix;
+        out vec4 vFrame;
+        out vec2 vTextureCoord;
+        out float vTextureId;
 
-    destroy() {
-        super.destroy();
-        this._destroyInternalTextures();
-        this._shader.destroy();
-        this._shader = null;
-    }
-
-    getShader() {
-        return this._shader;
-    }
-
-    contextChange() {
-        this._shader = this._createShader();
-        this._images = [];
-        this._createInternalTextures();
-    }
-
-    _createShader() {
-        const vertexSrc =
-            "attribute float aTextureId;" +
-            "attribute vec4 aFrame;" +
-            "attribute vec2 aSource;" +
-            "attribute vec2 aDest;" +
-            "uniform mat3 uProjectionMatrix;" +
-            "varying vec4 vFrame;" +
-            "varying vec2 vTextureCoord;" +
-            "varying float vTextureId;" +
-            "void main(void) {" +
-            "  vec3 position = uProjectionMatrix * vec3(aDest, 1.0);" +
-            "  gl_Position = vec4(position, 1.0);" +
-            "  vFrame = aFrame;" +
-            "  vTextureCoord = aSource;" +
-            "  vTextureId = aTextureId;" +
-            "}";
-        const fragmentSrc =
-            "varying vec4 vFrame;" +
-            "varying vec2 vTextureCoord;" +
-            "varying float vTextureId;" +
-            "uniform sampler2D uSampler0;" +
-            "uniform sampler2D uSampler1;" +
-            "uniform sampler2D uSampler2;" +
-            "void main(void) {" +
-            "  vec2 textureCoord = clamp(vTextureCoord, vFrame.xy, vFrame.zw);" +
-            "  int textureId = int(vTextureId);" +
-            "  vec4 color;" +
-            "  if (textureId < 0) {" +
-            "    color = vec4(0.0, 0.0, 0.0, 0.5);" +
-            "  } else if (textureId == 0) {" +
-            "    color = texture2D(uSampler0, textureCoord / 2048.0);" +
-            "  } else if (textureId == 1) {" +
-            "    color = texture2D(uSampler1, textureCoord / 2048.0);" +
-            "  } else if (textureId == 2) {" +
-            "    color = texture2D(uSampler2, textureCoord / 2048.0);" +
-            "  }" +
-            "  gl_FragColor = color;" +
-            "}";
-
-        return new PIXI.Shader(PIXI.Program.from(vertexSrc, fragmentSrc), {
-            uSampler0: 0,
-            uSampler1: 0,
-            uSampler2: 0,
-            uProjectionMatrix: new PIXI.Matrix()
-        });
-    }
-
-    _createInternalTextures() {
-        this._destroyInternalTextures();
-        for (let i = 0; i < Tilemap.Layer.MAX_GL_TEXTURES; i++) {
-            const baseTexture = new PIXI.BaseRenderTexture();
-            baseTexture.resize(2048, 2048);
-            baseTexture.scaleMode = PIXI.SCALE_MODES.NEAREST;
-            this._internalTextures.push(baseTexture);
+        void main() {
+            mat3 transform = uProjectionMatrix * uWorldTransformMatrix * uTransformMatrix;
+            gl_Position = vec4((transform * vec3(aPosition, 1.0)).xy, 0.0, 1.0);
+            vFrame = aFrame;
+            vTextureCoord = aSource;
+            vTextureId = aTextureId;
         }
-    }
+    `;
+    const fragment = `
+        in vec4 vFrame;
+        in vec2 vTextureCoord;
+        in float vTextureId;
+        uniform sampler2D uSampler0;
+        uniform sampler2D uSampler1;
+        uniform sampler2D uSampler2;
+        uniform vec4 uColor;
+        uniform vec4 uWorldColorAlpha;
+        out vec4 finalColor;
 
-    _destroyInternalTextures() {
-        for (const internalTexture of this._internalTextures) {
-            internalTexture.destroy();
+        void main() {
+            vec2 uv = clamp(vTextureCoord, vFrame.xy, vFrame.zw) / 2048.0;
+            vec4 color;
+            if (vTextureId < 0.0) {
+                color = vec4(0.0, 0.0, 0.0, 0.5);
+            } else if (vTextureId < 0.5) {
+                color = texture(uSampler0, uv);
+            } else if (vTextureId < 1.5) {
+                color = texture(uSampler1, uv);
+            } else {
+                color = texture(uSampler2, uv);
+            }
+            finalColor = color * uColor * uWorldColorAlpha;
         }
-        this._internalTextures = [];
-    }
-
-    updateTextures(renderer, images) {
-        for (let i = 0; i < images.length; i++) {
-            const internalTexture = this._internalTextures[i >> 2];
-            renderer.texture.bind(internalTexture, 0);
-            const gl = renderer.gl;
-            const x = 1024 * (i % 2);
-            const y = 1024 * ((i >> 1) % 2);
-            const format = gl.RGBA;
-            const type = gl.UNSIGNED_BYTE;
-            gl.pixelStorei(gl.UNPACK_PREMULTIPLY_ALPHA_WEBGL, 0);
-            // prettier-ignore
-            gl.texSubImage2D(gl.TEXTURE_2D, 0, x, y, 1024, 1024, format, type,
-                             this._clearBuffer);
-            gl.pixelStorei(gl.UNPACK_PREMULTIPLY_ALPHA_WEBGL, 1);
-            gl.texSubImage2D(gl.TEXTURE_2D, 0, x, y, format, type, images[i]);
-        }
-    }
-
-    bindTextures(renderer) {
-        for (let ti = 0; ti < Tilemap.Layer.MAX_GL_TEXTURES; ti++) {
-            renderer.texture.bind(this._internalTextures[ti], ti);
-        }
-    }
+    `;
+    const source = PIXI.Texture.EMPTY.source;
+    return PIXI.Shader.from({
+        gl: { vertex, fragment },
+        resources: { uSampler0: source, uSampler1: source, uSampler2: source }
+    });
 };
-
-PIXI.Renderer.registerPlugin("rpgtilemap", Tilemap.Renderer);
 
 /**
  * The sprite object for a tiling image.
@@ -3146,20 +3046,22 @@ PIXI.Renderer.registerPlugin("rpgtilemap", Tilemap.Renderer);
  */
 class TilingSprite extends PIXI.TilingSprite {
     constructor(...args) {
-        if (!TilingSprite._emptyBaseTexture) {
-            TilingSprite._emptyBaseTexture = new PIXI.BaseTexture();
-            TilingSprite._emptyBaseTexture.setSize(1, 1);
-        }
-        const frame = new PIXI.Rectangle();
-        super(new PIXI.Texture(TilingSprite._emptyBaseTexture, frame));
+        super({
+            texture: new PIXI.Texture({
+                source: PIXI.Texture.EMPTY.source,
+                frame: new PIXI.Rectangle(0, 0, 1, 1),
+                dynamic: true
+            })
+        });
+        this.onRender = this._updateTilePosition;
         this.initialize(...args);
     }
 
     initialize(bitmap) {
         this._bitmap = bitmap;
-        this._width = 0;
-        this._height = 0;
-        this._frame = this.texture.frame;
+        this.width = 0;
+        this.height = 0;
+        this._frame = new PIXI.Rectangle();
 
         /**
          * The origin point of the tiling sprite for scrolling.
@@ -3170,8 +3072,6 @@ class TilingSprite extends PIXI.TilingSprite {
 
         this._onBitmapChange();
     }
-
-    static _emptyBaseTexture = null;
 
     /**
      * The image for the tiling sprite.
@@ -3232,8 +3132,8 @@ class TilingSprite extends PIXI.TilingSprite {
     move(x, y, width, height) {
         this.x = x || 0;
         this.y = y || 0;
-        this._width = width || 0;
-        this._height = height || 0;
+        this.width = width || 0;
+        this.height = height || 0;
     }
 
     /**
@@ -3252,46 +3152,42 @@ class TilingSprite extends PIXI.TilingSprite {
         this._refresh();
     }
 
-    /**
-     * Updates the transform on all children of this container for rendering.
-     */
-    updateTransform() {
+    _updateTilePosition() {
         this.tilePosition.x = Math.round(-this.origin.x);
         this.tilePosition.y = Math.round(-this.origin.y);
-        super.updateTransform();
     }
 
     _onBitmapChange() {
         if (this._bitmap) {
-            this._bitmap.addLoadListener(this._onBitmapLoad.bind(this));
-        } else {
-            this.texture.frame = new PIXI.Rectangle();
+            this._bitmap.addLoadListener(bitmap => {
+                if (this._bitmap === bitmap) {
+                    this._refresh();
+                }
+            });
         }
-    }
-
-    _onBitmapLoad() {
-        this.texture.baseTexture = this._bitmap.baseTexture;
         this._refresh();
     }
 
     _refresh() {
         const texture = this.texture;
-        const frame = this._frame.clone();
-        if (frame.width === 0 && frame.height === 0 && this._bitmap) {
-            frame.width = this._bitmap.width;
-            frame.height = this._bitmap.height;
-        }
-        if (texture) {
-            if (texture.baseTexture) {
-                try {
-                    texture.frame = frame;
-                } catch (e) {
-                    texture.frame = new PIXI.Rectangle();
-                }
+        const source = this._bitmap?.textureSource;
+        if (source) {
+            const frame = this._frame.clone();
+            if (frame.width === 0 && frame.height === 0) {
+                frame.width = source.width;
+                frame.height = source.height;
             }
-            texture._updateID++;
+            texture.frame.copyFrom(frame);
+        } else {
+            texture.frame.copyFrom(PIXI.Texture.EMPTY.frame);
         }
+        const nextSource = source ?? PIXI.Texture.EMPTY.source;
+        if (texture.source !== nextSource) {
+            texture.source = nextSource;
+        }
+        texture.update();
     }
+
 }
 
 /**
@@ -3363,9 +3259,8 @@ class ScreenSprite extends PIXI.Container {
             this._green = g;
             this._blue = b;
             const graphics = this._graphics;
-            graphics.clear();
-            graphics.beginFill((r << 16) | (g << 8) | b, 1);
-            graphics.drawRect(-50000, -50000, 100000, 100000);
+            graphics.clear().rect(-50000, -50000, 100000, 100000)
+                .fill((r << 16) | (g << 8) | b);
         }
     }
 }
@@ -3383,6 +3278,7 @@ class Window extends PIXI.Container {
     }
 
     initialize() {
+        this.onRender = this._updateWindowParts;
         this._isWindow = true;
         this._windowskin = null;
         this._width = 0;
@@ -3789,10 +3685,7 @@ class Window extends PIXI.Container {
         return this._clientArea.addChild(child);
     }
 
-    /**
-     * Updates the transform on all children of this container for rendering.
-     */
-    updateTransform() {
+    _updateWindowParts() {
         this._updateClientArea();
         this._updateFrame();
         this._updateContentsBack();
@@ -3800,23 +3693,12 @@ class Window extends PIXI.Container {
         this._updateContents();
         this._updateArrows();
         this._updatePauseSign();
-        super.updateTransform();
         this._updateFilterArea();
     }
 
-    /**
-     * Draws the window shape into PIXI.Graphics object. Used by WindowLayer.
-     */
-    drawShape(graphics) {
-        if (graphics) {
-            const width = this.width;
-            const height = (this.height * this._openness) / 255;
-            const x = this.x;
-            const y = this.y + (this.height - height) / 2;
-            graphics.beginFill(0xffffff);
-            graphics.drawRoundedRect(x, y, width, height, 0);
-            graphics.endFill();
-        }
+    openBounds() {
+        const height = this.height * this.openness / 255;
+        return new PIXI.Rectangle(this.x, this.y + (this.height - height) / 2, this.width, height);
     }
 
     _createAllParts() {
@@ -3852,7 +3734,7 @@ class Window extends PIXI.Container {
 
     _createClientArea() {
         this._clientArea = new Sprite();
-        this._clientArea.filters = [new PIXI.filters.AlphaFilter()];
+        this._clientArea.filters = [new PIXI.AlphaFilter()];
         this._clientArea.filterArea = new PIXI.Rectangle();
         this._clientArea.move(this._padding, this._padding);
         this.addChild(this._clientArea);
@@ -4093,10 +3975,9 @@ class Window extends PIXI.Container {
     }
 
     _updateFilterArea() {
-        const pos = this._clientArea.worldTransform.apply(new PIXI.Point(0, 0));
         const filterArea = this._clientArea.filterArea;
-        filterArea.x = pos.x + this.origin.x;
-        filterArea.y = pos.y + this.origin.y;
+        filterArea.x = this.origin.x;
+        filterArea.y = this.origin.y;
         filterArea.width = this.innerWidth;
         filterArea.height = this.innerHeight;
     }
@@ -4111,6 +3992,18 @@ class Window extends PIXI.Container {
 class WindowLayer extends PIXI.Container {
     constructor() {
         super();
+        this._windowLayout = [];
+        this.onRender = this._updateWindowMasks;
+    }
+
+    addWindow(window) {
+        if (window._isWindow) {
+            const overlayIndex = this.children.findIndex(child => !child._isWindow);
+            if (overlayIndex >= 0) {
+                return this.addChildAt(window, overlayIndex);
+            }
+        }
+        return this.addChild(window);
     }
 
     /**
@@ -4124,56 +4017,65 @@ class WindowLayer extends PIXI.Container {
         }
     }
 
-    /**
-     * Renders the object using the WebGL renderer.
-     *
-     * @param {PIXI.Renderer} renderer - The renderer.
-     */
-    render(renderer) {
-        if (!this.visible) {
+    _updateWindowMasks() {
+        const layout = this.children.filter(child => child._isWindow).map(window => ({
+            window,
+            bounds: window.visible && window.openness > 0 ? window.openBounds() : null
+        }));
+        const previous = this._windowLayout;
+        if (layout.length === previous.length && layout.every(({ window, bounds }, i) => {
+            const last = previous[i];
+            return window === last.window &&
+                bounds?.x === last.bounds?.x && bounds?.y === last.bounds?.y &&
+                bounds?.width === last.bounds?.width && bounds?.height === last.bounds?.height;
+        })) {
             return;
         }
-
-        const graphics = new PIXI.Graphics();
-        const gl = renderer.gl;
-        const children = this.children.clone();
-
-        renderer.framebuffer.forceStencil();
-        graphics.transform = this.transform;
-        renderer.batch.flush();
-        gl.enable(gl.STENCIL_TEST);
-
-        while (children.length > 0) {
-            const win = children.pop();
-            if (win._isWindow && win.visible && win.openness > 0) {
-                gl.stencilFunc(gl.EQUAL, 0, ~0);
-                gl.stencilOp(gl.KEEP, gl.KEEP, gl.KEEP);
-                win.render(renderer);
-                renderer.batch.flush();
-                graphics.clear();
-                win.drawShape(graphics);
-                gl.stencilFunc(gl.ALWAYS, 1, ~0);
-                gl.stencilOp(gl.REPLACE, gl.REPLACE, gl.REPLACE);
-                gl.blendFunc(gl.ZERO, gl.ONE);
-                graphics.render(renderer);
-                renderer.batch.flush();
-                gl.blendFunc(gl.ONE, gl.ONE_MINUS_SRC_ALPHA);
+        this._windowLayout = layout;
+        const occluders = [];
+        for (let i = layout.length - 1; i >= 0; i--) {
+            const { window, bounds } = layout[i];
+            const overlaps = bounds && occluders.filter(rect => rect.intersects(bounds));
+            if (overlaps?.length) {
+                this._applyWindowMask(window, bounds, overlaps);
+            } else if (window._windowLayerMask && window.mask === window._windowLayerMask) {
+                window._windowLayerMask.clear();
+                window.mask = null;
             }
+            if (bounds) occluders.push(bounds);
         }
-
-        gl.disable(gl.STENCIL_TEST);
-        gl.clear(gl.STENCIL_BUFFER_BIT);
-        gl.clearStencil(0);
-        renderer.batch.flush();
-
-        for (const child of this.children) {
-            if (!child._isWindow && child.visible) {
-                child.render(renderer);
-            }
-        }
-
-        renderer.batch.flush();
     }
+
+    _applyWindowMask(window, bounds, occluders) {
+        if (!window._windowLayerMask) {
+            window._windowLayerMask = window.addChild(new PIXI.Graphics());
+        }
+        const mask = window._windowLayerMask.clear();
+        // Keep lower windows out of transparent parts of higher windows.
+        let regions = [bounds];
+        for (const occluder of occluders) {
+            regions = regions.flatMap(region => WindowLayer.subtractRect(region, occluder));
+        }
+        for (const rect of regions) {
+            mask.rect(rect.x - window.x, rect.y - window.y, rect.width, rect.height).fill(0xffffff);
+        }
+        window.mask = mask;
+    }
+
+    static subtractRect(rect, occluder) {
+        if (!rect.intersects(occluder)) return [rect];
+        const left = Math.max(occluder.left, rect.left);
+        const right = Math.min(occluder.right, rect.right);
+        const top = Math.max(occluder.top, rect.top);
+        const bottom = Math.min(occluder.bottom, rect.bottom);
+        return [
+            new PIXI.Rectangle(rect.left, rect.top, rect.width, top - rect.top),
+            new PIXI.Rectangle(rect.left, bottom, rect.width, rect.bottom - bottom),
+            new PIXI.Rectangle(rect.left, top, left - rect.left, bottom - top),
+            new PIXI.Rectangle(right, top, rect.right - right, bottom - top)
+        ].filter(part => part.width > 0 && part.height > 0);
+    }
+
 }
 
 /**
@@ -4335,11 +4237,21 @@ class Weather extends PIXI.Container {
  */
 class ColorFilter extends PIXI.Filter {
     constructor() {
-        super(null, ColorFilter._fragmentSrc());
-        this.uniforms.hue = 0;
-        this.uniforms.colorTone = [0, 0, 0, 0];
-        this.uniforms.blendColor = [0, 0, 0, 0];
-        this.uniforms.brightness = 255;
+        super({
+            glProgram: PIXI.GlProgram.from({
+                vertex: PIXI.defaultFilterVert,
+                fragment: ColorFilter._fragmentSrc()
+            }),
+            resources: {
+                colorUniforms: {
+                    hue: { value: 0, type: "f32" },
+                    colorTone: { value: [0, 0, 0, 0], type: "vec4<f32>" },
+                    blendColor: { value: [0, 0, 0, 0], type: "vec4<f32>" },
+                    brightness: { value: 255, type: "f32" }
+                }
+            }
+        });
+        this.uniforms = this.resources.colorUniforms.uniforms;
     }
 
     /**
@@ -4386,8 +4298,9 @@ class ColorFilter extends PIXI.Filter {
 
     static _fragmentSrc() {
         const src =
-            "varying vec2 vTextureCoord;" +
-            "uniform sampler2D uSampler;" +
+            "in vec2 vTextureCoord;" +
+            "out vec4 finalColor;" +
+            "uniform sampler2D uTexture;" +
             "uniform float hue;" +
             "uniform vec4 colorTone;" +
             "uniform vec4 blendColor;" +
@@ -4440,7 +4353,7 @@ class ColorFilter extends PIXI.Filter {
             "  }" +
             "}" +
             "void main() {" +
-            "  vec4 sample = texture2D(uSampler, vTextureCoord);" +
+            "  vec4 sample = texture(uTexture, vTextureCoord);" +
             "  float a = sample.a;" +
             "  vec3 hsl = rgbToHsl(sample.rgb);" +
             "  hsl.x = mod(hsl.x + hue / 360.0, 1.0);" +
@@ -4466,7 +4379,7 @@ class ColorFilter extends PIXI.Filter {
             "  r = r * brightness / 255.0;" +
             "  g = g * brightness / 255.0;" +
             "  b = b * brightness / 255.0;" +
-            "  gl_FragColor = vec4(r, g, b, a);" +
+            "  finalColor = vec4(r, g, b, a);" +
             "}";
         return src;
     }

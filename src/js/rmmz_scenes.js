@@ -75,7 +75,7 @@ class Scene_Base extends Stage {
     }
 
     addWindow(window) {
-        this._windowLayer.addChild(window);
+        this._windowLayer.addWindow(window);
     }
 
     startFadeIn(duration, white) {
@@ -1222,7 +1222,7 @@ class Scene_MenuBase extends Scene_Base {
     }
 
     createBackground() {
-        this._backgroundFilter = new PIXI.filters.BlurFilter();
+        this._backgroundFilter = new PIXI.BlurFilter();
         this._backgroundSprite = new Sprite();
         this._backgroundSprite.bitmap = SceneManager.backgroundBitmap();
         this._backgroundSprite.filters = [this._backgroundFilter];

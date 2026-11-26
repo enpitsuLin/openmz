@@ -1,5 +1,9 @@
-import pixiPackage from 'pixi.js/package.json' with { type: 'json' };
+import { readFileSync } from 'node:fs';
 import { defineConfig } from 'rolldown';
+
+const pixiPackage = JSON.parse(
+  readFileSync(new URL('./node_modules/pixi.js/package.json', import.meta.url), 'utf8'),
+);
 
 export default defineConfig({
   input: 'vendor/lib-entries/pixi.js',
@@ -12,7 +16,7 @@ export default defineConfig({
  * ${pixiPackage.name} is licensed under the ${pixiPackage.license} License.
  * http://www.opensource.org/licenses/mit-license
  */`,
-    footer: 'PIXI.useDeprecated();',
+    codeSplitting: false,
     format: 'iife',
     name: 'PIXI',
     file: 'src/js/libs/pixi.js',

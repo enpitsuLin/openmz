@@ -57,7 +57,7 @@ class Sprite_Clickable extends Sprite {
 
     isBeingTouched() {
         const touchPos = new PIXI.Point(TouchInput.x, TouchInput.y);
-        const localPos = this.worldTransform.applyInverse(touchPos);
+        const localPos = this.toLocal(touchPos);
         return this.hitTest(localPos.x, localPos.y);
     }
 
@@ -1169,13 +1169,10 @@ class Sprite_Enemy extends Sprite_Battler {
 /**
  * The sprite for displaying an animation.
  */
-class Sprite_Animation extends Sprite {
-    constructor(...args) {
-        super(...args);
-    }
-
-    initialize() {
-        super.initialize();
+class Sprite_Animation extends PIXI.RenderContainer {
+    constructor() {
+        super({});
+        this.spriteId = Sprite._counter++;
         this.initMembers();
     }
 
@@ -1228,7 +1225,6 @@ class Sprite_Animation extends Sprite {
     }
 
     update() {
-        super.update();
         if (this._delay > 0) {
             this._delay--;
         } else if (this._playing) {
@@ -1337,24 +1333,30 @@ class Sprite_Animation extends Sprite {
         }
     }
 
-    _render(renderer) {
+    render(renderer) {
         if (this._targets.length > 0 && this._handle && this._handle.exists) {
-            this.onBeforeRender(renderer);
+            const gl = renderer.gl;
+            const program = gl.getParameter(gl.CURRENT_PROGRAM);
+            const viewport = gl.getParameter(gl.VIEWPORT);
             this.setProjectionMatrix(renderer);
-            this.setCameraMatrix(renderer);
+            this.setCameraMatrix();
             this.setViewport(renderer);
             Graphics.effekseer.beginDraw();
-            Graphics.effekseer.drawHandle(this._handle);
-            Graphics.effekseer.endDraw();
-            this.resetViewport(renderer);
-            this.onAfterRender(renderer);
+            try {
+                Graphics.effekseer.drawHandle(this._handle);
+            } finally {
+                Graphics.effekseer.endDraw();
+                // Effekseer cannot restore programs created outside its WASM runtime.
+                gl.useProgram(program);
+                gl.viewport(...viewport);
+            }
         }
     }
 
     setProjectionMatrix(renderer) {
         const x = this._mirror ? -1 : 1;
         const y = -1;
-        const p = -(this._viewportSize / renderer.view.height);
+        const p = -(this._viewportSize / renderer.canvas.height);
         // prettier-ignore
         Graphics.effekseer.setProjectionMatrix([
             x, 0, 0, 0,
@@ -1364,7 +1366,7 @@ class Sprite_Animation extends Sprite {
         ]);
     }
 
-    setCameraMatrix(/*renderer*/) {
+    setCameraMatrix() {
         // prettier-ignore
         Graphics.effekseer.setCameraMatrix([
             1, 0, 0, 0,
@@ -1386,8 +1388,8 @@ class Sprite_Animation extends Sprite {
     targetPosition(renderer) {
         const pos = new PIXI.Point();
         if (this._animation.displayType === 2) {
-            pos.x = renderer.view.width / 2;
-            pos.y = renderer.view.height / 2;
+            pos.x = renderer.canvas.width / 2;
+            pos.y = renderer.canvas.height / 2;
         } else {
             for (const target of this._targets) {
                 const tpos = this.targetSpritePosition(target);
@@ -1405,25 +1407,7 @@ class Sprite_Animation extends Sprite {
         if (this._animation.alignBottom) {
             point.y = 0;
         }
-        sprite.updateTransform();
-        return sprite.worldTransform.apply(point);
-    }
-
-    resetViewport(renderer) {
-        renderer.gl.viewport(0, 0, renderer.view.width, renderer.view.height);
-    }
-
-    onBeforeRender(renderer) {
-        renderer.batch.flush();
-        renderer.geometry.reset();
-    }
-
-    onAfterRender(renderer) {
-        renderer.texture.reset();
-        renderer.geometry.reset();
-        renderer.state.reset();
-        renderer.shader.reset();
-        renderer.framebuffer.reset();
+        return sprite.toGlobal(point);
     }
 }
 
@@ -2257,7 +2241,7 @@ class Sprite_Gauge extends Sprite {
         return NaN;
     }
 
-    label() {
+    gaugeLabel() {
         switch (this._statusType) {
             case "hp":
                 return TextManager.hpA;
@@ -2381,7 +2365,7 @@ class Sprite_Gauge extends Sprite {
     }
 
     drawLabel() {
-        const label = this.label();
+        const label = this.gaugeLabel();
         const x = this.labelOutlineWidth() / 2;
         const y = this.labelY();
         const width = this.bitmapWidth();
@@ -3111,9 +3095,8 @@ class Spriteset_Base extends Sprite {
     }
 
     createBaseFilters() {
-        this._baseSprite.filters = [];
         this._baseColorFilter = new ColorFilter();
-        this._baseSprite.filters.push(this._baseColorFilter);
+        this._baseSprite.filters = [this._baseColorFilter];
     }
 
     createPictures() {
@@ -3136,9 +3119,8 @@ class Spriteset_Base extends Sprite {
     }
 
     createOverallFilters() {
-        this.filters = [];
         this._overallColorFilter = new ColorFilter();
-        this.filters.push(this._overallColorFilter);
+        this.filters = [this._overallColorFilter];
     }
 
     updateBaseFilters() {
@@ -3523,7 +3505,7 @@ class Spriteset_Battle extends Spriteset_Base {
     }
 
     createBackground() {
-        this._backgroundFilter = new PIXI.filters.BlurFilter();
+        this._backgroundFilter = new PIXI.BlurFilter();
         this._backgroundSprite = new Sprite();
         this._backgroundSprite.bitmap = SceneManager.backgroundBitmap();
         this._backgroundSprite.filters = [this._backgroundFilter];
