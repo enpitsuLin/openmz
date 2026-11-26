@@ -1124,16 +1124,11 @@ Graphics.FPSCounter = class FPSCounter {
  * @param {number} x - The x coordinate.
  * @param {number} y - The y coordinate.
  */
-class Point {
-    constructor(...args) {
-        this.initialize(...args);
-    }
-
-    initialize(x, y) {
-        PIXI.Point.call(this, x, y);
+class Point extends PIXI.Point {
+    constructor(x, y) {
+        super(x, y);
     }
 }
-Object.setPrototypeOf(Point.prototype, PIXI.Point.prototype);
 
 //-----------------------------------------------------------------------------
 /**
@@ -1146,16 +1141,11 @@ Object.setPrototypeOf(Point.prototype, PIXI.Point.prototype);
  * @param {number} width - The width of the rectangle.
  * @param {number} height - The height of the rectangle.
  */
-class Rectangle {
-    constructor(...args) {
-        this.initialize(...args);
-    }
-
-    initialize(x, y, width, height) {
-        PIXI.Rectangle.call(this, x, y, width, height);
+class Rectangle extends PIXI.Rectangle {
+    constructor(x, y, width, height) {
+        super(x, y, width, height);
     }
 }
-Object.setPrototypeOf(Rectangle.prototype, PIXI.Rectangle.prototype);
 
 //-----------------------------------------------------------------------------
 /**
@@ -1811,22 +1801,21 @@ class Bitmap {
  * @extends PIXI.Sprite
  * @param {Bitmap} bitmap - The image for the sprite.
  */
-class Sprite {
+class Sprite extends PIXI.Sprite {
     constructor(...args) {
-        this.initialize(...args);
-    }
-
-    initialize(bitmap) {
         if (!Sprite._emptyBaseTexture) {
             Sprite._emptyBaseTexture = new PIXI.BaseTexture();
             Sprite._emptyBaseTexture.setSize(1, 1);
         }
         const frame = new PIXI.Rectangle();
-        const texture = new PIXI.Texture(Sprite._emptyBaseTexture, frame);
-        PIXI.Sprite.call(this, texture);
+        super(new PIXI.Texture(Sprite._emptyBaseTexture, frame));
+        this.initialize(...args);
+    }
+
+    initialize(bitmap) {
         this.spriteId = Sprite._counter++;
         this._bitmap = bitmap;
-        this._frame = frame;
+        this._frame = this.texture.frame;
         this._hue = 0;
         this._blendColor = [0, 0, 0, 0];
         this._colorTone = [0, 0, 0, 0];
@@ -2122,7 +2111,6 @@ class Sprite {
         this._colorFilter.setColorTone(this._colorTone);
     }
 }
-Object.setPrototypeOf(Sprite.prototype, PIXI.Sprite.prototype);
 
 //-----------------------------------------------------------------------------
 /**
@@ -2131,13 +2119,9 @@ Object.setPrototypeOf(Sprite.prototype, PIXI.Sprite.prototype);
  * @class
  * @extends PIXI.Container
  */
-class Tilemap {
-    constructor(...args) {
-        this.initialize(...args);
-    }
-
-    initialize() {
-        PIXI.Container.call(this);
+class Tilemap extends PIXI.Container {
+    constructor() {
+        super();
 
         this._width = Graphics.width;
         this._height = Graphics.height;
@@ -2817,18 +2801,13 @@ class Tilemap {
         [[0, 0], [3, 0], [0, 1], [3, 1]]
     ];
 }
-Object.setPrototypeOf(Tilemap.prototype, PIXI.Container.prototype);
 
 //:::::::::::::::::::::::::::::::::::::::::::::::::::::::::
 // Internal classes
 
-Tilemap.Layer = class Layer {
-    constructor(...args) {
-        this.initialize(...args);
-    }
-
-    initialize() {
-        PIXI.Container.call(this);
+Tilemap.Layer = class Layer extends PIXI.Container {
+    constructor() {
+        super();
         this._elements = [];
         this._indexBuffer = null;
         this._indexArray = new Float32Array(0);
@@ -3007,15 +2986,10 @@ Tilemap.Layer = class Layer {
         this._vertexBuffer.update(vertexArray);
     }
 };
-Object.setPrototypeOf(Tilemap.Layer.prototype, PIXI.Container.prototype);
 
-Tilemap.CombinedLayer = class CombinedLayer {
-    constructor(...args) {
-        this.initialize(...args);
-    }
-
-    initialize() {
-        PIXI.Container.call(this);
+Tilemap.CombinedLayer = class CombinedLayer extends PIXI.Container {
+    constructor() {
+        super();
         for (let i = 0; i < 2; i++) {
             this.addChild(new Tilemap.Layer());
         }
@@ -3058,15 +3032,10 @@ Tilemap.CombinedLayer = class CombinedLayer {
         return this.children.every(child => child.isReady());
     }
 };
-Object.setPrototypeOf(Tilemap.CombinedLayer.prototype, PIXI.Container.prototype);
 
-Tilemap.Renderer = class Renderer {
-    constructor(...args) {
-        this.initialize(...args);
-    }
-
-    initialize(renderer) {
-        PIXI.ObjectRenderer.call(this, renderer);
+Tilemap.Renderer = class Renderer extends PIXI.ObjectRenderer {
+    constructor(renderer) {
+        super(renderer);
         this._shader = null;
         this._images = [];
         this._internalTextures = [];
@@ -3180,7 +3149,6 @@ Tilemap.Renderer = class Renderer {
         }
     }
 };
-Object.setPrototypeOf(Tilemap.Renderer.prototype, PIXI.ObjectRenderer.prototype);
 
 PIXI.Renderer.registerPlugin("rpgtilemap", Tilemap.Renderer);
 
@@ -3192,23 +3160,22 @@ PIXI.Renderer.registerPlugin("rpgtilemap", Tilemap.Renderer);
  * @extends PIXI.TilingSprite
  * @param {Bitmap} bitmap - The image for the tiling sprite.
  */
-class TilingSprite {
+class TilingSprite extends PIXI.TilingSprite {
     constructor(...args) {
-        this.initialize(...args);
-    }
-
-    initialize(bitmap) {
         if (!TilingSprite._emptyBaseTexture) {
             TilingSprite._emptyBaseTexture = new PIXI.BaseTexture();
             TilingSprite._emptyBaseTexture.setSize(1, 1);
         }
         const frame = new PIXI.Rectangle();
-        const texture = new PIXI.Texture(TilingSprite._emptyBaseTexture, frame);
-        PIXI.TilingSprite.call(this, texture);
+        super(new PIXI.Texture(TilingSprite._emptyBaseTexture, frame));
+        this.initialize(...args);
+    }
+
+    initialize(bitmap) {
         this._bitmap = bitmap;
         this._width = 0;
         this._height = 0;
-        this._frame = frame;
+        this._frame = this.texture.frame;
 
         /**
          * The origin point of the tiling sprite for scrolling.
@@ -3342,7 +3309,6 @@ class TilingSprite {
         }
     }
 }
-Object.setPrototypeOf(TilingSprite.prototype, PIXI.TilingSprite.prototype);
 
 //-----------------------------------------------------------------------------
 /**
@@ -3351,13 +3317,9 @@ Object.setPrototypeOf(TilingSprite.prototype, PIXI.TilingSprite.prototype);
  * @class
  * @extends PIXI.Container
  */
-class ScreenSprite {
-    constructor(...args) {
-        this.initialize(...args);
-    }
-
-    initialize() {
-        PIXI.Container.call(this);
+class ScreenSprite extends PIXI.Container {
+    constructor() {
+        super();
         this._graphics = new PIXI.Graphics();
         this.addChild(this._graphics);
         this.opacity = 0;
@@ -3424,7 +3386,6 @@ class ScreenSprite {
         }
     }
 }
-Object.setPrototypeOf(ScreenSprite.prototype, PIXI.Container.prototype);
 
 //-----------------------------------------------------------------------------
 /**
@@ -3433,14 +3394,13 @@ Object.setPrototypeOf(ScreenSprite.prototype, PIXI.Container.prototype);
  * @class
  * @extends PIXI.Container
  */
-class Window {
+class Window extends PIXI.Container {
     constructor(...args) {
+        super();
         this.initialize(...args);
     }
 
     initialize() {
-        PIXI.Container.call(this);
-
         this._isWindow = true;
         this._windowskin = null;
         this._width = 0;
@@ -4159,7 +4119,6 @@ class Window {
         filterArea.height = this.innerHeight;
     }
 }
-Object.setPrototypeOf(Window.prototype, PIXI.Container.prototype);
 
 //-----------------------------------------------------------------------------
 /**
@@ -4168,13 +4127,9 @@ Object.setPrototypeOf(Window.prototype, PIXI.Container.prototype);
  * @class
  * @extends PIXI.Container
  */
-class WindowLayer {
-    constructor(...args) {
-        this.initialize(...args);
-    }
-
-    initialize() {
-        PIXI.Container.call(this);
+class WindowLayer extends PIXI.Container {
+    constructor() {
+        super();
     }
 
     /**
@@ -4239,7 +4194,6 @@ class WindowLayer {
         renderer.batch.flush();
     }
 }
-Object.setPrototypeOf(WindowLayer.prototype, PIXI.Container.prototype);
 
 //-----------------------------------------------------------------------------
 /**
@@ -4248,13 +4202,9 @@ Object.setPrototypeOf(WindowLayer.prototype, PIXI.Container.prototype);
  * @class
  * @extends PIXI.Container
  */
-class Weather {
-    constructor(...args) {
-        this.initialize(...args);
-    }
-
-    initialize() {
-        PIXI.Container.call(this);
+class Weather extends PIXI.Container {
+    constructor() {
+        super();
 
         this._width = Graphics.width;
         this._height = Graphics.height;
@@ -4396,7 +4346,6 @@ class Weather {
         sprite.opacity = 160 + Math.randomInt(60);
     }
 }
-Object.setPrototypeOf(Weather.prototype, PIXI.Container.prototype);
 
 //-----------------------------------------------------------------------------
 /**
@@ -4405,13 +4354,9 @@ Object.setPrototypeOf(Weather.prototype, PIXI.Container.prototype);
  * @class
  * @extends PIXI.Filter
  */
-class ColorFilter {
-    constructor(...args) {
-        this.initialize(...args);
-    }
-
-    initialize() {
-        PIXI.Filter.call(this, null, this._fragmentSrc());
+class ColorFilter extends PIXI.Filter {
+    constructor() {
+        super(null, ColorFilter._fragmentSrc());
         this.uniforms.hue = 0;
         this.uniforms.colorTone = [0, 0, 0, 0];
         this.uniforms.blendColor = [0, 0, 0, 0];
@@ -4460,7 +4405,7 @@ class ColorFilter {
         this.uniforms.brightness = Number(brightness);
     }
 
-    _fragmentSrc() {
+    static _fragmentSrc() {
         const src =
             "varying vec2 vTextureCoord;" +
             "uniform sampler2D uSampler;" +
@@ -4547,7 +4492,6 @@ class ColorFilter {
         return src;
     }
 }
-Object.setPrototypeOf(ColorFilter.prototype, PIXI.Filter.prototype);
 
 //-----------------------------------------------------------------------------
 /**
@@ -4556,14 +4500,14 @@ Object.setPrototypeOf(ColorFilter.prototype, PIXI.Filter.prototype);
  * @class
  * @extends PIXI.Container
  */
-class Stage {
+class Stage extends PIXI.Container {
     constructor(...args) {
+        super();
         this.initialize(...args);
     }
 
-    initialize() {
-        PIXI.Container.call(this);
-    }
+    // Scene_Base delegates to this hook during initialization.
+    initialize() {}
 
     /**
      * Destroys the stage.
@@ -4573,7 +4517,6 @@ class Stage {
         PIXI.Container.prototype.destroy.call(this, options);
     }
 }
-Object.setPrototypeOf(Stage.prototype, PIXI.Container.prototype);
 
 //-----------------------------------------------------------------------------
 /**
