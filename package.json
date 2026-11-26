@@ -14,8 +14,8 @@
     "test:release": "node --test tests/release.test.mjs"
   },
   "keywords": [],
-  "author": "",
-  "license": "ISC",
+  "author": "enpitsulin <enpitsulin@gmail.com>",
+  "license": "MIT",
   "packageManager": "pnpm@12.23.0",
   "type": "module",
   "devDependencies": {
