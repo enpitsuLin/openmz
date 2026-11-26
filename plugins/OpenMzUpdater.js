@@ -62,109 +62,77 @@
     const TAR_BLOCK_SIZE = 512;
     const SEMVER = /^(0|[1-9]\d*)\.(0|[1-9]\d*)\.(0|[1-9]\d*)(?:-(?:0|[1-9]\d*|\d*[a-z-][\da-z-]*)(?:\.(?:0|[1-9]\d*|\d*[a-z-][\da-z-]*))*)?(?:\+[\da-z-]+(?:\.[\da-z-]+)*)?$/i;
 
-    const getNodeRequire = () => {
-        if (typeof window === "object" && typeof window.require === "function") {
-            return window.require;
-        }
-        if (typeof require === "function") {
-            return require;
-        }
-        return null;
-    };
+    //-------------------------------------------------------------------------
+    // Network
+    //-------------------------------------------------------------------------
 
-    const resolveProjectRoot = (nodeRequire) => {
-        const path = nodeRequire("path");
-        if (window.location.protocol === "file:") {
-            const { fileURLToPath } = nodeRequire("url");
-            return path.dirname(fileURLToPath(window.location.href));
-        }
-        if (process.mainModule && process.mainModule.filename) {
-            return path.dirname(process.mainModule.filename);
-        }
-        return process.cwd();
-    };
-
-    const createTimestamp = (date = new Date()) => {
-        const pad = (value, length = 2) => String(value).padStart(length, "0");
-        return [
-            date.getFullYear(),
-            pad(date.getMonth() + 1),
-            pad(date.getDate()),
-            "-",
-            pad(date.getHours()),
-            pad(date.getMinutes()),
-            pad(date.getSeconds()),
-        ].join("");
-    };
-
-    const fetchBuffer = async (nodeRequire, targetUrl, redirects = []) => {
-        const url = new URL(targetUrl);
-        const finalUrl = url.href;
-        if (redirects.length > MAX_REDIRECTS) {
-            throw new Error(`Too many redirects: ${finalUrl}`);
-        }
-        const redirectChain = [...redirects, finalUrl];
-
-        if (url.protocol === "file:") {
-            const fs = nodeRequire("fs");
-            const { fileURLToPath } = nodeRequire("url");
-            const buffer = await new Promise((resolve, reject) => {
-                fs.readFile(fileURLToPath(finalUrl), (error, bytes) => {
-                    if (error) reject(error);
-                    else resolve(bytes);
-                });
-            });
-            return { buffer, finalUrl, redirectChain };
-        }
-        if (url.protocol !== "http:" && url.protocol !== "https:") {
-            throw new Error(`Unsupported protocol "${url.protocol}": ${finalUrl}`);
-        }
-
-        const transport = nodeRequire(url.protocol === "https:" ? "https" : "http");
+    /**
+     * Single HTTP(S) GET. Resolves `{ location }` for redirects, `{ buffer }` otherwise.
+     * `onData(received, total)` reports body progress; total is 0 when unknown.
+     */
+    const httpGet = (nodeRequire, url, onData) => new Promise((resolve, reject) => {
         const { Buffer: NodeBuffer } = nodeRequire("buffer");
-        const options = {
-            protocol: url.protocol,
-            hostname: url.hostname.replace(/^\[|\]$/g, ""),
-            port: url.port,
-            path: url.pathname + url.search,
-            auth: url.username || url.password
-                ? `${decodeURIComponent(url.username)}:${decodeURIComponent(url.password)}`
-                : undefined,
-            headers: { "User-Agent": "OpenMzUpdater", "Cache-Control": "no-cache" },
-        };
-
-        let timeout;
-        const result = await new Promise((resolve, reject) => {
-            const request = transport.get(options, (response) => {
-                const status = response.statusCode;
-                response.on("error", reject);
-                if (status >= 300 && status < 400 && response.headers.location) {
-                    response.resume();
-                    resolve(response.headers.location);
-                    return;
-                }
-                if (status < 200 || status >= 300) {
-                    response.resume();
-                    reject(new Error(`HTTP ${status}: ${finalUrl}`));
-                    return;
-                }
-                const chunks = [];
-                response.on("data", (chunk) => chunks.push(chunk));
-                response.on("end", () => resolve(NodeBuffer.concat(chunks)));
-                response.on("aborted", () => reject(new Error(`Incomplete download: ${finalUrl}`)));
+        const headers = { "User-Agent": "OpenMzUpdater", "Cache-Control": "no-cache" };
+        const request = nodeRequire(url.protocol.slice(0, -1)).get(url.href, { headers }, (response) => {
+            const { statusCode: status, headers: { location } } = response;
+            if (status >= 300 && status < 400 && location) {
+                response.resume();
+                resolve({ location });
+                return;
+            }
+            if (status < 200 || status >= 300) {
+                response.resume();
+                reject(new Error(`HTTP ${status}: ${url.href}`));
+                return;
+            }
+            const total = Number(response.headers["content-length"]) || 0;
+            const chunks = [];
+            let received = 0;
+            response.on("data", (chunk) => {
+                chunks.push(chunk);
+                received += chunk.length;
+                if (onData) onData(received, total);
             });
+            response.on("error", reject);
+            response.on("end", () => response.complete
+                ? resolve({ buffer: NodeBuffer.concat(chunks) })
+                : reject(new Error(`Incomplete download: ${url.href}`)));
+        });
+        request.on("error", reject);
+        request.setTimeout(REQUEST_TIMEOUT_MS, () => {
+            request.destroy(new Error(`Request timed out: ${url.href}`));
+        });
+    });
 
-            request.on("error", reject);
-            timeout = setTimeout(() => {
-                request.destroy(new Error(`Request timed out: ${finalUrl}`));
-            }, REQUEST_TIMEOUT_MS);
-        }).finally(() => clearTimeout(timeout));
-
-        if (typeof result === "string") {
-            return fetchBuffer(nodeRequire, new URL(result, finalUrl).href, redirectChain);
+    /** Reads a file:/http:/https: URL, following redirects. */
+    const fetchBuffer = async (nodeRequire, targetUrl, onData) => {
+        const redirectChain = [];
+        let url = new URL(targetUrl);
+        for (;;) {
+            redirectChain.push(url.href);
+            if (redirectChain.length > MAX_REDIRECTS + 1) {
+                throw new Error(`Too many redirects: ${url.href}`);
+            }
+            if (url.protocol === "file:") {
+                const filePath = nodeRequire("url").fileURLToPath(url.href);
+                const buffer = await nodeRequire("fs").promises.readFile(filePath);
+                if (onData) onData(buffer.length, buffer.length);
+                return { buffer, finalUrl: url.href, redirectChain };
+            }
+            if (url.protocol !== "http:" && url.protocol !== "https:") {
+                throw new Error(`Unsupported protocol "${url.protocol}": ${url.href}`);
+            }
+            const { location, buffer } = await httpGet(nodeRequire, url, onData);
+            if (!location) {
+                return { buffer, finalUrl: url.href, redirectChain };
+            }
+            url = new URL(location, url);
         }
-        return { buffer: result, finalUrl, redirectChain };
     };
+
+    //-------------------------------------------------------------------------
+    // Manifest & archive
+    //-------------------------------------------------------------------------
 
     const parseManifest = ({ buffer, redirectChain }) => {
         const manifest = JSON.parse(buffer.toString("utf8"));
@@ -172,8 +140,7 @@
             throw new Error("Expected a schemaVersion 2 manifest.");
         }
         const { name, version, archive } = manifest;
-        if (typeof name !== "string" || !name.trim() ||
-            typeof version !== "string" || !SEMVER.test(version)) {
+        if (typeof name !== "string" || !name.trim() || typeof version !== "string" || !SEMVER.test(version)) {
             throw new Error("Manifest requires a name and a semantic version.");
         }
         if (!archive || typeof archive.url !== "string" || !archive.url.trim()) {
@@ -187,17 +154,30 @@
             throw new Error("Invalid archive SHA-256 in manifest.");
         }
 
-        // Resolve relative assets against the last URL on the original origin.
+        // Resolve relative assets against the last URL on the original origin,
+        // e.g. a GitHub release tag rather than a signed CDN location.
         const original = new URL(redirectChain[0]);
-        const base = redirectChain.slice().reverse().find((location) => {
+        const base = redirectChain.filter((location) => {
             const url = new URL(location);
-            return url.origin === original.origin && url.protocol === original.protocol;
-        });
+            return url.protocol === original.protocol && url.origin === original.origin;
+        }).pop();
         const url = new URL(archive.url.trim(), base);
         if (!["http:", "https:", "file:"].includes(url.protocol)) {
             throw new Error(`Unsupported archive protocol: ${url.protocol}`);
         }
         return { name, version, archive: { url: url.href, size, sha256 } };
+    };
+
+    const verifyArchive = (nodeRequire, buffer, { size, sha256 }) => {
+        if (size !== undefined && buffer.length !== size) {
+            throw new Error(`Archive size mismatch: expected ${size}, got ${buffer.length}.`);
+        }
+        if (sha256 !== undefined) {
+            const actual = nodeRequire("crypto").createHash("sha256").update(buffer).digest("hex");
+            if (actual !== sha256.toLowerCase()) {
+                throw new Error("Archive SHA-256 mismatch.");
+            }
+        }
     };
 
     const parseTarBuffer = (buffer) => {
@@ -209,6 +189,7 @@
             }
             return parseInt(value, 8);
         };
+        const isZero = (block) => block.every((byte) => byte === 0);
         const entries = [];
         let longPath;
         let offset = 0;
@@ -216,9 +197,8 @@
         while (offset + 2 * TAR_BLOCK_SIZE <= buffer.length) {
             const header = buffer.subarray(offset, offset + TAR_BLOCK_SIZE);
             offset += TAR_BLOCK_SIZE;
-            if (header.every((byte) => byte === 0)) {
-                const end = buffer.subarray(offset, offset + TAR_BLOCK_SIZE);
-                if (longPath !== undefined || !end.every((byte) => byte === 0)) {
+            if (isZero(header)) {
+                if (longPath !== undefined || !isZero(buffer.subarray(offset, offset + TAR_BLOCK_SIZE))) {
                     throw new Error("Invalid tar end marker.");
                 }
                 return entries;
@@ -230,30 +210,27 @@
             }
 
             const size = readOctal(header.subarray(124, 136));
-            const nextOffset = offset + Math.ceil(size / TAR_BLOCK_SIZE) * TAR_BLOCK_SIZE;
-            if (nextOffset > buffer.length) {
+            const content = buffer.subarray(offset, offset + size);
+            offset += Math.ceil(size / TAR_BLOCK_SIZE) * TAR_BLOCK_SIZE;
+            if (offset > buffer.length) {
                 throw new Error("Truncated tar entry.");
             }
-            const content = buffer.subarray(offset, offset + size);
-            offset = nextOffset;
-            const type = header[156];
+            const type = String.fromCharCode(header[156] || 48);
             const name = readText(header.subarray(0, 100));
-            if (type === 76 && (name === "././@LongLink" || name === "@LongLink")) {
+            if (type === "L" && (name === "././@LongLink" || name === "@LongLink")) {
                 longPath = readText(content);
                 continue;
             }
-            if (type === 120 || type === 103) { // PAX x / g
+            if (type === "x" || type === "g") { // PAX headers
                 continue;
             }
-            if (type === 0 || type === 48) { // Regular file
+            if (type === "0") {
                 const prefix = readText(header.subarray(257, 263)) === "ustar"
                     ? readText(header.subarray(345, 500))
                     : "";
-                const relativePath = longPath === undefined
-                    ? (prefix ? `${prefix}/${name}` : name)
-                    : longPath;
+                const relativePath = longPath ?? (prefix ? `${prefix}/${name}` : name);
                 entries.push({ relativePath, content });
-            } else if (type !== 53) { // Directory
+            } else if (type !== "5") { // Directory
                 throw new Error(`Unsupported tar entry type for ${name}.`);
             }
             longPath = undefined;
@@ -261,41 +238,71 @@
         throw new Error("Missing tar end marker.");
     };
 
-    const normalizeTargetRelativePath = (relativePath) => {
-        const segments = relativePath.split("/");
-        if (!relativePath.startsWith("js/") || segments.some((segment) =>
-            !segment || /[\\:\0]/.test(segment) || /[. ]$/.test(segment)
-        )) {
-            throw new Error(`Unsafe target script path: ${relativePath}`);
+    /** Rejects archives that would write outside js/ or touch the plugin setup. */
+    const validateEntries = (entries) => {
+        if (!entries.length) {
+            throw new Error("Archive contains no core files.");
         }
-        if (/^js\/(plugins\.js(?:\/|$)|plugins(?:\/|$))/i.test(relativePath)) {
-            throw new Error(`Refusing to overwrite protected path: ${relativePath}`);
+        const seen = new Set();
+        for (const { relativePath } of entries) {
+            if (!relativePath.startsWith("js/") || relativePath.split("/").some((segment) =>
+                !segment || /[\\:\0]/.test(segment) || /[. ]$/.test(segment))) {
+                throw new Error(`Unsafe target script path: ${relativePath}`);
+            }
+            if (/^js\/plugins(?:\.js)?(?:\/|$)/i.test(relativePath)) {
+                throw new Error(`Refusing to overwrite protected path: ${relativePath}`);
+            }
+            const key = relativePath.toLowerCase();
+            if (seen.has(key)) {
+                throw new Error(`Duplicate archive path: ${relativePath}`);
+            }
+            seen.add(key);
         }
-        return relativePath;
+        for (const key of seen) {
+            const segments = key.split("/");
+            for (let i = 2; i < segments.length; i++) {
+                const directory = segments.slice(0, i).join("/");
+                if (seen.has(directory)) {
+                    throw new Error(`Archive path is both a file and a directory: ${directory}`);
+                }
+            }
+        }
     };
 
-    const getPathStat = (fs, targetPath, directory) => {
+    //-------------------------------------------------------------------------
+    // Filesystem
+    //-------------------------------------------------------------------------
+
+    /** Returns the lstat of a regular file, undefined if missing, throws otherwise. */
+    const getFileStat = (fs, filePath) => {
         let stat;
         try {
-            stat = fs.lstatSync(targetPath);
+            stat = fs.lstatSync(filePath);
         } catch (error) {
             if (error.code === "ENOENT") return undefined;
             throw error;
         }
-        if (directory ? !stat.isDirectory() : !stat.isFile()) {
-            throw new Error(`Unexpected filesystem entry: ${targetPath}`);
+        if (!stat.isFile()) {
+            throw new Error(`Unexpected filesystem entry: ${filePath}`);
         }
         return stat;
     };
 
-    const createUniqueBackupDir = (fs, path, projectRoot) => {
-        const backupBase = path.join(projectRoot, "js_backup");
-        if (!getPathStat(fs, backupBase, true)) {
-            fs.mkdirSync(backupBase, { recursive: true });
-        }
-        const stamp = createTimestamp();
+    const removeDirectory = (fs, directory) => fs.rmSync
+        ? fs.rmSync(directory, { recursive: true, force: true })
+        : fs.rmdirSync(directory, { recursive: true });
+
+    const createTimestamp = (date = new Date()) => {
+        const pad = (value) => String(value).padStart(2, "0");
+        return `${date.getFullYear()}${pad(date.getMonth() + 1)}${pad(date.getDate())}-` +
+            `${pad(date.getHours())}${pad(date.getMinutes())}${pad(date.getSeconds())}`;
+    };
+
+    const createBackupDir = (fs, path, root) => {
+        const base = path.join(root, "js_backup", createTimestamp());
+        fs.mkdirSync(path.dirname(base), { recursive: true });
         for (let suffix = 0; ; suffix++) {
-            const candidate = path.join(backupBase, suffix ? `${stamp}-${suffix}` : stamp);
+            const candidate = suffix ? `${base}-${suffix}` : base;
             try {
                 fs.mkdirSync(candidate);
                 return candidate;
@@ -305,50 +312,17 @@
         }
     };
 
-    const parsePluginsJs = (nodeRequire, source) => {
-        const match = source.match(/var\s+\$plugins\s*=\s*(\[[\s\S]*\])\s*;?/);
-        if (match) {
-            try {
-                const parsed = JSON.parse(match[1]);
-                if (Array.isArray(parsed)) {
-                    return parsed;
-                }
-            } catch {
-                // Fall back to VM evaluation for hand-edited plugins.js files.
-            }
-        }
-        const vm = nodeRequire("vm");
-        const evaluated = vm.runInNewContext(`${source}\n$plugins;`, {});
-        if (!Array.isArray(evaluated)) {
-            throw new Error("Invalid js/plugins.js format.");
-        }
-        return evaluated;
-    };
-
-    const formatPluginsJs = (plugins, lineEnding = "\n") => {
-        const body = plugins.map((entry) => JSON.stringify(entry)).join(`,${lineEnding}`);
-        const lines = [
-            "// Generated by RPG Maker.",
-            "// Do not edit this file directly.",
-            "var $plugins =",
-            "[",
-        ];
-        if (body) {
-            lines.push(body);
-        }
-        lines.push("];", "");
-        return lines.join(lineEnding);
-    };
-
-    const preparePluginConfig = (nodeRequire, targetPath, pluginName) => {
-        const fs = nodeRequire("fs");
-        const stat = getPathStat(fs, targetPath, false);
+    /** Builds the js/plugins.js replacement that disables this plugin, or null if already disabled. */
+    const preparePluginConfig = (fs, nodeRequire, targetPath, pluginName) => {
+        const stat = getFileStat(fs, targetPath);
         if (!stat) {
             throw new Error("Missing js/plugins.js.");
         }
-
         const source = fs.readFileSync(targetPath, "utf8");
-        const plugins = parsePluginsJs(nodeRequire, source);
+        const plugins = nodeRequire("vm").runInNewContext(`${source}\n$plugins;`, {});
+        if (!Array.isArray(plugins)) {
+            throw new Error("Invalid js/plugins.js format.");
+        }
         const entries = plugins.filter((entry) => entry && entry.name === pluginName);
         if (!entries.length) {
             throw new Error(`Missing plugin entry in js/plugins.js: ${pluginName}`);
@@ -359,45 +333,44 @@
         for (const entry of entries) {
             entry.status = false;
         }
-        const lineEnding = source.includes("\r\n") ? "\r\n" : "\n";
-        return {
-            relativePath: "js/plugins.js",
-            targetPath,
-            content: formatPluginsJs(plugins, lineEnding),
-            stat,
-        };
+        const eol = source.includes("\r\n") ? "\r\n" : "\n";
+        const content = [
+            "// Generated by RPG Maker.",
+            "// Do not edit this file directly.",
+            "var $plugins =",
+            "[",
+            plugins.map((entry) => JSON.stringify(entry)).join(`,${eol}`),
+            "];",
+            "",
+        ].join(eol);
+        return { relativePath: "js/plugins.js", targetPath, content, stat };
     };
 
-    const applyUpgrade = (fs, path, projectRoot, files, missingDirs) => {
-        const backupDir = createUniqueBackupDir(fs, path, projectRoot);
+    /** Backs up, then replaces every file; rolls everything back on failure. */
+    const applyUpgrade = (fs, path, root, files) => {
+        const backupDir = createBackupDir(fs, path, root);
         const stagedPath = path.join(backupDir, ".openmz-update");
+        const backupPathOf = (file) => path.join(backupDir, file.relativePath);
         const createdDirs = [];
         const applied = [];
 
         try {
-            for (const file of files) {
-                if (file.stat) {
-                    const backupPath = path.join(backupDir, file.relativePath);
-                    fs.mkdirSync(path.dirname(backupPath), { recursive: true });
-                    fs.copyFileSync(file.targetPath, backupPath);
-                }
-            }
-            for (const directory of missingDirs) {
-                fs.mkdirSync(directory);
-                createdDirs.push(directory);
+            for (const file of files.filter((item) => item.stat)) {
+                fs.mkdirSync(path.dirname(backupPathOf(file)), { recursive: true });
+                fs.copyFileSync(file.targetPath, backupPathOf(file));
             }
             for (const file of files) {
-                fs.writeFileSync(stagedPath, file.content, { flag: "wx" });
-                if (file.stat) {
-                    fs.chmodSync(stagedPath, file.stat.mode & 0o777);
-                }
+                const createdDir = fs.mkdirSync(path.dirname(file.targetPath), { recursive: true });
+                if (createdDir) createdDirs.push(createdDir);
+                fs.writeFileSync(stagedPath, file.content);
+                if (file.stat) fs.chmodSync(stagedPath, file.stat.mode & 0o777);
                 // Rename makes a failed write leave the destination untouched.
                 fs.renameSync(stagedPath, file.targetPath);
                 applied.push(file);
             }
         } catch (error) {
             const rollbackErrors = [];
-            const restore = (operation) => {
+            const attempt = (operation) => {
                 try {
                     operation();
                 } catch (rollbackError) {
@@ -405,21 +378,13 @@
                 }
             };
             for (const file of applied.reverse()) {
-                restore(() => {
-                    if (file.stat) {
-                        if (fs.existsSync(stagedPath)) fs.unlinkSync(stagedPath);
-                        fs.copyFileSync(path.join(backupDir, file.relativePath), stagedPath);
-                        fs.renameSync(stagedPath, file.targetPath);
-                    } else {
-                        fs.unlinkSync(file.targetPath);
-                    }
-                });
+                attempt(() => file.stat
+                    ? fs.copyFileSync(backupPathOf(file), file.targetPath)
+                    : fs.unlinkSync(file.targetPath));
             }
-            restore(() => {
-                if (fs.existsSync(stagedPath)) fs.unlinkSync(stagedPath);
-            });
+            attempt(() => fs.existsSync(stagedPath) && fs.unlinkSync(stagedPath));
             for (const directory of createdDirs.reverse()) {
-                restore(() => fs.rmdirSync(directory));
+                attempt(() => removeDirectory(fs, directory));
             }
             if (rollbackErrors.length) {
                 throw new Error(`${error.message} Rollback incomplete. Backup: ${backupDir}. ${rollbackErrors.join(" | ")}`);
@@ -429,11 +394,16 @@
         return backupDir;
     };
 
+    //-------------------------------------------------------------------------
+    // Upgrade pipeline
+    //-------------------------------------------------------------------------
+
     const upgradeCoreEngine = async ({
         manifestUrl,
         projectRoot,
         pluginName = "",
         onProgress = () => {},
+        onDownload = () => {},
         nodeRequire,
     }) => {
         const fs = nodeRequire("fs");
@@ -442,76 +412,39 @@
         await onProgress({ phase: "manifest" });
         const manifest = parseManifest(await fetchBuffer(nodeRequire, manifestUrl));
         const { archive } = manifest;
-        const archiveName = new URL(archive.url).pathname.split("/").pop();
-        await onProgress({ phase: "download", file: archiveName });
-        const { buffer } = await fetchBuffer(nodeRequire, archive.url);
+
+        const file = new URL(archive.url).pathname.split("/").pop();
+        await onProgress({ phase: "download", file, loaded: 0, total: archive.size || 0 });
+        const { buffer } = await fetchBuffer(nodeRequire, archive.url, (loaded, total) =>
+            onDownload({ phase: "download", file, loaded, total: total || archive.size || 0 }));
 
         await onProgress({ phase: "verify" });
-        if (archive.size !== undefined && buffer.length !== archive.size) {
-            throw new Error(`Archive size mismatch: expected ${archive.size}, got ${buffer.length}.`);
-        }
-        if (archive.sha256 !== undefined) {
-            const actual = nodeRequire("crypto").createHash("sha256").update(buffer).digest("hex");
-            if (actual !== archive.sha256.toLowerCase()) {
-                throw new Error("Archive SHA-256 mismatch.");
-            }
-        }
-        const downloaded = parseTarBuffer(nodeRequire("zlib").gunzipSync(buffer));
-        if (!downloaded.length) {
-            throw new Error("Archive contains no core files.");
-        }
+        verifyArchive(nodeRequire, buffer, archive);
+        const entries = parseTarBuffer(nodeRequire("zlib").gunzipSync(buffer));
+        validateEntries(entries);
 
+        await onProgress({ phase: "apply", total: entries.length });
         const root = fs.realpathSync(projectRoot);
-        const jsRoot = path.join(root, "js") + path.sep;
-        const seenPaths = new Set();
-        for (const item of downloaded) {
-            normalizeTargetRelativePath(item.relativePath);
-            const key = item.relativePath.toLowerCase();
-            if (seenPaths.has(key)) {
-                throw new Error(`Duplicate archive path: ${item.relativePath}`);
-            }
-            seenPaths.add(key);
-        }
-
-        await onProgress({ phase: "apply", total: downloaded.length });
-        const missingDirs = new Set();
-        const files = downloaded.map(({ relativePath, content }) => {
-            const targetPath = path.resolve(root, relativePath);
-            if (!targetPath.startsWith(jsRoot)) {
-                throw new Error(`Target path escapes js/ directory: ${relativePath}`);
-            }
-            const segments = relativePath.split("/");
-            let directory = "";
-            for (const segment of segments.slice(0, -1)) {
-                directory = directory ? `${directory}/${segment}` : segment;
-                if (seenPaths.has(directory.toLowerCase())) {
-                    throw new Error(`Archive path is both a file and a directory: ${directory}`);
-                }
-                const directoryPath = path.join(root, directory);
-                if (!getPathStat(fs, directoryPath, true)) {
-                    missingDirs.add(directoryPath);
-                }
-            }
-            return { relativePath, content, targetPath, stat: getPathStat(fs, targetPath, false) };
+        const files = entries.map(({ relativePath, content }) => {
+            const targetPath = path.join(root, ...relativePath.split("/"));
+            return { relativePath, content, targetPath, stat: getFileStat(fs, targetPath) };
         });
         if (pluginName) {
-            const pluginConfig = preparePluginConfig(nodeRequire, path.join(root, "js", "plugins.js"), pluginName);
+            // Written last so a failure here rolls back the core files too.
+            const pluginConfig = preparePluginConfig(fs, nodeRequire, path.join(root, "js", "plugins.js"), pluginName);
             if (pluginConfig) files.push(pluginConfig);
         }
+        const backupDir = applyUpgrade(fs, path, root, files);
 
-        const backupDir = applyUpgrade(fs, path, root, files, missingDirs);
         if (pluginName && typeof $plugins !== "undefined" && Array.isArray($plugins)) {
             for (const entry of $plugins) {
-                if (entry && entry.name === pluginName) {
-                    entry.status = false;
-                }
+                if (entry && entry.name === pluginName) entry.status = false;
             }
         }
-
         return {
             name: manifest.name,
             version: manifest.version,
-            updatedFiles: downloaded.map((item) => item.relativePath),
+            updatedFiles: entries.map((entry) => entry.relativePath),
             backupRelativeDir: path.relative(root, backupDir).replace(/\\/g, "/"),
         };
     };
@@ -519,6 +452,10 @@
     if (typeof window === "undefined" && typeof module === "object" && module.exports) {
         module.exports = { fetchBuffer, parseTarBuffer, upgradeCoreEngine };
     }
+
+    //-------------------------------------------------------------------------
+    // Title scene integration
+    //-------------------------------------------------------------------------
 
     if (typeof PluginManager === "undefined" || typeof Scene_Title === "undefined") {
         return;
@@ -528,80 +465,92 @@
     const pluginName = scriptSrc
         ? decodeURIComponent(scriptSrc.split("/").pop().replace(/\.js$/i, ""))
         : "OpenMzUpdater";
-    const parameters = PluginManager.parameters(pluginName);
-    const configuredManifestUrl = String(parameters.manifestUrl || "").trim();
-
-    const nodeRequire = getNodeRequire();
-    if (!configuredManifestUrl || !nodeRequire || !Utils.isNwjs()) {
+    const manifestUrl = String(PluginManager.parameters(pluginName).manifestUrl || "").trim();
+    const nodeRequire = typeof require === "function" ? require : null;
+    if (!manifestUrl || !nodeRequire || !Utils.isNwjs()) {
         return;
     }
 
-    let promptHandledInSession = false;
-
-    const isChineseLocale = () => {
-        const locale =
-            typeof $dataSystem === "object" && $dataSystem && $dataSystem.locale
-                ? String($dataSystem.locale)
-                : navigator.language || "";
-        return locale.toLowerCase().startsWith("zh");
+    // Share of the overall progress bar covered by each phase: [start, end].
+    const PROGRESS_RANGES = {
+        manifest: [0, 0.05],
+        download: [0.05, 0.85],
+        verify: [0.85, 0.9],
+        apply: [0.9, 1],
     };
 
-    const getTexts = () =>
-        isChineseLocale()
-            ? {
-                  title: "升级 OpenMZ 核心引擎",
-                  confirmAction: "将下载新版并替换工程的核心脚本。",
-                  confirmBackup: "原脚本将备份到 js_backup/。",
-                  confirmSource: (source) => `来源：${source}`,
-                  confirmVersion: (version) => `目标版本：${version}`,
-                  latestRelease: "最新版",
-                  fetchingManifest: "读取更新清单",
-                  downloading: (file) => `下载更新包：${file}`,
-                  verifying: "校验并解压更新包",
-                  applying: (total) => `备份原脚本并替换 ${total} 个文件`,
-                  doneTitle: "升级完成",
-                  doneCount: (name, version, count) => `已更新至 ${name} v${version}（${count} 个文件）`,
-                  doneBackup: (dir) => `原脚本备份至：${dir}`,
-                  doneHint: "升级插件已自动关闭，重启后启用新版引擎。",
-                  errorTitle: "升级失败",
-                  btnUpgrade: "确认升级",
-                  btnSkip: "暂不升级",
-                  btnReload: "立即重启",
-                  btnRetry: "重试",
-                  btnBack: "返回标题",
-              }
-            : {
-                  title: "Upgrade the OpenMZ engine",
-                  confirmAction: "The upgrade will replace this project's core scripts.",
-                  confirmBackup: "Original scripts will be backed up to js_backup/.",
-                  confirmSource: (source) => `Source: ${source}`,
-                  confirmVersion: (version) => `Target version: ${version}`,
-                  latestRelease: "Latest release",
-                  fetchingManifest: "Reading update manifest",
-                  downloading: (file) => `Downloading update: ${file}`,
-                  verifying: "Verifying and extracting the update",
-                  applying: (total) => `Backing up and replacing ${total} files`,
-                  doneTitle: "Upgrade complete",
-                  doneCount: (name, version, count) => `Updated to ${name} v${version} (${count} files)`,
-                  doneBackup: (dir) => `Original scripts backed up to: ${dir}`,
-                  doneHint: "The updater is disabled. Restart to use the new engine.",
-                  errorTitle: "Upgrade failed",
-                  btnUpgrade: "Upgrade",
-                  btnSkip: "Skip",
-                  btnReload: "Restart now",
-                  btnRetry: "Retry",
-                  btnBack: "Back to title",
-              };
+    const formatBytes = (bytes) => bytes >= 1048576
+        ? `${(bytes / 1048576).toFixed(1)} MB`
+        : `${Math.ceil(bytes / 1024)} KB`;
 
-    const getManifestSourceLines = (texts) => {
-        const lines = [texts.confirmSource(configuredManifestUrl)];
+    const formatProgressSize = (loaded, total) =>
+        total ? `${formatBytes(loaded)} / ${formatBytes(total)}` : formatBytes(loaded);
+
+    const TEXTS = {
+        zh: {
+            title: "升级 OpenMZ 核心引擎",
+            confirmAction: "将下载新版并替换工程的核心脚本。",
+            confirmBackup: "原脚本将备份到 js_backup/。",
+            confirmSource: (source) => `来源：${source}`,
+            confirmVersion: (version) => `目标版本：${version}`,
+            latestRelease: "最新版",
+            progress: {
+                manifest: () => "读取更新清单",
+                download: ({ file, loaded, total }) => `下载更新包：${file}\n${formatProgressSize(loaded, total)}`,
+                verify: () => "校验并解压更新包",
+                apply: ({ total }) => `备份原脚本并替换 ${total} 个文件`,
+            },
+            doneTitle: "升级完成",
+            doneCount: (name, version, count) => `已更新至 ${name} v${version}（${count} 个文件）`,
+            doneBackup: (dir) => `原脚本备份至：${dir}`,
+            doneHint: "升级插件已自动关闭，重启后启用新版引擎。",
+            errorTitle: "升级失败",
+            btnUpgrade: "确认升级",
+            btnSkip: "暂不升级",
+            btnReload: "立即重启",
+            btnRetry: "重试",
+            btnBack: "返回标题",
+        },
+        en: {
+            title: "Upgrade the OpenMZ engine",
+            confirmAction: "The upgrade will replace this project's core scripts.",
+            confirmBackup: "Original scripts will be backed up to js_backup/.",
+            confirmSource: (source) => `Source: ${source}`,
+            confirmVersion: (version) => `Target version: ${version}`,
+            latestRelease: "Latest release",
+            progress: {
+                manifest: () => "Reading update manifest",
+                download: ({ file, loaded, total }) => `Downloading update: ${file}\n${formatProgressSize(loaded, total)}`,
+                verify: () => "Verifying and extracting the update",
+                apply: ({ total }) => `Backing up and replacing ${total} files`,
+            },
+            doneTitle: "Upgrade complete",
+            doneCount: (name, version, count) => `Updated to ${name} v${version} (${count} files)`,
+            doneBackup: (dir) => `Original scripts backed up to: ${dir}`,
+            doneHint: "The updater is disabled. Restart to use the new engine.",
+            errorTitle: "Upgrade failed",
+            btnUpgrade: "Upgrade",
+            btnSkip: "Skip",
+            btnReload: "Restart now",
+            btnRetry: "Retry",
+            btnBack: "Back to title",
+        },
+    };
+
+    const getTexts = () => {
+        const locale = ($dataSystem && $dataSystem.locale) || navigator.language || "";
+        return String(locale).toLowerCase().startsWith("zh") ? TEXTS.zh : TEXTS.en;
+    };
+
+    /** Shows the manifest URL, plus the release tag when it is a GitHub release asset. */
+    const getSourceLines = (texts) => {
+        const lines = [texts.confirmSource(manifestUrl)];
         try {
-            const url = new URL(configuredManifestUrl);
+            const url = new URL(manifestUrl);
             const release = url.hostname === "github.com" &&
                 url.pathname.match(/^\/[^/]+\/[^/]+\/releases\/(?:download\/([^/]+)|latest\/download)\//);
             if (release) {
-                const tag = release[1];
-                lines.push(texts.confirmVersion(tag ? decodeURIComponent(tag) : texts.latestRelease));
+                lines.push(texts.confirmVersion(release[1] ? decodeURIComponent(release[1]) : texts.latestRelease));
             }
         } catch {
             // Keep the configured address visible even if it cannot be parsed.
@@ -609,16 +558,26 @@
         return lines;
     };
 
-    const reloadApplication = () => {
-        if (typeof nw === "object" && nw.Window && typeof nw.Window.get === "function") {
-            const currentWindow = nw.Window.get();
-            if (currentWindow && typeof currentWindow.reloadIgnoringCache === "function") {
-                currentWindow.reloadIgnoringCache();
-                return;
-            }
+    const resolveProjectRoot = () => {
+        const path = nodeRequire("path");
+        if (window.location.protocol === "file:") {
+            return path.dirname(nodeRequire("url").fileURLToPath(window.location.href));
         }
-        window.location.reload();
+        return process.mainModule ? path.dirname(process.mainModule.filename) : process.cwd();
     };
+
+    const reloadApplication = () => {
+        const nwWindow = typeof nw === "object" && nw.Window ? nw.Window.get() : null;
+        if (nwWindow && typeof nwWindow.reloadIgnoringCache === "function") {
+            nwWindow.reloadIgnoringCache();
+        } else {
+            window.location.reload();
+        }
+    };
+
+    // Let the game render the status text before synchronous work blocks it.
+    const waitForRender = () => new Promise((resolve) =>
+        requestAnimationFrame(() => requestAnimationFrame(resolve)));
 
     class Window_OpenMzMessage extends Window_Base {
         initialize(rect) {
@@ -626,14 +585,15 @@
             this.openness = 0;
         }
 
-        setMessage(titleText, bodyLines, titleColor = null) {
+        /** @param {number} [progress] 0..1; draws a progress bar below the body when given. */
+        setMessage(titleText, bodyLines, titleColor = ColorManager.systemColor(), progress) {
             const inset = this.itemPadding();
             const width = this.innerWidth - inset * 2;
             const title = this.wrapLine(titleText, width);
             const body = bodyLines.flatMap((text) =>
-                String(text).split(/\r?\n/).flatMap((line) => this.wrapLine(line, width))
-            );
-            const height = this.fittingHeight(title.length + body.length);
+                String(text).split(/\r?\n/).flatMap((line) => this.wrapLine(line, width)));
+            const hasProgress = typeof progress === "number";
+            const height = this.fittingHeight(title.length + body.length + (hasProgress ? 1 : 0));
             if (this.height !== height) {
                 this.height = height;
                 this.createContents();
@@ -642,17 +602,28 @@
             }
 
             const lineHeight = this.lineHeight();
-            let lineY = 0;
-            this.changeTextColor(titleColor || ColorManager.systemColor());
-            for (const line of title) {
-                this.drawText(line, inset, lineY, width, "center");
-                lineY += lineHeight;
-            }
+            this.changeTextColor(titleColor);
+            title.forEach((line, index) => this.drawText(line, inset, index * lineHeight, width, "center"));
             this.resetTextColor();
-            for (const line of body) {
-                this.drawText(line, inset, lineY, width, "left");
-                lineY += lineHeight;
+            body.forEach((line, index) =>
+                this.drawText(line, inset, (title.length + index) * lineHeight, width, "left"));
+            if (hasProgress) {
+                this.drawProgress(progress, inset, (title.length + body.length) * lineHeight, width);
             }
+        }
+
+        drawProgress(progress, x, y, width) {
+            const rate = Math.min(Math.max(progress, 0), 1);
+            const labelWidth = this.textWidth("100%");
+            const barWidth = width - labelWidth - this.itemPadding();
+            const barHeight = 12;
+            const barY = y + Math.floor((this.lineHeight() - barHeight) / 2);
+            this.contents.fillRect(x, barY, barWidth, barHeight, ColorManager.gaugeBackColor());
+            this.contents.gradientFillRect(
+                x + 1, barY + 1, Math.floor((barWidth - 2) * rate), barHeight - 2,
+                ColorManager.hpGaugeColor1(), ColorManager.hpGaugeColor2()
+            );
+            this.drawText(`${Math.floor(rate * 100)}%`, x + width - labelWidth, y, labelWidth, "right");
         }
 
         wrapLine(text, width) {
@@ -668,7 +639,6 @@
                     line += token;
                     continue;
                 }
-
                 // Split words without spaces, such as Chinese text and file paths.
                 for (const character of word) {
                     if (line && this.textWidth(line + character) > width) {
@@ -686,7 +656,6 @@
 
     class Window_OpenMzConfirm extends Window_HorzCommand {
         initialize(rect) {
-            this._mode = "confirm";
             super.initialize(rect);
             this.openness = 0;
             this.deactivate();
@@ -696,177 +665,118 @@
             return 2;
         }
 
-        setMode(mode) {
-            this._mode = mode;
+        /** @param {Array<[string, string]>} commands `[label, symbol]` pairs. */
+        setCommands(commands) {
+            this._openMzCommands = commands;
             this.refresh();
             this.select(0);
         }
 
         makeCommandList() {
-            const texts = getTexts();
-            const mode = this._mode || "confirm";
-            if (mode === "done") {
-                this.addCommand(texts.btnReload, "reload");
-                this.addCommand(texts.btnBack, "close");
-            } else if (mode === "error") {
-                this.addCommand(texts.btnRetry, "upgrade");
-                this.addCommand(texts.btnBack, "close");
-            } else {
-                this.addCommand(texts.btnUpgrade, "upgrade");
-                this.addCommand(texts.btnSkip, "close");
+            for (const [label, symbol] of this._openMzCommands || []) {
+                this.addCommand(label, symbol);
             }
         }
     }
 
+    let promptHandled = false;
+
     const _Scene_Title_create = Scene_Title.prototype.create;
     Scene_Title.prototype.create = function() {
         _Scene_Title_create.call(this);
-        this._openMzUpdaterActive = false;
-        this._openMzUpgrading = false;
-        if (!promptHandledInSession) {
-            this.createOpenMzUpdaterWindows();
+        if (!promptHandled) {
+            this.createOpenMzUpdater();
         }
     };
 
-    const _Scene_Title_update = Scene_Title.prototype.update;
-    Scene_Title.prototype.update = function() {
-        if (this._openMzUpdaterActive && !Scene_Base.prototype.isBusy.call(this)) {
-            if (
-                this._openMzMessageWindow &&
-                this._openMzMessageWindow.isClosed() &&
-                !this._openMzMessageWindow.isOpening()
-            ) {
-                this._openMzMessageWindow.open();
-            }
-            if (
-                !this._openMzUpgrading &&
-                this._openMzConfirmWindow &&
-                this._openMzConfirmWindow.isClosed() &&
-                !this._openMzConfirmWindow.isOpening()
-            ) {
-                this._openMzConfirmWindow.open();
-                this._openMzConfirmWindow.activate();
-            }
-        }
-        _Scene_Title_update.call(this);
-    };
-
+    // Keep the title command window hidden while the updater is visible.
     const _Scene_Title_isBusy = Scene_Title.prototype.isBusy;
     Scene_Title.prototype.isBusy = function() {
-        const updaterClosing =
-            (this._openMzMessageWindow && this._openMzMessageWindow.isClosing()) ||
-            (this._openMzConfirmWindow && this._openMzConfirmWindow.isClosing());
-        return (
-            Boolean(this._openMzUpdaterActive || updaterClosing) ||
-            _Scene_Title_isBusy.call(this)
-        );
+        return Boolean(this._openMzUpdaterActive) ||
+            Boolean(this._openMzMessageWindow && this._openMzMessageWindow.isClosing()) ||
+            _Scene_Title_isBusy.call(this);
     };
 
-    Scene_Title.prototype.createOpenMzUpdaterWindows = function() {
+    Scene_Title.prototype.createOpenMzUpdater = function() {
+        const texts = getTexts();
+        const width = Math.min(540, Graphics.boxWidth - 48);
+        const x = Math.floor((Graphics.boxWidth - width) / 2);
+        const close = this.closeOpenMzUpdater.bind(this);
+
         this._openMzUpdaterActive = true;
         this._commandWindow.deactivate();
-        this._commandWindow.close();
-
-        const width = Math.min(540, Graphics.boxWidth - 48);
-        const messageHeight = this.calcWindowHeight(1, false);
-        const confirmHeight = this.calcWindowHeight(1, true);
-        const x = Math.floor((Graphics.boxWidth - width) / 2);
-
-        const messageRect = new Rectangle(x, 0, width, messageHeight);
-        const confirmRect = new Rectangle(x, 0, width, confirmHeight);
-
-        this._openMzMessageWindow = new Window_OpenMzMessage(messageRect);
-        this._openMzConfirmWindow = new Window_OpenMzConfirm(confirmRect);
-        this._openMzConfirmWindow.setHandler("upgrade", this.onOpenMzUpgradeConfirm.bind(this));
-        this._openMzConfirmWindow.setHandler("reload", this.onOpenMzUpgradeReload.bind(this));
-        this._openMzConfirmWindow.setHandler("close", this.onOpenMzUpgradeClose.bind(this));
-        this._openMzConfirmWindow.setHandler("cancel", this.onOpenMzUpgradeClose.bind(this));
-
-        const texts = getTexts();
-        this.showOpenMzMessage(texts.title, [
-            texts.confirmAction,
-            ...getManifestSourceLines(texts),
-            texts.confirmBackup,
-        ]);
-
+        this._openMzMessageWindow = new Window_OpenMzMessage(new Rectangle(x, 0, width, this.calcWindowHeight(1, false)));
+        this._openMzConfirmWindow = new Window_OpenMzConfirm(new Rectangle(x, 0, width, this.calcWindowHeight(1, true)));
+        this._openMzConfirmWindow.setHandler("upgrade", this.runOpenMzUpgrade.bind(this));
+        this._openMzConfirmWindow.setHandler("reload", reloadApplication);
+        this._openMzConfirmWindow.setHandler("close", close);
+        this._openMzConfirmWindow.setHandler("cancel", close);
         this.addWindow(this._openMzMessageWindow);
         this.addWindow(this._openMzConfirmWindow);
+
+        this.showOpenMzMessage(texts.title, [texts.confirmAction, ...getSourceLines(texts), texts.confirmBackup]);
+        this.showOpenMzCommands([[texts.btnUpgrade, "upgrade"], [texts.btnSkip, "close"]]);
+        this._openMzMessageWindow.open();
     };
 
-    Scene_Title.prototype.showOpenMzMessage = function(title, lines, color) {
+    Scene_Title.prototype.showOpenMzMessage = function(title, lines, color, progress) {
         const messageWindow = this._openMzMessageWindow;
         const confirmWindow = this._openMzConfirmWindow;
-        messageWindow.setMessage(title, lines, color);
+        messageWindow.setMessage(title, lines, color, progress);
         messageWindow.y = Math.floor((Graphics.boxHeight - messageWindow.height - confirmWindow.height) / 2);
         confirmWindow.y = messageWindow.y + messageWindow.height;
     };
 
-    Scene_Title.prototype.onOpenMzUpgradeConfirm = async function() {
-        if (this._openMzUpgrading) {
-            return;
-        }
+    Scene_Title.prototype.showOpenMzCommands = function(commands) {
+        this._openMzConfirmWindow.setCommands(commands);
+        this._openMzConfirmWindow.open();
+        this._openMzConfirmWindow.activate();
+    };
+
+    Scene_Title.prototype.runOpenMzUpgrade = async function() {
         const texts = getTexts();
-        this._openMzUpgrading = true;
+        let lastRendered = "";
+        const showProgress = (event) => {
+            const [start, end] = PROGRESS_RANGES[event.phase];
+            const rate = event.total ? Math.min(event.loaded / event.total, 1) : 0;
+            const text = texts.progress[event.phase](event);
+            const progress = start + (end - start) * rate;
+            // Data chunks arrive far more often than the visible text changes.
+            const key = `${text}|${Math.floor(progress * 100)}`;
+            if (key !== lastRendered) {
+                lastRendered = key;
+                this.showOpenMzMessage(texts.title, [text], undefined, progress);
+            }
+        };
         this._openMzConfirmWindow.deactivate();
         this._openMzConfirmWindow.close();
-
         try {
             const result = await upgradeCoreEngine({
-                manifestUrl: configuredManifestUrl,
-                projectRoot: resolveProjectRoot(nodeRequire),
+                manifestUrl,
+                projectRoot: resolveProjectRoot(),
                 pluginName,
                 nodeRequire,
-                onProgress: async ({ phase, file, total }) => {
-                    switch (phase) {
-                        case "manifest":
-                            this.showOpenMzMessage(texts.title, [texts.fetchingManifest]);
-                            break;
-                        case "download":
-                            this.showOpenMzMessage(texts.title, [texts.downloading(file)]);
-                            break;
-                        case "verify":
-                            this.showOpenMzMessage(texts.title, [texts.verifying]);
-                            break;
-                        case "apply":
-                            this.showOpenMzMessage(texts.title, [texts.applying(total)]);
-                            break;
-                    }
-                    if (phase === "verify" || phase === "apply") {
-                        // Let the game render the status before synchronous work.
-                        await new Promise((resolve) => requestAnimationFrame(() => requestAnimationFrame(resolve)));
-                    }
+                onProgress: (event) => {
+                    showProgress(event);
+                    return waitForRender();
                 },
+                onDownload: showProgress,
             });
-            promptHandledInSession = true;
+            promptHandled = true;
             this.showOpenMzMessage(texts.doneTitle, [
                 texts.doneCount(result.name, result.version, result.updatedFiles.length),
                 texts.doneBackup(result.backupRelativeDir),
                 texts.doneHint,
             ]);
-            this._openMzConfirmWindow.setMode("done");
+            this.showOpenMzCommands([[texts.btnReload, "reload"], [texts.btnBack, "close"]]);
         } catch (error) {
-            this.showOpenMzMessage(
-                texts.errorTitle,
-                [error.message || String(error)],
-                ColorManager.deathColor()
-            );
-            this._openMzConfirmWindow.setMode("error");
-        } finally {
-            this._openMzUpgrading = false;
-            this._openMzConfirmWindow.open();
-            this._openMzConfirmWindow.activate();
+            this.showOpenMzMessage(texts.errorTitle, [error.message || String(error)], ColorManager.deathColor());
+            this.showOpenMzCommands([[texts.btnRetry, "upgrade"], [texts.btnBack, "close"]]);
         }
     };
 
-    Scene_Title.prototype.onOpenMzUpgradeReload = function() {
-        reloadApplication();
-    };
-
-    Scene_Title.prototype.onOpenMzUpgradeClose = function() {
-        if (this._openMzUpgrading) {
-            return;
-        }
-        promptHandledInSession = true;
+    Scene_Title.prototype.closeOpenMzUpdater = function() {
+        promptHandled = true;
         this._openMzUpdaterActive = false;
         this._openMzConfirmWindow.deactivate();
         this._openMzConfirmWindow.close();

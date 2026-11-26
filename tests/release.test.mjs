@@ -100,16 +100,22 @@ test('installs the real release over HTTP, backs up originals and disables the u
   const origin = await startServer(t, createManifestServer({ rootDir: outDir }));
   const plugins = [{ name: 'OpenMzUpdater', status: true }];
   const phases = [];
+  const downloads = [];
   const updater = loadUpdater({ $plugins: plugins });
   const result = await updater.upgradeCoreEngine({
     manifestUrl: `${origin}/manifest.json`,
     projectRoot,
     pluginName: 'OpenMzUpdater',
     onProgress: ({ phase }) => phases.push(phase),
+    onDownload: ({ loaded, total }) => downloads.push([loaded, total]),
     nodeRequire: require,
   });
 
   assert.equal(result.version, manifest.version);
+  assert.ok(downloads.length > 0);
+  const [loaded, total] = downloads.at(-1);
+  assert.equal(loaded, total);
+  assert.equal(total, manifest.archive.size);
   assert.deepEqual(Array.from(result.updatedFiles), includedFiles);
   assert.equal(includedFiles.includes('js/plugins.js'), false);
   assert.deepEqual(phases, ['manifest', 'download', 'verify', 'apply']);
