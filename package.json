@@ -15,7 +15,7 @@
   "devDependencies": {
     "@ast-grep/napi": "^0.51.3",
     "esbuild": "^0.28.2",
-    "pixi.js": "^8.23.0",
+    "pixi.js": "^5.3.12",
     "typescript": "^6.0.3"
   }
 }
