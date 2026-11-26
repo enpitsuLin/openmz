@@ -5,7 +5,8 @@
   "main": "index.js",
   "scripts": {
     "build:pixi": "rolldown -c",
-    "typecheck": "tsc --noEmit"
+    "typecheck": "tsc --noEmit",
+    "test:plugin-compat": "vitest run tests/plugin-compat"
   },
   "keywords": [],
   "author": "",
@@ -14,8 +15,11 @@
   "type": "module",
   "devDependencies": {
     "@ast-grep/napi": "^0.51.3",
+    "@vitest/browser-playwright": "^5.1.1",
     "pixi.js": "8.23.0",
+    "playwright": "^1.65.1",
     "rolldown": "^1.3.3",
-    "typescript": "^6.0.3"
+    "typescript": "^6.0.3",
+    "vitest": "^5.1.1"
   }
 }
