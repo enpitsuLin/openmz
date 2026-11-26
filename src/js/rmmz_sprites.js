@@ -52,7 +52,12 @@ class Sprite_Clickable extends Sprite {
     }
 
     isClickEnabled() {
-        return this.worldVisible;
+        for (let sprite = this; sprite; sprite = sprite.parent) {
+            if (!sprite.visible) {
+                return false;
+            }
+        }
+        return true;
     }
 
     isBeingTouched() {
