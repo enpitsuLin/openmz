@@ -1911,7 +1911,7 @@ class Sprite extends PIXI.Sprite {
      */
     destroy() {
         const options = { children: true, texture: true };
-        PIXI.Sprite.prototype.destroy.call(this, options);
+        super.destroy(options);
     }
 
     /**
@@ -2215,7 +2215,7 @@ class Tilemap extends PIXI.Container {
      */
     destroy() {
         const options = { children: true, texture: true };
-        PIXI.Container.prototype.destroy.call(this, options);
+        super.destroy(options);
     }
 
     /**
@@ -2311,7 +2311,7 @@ class Tilemap extends PIXI.Container {
             this._needsRepaint = false;
         }
         this._sortChildren();
-        PIXI.Container.prototype.updateTransform.call(this);
+        super.updateTransform();
     }
 
     _createLayers() {
@@ -2997,7 +2997,7 @@ Tilemap.CombinedLayer = class CombinedLayer extends PIXI.Container {
 
     destroy() {
         const options = { children: true, texture: true };
-        PIXI.Container.prototype.destroy.call(this, options);
+        super.destroy(options);
     }
 
     setBitmaps(bitmaps) {
@@ -3044,7 +3044,7 @@ Tilemap.Renderer = class Renderer extends PIXI.ObjectRenderer {
     }
 
     destroy() {
-        PIXI.ObjectRenderer.prototype.destroy.call(this);
+        super.destroy();
         this._destroyInternalTextures();
         this._shader.destroy();
         this._shader = null;
@@ -3223,7 +3223,7 @@ class TilingSprite extends PIXI.TilingSprite {
      */
     destroy() {
         const options = { children: true, texture: true };
-        PIXI.TilingSprite.prototype.destroy.call(this, options);
+        super.destroy(options);
     }
 
     /**
@@ -3274,7 +3274,7 @@ class TilingSprite extends PIXI.TilingSprite {
     updateTransform() {
         this.tilePosition.x = Math.round(-this.origin.x);
         this.tilePosition.y = Math.round(-this.origin.y);
-        PIXI.TilingSprite.prototype.updateTransform.call(this);
+        super.updateTransform();
     }
 
     _onBitmapChange() {
@@ -3347,7 +3347,7 @@ class ScreenSprite extends PIXI.Container {
      */
     destroy() {
         const options = { children: true, texture: true };
-        PIXI.Container.prototype.destroy.call(this, options);
+        super.destroy(options);
     }
 
     /**
@@ -3673,7 +3673,7 @@ class Window extends PIXI.Container {
      */
     destroy() {
         const options = { children: true, texture: true };
-        PIXI.Container.prototype.destroy.call(this, options);
+        super.destroy(options);
     }
 
     /**
@@ -3818,7 +3818,7 @@ class Window extends PIXI.Container {
         this._updateContents();
         this._updateArrows();
         this._updatePauseSign();
-        PIXI.Container.prototype.updateTransform.call(this);
+        super.updateTransform();
         this._updateFilterArea();
     }
 
@@ -4240,7 +4240,7 @@ class Weather extends PIXI.Container {
      */
     destroy() {
         const options = { children: true, texture: true };
-        PIXI.Container.prototype.destroy.call(this, options);
+        super.destroy(options);
         this._rainBitmap.destroy();
         this._stormBitmap.destroy();
         this._snowBitmap.destroy();
@@ -4514,7 +4514,7 @@ class Stage extends PIXI.Container {
      */
     destroy() {
         const options = { children: true, texture: true };
-        PIXI.Container.prototype.destroy.call(this, options);
+        super.destroy(options);
     }
 }
 

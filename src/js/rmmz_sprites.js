@@ -13,13 +13,13 @@ class Sprite_Clickable extends Sprite {
     }
 
     initialize() {
-        Sprite.prototype.initialize.call(this);
+        super.initialize();
         this._pressed = false;
         this._hovered = false;
     }
 
     update() {
-        Sprite.prototype.update.call(this);
+        super.update();
         this.processTouch();
     }
 
@@ -103,7 +103,7 @@ class Sprite_Button extends Sprite_Clickable {
     }
 
     initialize(buttonType) {
-        Sprite_Clickable.prototype.initialize.call(this);
+        super.initialize();
         this._buttonType = buttonType;
         this._clickHandler = null;
         this._coldFrame = null;
@@ -151,7 +151,7 @@ class Sprite_Button extends Sprite_Clickable {
     }
 
     update() {
-        Sprite_Clickable.prototype.update.call(this);
+        super.update();
         this.checkBitmap();
         this.updateFrame();
         this.updateOpacity();
@@ -208,7 +208,7 @@ class Sprite_Character extends Sprite {
     }
 
     initialize(character) {
-        Sprite.prototype.initialize.call(this);
+        super.initialize();
         this.initMembers();
         this.setCharacter(character);
     }
@@ -232,7 +232,7 @@ class Sprite_Character extends Sprite {
     }
 
     update() {
-        Sprite.prototype.update.call(this);
+        super.update();
         this.updateBitmap();
         this.updateFrame();
         this.updatePosition();
@@ -241,7 +241,7 @@ class Sprite_Character extends Sprite {
     }
 
     updateVisibility() {
-        Sprite.prototype.updateVisibility.call(this);
+        super.updateVisibility();
         if (this.isEmptyCharacter() || this._character.isTransparent()) {
             this.visible = false;
         }
@@ -436,7 +436,7 @@ class Sprite_Battler extends Sprite_Clickable {
     }
 
     initialize(battler) {
-        Sprite_Clickable.prototype.initialize.call(this);
+        super.initialize();
         this.initMembers();
         this.setBattler(battler);
     }
@@ -475,7 +475,7 @@ class Sprite_Battler extends Sprite_Clickable {
     }
 
     update() {
-        Sprite_Clickable.prototype.update.call(this);
+        super.update();
         if (this._battler) {
             this.updateMain();
             this.updateDamagePopup();
@@ -487,7 +487,7 @@ class Sprite_Battler extends Sprite_Clickable {
     }
 
     updateVisibility() {
-        Sprite_Clickable.prototype.updateVisibility.call(this);
+        super.updateVisibility();
         if (!this._battler || !this._battler.isSpriteVisible()) {
             this.visible = false;
         }
@@ -666,12 +666,12 @@ class Sprite_Actor extends Sprite_Battler {
     };
 
     initialize(battler) {
-        Sprite_Battler.prototype.initialize.call(this, battler);
+        super.initialize(battler);
         this.moveToStartPosition();
     }
 
     initMembers() {
-        Sprite_Battler.prototype.initMembers.call(this);
+        super.initMembers();
         this._battlerName = "";
         this._motion = null;
         this._motionCount = 0;
@@ -713,7 +713,7 @@ class Sprite_Actor extends Sprite_Battler {
     }
 
     setBattler(battler) {
-        Sprite_Battler.prototype.setBattler.call(this, battler);
+        super.setBattler(battler);
         if (battler !== this._actor) {
             this._actor = battler;
             if (battler) {
@@ -736,7 +736,7 @@ class Sprite_Actor extends Sprite_Battler {
     }
 
     update() {
-        Sprite_Battler.prototype.update.call(this);
+        super.update();
         this.updateShadow();
         if (this._actor) {
             this.updateMotion();
@@ -748,7 +748,7 @@ class Sprite_Actor extends Sprite_Battler {
     }
 
     updateMain() {
-        Sprite_Battler.prototype.updateMain.call(this);
+        super.updateMain();
         if (this._actor.isSpriteVisible() && !this.isMoving()) {
             this.updateTargetPosition();
         }
@@ -792,7 +792,7 @@ class Sprite_Actor extends Sprite_Battler {
     }
 
     updateBitmap() {
-        Sprite_Battler.prototype.updateBitmap.call(this);
+        super.updateBitmap();
         const name = this._actor.battlerName();
         if (this._battlerName !== name) {
             this._battlerName = name;
@@ -801,7 +801,7 @@ class Sprite_Actor extends Sprite_Battler {
     }
 
     updateFrame() {
-        Sprite_Battler.prototype.updateFrame.call(this);
+        super.updateFrame();
         const bitmap = this._mainSprite.bitmap;
         if (bitmap) {
             const motionIndex = this._motion ? this._motion.index : 0;
@@ -818,7 +818,7 @@ class Sprite_Actor extends Sprite_Battler {
     updateMove() {
         const bitmap = this._mainSprite.bitmap;
         if (!bitmap || bitmap.isReady()) {
-            Sprite_Battler.prototype.updateMove.call(this);
+            super.updateMove();
         }
     }
 
@@ -898,18 +898,18 @@ class Sprite_Actor extends Sprite_Battler {
     }
 
     onMoveEnd() {
-        Sprite_Battler.prototype.onMoveEnd.call(this);
+        super.onMoveEnd();
         if (!BattleManager.isBattleEnd()) {
             this.refreshMotion();
         }
     }
 
     damageOffsetX() {
-        return Sprite_Battler.prototype.damageOffsetX.call(this) - 32;
+        return super.damageOffsetX() - 32;
     }
 
     damageOffsetY() {
-        return Sprite_Battler.prototype.damageOffsetY.call(this);
+        return super.damageOffsetY();
     }
 }
 
@@ -924,11 +924,11 @@ class Sprite_Enemy extends Sprite_Battler {
     }
 
     initialize(battler) {
-        Sprite_Battler.prototype.initialize.call(this, battler);
+        super.initialize(battler);
     }
 
     initMembers() {
-        Sprite_Battler.prototype.initMembers.call(this);
+        super.initMembers();
         this._enemy = null;
         this._appeared = false;
         this._battlerName = null;
@@ -945,14 +945,14 @@ class Sprite_Enemy extends Sprite_Battler {
     }
 
     setBattler(battler) {
-        Sprite_Battler.prototype.setBattler.call(this, battler);
+        super.setBattler(battler);
         this._enemy = battler;
         this.setHome(battler.screenX(), battler.screenY());
         this._stateIconSprite.setup(battler);
     }
 
     update() {
-        Sprite_Battler.prototype.update.call(this);
+        super.update();
         if (this._enemy) {
             this.updateEffect();
             this.updateStateSprite();
@@ -960,7 +960,7 @@ class Sprite_Enemy extends Sprite_Battler {
     }
 
     updateBitmap() {
-        Sprite_Battler.prototype.updateBitmap.call(this);
+        super.updateBitmap();
         const name = this._enemy.battlerName();
         const hue = this._enemy.battlerHue();
         if (this._battlerName !== name || this._battlerHue !== hue) {
@@ -981,7 +981,7 @@ class Sprite_Enemy extends Sprite_Battler {
     }
 
     setHue(hue) {
-        Sprite_Battler.prototype.setHue.call(this, hue);
+        super.setHue(hue);
         for (const child of this.children) {
             if (child.setHue) {
                 child.setHue(-hue);
@@ -990,7 +990,7 @@ class Sprite_Enemy extends Sprite_Battler {
     }
 
     updateFrame() {
-        Sprite_Battler.prototype.updateFrame.call(this);
+        super.updateFrame();
         if (this._effectType === "bossCollapse") {
             this.setFrame(0, 0, this.bitmap.width, this._effectDuration);
         } else {
@@ -999,7 +999,7 @@ class Sprite_Enemy extends Sprite_Battler {
     }
 
     updatePosition() {
-        Sprite_Battler.prototype.updatePosition.call(this);
+        super.updatePosition();
         this.x += this._shake;
     }
 
@@ -1172,11 +1172,11 @@ class Sprite_Enemy extends Sprite_Battler {
     }
 
     damageOffsetX() {
-        return Sprite_Battler.prototype.damageOffsetX.call(this);
+        return super.damageOffsetX();
     }
 
     damageOffsetY() {
-        return Sprite_Battler.prototype.damageOffsetY.call(this) - 8;
+        return super.damageOffsetY() - 8;
     }
 }
 
@@ -1191,7 +1191,7 @@ class Sprite_Animation extends Sprite {
     }
 
     initialize() {
-        Sprite.prototype.initialize.call(this);
+        super.initialize();
         this.initMembers();
     }
 
@@ -1214,7 +1214,7 @@ class Sprite_Animation extends Sprite {
     }
 
     destroy(options) {
-        Sprite.prototype.destroy.call(this, options);
+        super.destroy(options);
         if (this._handle) {
             this._handle.stop();
         }
@@ -1244,7 +1244,7 @@ class Sprite_Animation extends Sprite {
     }
 
     update() {
-        Sprite.prototype.update.call(this);
+        super.update();
         if (this._delay > 0) {
             this._delay--;
         } else if (this._playing) {
@@ -1451,7 +1451,7 @@ class Sprite_AnimationMV extends Sprite {
     }
 
     initialize() {
-        Sprite.prototype.initialize.call(this);
+        super.initialize();
         this.initMembers();
     }
 
@@ -1501,7 +1501,7 @@ class Sprite_AnimationMV extends Sprite {
     }
 
     update() {
-        Sprite.prototype.update.call(this);
+        super.update();
         this.updateMain();
         this.updateFlash();
         this.updateScreenFlash();
@@ -1762,7 +1762,7 @@ class Sprite_Battleback extends TilingSprite {
     }
 
     initialize(type) {
-        TilingSprite.prototype.initialize.call(this);
+        super.initialize();
         if (type === 0) {
             this.bitmap = this.battleback1Bitmap();
         } else {
@@ -1941,7 +1941,7 @@ class Sprite_Damage extends Sprite {
     }
 
     initialize() {
-        Sprite.prototype.initialize.call(this);
+        super.initialize();
         this._duration = 90;
         this._flashColor = [0, 0, 0, 0];
         this._flashDuration = 0;
@@ -1954,7 +1954,7 @@ class Sprite_Damage extends Sprite {
                 child.bitmap.destroy();
             }
         }
-        Sprite.prototype.destroy.call(this, options);
+        super.destroy(options);
     }
 
     setup(target) {
@@ -2041,7 +2041,7 @@ class Sprite_Damage extends Sprite {
     }
 
     update() {
-        Sprite.prototype.update.call(this);
+        super.update();
         if (this._duration > 0) {
             this._duration--;
             for (const child of this.children) {
@@ -2092,7 +2092,7 @@ class Sprite_Gauge extends Sprite {
     }
 
     initialize() {
-        Sprite.prototype.initialize.call(this);
+        super.initialize();
         this.initMembers();
         this.createBitmap();
     }
@@ -2110,7 +2110,7 @@ class Sprite_Gauge extends Sprite {
 
     destroy(options) {
         this.bitmap.destroy();
-        Sprite.prototype.destroy.call(this, options);
+        super.destroy(options);
     }
 
     createBitmap() {
@@ -2172,7 +2172,7 @@ class Sprite_Gauge extends Sprite {
     }
 
     update() {
-        Sprite.prototype.update.call(this);
+        super.update();
         this.updateBitmap();
     }
 
@@ -2460,7 +2460,7 @@ class Sprite_Name extends Sprite {
     }
 
     initialize() {
-        Sprite.prototype.initialize.call(this);
+        super.initialize();
         this.initMembers();
         this.createBitmap();
     }
@@ -2473,7 +2473,7 @@ class Sprite_Name extends Sprite {
 
     destroy(options) {
         this.bitmap.destroy();
-        Sprite.prototype.destroy.call(this, options);
+        super.destroy(options);
     }
 
     createBitmap() {
@@ -2504,7 +2504,7 @@ class Sprite_Name extends Sprite {
     }
 
     update() {
-        Sprite.prototype.update.call(this);
+        super.update();
         this.updateBitmap();
     }
 
@@ -2563,7 +2563,7 @@ class Sprite_StateIcon extends Sprite {
     }
 
     initialize() {
-        Sprite.prototype.initialize.call(this);
+        super.initialize();
         this.initMembers();
         this.loadBitmap();
     }
@@ -2590,7 +2590,7 @@ class Sprite_StateIcon extends Sprite {
     }
 
     update() {
-        Sprite.prototype.update.call(this);
+        super.update();
         this._animationCount++;
         if (this._animationCount >= this.animationWait()) {
             this.updateIcon();
@@ -2645,7 +2645,7 @@ class Sprite_StateOverlay extends Sprite {
     }
 
     initialize() {
-        Sprite.prototype.initialize.call(this);
+        super.initialize();
         this.initMembers();
         this.loadBitmap();
     }
@@ -2669,7 +2669,7 @@ class Sprite_StateOverlay extends Sprite {
     }
 
     update() {
-        Sprite.prototype.update.call(this);
+        super.update();
         this._animationCount++;
         if (this._animationCount >= this.animationWait()) {
             this.updatePattern();
@@ -2716,7 +2716,7 @@ class Sprite_Weapon extends Sprite {
     }
 
     initialize() {
-        Sprite.prototype.initialize.call(this);
+        super.initialize();
         this.initMembers();
     }
 
@@ -2738,7 +2738,7 @@ class Sprite_Weapon extends Sprite {
     }
 
     update() {
-        Sprite.prototype.update.call(this);
+        super.update();
         this._animationCount++;
         if (this._animationCount >= this.animationWait()) {
             this.updatePattern();
@@ -2796,7 +2796,7 @@ class Sprite_Balloon extends Sprite {
     }
 
     initialize() {
-        Sprite.prototype.initialize.call(this);
+        super.initialize();
         this.initMembers();
         this.loadBitmap();
     }
@@ -2822,7 +2822,7 @@ class Sprite_Balloon extends Sprite {
     }
 
     update() {
-        Sprite.prototype.update.call(this);
+        super.update();
         if (this._duration > 0) {
             this._duration--;
             if (this._duration > 0) {
@@ -2874,7 +2874,7 @@ class Sprite_Picture extends Sprite_Clickable {
     }
 
     initialize(pictureId) {
-        Sprite_Clickable.prototype.initialize.call(this);
+        super.initialize();
         this._pictureId = pictureId;
         this._pictureName = "";
         this.update();
@@ -2885,7 +2885,7 @@ class Sprite_Picture extends Sprite_Clickable {
     }
 
     update() {
-        Sprite_Clickable.prototype.update.call(this);
+        super.update();
         this.updateBitmap();
         if (this.visible) {
             this.updateOrigin();
@@ -2967,7 +2967,7 @@ class Sprite_Timer extends Sprite {
     }
 
     initialize() {
-        Sprite.prototype.initialize.call(this);
+        super.initialize();
         this._seconds = 0;
         this.createBitmap();
         this.update();
@@ -2975,7 +2975,7 @@ class Sprite_Timer extends Sprite {
 
     destroy(options) {
         this.bitmap.destroy();
-        Sprite.prototype.destroy.call(this, options);
+        super.destroy(options);
     }
 
     createBitmap() {
@@ -2994,7 +2994,7 @@ class Sprite_Timer extends Sprite {
     }
 
     update() {
-        Sprite.prototype.update.call(this);
+        super.update();
         this.updateBitmap();
         this.updatePosition();
         this.updateVisibility();
@@ -3042,7 +3042,7 @@ class Sprite_Destination extends Sprite {
     }
 
     initialize() {
-        Sprite.prototype.initialize.call(this);
+        super.initialize();
         this.createBitmap();
         this._frameCount = 0;
     }
@@ -3051,11 +3051,11 @@ class Sprite_Destination extends Sprite {
         if (this.bitmap) {
             this.bitmap.destroy();
         }
-        Sprite.prototype.destroy.call(this, options);
+        super.destroy(options);
     }
 
     update() {
-        Sprite.prototype.update.call(this);
+        super.update();
         if ($gameTemp.isDestinationValid()) {
             this.updatePosition();
             this.updateAnimation();
@@ -3105,7 +3105,7 @@ class Spriteset_Base extends Sprite {
     }
 
     initialize() {
-        Sprite.prototype.initialize.call(this);
+        super.initialize();
         this.setFrame(0, 0, Graphics.width, Graphics.height);
         this.loadSystemImages();
         this.createLowerLayer();
@@ -3115,7 +3115,7 @@ class Spriteset_Base extends Sprite {
 
     destroy(options) {
         this.removeAllAnimations();
-        Sprite.prototype.destroy.call(this, options);
+        super.destroy(options);
     }
 
     loadSystemImages() {
@@ -3134,7 +3134,7 @@ class Spriteset_Base extends Sprite {
     }
 
     update() {
-        Sprite.prototype.update.call(this);
+        super.update();
         this.updateBaseFilters();
         this.updateOverallFilters();
         this.updatePosition();
@@ -3328,23 +3328,23 @@ class Spriteset_Map extends Spriteset_Base {
     }
 
     initialize() {
-        Spriteset_Base.prototype.initialize.call(this);
+        super.initialize();
         this._balloonSprites = [];
     }
 
     destroy(options) {
         this.removeAllBalloons();
-        Spriteset_Base.prototype.destroy.call(this, options);
+        super.destroy(options);
     }
 
     loadSystemImages() {
-        Spriteset_Base.prototype.loadSystemImages.call(this);
+        super.loadSystemImages();
         ImageManager.loadSystem("Balloon");
         ImageManager.loadSystem("Shadow1");
     }
 
     createLowerLayer() {
-        Spriteset_Base.prototype.createLowerLayer.call(this);
+        super.createLowerLayer();
         this.createParallax();
         this.createTilemap();
         this.createCharacters();
@@ -3354,7 +3354,7 @@ class Spriteset_Map extends Spriteset_Base {
     }
 
     update() {
-        Spriteset_Base.prototype.update.call(this);
+        super.update();
         this.updateTileset();
         this.updateParallax();
         this.updateTilemap();
@@ -3544,12 +3544,12 @@ class Spriteset_Battle extends Spriteset_Base {
     }
 
     initialize() {
-        Spriteset_Base.prototype.initialize.call(this);
+        super.initialize();
         this._battlebackLocated = false;
     }
 
     loadSystemImages() {
-        Spriteset_Base.prototype.loadSystemImages.call(this);
+        super.loadSystemImages();
         ImageManager.loadSystem("Shadow2");
         ImageManager.loadSystem("Weapons1");
         ImageManager.loadSystem("Weapons2");
@@ -3557,7 +3557,7 @@ class Spriteset_Battle extends Spriteset_Base {
     }
 
     createLowerLayer() {
-        Spriteset_Base.prototype.createLowerLayer.call(this);
+        super.createLowerLayer();
         this.createBackground();
         this.createBattleback();
         this.createBattleField();
@@ -3598,7 +3598,7 @@ class Spriteset_Battle extends Spriteset_Base {
     }
 
     update() {
-        Spriteset_Base.prototype.update.call(this);
+        super.update();
         this.updateActors();
         this.updateBattleback();
         this.updateAnimations();

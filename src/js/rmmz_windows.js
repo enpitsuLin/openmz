@@ -13,7 +13,7 @@ class Window_Base extends Window {
     }
 
     initialize(rect) {
-        Window.prototype.initialize.call(this);
+        super.initialize();
         this.loadWindowskin();
         this.checkRectObject(rect);
         this.move(rect.x, rect.y, rect.width, rect.height);
@@ -31,7 +31,7 @@ class Window_Base extends Window {
         if (this._dimmerSprite) {
             this._dimmerSprite.bitmap.destroy();
         }
-        Window.prototype.destroy.call(this, options);
+        super.destroy(options);
     }
 
     checkRectObject(rect) {
@@ -122,7 +122,7 @@ class Window_Base extends Window {
     }
 
     update() {
-        Window.prototype.update.call(this);
+        super.update();
         this.updateTone();
         this.updateOpen();
         this.updateClose();
@@ -592,7 +592,7 @@ class Window_Scrollable extends Window_Base {
     }
 
     initialize(rect) {
-        Window_Base.prototype.initialize.call(this, rect);
+        super.initialize(rect);
         this._scrollX = 0;
         this._scrollY = 0;
         this._scrollBaseX = 0;
@@ -694,7 +694,7 @@ class Window_Scrollable extends Window_Base {
     }
 
     update() {
-        Window_Base.prototype.update.call(this);
+        super.update();
         this.processWheelScroll();
         this.processTouchScroll();
         this.updateSmoothScroll();
@@ -837,7 +837,7 @@ class Window_Selectable extends Window_Scrollable {
     }
 
     initialize(rect) {
-        Window_Scrollable.prototype.initialize.call(this, rect);
+        super.initialize(rect);
         this._index = -1;
         this._cursorFixed = false;
         this._cursorAll = false;
@@ -889,7 +889,7 @@ class Window_Selectable extends Window_Scrollable {
     }
 
     itemHeight() {
-        return Window_Scrollable.prototype.itemHeight.call(this) + 8;
+        return super.itemHeight() + 8;
     }
 
     contentsHeight() {
@@ -905,12 +905,12 @@ class Window_Selectable extends Window_Scrollable {
     }
 
     activate() {
-        Window_Scrollable.prototype.activate.call(this);
+        super.activate();
         this.reselect();
     }
 
     deactivate() {
-        Window_Scrollable.prototype.deactivate.call(this);
+        super.deactivate();
         this.reselect();
     }
 
@@ -1115,7 +1115,7 @@ class Window_Selectable extends Window_Scrollable {
         this.processCursorMove();
         this.processHandling();
         this.processTouch();
-        Window_Scrollable.prototype.update.call(this);
+        super.update();
     }
 
     processCursorMove() {
@@ -1447,7 +1447,7 @@ class Window_Command extends Window_Selectable {
     }
 
     initialize(rect) {
-        Window_Selectable.prototype.initialize.call(this, rect);
+        super.initialize(rect);
         this.refresh();
         this.select(0);
         this.activate();
@@ -1547,7 +1547,7 @@ class Window_Command extends Window_Selectable {
         if (this.isHandled(symbol)) {
             this.callHandler(symbol);
         } else if (this.isHandled("ok")) {
-            Window_Selectable.prototype.callOkHandler.call(this);
+            super.callOkHandler();
         } else {
             this.activate();
         }
@@ -1556,7 +1556,7 @@ class Window_Command extends Window_Selectable {
     refresh() {
         this.clearCommandList();
         this.makeCommandList();
-        Window_Selectable.prototype.refresh.call(this);
+        super.refresh();
     }
 }
 
@@ -1571,7 +1571,7 @@ class Window_HorzCommand extends Window_Command {
     }
 
     initialize(rect) {
-        Window_Command.prototype.initialize.call(this, rect);
+        super.initialize(rect);
     }
 
     maxCols() {
@@ -1594,7 +1594,7 @@ class Window_Help extends Window_Base {
     }
 
     initialize(rect) {
-        Window_Base.prototype.initialize.call(this, rect);
+        super.initialize(rect);
         this._text = "";
     }
 
@@ -1631,7 +1631,7 @@ class Window_Gold extends Window_Selectable {
     }
 
     initialize(rect) {
-        Window_Selectable.prototype.initialize.call(this, rect);
+        super.initialize(rect);
         this.refresh();
     }
 
@@ -1658,7 +1658,7 @@ class Window_Gold extends Window_Selectable {
 
     open() {
         this.refresh();
-        Window_Selectable.prototype.open.call(this);
+        super.open();
     }
 }
 
@@ -1673,7 +1673,7 @@ class Window_StatusBase extends Window_Selectable {
     }
 
     initialize(rect) {
-        Window_Selectable.prototype.initialize.call(this, rect);
+        super.initialize(rect);
         this._additionalSprites = {};
         this.loadFaceImages();
     }
@@ -1686,7 +1686,7 @@ class Window_StatusBase extends Window_Selectable {
 
     refresh() {
         this.hideAdditionalSprites();
-        Window_Selectable.prototype.refresh.call(this);
+        super.refresh();
     }
 
     hideAdditionalSprites() {
@@ -1824,7 +1824,7 @@ class Window_MenuCommand extends Window_Command {
     }
 
     initialize(rect) {
-        Window_Command.prototype.initialize.call(this, rect);
+        super.initialize(rect);
         this.selectLast();
         this._canRepeat = false;
     }
@@ -1921,7 +1921,7 @@ class Window_MenuCommand extends Window_Command {
 
     processOk() {
         Window_MenuCommand._lastCommandSymbol = this.currentSymbol();
-        Window_Command.prototype.processOk.call(this);
+        super.processOk();
     }
 
     selectLast() {
@@ -1940,7 +1940,7 @@ class Window_MenuStatus extends Window_StatusBase {
     }
 
     initialize(rect) {
-        Window_StatusBase.prototype.initialize.call(this, rect);
+        super.initialize(rect);
         this._formationMode = false;
         this._pendingIndex = -1;
         this.refresh();
@@ -1997,7 +1997,7 @@ class Window_MenuStatus extends Window_StatusBase {
     }
 
     processOk() {
-        Window_StatusBase.prototype.processOk.call(this);
+        super.processOk();
         const actor = this.actor(this.index());
         $gameParty.setMenuActor(actor);
     }
@@ -2046,7 +2046,7 @@ class Window_MenuActor extends Window_MenuStatus {
     }
 
     initialize(rect) {
-        Window_MenuStatus.prototype.initialize.call(this, rect);
+        super.initialize(rect);
         this.hide();
     }
 
@@ -2094,7 +2094,7 @@ class Window_ItemCategory extends Window_HorzCommand {
     }
 
     initialize(rect) {
-        Window_HorzCommand.prototype.initialize.call(this, rect);
+        super.initialize(rect);
     }
 
     maxCols() {
@@ -2102,7 +2102,7 @@ class Window_ItemCategory extends Window_HorzCommand {
     }
 
     update() {
-        Window_HorzCommand.prototype.update.call(this);
+        super.update();
         if (this._itemWindow) {
             this._itemWindow.setCategory(this.currentSymbol());
         }
@@ -2152,7 +2152,7 @@ class Window_ItemList extends Window_Selectable {
     }
 
     initialize(rect) {
-        Window_Selectable.prototype.initialize.call(this, rect);
+        super.initialize(rect);
         this._category = "none";
         this._data = [];
     }
@@ -2257,7 +2257,7 @@ class Window_ItemList extends Window_Selectable {
 
     refresh() {
         this.makeItemList();
-        Window_Selectable.prototype.refresh.call(this);
+        super.refresh();
     }
 }
 
@@ -2272,7 +2272,7 @@ class Window_SkillType extends Window_Command {
     }
 
     initialize(rect) {
-        Window_Command.prototype.initialize.call(this, rect);
+        super.initialize(rect);
         this._actor = null;
     }
 
@@ -2295,7 +2295,7 @@ class Window_SkillType extends Window_Command {
     }
 
     update() {
-        Window_Command.prototype.update.call(this);
+        super.update();
         if (this._skillWindow) {
             this._skillWindow.setStypeId(this.currentExt());
         }
@@ -2326,7 +2326,7 @@ class Window_SkillStatus extends Window_StatusBase {
     }
 
     initialize(rect) {
-        Window_StatusBase.prototype.initialize.call(this, rect);
+        super.initialize(rect);
         this._actor = null;
     }
 
@@ -2338,7 +2338,7 @@ class Window_SkillStatus extends Window_StatusBase {
     }
 
     refresh() {
-        Window_StatusBase.prototype.refresh.call(this);
+        super.refresh();
         if (this._actor) {
             const x = this.colSpacing() / 2;
             const h = this.innerHeight;
@@ -2360,7 +2360,7 @@ class Window_SkillList extends Window_Selectable {
     }
 
     initialize(rect) {
-        Window_Selectable.prototype.initialize.call(this, rect);
+        super.initialize(rect);
         this._actor = null;
         this._stypeId = 0;
         this._data = [];
@@ -2459,7 +2459,7 @@ class Window_SkillList extends Window_Selectable {
 
     refresh() {
         this.makeItemList();
-        Window_Selectable.prototype.refresh.call(this);
+        super.refresh();
     }
 }
 
@@ -2474,7 +2474,7 @@ class Window_EquipStatus extends Window_StatusBase {
     }
 
     initialize(rect) {
-        Window_StatusBase.prototype.initialize.call(this, rect);
+        super.initialize(rect);
         this._actor = null;
         this._tempActor = null;
         this.refresh();
@@ -2588,7 +2588,7 @@ class Window_EquipCommand extends Window_HorzCommand {
     }
 
     initialize(rect) {
-        Window_HorzCommand.prototype.initialize.call(this, rect);
+        super.initialize(rect);
     }
 
     maxCols() {
@@ -2613,7 +2613,7 @@ class Window_EquipSlot extends Window_StatusBase {
     }
 
     initialize(rect) {
-        Window_StatusBase.prototype.initialize.call(this, rect);
+        super.initialize(rect);
         this._actor = null;
         this.refresh();
     }
@@ -2626,7 +2626,7 @@ class Window_EquipSlot extends Window_StatusBase {
     }
 
     update() {
-        Window_StatusBase.prototype.update.call(this);
+        super.update();
         if (this._itemWindow) {
             this._itemWindow.setSlotId(this.index());
         }
@@ -2681,7 +2681,7 @@ class Window_EquipSlot extends Window_StatusBase {
     }
 
     updateHelp() {
-        Window_StatusBase.prototype.updateHelp.call(this);
+        super.updateHelp();
         this.setHelpWindowItem(this.item());
         if (this._statusWindow) {
             this._statusWindow.setTempActor(null);
@@ -2700,7 +2700,7 @@ class Window_EquipItem extends Window_ItemList {
     }
 
     initialize(rect) {
-        Window_ItemList.prototype.initialize.call(this, rect);
+        super.initialize(rect);
         this._actor = null;
         this._slotId = 0;
     }
@@ -2762,7 +2762,7 @@ class Window_EquipItem extends Window_ItemList {
     }
 
     updateHelp() {
-        Window_ItemList.prototype.updateHelp.call(this);
+        super.updateHelp();
         if (this._actor && this._statusWindow && this._slotId >= 0) {
             const actor = JsonEx.makeDeepCopy(this._actor);
             actor.forceChangeEquip(this._slotId, this.item());
@@ -2786,7 +2786,7 @@ class Window_Status extends Window_StatusBase {
     }
 
     initialize(rect) {
-        Window_StatusBase.prototype.initialize.call(this, rect);
+        super.initialize(rect);
         this._actor = null;
         this.refresh();
         this.activate();
@@ -2800,7 +2800,7 @@ class Window_Status extends Window_StatusBase {
     }
 
     refresh() {
-        Window_StatusBase.prototype.refresh.call(this);
+        super.refresh();
         if (this._actor) {
             this.drawBlock1();
             this.drawBlock2();
@@ -2879,7 +2879,7 @@ class Window_StatusParams extends Window_StatusBase {
     }
 
     initialize(rect) {
-        Window_StatusBase.prototype.initialize.call(this, rect);
+        super.initialize(rect);
         this._actor = null;
     }
 
@@ -2925,7 +2925,7 @@ class Window_StatusEquip extends Window_StatusBase {
     }
 
     initialize(rect) {
-        Window_StatusBase.prototype.initialize.call(this, rect);
+        super.initialize(rect);
         this._actor = null;
     }
 
@@ -2971,7 +2971,7 @@ class Window_Options extends Window_Command {
     }
 
     initialize(rect) {
-        Window_Command.prototype.initialize.call(this, rect);
+        super.initialize(rect);
     }
 
     makeCommandList() {
@@ -3104,7 +3104,7 @@ class Window_SavefileList extends Window_Selectable {
     }
 
     initialize(rect) {
-        Window_Selectable.prototype.initialize.call(this, rect);
+        super.initialize(rect);
         this.activate();
         this._mode = null;
         this._autosave = false;
@@ -3218,7 +3218,7 @@ class Window_ShopCommand extends Window_HorzCommand {
     }
 
     initialize(rect) {
-        Window_HorzCommand.prototype.initialize.call(this, rect);
+        super.initialize(rect);
     }
 
     setPurchaseOnly(purchaseOnly) {
@@ -3248,7 +3248,7 @@ class Window_ShopBuy extends Window_Selectable {
     }
 
     initialize(rect) {
-        Window_Selectable.prototype.initialize.call(this, rect);
+        super.initialize(rect);
         this._money = 0;
     }
 
@@ -3291,7 +3291,7 @@ class Window_ShopBuy extends Window_Selectable {
 
     refresh() {
         this.makeItemList();
-        Window_Selectable.prototype.refresh.call(this);
+        super.refresh();
     }
 
     makeItemList() {
@@ -3360,7 +3360,7 @@ class Window_ShopSell extends Window_ItemList {
     }
 
     initialize(rect) {
-        Window_ItemList.prototype.initialize.call(this, rect);
+        super.initialize(rect);
     }
 
     isEnabled(item) {
@@ -3380,7 +3380,7 @@ class Window_ShopNumber extends Window_Selectable {
     }
 
     initialize(rect) {
-        Window_Selectable.prototype.initialize.call(this, rect);
+        super.initialize(rect);
         this._item = null;
         this._max = 1;
         this._price = 0;
@@ -3450,7 +3450,7 @@ class Window_ShopNumber extends Window_Selectable {
     }
 
     refresh() {
-        Window_Selectable.prototype.refresh.call(this);
+        super.refresh();
         this.drawItemBackground(0);
         this.drawCurrentItemName();
         this.drawMultiplicationSign();
@@ -3541,7 +3541,7 @@ class Window_ShopNumber extends Window_Selectable {
     }
 
     update() {
-        Window_Selectable.prototype.update.call(this);
+        super.update();
         this.processNumberChange();
     }
 
@@ -3621,7 +3621,7 @@ class Window_ShopStatus extends Window_StatusBase {
     }
 
     initialize(rect) {
-        Window_StatusBase.prototype.initialize.call(this, rect);
+        super.initialize(rect);
         this._item = null;
         this._pageIndex = 0;
         this.refresh();
@@ -3733,7 +3733,7 @@ class Window_ShopStatus extends Window_StatusBase {
     }
 
     update() {
-        Window_StatusBase.prototype.update.call(this);
+        super.update();
         this.updatePage();
     }
 
@@ -3775,7 +3775,7 @@ class Window_NameEdit extends Window_StatusBase {
     }
 
     initialize(rect) {
-        Window_StatusBase.prototype.initialize.call(this, rect);
+        super.initialize(rect);
         this._actor = null;
         this._maxLength = 0;
         this._name = "";
@@ -3967,7 +3967,7 @@ class Window_NameInput extends Window_Selectable {
               "／","＝","＠","＜","＞",  "：","；","　","かな","決定" ];
 
     initialize(rect) {
-        Window_Selectable.prototype.initialize.call(this, rect);
+        super.initialize(rect);
         this._editWindow = null;
         this._page = 0;
         this._index = 0;
@@ -4093,7 +4093,7 @@ class Window_NameInput extends Window_Selectable {
 
     processCursorMove() {
         const lastPage = this._page;
-        Window_Selectable.prototype.processCursorMove.call(this);
+        super.processCursorMove();
         this.updateCursor();
         if (this._page !== lastPage) {
             this.playCursorSound();
@@ -4179,7 +4179,7 @@ class Window_NameBox extends Window_Base {
     }
 
     initialize() {
-        Window_Base.prototype.initialize.call(this, new PIXI.Rectangle());
+        super.initialize(new PIXI.Rectangle());
         this.openness = 0;
         this._name = "";
     }
@@ -4259,7 +4259,7 @@ class Window_ChoiceList extends Window_Command {
     }
 
     initialize() {
-        Window_Command.prototype.initialize.call(this, new PIXI.Rectangle());
+        super.initialize(new PIXI.Rectangle());
         this.createCancelButton();
         this.openness = 0;
         this.deactivate();
@@ -4292,7 +4292,7 @@ class Window_ChoiceList extends Window_Command {
     }
 
     update() {
-        Window_Selectable.prototype.update.call(this);
+        super.update();
         this.updateCancelButton();
     }
 
@@ -4435,7 +4435,7 @@ class Window_NumberInput extends Window_Selectable {
     }
 
     initialize() {
-        Window_Selectable.prototype.initialize.call(this, new PIXI.Rectangle());
+        super.initialize(new PIXI.Rectangle());
         this._number = 0;
         this._maxDigits = 1;
         this.openness = 0;
@@ -4501,7 +4501,7 @@ class Window_NumberInput extends Window_Selectable {
     }
 
     itemRect(index) {
-        const rect = Window_Selectable.prototype.itemRect.call(this, index);
+        const rect = super.itemRect(index);
         const innerMargin = this.innerWidth - this.maxCols() * this.itemWidth();
         rect.x += innerMargin / 2;
         return rect;
@@ -4554,7 +4554,7 @@ class Window_NumberInput extends Window_Selectable {
     }
 
     update() {
-        Window_Selectable.prototype.update.call(this);
+        super.update();
         this.processDigitChange();
     }
 
@@ -4637,7 +4637,7 @@ class Window_EventItem extends Window_ItemList {
     }
 
     initialize(rect) {
-        Window_ItemList.prototype.initialize.call(this, rect);
+        super.initialize(rect);
         this.createCancelButton();
         this.openness = 0;
         this.deactivate();
@@ -4668,7 +4668,7 @@ class Window_EventItem extends Window_ItemList {
     }
 
     update() {
-        Window_Selectable.prototype.update.call(this);
+        super.update();
         this.updateCancelButton();
     }
 
@@ -4751,7 +4751,7 @@ class Window_Message extends Window_Base {
     }
 
     initialize(rect) {
-        Window_Base.prototype.initialize.call(this, rect);
+        super.initialize(rect);
         this.openness = 0;
         this.initMembers();
     }
@@ -4798,7 +4798,7 @@ class Window_Message extends Window_Base {
 
     update() {
         this.checkToNotClose();
-        Window_Base.prototype.update.call(this);
+        super.update();
         this.synchronizeNameBox();
         while (!this.isOpening() && !this.isClosing()) {
             if (this.updateWait()) {
@@ -5061,7 +5061,7 @@ class Window_Message extends Window_Base {
     }
 
     processControlCharacter(textState, c) {
-        Window_Base.prototype.processControlCharacter.call(this, textState, c);
+        super.processControlCharacter(textState, c);
         if (c === "\f") {
             this.processNewPage(textState);
         }
@@ -5069,7 +5069,7 @@ class Window_Message extends Window_Base {
 
     processNewLine(textState) {
         this._lineShowFast = false;
-        Window_Base.prototype.processNewLine.call(this, textState);
+        super.processNewLine(textState);
         if (this.needsNewPage(textState)) {
             this.startPause();
         }
@@ -5118,11 +5118,7 @@ class Window_Message extends Window_Base {
                 this._pauseSkip = true;
                 break;
             default:
-                Window_Base.prototype.processEscapeCharacter.call(
-                    this,
-                    code,
-                    textState
-                );
+                super.processEscapeCharacter(code, textState);
                 break;
         }
     }
@@ -5153,7 +5149,7 @@ class Window_ScrollText extends Window_Base {
     }
 
     initialize(rect) {
-        Window_Base.prototype.initialize.call(this, new PIXI.Rectangle());
+        super.initialize(new PIXI.Rectangle());
         this.opacity = 0;
         this.hide();
         this._reservedRect = rect;
@@ -5166,7 +5162,7 @@ class Window_ScrollText extends Window_Base {
     }
 
     update() {
-        Window_Base.prototype.update.call(this);
+        super.update();
         if ($gameMessage.scrollMode()) {
             if (this._text) {
                 this.updateMessage();
@@ -5269,7 +5265,7 @@ class Window_MapName extends Window_Base {
     }
 
     initialize(rect) {
-        Window_Base.prototype.initialize.call(this, rect);
+        super.initialize(rect);
         this.opacity = 0;
         this.contentsOpacity = 0;
         this._showCount = 0;
@@ -5277,7 +5273,7 @@ class Window_MapName extends Window_Base {
     }
 
     update() {
-        Window_Base.prototype.update.call(this);
+        super.update();
         if (this._showCount > 0 && $gameMap.isNameDisplayEnabled()) {
             this.updateFadeIn();
             this._showCount--;
@@ -5333,7 +5329,7 @@ class Window_BattleLog extends Window_Base {
     }
 
     initialize(rect) {
-        Window_Base.prototype.initialize.call(this, rect);
+        super.initialize(rect);
         this.opacity = 0;
         this._lines = [];
         this._methods = [];
@@ -5916,7 +5912,7 @@ class Window_PartyCommand extends Window_Command {
     }
 
     initialize(rect) {
-        Window_Command.prototype.initialize.call(this, rect);
+        super.initialize(rect);
         this.openness = 0;
         this.deactivate();
     }
@@ -5945,7 +5941,7 @@ class Window_ActorCommand extends Window_Command {
     }
 
     initialize(rect) {
-        Window_Command.prototype.initialize.call(this, rect);
+        super.initialize(rect);
         this.openness = 0;
         this.deactivate();
         this._actor = null;
@@ -6000,7 +5996,7 @@ class Window_ActorCommand extends Window_Command {
                 this._actor.setLastCommandSymbol("");
             }
         }
-        Window_Command.prototype.processOk.call(this);
+        super.processOk();
     }
 
     selectLast() {
@@ -6029,7 +6025,7 @@ class Window_BattleStatus extends Window_StatusBase {
     }
 
     initialize(rect) {
-        Window_StatusBase.prototype.initialize.call(this, rect);
+        super.initialize(rect);
         this.frameVisible = false;
         this.openness = 0;
         this._bitmapsReady = 0;
@@ -6070,7 +6066,7 @@ class Window_BattleStatus extends Window_StatusBase {
     }
 
     update() {
-        Window_StatusBase.prototype.update.call(this);
+        super.update();
         if ($gameTemp.isBattleRefreshRequested()) {
             this.preparePartyRefresh();
         }
@@ -6163,7 +6159,7 @@ class Window_BattleActor extends Window_BattleStatus {
     }
 
     initialize(rect) {
-        Window_BattleStatus.prototype.initialize.call(this, rect);
+        super.initialize(rect);
         this.openness = 255;
         this.hide();
     }
@@ -6171,21 +6167,21 @@ class Window_BattleActor extends Window_BattleStatus {
     show() {
         this.forceSelect(0);
         $gameTemp.clearTouchState();
-        Window_BattleStatus.prototype.show.call(this);
+        super.show();
     }
 
     hide() {
-        Window_BattleStatus.prototype.hide.call(this);
+        super.hide();
         $gameParty.select(null);
     }
 
     select(index) {
-        Window_BattleStatus.prototype.select.call(this, index);
+        super.select(index);
         $gameParty.select(this.actor(index));
     }
 
     processTouch() {
-        Window_BattleStatus.prototype.processTouch.call(this);
+        super.processTouch();
         if (this.isOpenAndActive()) {
             const target = $gameTemp.touchTarget();
             if (target) {
@@ -6214,7 +6210,7 @@ class Window_BattleEnemy extends Window_Selectable {
 
     initialize(rect) {
         this._enemies = [];
-        Window_Selectable.prototype.initialize.call(this, rect);
+        super.initialize(rect);
         this.refresh();
         this.hide();
     }
@@ -6247,26 +6243,26 @@ class Window_BattleEnemy extends Window_Selectable {
         this.refresh();
         this.forceSelect(0);
         $gameTemp.clearTouchState();
-        Window_Selectable.prototype.show.call(this);
+        super.show();
     }
 
     hide() {
-        Window_Selectable.prototype.hide.call(this);
+        super.hide();
         $gameTroop.select(null);
     }
 
     refresh() {
         this._enemies = $gameTroop.aliveMembers();
-        Window_Selectable.prototype.refresh.call(this);
+        super.refresh();
     }
 
     select(index) {
-        Window_Selectable.prototype.select.call(this, index);
+        super.select(index);
         $gameTroop.select(this.enemy());
     }
 
     processTouch() {
-        Window_Selectable.prototype.processTouch.call(this);
+        super.processTouch();
         if (this.isOpenAndActive()) {
             const target = $gameTemp.touchTarget();
             if (target) {
@@ -6293,19 +6289,19 @@ class Window_BattleSkill extends Window_SkillList {
     }
 
     initialize(rect) {
-        Window_SkillList.prototype.initialize.call(this, rect);
+        super.initialize(rect);
         this.hide();
     }
 
     show() {
         this.selectLast();
         this.showHelpWindow();
-        Window_SkillList.prototype.show.call(this);
+        super.show();
     }
 
     hide() {
         this.hideHelpWindow();
-        Window_SkillList.prototype.hide.call(this);
+        super.hide();
     }
 }
 
@@ -6320,7 +6316,7 @@ class Window_BattleItem extends Window_ItemList {
     }
 
     initialize(rect) {
-        Window_ItemList.prototype.initialize.call(this, rect);
+        super.initialize(rect);
         this.hide();
     }
 
@@ -6331,12 +6327,12 @@ class Window_BattleItem extends Window_ItemList {
     show() {
         this.selectLast();
         this.showHelpWindow();
-        Window_ItemList.prototype.show.call(this);
+        super.show();
     }
 
     hide() {
         this.hideHelpWindow();
-        Window_ItemList.prototype.hide.call(this);
+        super.hide();
     }
 }
 
@@ -6351,7 +6347,7 @@ class Window_TitleCommand extends Window_Command {
     }
 
     initialize(rect) {
-        Window_Command.prototype.initialize.call(this, rect);
+        super.initialize(rect);
         this.openness = 0;
         this.selectLast();
     }
@@ -6375,7 +6371,7 @@ class Window_TitleCommand extends Window_Command {
 
     processOk() {
         Window_TitleCommand._lastCommandSymbol = this.currentSymbol();
-        Window_Command.prototype.processOk.call(this);
+        super.processOk();
     }
 
     selectLast() {
@@ -6398,7 +6394,7 @@ class Window_GameEnd extends Window_Command {
     }
 
     initialize(rect) {
-        Window_Command.prototype.initialize.call(this, rect);
+        super.initialize(rect);
         this.openness = 0;
         this.open();
     }
@@ -6426,7 +6422,7 @@ class Window_DebugRange extends Window_Selectable {
     initialize(rect) {
         this._maxSwitches = Math.ceil(($dataSystem.switches.length - 1) / 10);
         this._maxVariables = Math.ceil(($dataSystem.variables.length - 1) / 10);
-        Window_Selectable.prototype.initialize.call(this, rect);
+        super.initialize(rect);
         this.refresh();
         this.setTopRow(Window_DebugRange.lastTopRow);
         this.select(Window_DebugRange.lastIndex);
@@ -6438,7 +6434,7 @@ class Window_DebugRange extends Window_Selectable {
     }
 
     update() {
-        Window_Selectable.prototype.update.call(this);
+        super.update();
         if (this._editWindow) {
             const index = this.index();
             this._editWindow.setMode(this.mode(index));
@@ -6479,7 +6475,7 @@ class Window_DebugRange extends Window_Selectable {
     }
 
     processCancel() {
-        Window_Selectable.prototype.processCancel.call(this);
+        super.processCancel();
         Window_DebugRange.lastTopRow = this.topRow();
         Window_DebugRange.lastIndex = this.index();
     }
@@ -6500,7 +6496,7 @@ class Window_DebugEdit extends Window_Selectable {
     }
 
     initialize(rect) {
-        Window_Selectable.prototype.initialize.call(this, rect);
+        super.initialize(rect);
         this._mode = "switch";
         this._topId = 1;
         this.refresh();
@@ -6561,7 +6557,7 @@ class Window_DebugEdit extends Window_Selectable {
     }
 
     update() {
-        Window_Selectable.prototype.update.call(this);
+        super.update();
         if (this.active) {
             if (this._mode === "switch") {
                 this.updateSwitch();

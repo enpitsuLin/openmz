@@ -3283,11 +3283,11 @@ class Game_Battler extends Game_BattlerBase {
     }
 
     initialize() {
-        Game_BattlerBase.prototype.initialize.call(this);
+        super.initialize();
     }
 
     initMembers() {
-        Game_BattlerBase.prototype.initMembers.call(this);
+        super.initMembers();
         this._actions = [];
         this._speed = 0;
         this._result = new Game_ActionResult();
@@ -3602,11 +3602,11 @@ class Game_Battler extends Game_BattlerBase {
         if (BattleManager.isTpb() && !this.isTpbCharged()) {
             return false;
         }
-        return Game_BattlerBase.prototype.canInput.call(this);
+        return super.canInput();
     }
 
     refresh() {
-        Game_BattlerBase.prototype.refresh.call(this);
+        super.refresh();
         if (this.hp === 0) {
             this.addState(this.deathStateId());
         } else {
@@ -3639,7 +3639,7 @@ class Game_Battler extends Game_BattlerBase {
     }
 
     onRestrict() {
-        Game_BattlerBase.prototype.onRestrict.call(this);
+        super.onRestrict();
         this.clearTpbChargeTime();
         this.clearActions();
         for (const state of this.states()) {
@@ -4013,12 +4013,12 @@ class Game_Actor extends Game_Battler {
     }
 
     initialize(actorId) {
-        Game_Battler.prototype.initialize.call(this);
+        super.initialize();
         this.setup(actorId);
     }
 
     initMembers() {
-        Game_Battler.prototype.initMembers.call(this);
+        super.initMembers();
         this._actorId = 0;
         this._name = "";
         this._nickname = "";
@@ -4107,17 +4107,17 @@ class Game_Actor extends Game_Battler {
     }
 
     clearStates() {
-        Game_Battler.prototype.clearStates.call(this);
+        super.clearStates();
         this._stateSteps = {};
     }
 
     eraseState(stateId) {
-        Game_Battler.prototype.eraseState.call(this, stateId);
+        super.eraseState(stateId);
         delete this._stateSteps[stateId];
     }
 
     resetStateCounts(stateId) {
-        Game_Battler.prototype.resetStateCounts.call(this, stateId);
+        super.resetStateCounts(stateId);
         this._stateSteps[stateId] = $dataStates[stateId].stepsToRemove;
     }
 
@@ -4361,11 +4361,11 @@ class Game_Actor extends Game_Battler {
 
     refresh() {
         this.releaseUnequippableItems(false);
-        Game_Battler.prototype.refresh.call(this);
+        super.refresh();
     }
 
     hide() {
-        Game_Battler.prototype.hide.call(this);
+        super.hide();
         $gameTemp.requestBattleRefresh();
     }
 
@@ -4421,7 +4421,7 @@ class Game_Actor extends Game_Battler {
     }
 
     traitObjects() {
-        const objects = Game_Battler.prototype.traitObjects.call(this);
+        const objects = super.traitObjects();
         objects.push(this.actor(), this.currentClass());
         for (const item of this.equips()) {
             if (item) {
@@ -4432,7 +4432,7 @@ class Game_Actor extends Game_Battler {
     }
 
     attackElements() {
-        const set = Game_Battler.prototype.attackElements.call(this);
+        const set = super.attackElements();
         if (this.hasNoWeapons() && !set.includes(this.bareHandsElementId())) {
             set.push(this.bareHandsElementId());
         }
@@ -4452,7 +4452,7 @@ class Game_Actor extends Game_Battler {
     }
 
     paramPlus(paramId) {
-        let value = Game_Battler.prototype.paramPlus.call(this, paramId);
+        let value = super.paramPlus(paramId);
         for (const item of this.equips()) {
             if (item) {
                 value += item.params[paramId];
@@ -4603,11 +4603,11 @@ class Game_Actor extends Game_Battler {
     }
 
     performActionStart(action) {
-        Game_Battler.prototype.performActionStart.call(this, action);
+        super.performActionStart(action);
     }
 
     performAction(action) {
-        Game_Battler.prototype.performAction.call(this, action);
+        super.performAction(action);
         if (action.isAttack()) {
             this.performAttack();
         } else if (action.isGuard()) {
@@ -4622,7 +4622,7 @@ class Game_Actor extends Game_Battler {
     }
 
     performActionEnd() {
-        Game_Battler.prototype.performActionEnd.call(this);
+        super.performActionEnd();
     }
 
     performAttack() {
@@ -4642,7 +4642,7 @@ class Game_Actor extends Game_Battler {
     }
 
     performDamage() {
-        Game_Battler.prototype.performDamage.call(this);
+        super.performDamage();
         if (this.isSpriteVisible()) {
             this.requestMotion("damage");
         } else {
@@ -4652,22 +4652,22 @@ class Game_Actor extends Game_Battler {
     }
 
     performEvasion() {
-        Game_Battler.prototype.performEvasion.call(this);
+        super.performEvasion();
         this.requestMotion("evade");
     }
 
     performMagicEvasion() {
-        Game_Battler.prototype.performMagicEvasion.call(this);
+        super.performMagicEvasion();
         this.requestMotion("evade");
     }
 
     performCounter() {
-        Game_Battler.prototype.performCounter.call(this);
+        super.performCounter();
         this.performAttack();
     }
 
     performCollapse() {
-        Game_Battler.prototype.performCollapse.call(this);
+        super.performCollapse();
         if ($gameParty.inBattle()) {
             SoundManager.playActorCollapse();
         }
@@ -4722,7 +4722,7 @@ class Game_Actor extends Game_Battler {
     }
 
     makeActions() {
-        Game_Battler.prototype.makeActions.call(this);
+        super.makeActions();
         if (this.numActions() > 0) {
             this.setActionState("undecided");
         } else {
@@ -4817,7 +4817,7 @@ class Game_Actor extends Game_Battler {
     }
 
     clearActions() {
-        Game_Battler.prototype.clearActions.call(this);
+        super.clearActions();
         this._actionInputIndex = 0;
     }
 
@@ -4887,10 +4887,7 @@ class Game_Actor extends Game_Battler {
                 return false;
             }
         }
-        return Game_BattlerBase.prototype.meetsUsableItemConditions.call(
-            this,
-            item
-        );
+        return super.meetsUsableItemConditions(item);
     }
 
     onEscapeFailure() {
@@ -4913,12 +4910,12 @@ class Game_Enemy extends Game_Battler {
     }
 
     initialize(enemyId, x, y) {
-        Game_Battler.prototype.initialize.call(this);
+        super.initialize();
         this.setup(enemyId, x, y);
     }
 
     initMembers() {
-        Game_Battler.prototype.initMembers.call(this);
+        super.initMembers();
         this._enemyId = 0;
         this._letter = "";
         this._plural = false;
@@ -4962,7 +4959,7 @@ class Game_Enemy extends Game_Battler {
     }
 
     traitObjects() {
-        return Game_Battler.prototype.traitObjects.call(this).concat(this.enemy());
+        return super.traitObjects().concat(this.enemy());
     }
 
     paramBase(paramId) {
@@ -5045,26 +5042,26 @@ class Game_Enemy extends Game_Battler {
     }
 
     performActionStart(action) {
-        Game_Battler.prototype.performActionStart.call(this, action);
+        super.performActionStart(action);
         this.requestEffect("whiten");
     }
 
     performAction(action) {
-        Game_Battler.prototype.performAction.call(this, action);
+        super.performAction(action);
     }
 
     performActionEnd() {
-        Game_Battler.prototype.performActionEnd.call(this);
+        super.performActionEnd();
     }
 
     performDamage() {
-        Game_Battler.prototype.performDamage.call(this);
+        super.performDamage();
         SoundManager.playEnemyDamage();
         this.requestEffect("blink");
     }
 
     performCollapse() {
-        Game_Battler.prototype.performCollapse.call(this);
+        super.performCollapse();
         switch (this.collapseType()) {
             case 0:
                 this.requestEffect("collapse");
@@ -5176,7 +5173,7 @@ class Game_Enemy extends Game_Battler {
     }
 
     makeActions() {
-        Game_Battler.prototype.makeActions.call(this);
+        super.makeActions();
         if (this.numActions() > 0) {
             const actionList = this.enemy().actions.filter(a =>
                 this.isActionValid(a)
@@ -5380,7 +5377,7 @@ class Game_Party extends Game_Unit {
     static ABILITY_DROP_ITEM_DOUBLE = 5;
 
     initialize() {
-        Game_Unit.prototype.initialize.call(this);
+        super.initialize();
         this._gold = 0;
         this._steps = 0;
         this._lastItem = new Game_Item();
@@ -5660,7 +5657,7 @@ class Game_Party extends Game_Unit {
     }
 
     isAllDead() {
-        if (Game_Unit.prototype.isAllDead.call(this)) {
+        if (super.isAllDead()) {
             return this.inBattle() || !this.isEmpty();
         } else {
             return false;
@@ -5848,7 +5845,7 @@ class Game_Troop extends Game_Unit {
     ];
 
     initialize() {
-        Game_Unit.prototype.initialize.call(this);
+        super.initialize();
         this._interpreter = new Game_Interpreter();
         this.clear();
     }
@@ -7592,11 +7589,11 @@ class Game_Character extends Game_CharacterBase {
     static ROUTE_SCRIPT = 45;
 
     initialize() {
-        Game_CharacterBase.prototype.initialize.call(this);
+        super.initialize();
     }
 
     initMembers() {
-        Game_CharacterBase.prototype.initMembers.call(this);
+        super.initMembers();
         this._moveRouteForcing = false;
         this._moveRoute = null;
         this._moveRouteIndex = 0;
@@ -7641,7 +7638,7 @@ class Game_Character extends Game_CharacterBase {
     }
 
     updateStop() {
-        Game_CharacterBase.prototype.updateStop.call(this);
+        super.updateStop();
         if (this._moveRouteForcing) {
             this.updateRoutineMove();
         }
@@ -8109,12 +8106,12 @@ class Game_Player extends Game_Character {
     }
 
     initialize() {
-        Game_Character.prototype.initialize.call(this);
+        super.initialize();
         this.setTransparent($dataSystem.optTransparent);
     }
 
     initMembers() {
-        Game_Character.prototype.initMembers.call(this);
+        super.initMembers();
         this._vehicleType = "walk";
         this._vehicleGettingOn = false;
         this._vehicleGettingOff = false;
@@ -8154,7 +8151,7 @@ class Game_Player extends Game_Character {
         if (this._vehicleGettingOn || this._vehicleGettingOff) {
             return false;
         }
-        return Game_Character.prototype.isStopping.call(this);
+        return super.isStopping();
     }
 
     reserveTransfer(mapId, x, y, d, fadeType) {
@@ -8207,7 +8204,7 @@ class Game_Player extends Game_Character {
         if (vehicle) {
             return vehicle.isMapPassable(x, y, d);
         } else {
-            return Game_Character.prototype.isMapPassable.call(this, x, y, d);
+            return super.isMapPassable(x, y, d);
         }
     }
 
@@ -8264,7 +8261,7 @@ class Game_Player extends Game_Character {
     }
 
     locate(x, y) {
-        Game_Character.prototype.locate.call(this, x, y);
+        super.locate(x, y);
         this.center(x, y);
         this.makeEncounterCount();
         if (this.isInVehicle()) {
@@ -8274,7 +8271,7 @@ class Game_Player extends Game_Character {
     }
 
     increaseSteps() {
-        Game_Character.prototype.increaseSteps.call(this);
+        super.increaseSteps();
         if (this.isNormal()) {
             $gameParty.increaseSteps();
         }
@@ -8390,7 +8387,7 @@ class Game_Player extends Game_Character {
         if (sceneActive) {
             this.moveByInput();
         }
-        Game_Character.prototype.update.call(this);
+        super.update();
         this.updateScroll(lastScrolledX, lastScrolledY);
         this.updateVehicle();
         if (!this.isMoving()) {
@@ -8699,18 +8696,18 @@ class Game_Player extends Game_Character {
         if (this.canPass(this.x, this.y, d)) {
             this._followers.updateMove();
         }
-        Game_Character.prototype.moveStraight.call(this, d);
+        super.moveStraight(d);
     }
 
     moveDiagonally(horz, vert) {
         if (this.canPassDiagonally(this.x, this.y, horz, vert)) {
             this._followers.updateMove();
         }
-        Game_Character.prototype.moveDiagonally.call(this, horz, vert);
+        super.moveDiagonally(horz, vert);
     }
 
     jump(xPlus, yPlus) {
-        Game_Character.prototype.jump.call(this, xPlus, yPlus);
+        super.jump(xPlus, yPlus);
         this._followers.jumpAll();
     }
 
@@ -8747,7 +8744,7 @@ class Game_Follower extends Game_Character {
     }
 
     initialize(memberIndex) {
-        Game_Character.prototype.initialize.call(this);
+        super.initialize();
         this._memberIndex = memberIndex;
         this.setTransparent($dataSystem.optTransparent);
         this.setThrough(true);
@@ -8772,7 +8769,7 @@ class Game_Follower extends Game_Character {
     }
 
     update() {
-        Game_Character.prototype.update.call(this);
+        super.update();
         this.setMoveSpeed($gamePlayer.realMoveSpeed());
         this.setOpacity($gamePlayer.opacity());
         this.setBlendMode($gamePlayer.blendMode());
@@ -8924,7 +8921,7 @@ class Game_Vehicle extends Game_Character {
     }
 
     initialize(type) {
-        Game_Character.prototype.initialize.call(this);
+        super.initialize();
         this._type = type;
         this.resetDirection();
         this.initMoveSpeed();
@@ -8932,7 +8929,7 @@ class Game_Vehicle extends Game_Character {
     }
 
     initMembers() {
-        Game_Character.prototype.initMembers.call(this);
+        super.initMembers();
         this._type = "";
         this._mapId = 0;
         this._altitude = 0;
@@ -9010,7 +9007,7 @@ class Game_Vehicle extends Game_Character {
 
     pos(x, y) {
         if (this._mapId === $gameMap.mapId()) {
-            return Game_Character.prototype.pos.call(this, x, y);
+            return super.pos(x, y);
         } else {
             return false;
         }
@@ -9060,7 +9057,7 @@ class Game_Vehicle extends Game_Character {
     }
 
     screenY() {
-        return Game_Character.prototype.screenY.call(this) - this._altitude;
+        return super.screenY() - this._altitude;
     }
 
     shadowX() {
@@ -9084,7 +9081,7 @@ class Game_Vehicle extends Game_Character {
     }
 
     update() {
-        Game_Character.prototype.update.call(this);
+        super.update();
         if (this.isAirship()) {
             this.updateAirship();
         }
@@ -9158,7 +9155,7 @@ class Game_Event extends Game_Character {
     }
 
     initialize(mapId, eventId) {
-        Game_Character.prototype.initialize.call(this);
+        super.initialize();
         this._mapId = mapId;
         this._eventId = eventId;
         this.locate(this.event().x, this.event().y);
@@ -9166,7 +9163,7 @@ class Game_Event extends Game_Character {
     }
 
     initMembers() {
-        Game_Character.prototype.initMembers.call(this);
+        super.initMembers();
         this._moveType = 0;
         this._trigger = 0;
         this._starting = false;
@@ -9196,7 +9193,7 @@ class Game_Event extends Game_Character {
 
     isCollidedWithCharacters(x, y) {
         return (
-            Game_Character.prototype.isCollidedWithCharacters.call(this, x, y) ||
+            super.isCollidedWithCharacters(x, y) ||
             this.isCollidedWithPlayerCharacters(x, y)
         );
     }
@@ -9229,7 +9226,7 @@ class Game_Event extends Game_Character {
         if (this._locked) {
             this.resetStopCount();
         }
-        Game_Character.prototype.updateStop.call(this);
+        super.updateStop();
         if (!this.isMoveRouteForcing()) {
             this.updateSelfMovement();
         }
@@ -9470,7 +9467,7 @@ class Game_Event extends Game_Character {
     }
 
     update() {
-        Game_Character.prototype.update.call(this);
+        super.update();
         this.checkEventTriggerAuto();
         this.updateParallel();
     }
@@ -9485,12 +9482,12 @@ class Game_Event extends Game_Character {
     }
 
     locate(x, y) {
-        Game_Character.prototype.locate.call(this, x, y);
+        super.locate(x, y);
         this._prelockDirection = 0;
     }
 
     forceMoveRoute(moveRoute) {
-        Game_Character.prototype.forceMoveRoute.call(this, moveRoute);
+        super.forceMoveRoute(moveRoute);
         this._prelockDirection = 0;
     }
 }

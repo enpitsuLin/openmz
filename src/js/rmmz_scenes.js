@@ -13,7 +13,7 @@ class Scene_Base extends Stage {
     }
 
     initialize() {
-        Stage.prototype.initialize.call(this);
+        super.initialize();
         this._started = false;
         this._active = false;
         this._fadeSign = 0;
@@ -257,12 +257,12 @@ class Scene_Boot extends Scene_Base {
     }
 
     initialize() {
-        Scene_Base.prototype.initialize.call(this);
+        super.initialize();
         this._databaseLoaded = false;
     }
 
     create() {
-        Scene_Base.prototype.create.call(this);
+        super.create();
         DataManager.loadDatabase();
         StorageManager.updateForageKeys();
     }
@@ -278,7 +278,7 @@ class Scene_Boot extends Scene_Base {
             }
             return false;
         }
-        return Scene_Base.prototype.isReady.call(this) && this.isPlayerDataLoaded();
+        return super.isReady() && this.isPlayerDataLoaded();
     }
 
     onDatabaseLoaded() {
@@ -316,7 +316,7 @@ class Scene_Boot extends Scene_Base {
     }
 
     start() {
-        Scene_Base.prototype.start.call(this);
+        super.start();
         SoundManager.preloadImportantSounds();
         if (DataManager.isBattleTest()) {
             DataManager.setupBattleTest();
@@ -399,19 +399,19 @@ class Scene_Splash extends Scene_Base {
     }
 
     initialize() {
-        Scene_Base.prototype.initialize.call(this);
+        super.initialize();
         this.initWaitCount();
     }
 
     create() {
-        Scene_Base.prototype.create.call(this);
+        super.create();
         if (this.isEnabled()) {
             this.createBackground();
         }
     }
 
     start() {
-        Scene_Base.prototype.start.call(this);
+        super.start();
         if (this.isEnabled()) {
             this.adjustBackground();
             this.startFadeIn(this.fadeSpeed(), false);
@@ -419,7 +419,7 @@ class Scene_Splash extends Scene_Base {
     }
 
     update() {
-        Scene_Base.prototype.update.call(this);
+        super.update();
         if (this.isActive()) {
             if (!this.updateWaitCount()) {
                 this.gotoTitle();
@@ -429,7 +429,7 @@ class Scene_Splash extends Scene_Base {
     }
 
     stop() {
-        Scene_Base.prototype.stop.call(this);
+        super.stop();
         if (this.isEnabled()) {
             this.startFadeOut(this.fadeSpeed());
         }
@@ -488,11 +488,11 @@ class Scene_Title extends Scene_Base {
     }
 
     initialize() {
-        Scene_Base.prototype.initialize.call(this);
+        super.initialize();
     }
 
     create() {
-        Scene_Base.prototype.create.call(this);
+        super.create();
         this.createBackground();
         this.createForeground();
         this.createWindowLayer();
@@ -500,7 +500,7 @@ class Scene_Title extends Scene_Base {
     }
 
     start() {
-        Scene_Base.prototype.start.call(this);
+        super.start();
         SceneManager.clearStack();
         this.adjustBackground();
         this.playTitleMusic();
@@ -511,18 +511,18 @@ class Scene_Title extends Scene_Base {
         if (!this.isBusy()) {
             this._commandWindow.open();
         }
-        Scene_Base.prototype.update.call(this);
+        super.update();
     }
 
     isBusy() {
         return (
             this._commandWindow.isClosing() ||
-            Scene_Base.prototype.isBusy.call(this)
+            super.isBusy()
         );
     }
 
     terminate() {
-        Scene_Base.prototype.terminate.call(this);
+        super.terminate();
         SceneManager.snapForBackground();
         if (this._gameTitleSprite) {
             this._gameTitleSprite.bitmap.destroy();
@@ -626,7 +626,7 @@ class Scene_Message extends Scene_Base {
     }
 
     initialize() {
-        Scene_Base.prototype.initialize.call(this);
+        super.initialize();
     }
 
     isMessageWindowClosing() {
@@ -745,7 +745,7 @@ class Scene_Map extends Scene_Message {
     }
 
     initialize() {
-        Scene_Message.prototype.initialize.call(this);
+        super.initialize();
         this._waitCount = 0;
         this._encounterEffectDuration = 0;
         this._mapLoaded = false;
@@ -754,7 +754,7 @@ class Scene_Map extends Scene_Message {
     }
 
     create() {
-        Scene_Message.prototype.create.call(this);
+        super.create();
         this._transfer = $gamePlayer.isTransferring();
         this._lastMapWasNull = !$dataMap;
         if (this._transfer) {
@@ -770,7 +770,7 @@ class Scene_Map extends Scene_Message {
             this.onMapLoaded();
             this._mapLoaded = true;
         }
-        return this._mapLoaded && Scene_Message.prototype.isReady.call(this);
+        return this._mapLoaded && super.isReady();
     }
 
     onMapLoaded() {
@@ -786,7 +786,7 @@ class Scene_Map extends Scene_Message {
     }
 
     start() {
-        Scene_Message.prototype.start.call(this);
+        super.start();
         SceneManager.clearStack();
         if (this._transfer) {
             this.fadeInForTransfer();
@@ -810,7 +810,7 @@ class Scene_Map extends Scene_Message {
     }
 
     update() {
-        Scene_Message.prototype.update.call(this);
+        super.update();
         this.updateDestination();
         this.updateMenuButton();
         this.updateMapNameWindow();
@@ -851,7 +851,7 @@ class Scene_Map extends Scene_Message {
     }
 
     stop() {
-        Scene_Message.prototype.stop.call(this);
+        super.stop();
         $gamePlayer.straighten();
         this._mapNameWindow.close();
         if (this.needsSlowFadeOut()) {
@@ -868,12 +868,12 @@ class Scene_Map extends Scene_Message {
             this.isMessageWindowClosing() ||
             this._waitCount > 0 ||
             this._encounterEffectDuration > 0 ||
-            Scene_Message.prototype.isBusy.call(this)
+            super.isBusy()
         );
     }
 
     terminate() {
-        Scene_Message.prototype.terminate.call(this);
+        super.terminate();
         if (!SceneManager.isNextScene(Scene_Battle)) {
             this._spriteset.update();
             this._mapNameWindow.hide();
@@ -1004,7 +1004,7 @@ class Scene_Map extends Scene_Message {
 
     createAllWindows() {
         this.createMapNameWindow();
-        Scene_Message.prototype.createAllWindows.call(this);
+        super.createAllWindows();
     }
 
     createMapNameWindow() {
@@ -1177,11 +1177,11 @@ class Scene_MenuBase extends Scene_Base {
     }
 
     initialize() {
-        Scene_Base.prototype.initialize.call(this);
+        super.initialize();
     }
 
     create() {
-        Scene_Base.prototype.create.call(this);
+        super.create();
         this.createBackground();
         this.updateActor();
         this.createWindowLayer();
@@ -1189,7 +1189,7 @@ class Scene_MenuBase extends Scene_Base {
     }
 
     update() {
-        Scene_Base.prototype.update.call(this);
+        super.update();
         this.updatePageButtons();
     }
 
@@ -1344,7 +1344,7 @@ class Scene_Menu extends Scene_MenuBase {
     }
 
     initialize() {
-        Scene_MenuBase.prototype.initialize.call(this);
+        super.initialize();
     }
 
     helpAreaHeight() {
@@ -1352,14 +1352,14 @@ class Scene_Menu extends Scene_MenuBase {
     }
 
     create() {
-        Scene_MenuBase.prototype.create.call(this);
+        super.create();
         this.createCommandWindow();
         this.createGoldWindow();
         this.createStatusWindow();
     }
 
     start() {
-        Scene_MenuBase.prototype.start.call(this);
+        super.start();
         this._statusWindow.refresh();
     }
 
@@ -1501,11 +1501,11 @@ class Scene_ItemBase extends Scene_MenuBase {
     }
 
     initialize() {
-        Scene_MenuBase.prototype.initialize.call(this);
+        super.initialize();
     }
 
     create() {
-        Scene_MenuBase.prototype.create.call(this);
+        super.create();
     }
 
     createActorWindow() {
@@ -1647,11 +1647,11 @@ class Scene_Item extends Scene_ItemBase {
     }
 
     initialize() {
-        Scene_ItemBase.prototype.initialize.call(this);
+        super.initialize();
     }
 
     create() {
-        Scene_ItemBase.prototype.create.call(this);
+        super.create();
         this.createHelpWindow();
         this.createCategoryWindow();
         this.createItemWindow();
@@ -1732,7 +1732,7 @@ class Scene_Item extends Scene_ItemBase {
     }
 
     useItem() {
-        Scene_ItemBase.prototype.useItem.call(this);
+        super.useItem();
         this._itemWindow.redrawCurrentItem();
     }
 }
@@ -1748,11 +1748,11 @@ class Scene_Skill extends Scene_ItemBase {
     }
 
     initialize() {
-        Scene_ItemBase.prototype.initialize.call(this);
+        super.initialize();
     }
 
     create() {
-        Scene_ItemBase.prototype.create.call(this);
+        super.create();
         this.createHelpWindow();
         this.createSkillTypeWindow();
         this.createStatusWindow();
@@ -1761,7 +1761,7 @@ class Scene_Skill extends Scene_ItemBase {
     }
 
     start() {
-        Scene_ItemBase.prototype.start.call(this);
+        super.start();
         this.refreshActor();
     }
 
@@ -1855,13 +1855,13 @@ class Scene_Skill extends Scene_ItemBase {
     }
 
     useItem() {
-        Scene_ItemBase.prototype.useItem.call(this);
+        super.useItem();
         this._statusWindow.refresh();
         this._itemWindow.refresh();
     }
 
     onActorChange() {
-        Scene_MenuBase.prototype.onActorChange.call(this);
+        super.onActorChange();
         this.refreshActor();
         this._itemWindow.deselect();
         this._skillTypeWindow.activate();
@@ -1879,11 +1879,11 @@ class Scene_Equip extends Scene_MenuBase {
     }
 
     initialize() {
-        Scene_MenuBase.prototype.initialize.call(this);
+        super.initialize();
     }
 
     create() {
-        Scene_MenuBase.prototype.create.call(this);
+        super.create();
         this.createHelpWindow();
         this.createStatusWindow();
         this.createCommandWindow();
@@ -2035,7 +2035,7 @@ class Scene_Equip extends Scene_MenuBase {
     }
 
     onActorChange() {
-        Scene_MenuBase.prototype.onActorChange.call(this);
+        super.onActorChange();
         this.refreshActor();
         this.hideItemWindow();
         this._slotWindow.deselect();
@@ -2062,11 +2062,11 @@ class Scene_Status extends Scene_MenuBase {
     }
 
     initialize() {
-        Scene_MenuBase.prototype.initialize.call(this);
+        super.initialize();
     }
 
     create() {
-        Scene_MenuBase.prototype.create.call(this);
+        super.create();
         this.createProfileWindow();
         this.createStatusWindow();
         this.createStatusParamsWindow();
@@ -2149,7 +2149,7 @@ class Scene_Status extends Scene_MenuBase {
     }
 
     start() {
-        Scene_MenuBase.prototype.start.call(this);
+        super.start();
         this.refreshActor();
     }
 
@@ -2166,7 +2166,7 @@ class Scene_Status extends Scene_MenuBase {
     }
 
     onActorChange() {
-        Scene_MenuBase.prototype.onActorChange.call(this);
+        super.onActorChange();
         this.refreshActor();
         this._statusWindow.activate();
     }
@@ -2183,16 +2183,16 @@ class Scene_Options extends Scene_MenuBase {
     }
 
     initialize() {
-        Scene_MenuBase.prototype.initialize.call(this);
+        super.initialize();
     }
 
     create() {
-        Scene_MenuBase.prototype.create.call(this);
+        super.create();
         this.createOptionsWindow();
     }
 
     terminate() {
-        Scene_MenuBase.prototype.terminate.call(this);
+        super.terminate();
         ConfigManager.save();
     }
 
@@ -2233,11 +2233,11 @@ class Scene_File extends Scene_MenuBase {
     }
 
     initialize() {
-        Scene_MenuBase.prototype.initialize.call(this);
+        super.initialize();
     }
 
     create() {
-        Scene_MenuBase.prototype.create.call(this);
+        super.create();
         DataManager.loadAllSavefileImages();
         this.createHelpWindow();
         this.createListWindow();
@@ -2249,7 +2249,7 @@ class Scene_File extends Scene_MenuBase {
     }
 
     start() {
-        Scene_MenuBase.prototype.start.call(this);
+        super.start();
         this._listWindow.refresh();
     }
 
@@ -2330,7 +2330,7 @@ class Scene_Save extends Scene_File {
     }
 
     initialize() {
-        Scene_File.prototype.initialize.call(this);
+        super.initialize();
     }
 
     mode() {
@@ -2346,7 +2346,7 @@ class Scene_Save extends Scene_File {
     }
 
     onSavefileOk() {
-        Scene_File.prototype.onSavefileOk.call(this);
+        super.onSavefileOk();
         const savefileId = this.savefileId();
         if (this.isSavefileEnabled(savefileId)) {
             this.executeSave(savefileId);
@@ -2385,12 +2385,12 @@ class Scene_Load extends Scene_File {
     }
 
     initialize() {
-        Scene_File.prototype.initialize.call(this);
+        super.initialize();
         this._loadSuccess = false;
     }
 
     terminate() {
-        Scene_File.prototype.terminate.call(this);
+        super.terminate();
         if (this._loadSuccess) {
             $gameSystem.onAfterLoad();
         }
@@ -2409,7 +2409,7 @@ class Scene_Load extends Scene_File {
     }
 
     onSavefileOk() {
-        Scene_File.prototype.onSavefileOk.call(this);
+        super.onSavefileOk();
         const savefileId = this.savefileId();
         if (this.isSavefileEnabled(savefileId)) {
             this.executeLoad(savefileId);
@@ -2460,21 +2460,21 @@ class Scene_GameEnd extends Scene_MenuBase {
     }
 
     initialize() {
-        Scene_MenuBase.prototype.initialize.call(this);
+        super.initialize();
     }
 
     create() {
-        Scene_MenuBase.prototype.create.call(this);
+        super.create();
         this.createCommandWindow();
     }
 
     stop() {
-        Scene_MenuBase.prototype.stop.call(this);
+        super.stop();
         this._commandWindow.close();
     }
 
     createBackground() {
-        Scene_MenuBase.prototype.createBackground.call(this);
+        super.createBackground();
         this.setBackgroundOpacity(128);
     }
 
@@ -2512,7 +2512,7 @@ class Scene_Shop extends Scene_MenuBase {
     }
 
     initialize() {
-        Scene_MenuBase.prototype.initialize.call(this);
+        super.initialize();
     }
 
     prepare(goods, purchaseOnly) {
@@ -2522,7 +2522,7 @@ class Scene_Shop extends Scene_MenuBase {
     }
 
     create() {
-        Scene_MenuBase.prototype.create.call(this);
+        super.create();
         this.createHelpWindow();
         this.createGoldWindow();
         this.createCommandWindow();
@@ -2857,7 +2857,7 @@ class Scene_Name extends Scene_MenuBase {
     }
 
     initialize() {
-        Scene_MenuBase.prototype.initialize.call(this);
+        super.initialize();
     }
 
     prepare(actorId, maxLength) {
@@ -2866,14 +2866,14 @@ class Scene_Name extends Scene_MenuBase {
     }
 
     create() {
-        Scene_MenuBase.prototype.create.call(this);
+        super.create();
         this._actor = $gameActors.actor(this._actorId);
         this.createEditWindow();
         this.createInputWindow();
     }
 
     start() {
-        Scene_MenuBase.prototype.start.call(this);
+        super.start();
         this._editWindow.refresh();
     }
 
@@ -2927,11 +2927,11 @@ class Scene_Debug extends Scene_MenuBase {
     }
 
     initialize() {
-        Scene_MenuBase.prototype.initialize.call(this);
+        super.initialize();
     }
 
     create() {
-        Scene_MenuBase.prototype.create.call(this);
+        super.create();
         this.createRangeWindow();
         this.createEditWindow();
         this.createDebugHelpWindow();
@@ -3031,16 +3031,16 @@ class Scene_Battle extends Scene_Message {
     }
 
     initialize() {
-        Scene_Message.prototype.initialize.call(this);
+        super.initialize();
     }
 
     create() {
-        Scene_Message.prototype.create.call(this);
+        super.create();
         this.createDisplayObjects();
     }
 
     start() {
-        Scene_Message.prototype.start.call(this);
+        super.start();
         BattleManager.playBattleBgm();
         BattleManager.startBattle();
         this._statusWindow.refresh();
@@ -3055,7 +3055,7 @@ class Scene_Battle extends Scene_Message {
         if (active && !this.isBusy()) {
             this.updateBattleProcess();
         }
-        Scene_Message.prototype.update.call(this);
+        super.update();
     }
 
     updateVisibility() {
@@ -3102,7 +3102,7 @@ class Scene_Battle extends Scene_Message {
     }
 
     stop() {
-        Scene_Message.prototype.stop.call(this);
+        super.stop();
         if (this.needsSlowFadeOut()) {
             this.startFadeOut(this.slowFadeSpeed(), false);
         } else {
@@ -3114,7 +3114,7 @@ class Scene_Battle extends Scene_Message {
     }
 
     terminate() {
-        Scene_Message.prototype.terminate.call(this);
+        super.terminate();
         $gameParty.onBattleEnd();
         $gameTroop.onBattleEnd();
         AudioManager.stopMe();
@@ -3224,7 +3224,7 @@ class Scene_Battle extends Scene_Message {
         this.createItemWindow();
         this.createActorWindow();
         this.createEnemyWindow();
-        Scene_Message.prototype.createAllWindows.call(this);
+        super.createAllWindows();
     }
 
     createLogWindow() {
@@ -3610,17 +3610,17 @@ class Scene_Gameover extends Scene_Base {
     }
 
     initialize() {
-        Scene_Base.prototype.initialize.call(this);
+        super.initialize();
     }
 
     create() {
-        Scene_Base.prototype.create.call(this);
+        super.create();
         this.playGameoverMusic();
         this.createBackground();
     }
 
     start() {
-        Scene_Base.prototype.start.call(this);
+        super.start();
         this.adjustBackground();
         this.startFadeIn(this.slowFadeSpeed(), false);
     }
@@ -3629,16 +3629,16 @@ class Scene_Gameover extends Scene_Base {
         if (this.isActive() && !this.isBusy() && this.isTriggered()) {
             this.gotoTitle();
         }
-        Scene_Base.prototype.update.call(this);
+        super.update();
     }
 
     stop() {
-        Scene_Base.prototype.stop.call(this);
+        super.stop();
         this.fadeOutAll();
     }
 
     terminate() {
-        Scene_Base.prototype.terminate.call(this);
+        super.terminate();
         AudioManager.stopAll();
     }
 
