@@ -1,4 +1,4 @@
-// rmmz_windows.js v1.10.0
+// rmmz_windows.js v2.0.0
 
 /**
  * The superclass of all windows within the game.

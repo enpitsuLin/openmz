@@ -1,4 +1,4 @@
-// rmmz_sprites.js v1.10.0
+// rmmz_sprites.js v2.0.0
 
 /**
  * The sprite class with click handling functions.

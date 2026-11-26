@@ -1,4 +1,4 @@
-// rmmz_managers.js v1.10.0
+// rmmz_managers.js v2.0.0
 
 /**
  * The static class that manages the database and game objects.

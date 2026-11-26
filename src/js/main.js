@@ -1,4 +1,4 @@
-// main.js v1.10.0
+// main.js v2.0.0
 
 /** @type {string[]} */
 const scriptUrls = [

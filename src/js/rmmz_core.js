@@ -1,4 +1,4 @@
-// rmmz_core.js v1.10.0
+// rmmz_core.js v2.0.0
 
 /**
  * This section contains some methods that will be added to the standard

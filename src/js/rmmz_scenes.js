@@ -1,4 +1,4 @@
-// rmmz_scenes.js v1.10.0
+// rmmz_scenes.js v2.0.0
 
 /**
  * The superclass of all scenes within the game.
