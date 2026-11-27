@@ -5,7 +5,7 @@
  *
  * @param manifestUrl
  * @text Manifest URL
- * @desc URL of an OpenMZ schemaVersion 3 release manifest.
+ * @desc URL of an OpenMZ schemaVersion 1 release manifest.
  * @type string
  * @default
  *
@@ -25,7 +25,7 @@
  *
  * @param manifestUrl
  * @text 更新清单地址
- * @desc OpenMZ schemaVersion 3 发布清单的 URL。
+ * @desc OpenMZ schemaVersion 1 发布清单的 URL。
  * @type string
  * @default
  *

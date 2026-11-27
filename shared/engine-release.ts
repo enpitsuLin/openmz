@@ -1,7 +1,7 @@
 import type { Buffer } from 'node:buffer';
 
 export const runtimeFormat = 'prototype';
-export const manifestSchema = 3;
+export const manifestSchema = 1;
 export const statePath = 'js/openmz.json';
 export const coreScripts = [
   'main.js',

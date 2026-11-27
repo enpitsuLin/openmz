@@ -74,7 +74,7 @@ pnpm exec playwright install chromium
 
 ### 发布清单
 
-当前使用 `schemaVersion: 3`，不接受旧清单格式。
+首次发布的清单使用 `schemaVersion: 1`。
 
 | 字段 | 内容 |
 | --- | --- |

@@ -38,5 +38,5 @@ RPG Maker MZ 核心引擎：使用 TypeScript class 与 PixiJS 8 维护，构建
 5. 源码中的 `RmmzWindow`、`RmmzStorageManager` 在构建时恢复为 `Window`、`StorageManager`，类型别名仍可使用 `RMMZ.Window`、`RMMZ.StorageManager`。`GraphicsFPSCounter`、`TilemapLayer`、`TilemapCombinedLayer` 恢复为原有嵌套类。`Sprite_Name.actorName()` 和 `Window_NameEdit.inputName()` 恢复为 `name()`；其他类的 `actorName()` 保持原样。
 6. 插件兼容性以 `dist/runtime/` 为准。构建时让 `Sprite`、`TilingSprite`、`Window`、`Stage` 的 initialize 在现有 this 上执行 Pixi 父构造；普通 new 也必须只初始化一次。
 7. `main.ts` 只擦除类型，产物保留 `class Main`。其余引擎、PixiJS 和更新器的类转换为平铺的函数与原型定义，不为单个类创建 IIFE 或注入严格模式。Rolldown 命名空间外壳保留，strict 设为 false。保留原生 async/await、箭头函数、可选链、解构与迭代，不做 ES5 降级。
-8. 更新清单为 schemaVersion 3，格式为 prototype。版本记录在 js/openmz.json；更新器不得安装 TypeScript 源码或改写工程插件配置。
+8. 更新清单从 schemaVersion 1 开始，格式为 prototype。版本记录在 js/openmz.json；更新器不得安装 TypeScript 源码或改写工程插件配置。
 9. 不手改 dist，不维护第二份原型式源码。新增引擎语法时扩展转换与相关单元测试，并检查真实插件场景。
