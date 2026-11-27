@@ -188,9 +188,15 @@ importers:
       '@ast-grep/napi':
         specifier: ^0.51.3
         version: 0.51.3
+      '@types/node':
+        specifier: ^15.14.9
+        version: 15.14.9
+      '@types/nw.js':
+        specifier: ^0.13.21
+        version: 0.13.21
       '@vitest/browser-playwright':
         specifier: ^5.1.1
-        version: 5.1.1(playwright@1.65.1)(vite@8.3.8)(vitest@5.1.1)
+        version: 5.1.1(playwright@1.65.1)(vite@8.3.8(@types/node@15.14.9))(vitest@5.1.1)
       pixi.js:
         specifier: 8.23.0
         version: 8.23.0
@@ -205,7 +211,7 @@ importers:
         version: 6.0.3
       vitest:
         specifier: ^5.1.1
-        version: 5.1.1(@vitest/browser-playwright@5.1.1)(@vitest/ui@5.1.1)(vite@8.3.8)
+        version: 5.1.1(@types/node@15.14.9)(@vitest/browser-playwright@5.1.1)(@vitest/ui@5.1.1)(vite@8.3.8(@types/node@15.14.9))
 
 packages:
 
@@ -528,6 +534,12 @@ packages:
 
   '@types/estree@1.0.11':
     resolution: {integrity: sha512-YBdNe5JcjYR0sPhJW1QIeRCmI11YhYvaRuGCs9+WCeTTb+Yhb2BE2XMe5/wAqF10FK5g3+q1PDhQABfT7aX0gg==}
+
+  '@types/node@15.14.9':
+    resolution: {integrity: sha512-qjd88DrCxupx/kJD5yQgZdcYKZKSIGBVDIBE1/LTGcNm3d2Np/jxojkdePDdfnBHJc5W7vSMpbJ1aB7p/Py69A==}
+
+  '@types/nw.js@0.13.21':
+    resolution: {integrity: sha512-xeWmxlJxw2PMn585Otw/GgIYR8Go/rupZpxhewqoaMVaXZ4dT/wBl3OsIGSkedTYHMpz0GE0xWeh3gnisWFQyQ==}
 
   '@vitest/browser-playwright@5.1.1':
     resolution: {integrity: sha512-GYitBgjG7/+TkhkFXiPEYvEV1DtvwIVuFi5Jg0QUC6RK7Dt9pCMlI0W5WmKs8FFU7TBq3mc7VIg4oq6cDyzzgA==}
@@ -1116,30 +1128,36 @@ snapshots:
 
   '@types/estree@1.0.11': {}
 
-  '@vitest/browser-playwright@5.1.1(playwright@1.65.1)(vite@8.3.8)(vitest@5.1.1)':
+  '@types/node@15.14.9': {}
+
+  '@types/nw.js@0.13.21':
     dependencies:
-      '@vitest/browser': 5.1.1(vite@8.3.8)(vitest@5.1.1)
-      '@vitest/mocker': 5.1.1(vite@8.3.8)
+      '@types/node': 15.14.9
+
+  '@vitest/browser-playwright@5.1.1(playwright@1.65.1)(vite@8.3.8(@types/node@15.14.9))(vitest@5.1.1)':
+    dependencies:
+      '@vitest/browser': 5.1.1(vite@8.3.8(@types/node@15.14.9))(vitest@5.1.1)
+      '@vitest/mocker': 5.1.1(vite@8.3.8(@types/node@15.14.9))
       playwright: 1.65.1
       tinyrainbow: 3.2.0
-      vitest: 5.1.1(@vitest/browser-playwright@5.1.1)(@vitest/ui@5.1.1)(vite@8.3.8)
+      vitest: 5.1.1(@types/node@15.14.9)(@vitest/browser-playwright@5.1.1)(@vitest/ui@5.1.1)(vite@8.3.8(@types/node@15.14.9))
     transitivePeerDependencies:
       - bufferutil
       - msw
       - utf-8-validate
       - vite
 
-  '@vitest/browser@5.1.1(vite@8.3.8)(vitest@5.1.1)':
+  '@vitest/browser@5.1.1(vite@8.3.8(@types/node@15.14.9))(vitest@5.1.1)':
     dependencies:
       '@blazediff/core': 1.10.0
-      '@vitest/mocker': 5.1.1(vite@8.3.8)
+      '@vitest/mocker': 5.1.1(vite@8.3.8(@types/node@15.14.9))
       '@vitest/ui': 5.1.1(vitest@5.1.1)
       '@vitest/utils': 5.1.1
       magic-string: 1.4.5
       pngjs: 7.0.0
       sirv: 3.0.2
       tinyrainbow: 3.2.0
-      vitest: 5.1.1(@vitest/browser-playwright@5.1.1)(@vitest/ui@5.1.1)(vite@8.3.8)
+      vitest: 5.1.1(@types/node@15.14.9)(@vitest/browser-playwright@5.1.1)(@vitest/ui@5.1.1)(vite@8.3.8(@types/node@15.14.9))
       ws: 8.23.0
     transitivePeerDependencies:
       - bufferutil
@@ -1147,14 +1165,14 @@ snapshots:
       - utf-8-validate
       - vite
 
-  '@vitest/mocker@5.1.1(vite@8.3.8)':
+  '@vitest/mocker@5.1.1(vite@8.3.8(@types/node@15.14.9))':
     dependencies:
       '@jridgewell/trace-mapping': 0.3.31
       '@vitest/spy': 5.1.1
       estree-walker: 3.0.3
       magic-string: 1.4.5
     optionalDependencies:
-      vite: 8.3.8
+      vite: 8.3.8(@types/node@15.14.9)
 
   '@vitest/pretty-format@5.1.1':
     dependencies:
@@ -1170,7 +1188,7 @@ snapshots:
       pathe: 2.0.3
       sirv: 3.0.2
       tinyrainbow: 3.2.0
-      vitest: 5.1.1(@vitest/browser-playwright@5.1.1)(@vitest/ui@5.1.1)(vite@8.3.8)
+      vitest: 5.1.1(@types/node@15.14.9)(@vitest/browser-playwright@5.1.1)(@vitest/ui@5.1.1)(vite@8.3.8(@types/node@15.14.9))
 
   '@vitest/utils@5.1.1':
     dependencies:
@@ -1391,7 +1409,7 @@ snapshots:
 
   typescript@6.0.3: {}
 
-  vite@8.3.8:
+  vite@8.3.8(@types/node@15.14.9):
     dependencies:
       lightningcss: 1.33.0
       picomatch: 4.0.7
@@ -1399,12 +1417,13 @@ snapshots:
       rolldown: 1.2.19
       tinyglobby: 0.2.17
     optionalDependencies:
+      '@types/node': 15.14.9
       fsevents: 2.3.3
 
-  vitest@5.1.1(@vitest/browser-playwright@5.1.1)(@vitest/ui@5.1.1)(vite@8.3.8):
+  vitest@5.1.1(@types/node@15.14.9)(@vitest/browser-playwright@5.1.1)(@vitest/ui@5.1.1)(vite@8.3.8(@types/node@15.14.9)):
     dependencies:
       '@types/chai': 5.2.3
-      '@vitest/mocker': 5.1.1(vite@8.3.8)
+      '@vitest/mocker': 5.1.1(vite@8.3.8(@types/node@15.14.9))
       chai: 6.3.0
       es-module-lexer: 2.3.2
       expect-type: 1.4.0
@@ -1415,10 +1434,11 @@ snapshots:
       tinybench: 6.2.5
       tinyexec: 1.4.0
       tinyglobby: 0.2.17
-      vite: 8.3.8
+      vite: 8.3.8(@types/node@15.14.9)
       why-is-node-running: 3.2.1
     optionalDependencies:
-      '@vitest/browser-playwright': 5.1.1(playwright@1.65.1)(vite@8.3.8)(vitest@5.1.1)
+      '@types/node': 15.14.9
+      '@vitest/browser-playwright': 5.1.1(playwright@1.65.1)(vite@8.3.8(@types/node@15.14.9))(vitest@5.1.1)
       '@vitest/ui': 5.1.1(vitest@5.1.1)
     transitivePeerDependencies:
       - msw

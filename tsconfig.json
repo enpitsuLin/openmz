@@ -9,6 +9,8 @@
     "allowImportingTsExtensions": true,
     "strict": true,
     "types": [
+      "node",
+      "nw.js",
       "./types/env.d.ts",
       "typescript/lib/lib.es2021",
       "typescript/lib/lib.dom",
@@ -21,6 +23,7 @@
     "verbatimModuleSyntax": true,
     "skipLibCheck": true,
     "allowJs": true,
+    "checkJs": true,
     "noEmit": true
   },
   "include": [

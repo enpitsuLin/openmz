@@ -208,37 +208,6 @@ declare global {
     keys(): Promise<string[]>
   }
 
-  var nw: {
-    App: {
-      argv: string[]
-      quit(): void
-    }
-    Window: {
-      get(): {
-        on(event: 'close', listener: () => void): void
-        showDevTools(): void
-      }
-    }
-  }
-
-  var process: {
-    mainModule: { filename: string }
-  }
-
-  function require(id: 'fs'): {
-    existsSync(path: string): boolean
-    mkdirSync(path: string): void
-    renameSync(oldPath: string, newPath: string): void
-    unlinkSync(path: string): void
-    readFileSync(path: string, options: { encoding: 'utf8' }): string
-    writeFileSync(path: string, data: string): void
-  }
-
-  function require(id: 'path'): {
-    dirname(path: string): string
-    join(...paths: string[]): string
-  }
-
   interface Window {
     webkitAudioContext?: typeof AudioContext
   }
