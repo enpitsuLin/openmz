@@ -20,7 +20,7 @@ pnpm build
 
 将 `dist/runtime/js/` 的内容复制到 RPG Maker MZ 工程的 `js/` 目录。产物不包含 `plugins.js` 和 `plugins/`，工程原有的插件配置、数据库、素材和存档保持原样。
 
-`src/` 只维护引擎 TypeScript 源码、类型协议和 `lib/pixi.js` 打包入口。示例工程资源与插件样本位于 `tests/plugin-compat/fixtures/`；测试服务器会将它们与正式构建产物组合加载。
+`src/` 维护引擎 TypeScript 源码、类型协议和 `libs/` 下的运行库覆盖文件。浏览器兼容性测试使用 `tests/plugin-compat/fixtures/` 中的最小工程，包含一张可移动地图、一个角色、自制 PNG 和插件样本。测试服务器将夹具分别与原版运行时、正式构建产物组合加载。
 
 ## 构建方式
 
@@ -140,17 +140,17 @@ Oxlint 与 Oxfmt 的配置分别位于 `.oxlintrc.json`、`.oxfmtrc.json`。引�
 
 ## 目录
 
-| 路径                   | 内容                                                          |
-| ---------------------- | ------------------------------------------------------------- |
-| `src/`                 | TypeScript class 引擎源码、数据库协议及外部环境类型           |
-| `src/libs/`            | 第三方运行库的覆盖文件和 PixiJS npm 打包入口                  |
-| `scripts/`             | TypeScript 类型擦除、AST 转换、构建、发布和本地服务器         |
-| `shared/`              | 构建与更新器共用的发布协议                                    |
-| `plugins/`             | 按插件名分目录，包含各插件的入口与内部模块                    |
-| `tests/unit/`          | 引擎构建的 Node.js 单元测试                                   |
-| `tests/plugin-compat/` | 浏览器插件测试；`fixtures/` 存放示例工程资源、HTML 和插件样本 |
-| `vendor/js/`           | 原版 MZ 运行时参考，`libs/` 提供第三方运行库                  |
-| `dist/`                | 自动生成的运行时、插件和发布产物                              |
+| 路径                   | 内容                                                  |
+| ---------------------- | ----------------------------------------------------- |
+| `src/`                 | TypeScript class 引擎源码、数据库协议及外部环境类型   |
+| `src/libs/`            | 第三方运行库的覆盖文件和 PixiJS npm 打包入口          |
+| `scripts/`             | TypeScript 类型擦除、AST 转换、构建、发布和本地服务器 |
+| `shared/`              | 构建与更新器共用的发布协议                            |
+| `plugins/`             | 按插件名分目录，包含各插件的入口与内部模块            |
+| `tests/unit/`          | 引擎构建的 Node.js 单元测试                           |
+| `tests/plugin-compat/` | 浏览器插件测试；`fixtures/` 包含最小工程和插件样本    |
+| `vendor/js/`           | 原版 MZ 运行时参考，`libs/` 提供第三方运行库          |
+| `dist/`                | 自动生成的运行时、插件和发布产物                      |
 
 ## 许可证
 

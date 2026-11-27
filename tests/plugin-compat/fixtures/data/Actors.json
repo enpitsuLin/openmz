@@ -1,0 +1,20 @@
+[
+  null,
+  {
+    "id": 1,
+    "name": "Ari",
+    "nickname": "",
+    "profile": "",
+    "classId": 1,
+    "initialLevel": 1,
+    "maxLevel": 1,
+    "characterName": "$Fixture",
+    "characterIndex": 0,
+    "faceName": "Fixture",
+    "faceIndex": 0,
+    "battlerName": "",
+    "equips": [],
+    "traits": [],
+    "note": ""
+  }
+]
