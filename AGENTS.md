@@ -35,6 +35,6 @@ RPG Maker MZ 核心引擎：源码使用 ES6+ class 与 PixiJS 8；正式运行�
 4. JSDoc 引用 PixiJS 类型使用 `import("pixi.js").Type`，不使用值空间的 `PIXI.Type`。
 5. 源码中的 `Graphics.initialize`、`Graphics._createPixiApp`、`SceneManager.run/initialize/initGraphics` 为 async，构建保留原生异步语法。
 6. legacy 插件兼容性以 `dist/runtime/` 为准。构建时让 `Sprite`、`TilingSprite`、`Window`、`Stage` 的 initialize 在现有 this 上执行 Pixi 父构造；普通 new 也必须只初始化一次。
-7. 构建只转换类的定义与继承，保留 async/await、箭头函数、可选链等现代语法，不进行 ES5 降级。TypeScript 仅用于类型检查与声明生成。
+7. `main.js` 按源码直接输出，保留原版已有的 `class Main`。仅将 `rmmz_*.js`、PixiJS 和更新器的类转换为原型式定义，保留 async/await、箭头函数、可选链等现代语法，不进行 ES5 降级。TypeScript 仅用于类型检查与声明生成。
 8. 更新清单为 schemaVersion 3，格式为 prototype。版本记录在 js/openmz.json；更新器不得安装 class 源码或改写工程插件配置。
 9. 不手改 dist，不维护第二份原型式源码。新增引擎语法时扩展转换与相应单元测试，并检查真实插件场景。

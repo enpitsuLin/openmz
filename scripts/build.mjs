@@ -52,7 +52,7 @@ export async function buildRuntime({ outDir = runtimeDir, version } = {}) {
       if (path.endsWith('.js')) {
         let source = bytes.toString('utf8');
         if (path === 'js/rmmz_core.js') source = restorePixiInitializers(source);
-        if (!path.startsWith('js/libs/')) source = transformClasses(source, path);
+        if (path.startsWith('js/rmmz_')) source = transformClasses(source, path);
         content = source;
       } else {
         content = bytes;

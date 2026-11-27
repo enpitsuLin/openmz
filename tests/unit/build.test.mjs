@@ -185,7 +185,10 @@ test('builds a complete prototype runtime without syntax downleveling or TypeScr
   assert(!runtime.files.some(path => path.startsWith('js/plugins')));
   for (const file of runtime.files.filter(path => path.endsWith('.js'))) {
     const source = await readFile(join(runtime.outDir, file), 'utf8');
-    if (file.startsWith('js/libs/') && file !== 'js/libs/pixi.js') assertModernScript(source, file);
+    if (file === 'js/main.js') {
+      assertModernScript(source, file);
+      assert.equal(source, await readFile(new URL('../../src/js/main.js', import.meta.url), 'utf8'));
+    } else if (file.startsWith('js/libs/') && file !== 'js/libs/pixi.js') assertModernScript(source, file);
     else assertPrototypeScript(source, file);
   }
   assert.deepEqual(JSON.parse(await readFile(join(runtime.outDir, 'js/openmz.json'), 'utf8')), runtime.metadata);
