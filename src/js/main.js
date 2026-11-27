@@ -24,7 +24,7 @@ class Main {
         this.xhrSucceeded = false;
         /** @type {number} */
         this.loadCount = 0;
-        /** @type {unknown} */
+        /** @type {Error | null} */
         this.error = null;
     }
 
@@ -171,7 +171,7 @@ class Main {
     isPathRandomized() {
         return (
             typeof process === "object" &&
-            process.mainModule.filename.startsWith("/private/var")
+            /** @type {NodeModule} */ (process.mainModule).filename.startsWith("/private/var")
         );
     }
 

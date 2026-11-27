@@ -9,8 +9,8 @@ declare class Main {
     xhrSucceeded: boolean;
     /** @type {number} */
     loadCount: number;
-    /** @type {unknown} */
-    error: unknown;
+    /** @type {Error | null} */
+    error: Error | null;
     /** @returns {void} */
     run(): void;
     /** @returns {void} */

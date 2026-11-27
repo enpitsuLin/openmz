@@ -1001,7 +1001,7 @@ class StorageManager {
     /** @returns {string} */
     static fileDirectoryPath() {
         const path = require("path");
-        const base = path.dirname(process.mainModule.filename);
+        const base = path.dirname(/** @type {NodeModule} */ (process.mainModule).filename);
         return path.join(base, "save/");
     }
 
