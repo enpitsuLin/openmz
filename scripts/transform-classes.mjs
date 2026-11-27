@@ -76,13 +76,21 @@ function rewriteBody(body, context) {
   return visit(body);
 }
 
-function convertClass(node, filename) {
-  const binding = node.parent();
-  const inferredName = binding.kind() === 'variable_declarator' ? binding.field('name')
-    : binding.kind() === 'assignment_expression' ? binding.field('left') : null;
-  const name = node.field('name')?.text()
-    ?? (inferredName?.kind() === 'identifier' ? inferredName.text() : null);
-  if (!name) unsupported(node, 'Expected a class name or an identifier assignment', filename);
+function renameClassReferences(node, name, replacement) {
+  const edits = node.field('body').findAll({ rule: { any: [
+    { kind: 'identifier' },
+    { kind: 'shorthand_property_identifier' },
+    { kind: 'shorthand_property_identifier_pattern' },
+  ] } }).filter(reference => reference.text() === name).map(reference =>
+    reference.replace(reference.kind() === 'identifier' ? replacement : `${name}: ${replacement}`));
+  if (!edits.length) return node;
+  return parse(Lang.JavaScript, `(${node.commitEdits(edits)})`).root().find({ rule: { kind: 'class' } });
+}
+
+function convertClass(node, filename, { name, constructorName = name, displayName = constructorName, expression = false }) {
+  const constructorHead = expression
+    ? `const ${name} = function${constructorName ? ` ${constructorName}` : ''}`
+    : `function ${name}`;
   const heritage = node.children().find(child => child.kind() === 'class_heritage');
   const parent = heritage?.children().find(child => child.isNamed())?.text();
   const members = node.field('body').children().filter(child => child.isNamed());
@@ -119,7 +127,7 @@ function convertClass(node, filename) {
     needsSetSuper ||= context.needsSetSuper;
     const parameters = member.field('parameters').text();
     if (isConstructor) {
-      constructor = `${prefix}function ${name}${parameters} ${body}`;
+      constructor = `${prefix}${constructorHead}${parameters} ${body}${expression ? ';' : ''}`;
       continue;
     }
     const target = `${name}${isStatic ? '' : '.prototype'}`;
@@ -135,30 +143,59 @@ function convertClass(node, filename) {
   }
   if (!constructor) {
     const body = parent ? `return Object.getPrototypeOf(${name}).apply(this, arguments);` : '';
-    constructor = `function ${name}() { ${body} }`;
+    constructor = `${constructorHead}() { ${body} }${expression ? ';' : ''}`;
   }
   const output = [constructor];
+  if (expression && !constructorName) {
+    output.push(`Object.defineProperty(${name}, "name", { value: ${JSON.stringify(displayName)}, configurable: true });`);
+  }
   if (parent) {
     output.push(`${name}.prototype = Object.create(${parent}.prototype, {\n    constructor: { value: ${name}, writable: true, configurable: true }\n});\nObject.setPrototypeOf(${name}, ${parent});`);
   }
   output.push(...methods, ...fields, ...comments);
-  // Keep class strictness local: the engine also creates globals in sloppy script code.
-  const expression = `(function() {\n"use strict";\n\n${output.join('\n\n')}\n\nreturn ${name};\n})()`;
-  const text = node.kind() === 'class' ? expression : `var ${name} = ${expression};`;
-  return { text, needsSetSuper };
+  return { text: output.join('\n\n'), needsSetSuper };
 }
 
 export function transformClasses(source, filename = '<source>') {
   const root = parse(Lang.JavaScript, source).root();
   const classes = root.findAll({ rule: classRule });
+  const identifiers = new Set(root.findAll({ rule: { kind: 'identifier' } }).map(node => node.text()));
+  const stem = filename.split(/[\\/]/).pop().replace(/\.[^.]+$/, '').replace(/[^\w$]/g, '_');
+  let sequence = 0;
   let needsSetSuper = false;
   const edits = classes.map(node => {
     if (node.ancestors().some(ancestor => ancestor.kind() === 'class' || ancestor.kind() === 'class_declaration')) {
       unsupported(node, 'Nested classes are not used by the engine', filename);
     }
-    const result = convertClass(node, filename);
+    if (node.kind() === 'class_declaration') {
+      const result = convertClass(node, filename, { name: node.field('name').text() });
+      needsSetSuper ||= result.needsSetSuper;
+      return node.replace(result.text);
+    }
+    const binding = node.parent();
+    const statement = binding.parent();
+    const variable = binding.kind() === 'variable_declarator';
+    if (!(variable && ['variable_declaration', 'lexical_declaration'].includes(statement.kind()))
+      && !(binding.kind() === 'assignment_expression' && statement.kind() === 'expression_statement')) {
+      unsupported(node, 'Expected a standalone class assignment or variable declaration', filename);
+    }
+    if (variable && statement.children().filter(child => child.kind() === 'variable_declarator').length !== 1) {
+      unsupported(node, 'Expected one class variable per declaration', filename);
+    }
+    const originalName = node.field('name')?.text();
+    const target = binding.field(variable ? 'name' : 'left');
+    const displayName = originalName ?? (target.kind() === 'identifier' ? target.text() : null);
+    if (!displayName) unsupported(node, 'Expected a class name or an identifier assignment', filename);
+    let name;
+    do { name = `_openmz_${stem}_${++sequence}`; } while (identifiers.has(name));
+    identifiers.add(name);
+    const renamed = originalName ? renameClassReferences(node, originalName, name) : node;
+    const result = convertClass(renamed, filename, {
+      name, constructorName: originalName ?? '', displayName, expression: true,
+    });
     needsSetSuper ||= result.needsSetSuper;
-    return node.replace(result.text);
+    const assignment = statement.commitEdits([node.replace(name)]);
+    return statement.replace(`${result.text}\n\n${assignment}`);
   });
   const header = needsSetSuper ? `${setSuperHelper}\n\n` : '';
   return header + root.commitEdits(edits);

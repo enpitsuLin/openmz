@@ -23,11 +23,11 @@ pnpm build
 ## 构建方式
 
 1. Rolldown 从安装的 `pixi.js` 包生成浏览器全局 `PIXI`。
-2. ast-grep 将 `rmmz_*.js` 与 PixiJS 的 class 转换为函数、原型方法及属性描述符。`main.js` 按源码直接输出，保留 `class Main`，与原版引擎一致。
+2. ast-grep 将 `rmmz_*.js` 与 PixiJS 的 class 转换为平铺的函数、原型方法及属性描述符，不再为每个类生成 IIFE 或添加严格模式。类表达式使用唯一的内部绑定，保留构造函数名称和自身引用。`main.js` 按源码直接输出，保留 `class Main`，与原版引擎一致。
 3. 构建时将 `Sprite`、`TilingSprite`、`Window`、`Stage` 的 PixiJS 初始化移入 `initialize`。普通 `new` 与旧插件的 `initialize.call(this)` 都在同一个对象上初始化一次。
 4. 生成 `js/openmz.json`，记录引擎版本、PixiJS 版本及产物格式。单元测试检查原型结构、现代语法保留，以及没有引入 TypeScript 降级辅助函数。
 
-派生构造函数使用 `.call` / `.apply`，不通过 `Reflect.construct` 替换对象。方法可以枚举，访问器不可枚举。其余现代语法（包括 async/await、箭头函数、可选链、解构和迭代）保留原样，不进行 ES5 语法降级。TypeScript 仅用于类型检查与声明生成。
+派生构造函数使用 `.call` / `.apply`，不通过 `Reflect.construct` 替换对象。方法可以枚举，访问器不可枚举。转换后的函数采用原版原型式引擎的非严格模式语义。Rolldown 保留 PixiJS 与更新器的命名空间外壳，并关闭严格模式指令输出。其余现代语法（包括 async/await、箭头函数、可选链、解构和迭代）保留原样，不进行 ES5 语法降级。TypeScript 仅用于类型检查与声明生成。
 
 ## 测试
 

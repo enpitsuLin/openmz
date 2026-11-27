@@ -35,6 +35,11 @@ function assertModernScript(source, filename) {
 function assertPrototypeScript(source, filename) {
   const root = assertModernScript(source, filename);
   assert.equal(root.findAll({ rule: { any: [{ kind: 'class_declaration' }, { kind: 'class' }] } }).length, 0, filename);
+  const strictDirectives = root.findAll({ rule: { kind: 'expression_statement' } }).filter(statement => {
+    const text = statement.children().find(node => node.kind() === 'string')?.text();
+    return text === '"use strict"' || text === "'use strict'";
+  });
+  assert.equal(strictDirectives.length, 0, `${filename}: unexpected strict mode`);
 }
 
 test('preserves super receivers, static fields, lexical this and native async plugin hooks', async () => {
@@ -96,18 +101,23 @@ test('preserves the real string formatter in the runtime', async () => {
   assert.equal(result, 'Map7.json');
 });
 
-test('keeps class strictness local to allow classic-script global initialization', () => {
-  const { engineGlobal, Example } = load(`
+test('emits flat functions with legacy non-strict global assignment behavior', () => {
+  const source = `
     engineGlobal = null;
     class Example {
       constructor(...args) { this.args = args; }
-      assign() { missingClassGlobal = true; }
+      assign() { legacyClassGlobal = true; }
     }
     globalThis.Example = Example;
-  `);
-  assert.equal(engineGlobal, null);
-  assert.equal(new Example(1).args[0], 1);
-  assert.throws(() => new Example().assign(), /missingClassGlobal is not defined/);
+  `;
+  const transformed = transformClasses(source);
+  const declarations = parseAst(Lang.JavaScript, transformed).root().children();
+  assert(declarations.some(node => node.kind() === 'function_declaration' && node.field('name').text() === 'Example'));
+  const context = load(source);
+  assert.equal(context.engineGlobal, null);
+  assert.equal(new context.Example(1).args[0], 1);
+  new context.Example().assign();
+  assert.equal(context.legacyClassGlobal, true);
 });
 
 test('handles anonymous classes and implicit constructors on an existing receiver', () => {
@@ -125,20 +135,45 @@ test('handles anonymous classes and implicit constructors on an existing receive
   assert.equal(item.value, 9);
   assert.equal(item.owner(), item);
   assert(item instanceof Base && item instanceof Child && item instanceof Leaf);
+  assert.equal(Base.name, 'Base');
+  assert.equal(Child.name, 'Child');
+  assert.equal(Leaf.name, 'Leaf');
   assert.equal(new Leaf().value, 3);
 });
 
-test('keeps named class expressions local', () => {
-  const { holder, Layer } = load(`
+test('flattens named class expressions with distinct internal bindings', () => {
+  const source = `
+    const Layer = 'outer';
     const holder = {};
     holder.Layer = class Layer {
       static SIZE = 16;
       constructor() { this.size = Layer.SIZE; }
+      reference() { return Layer; }
+      record() { return { Layer }; }
+    };
+    holder.Other = class Layer {
+      static SIZE = 32;
+      constructor() { this.size = Layer.SIZE; }
     };
     globalThis.holder = holder;
-  `);
-  assert.equal(Layer, undefined);
-  assert.equal(new holder.Layer().size, 16);
+    globalThis.outerLayer = Layer;
+  `;
+  const transformed = transformClasses(source);
+  const functions = parseAst(Lang.JavaScript, transformed).root().findAll({ rule: { kind: 'variable_declarator' } })
+    .filter(node => node.field('value')?.kind() === 'function_expression');
+  assert.equal(functions.length, 2);
+  const context = load(source);
+  assert.equal(context.Layer, undefined);
+  assert.equal(context.outerLayer, 'outer');
+  const { holder } = context;
+  const Original = holder.Layer;
+  const instance = new Original();
+  assert.equal(instance.size, 16);
+  assert.equal(new holder.Other().size, 32);
+  assert.equal(instance.constructor.name, 'Layer');
+  holder.Layer = function Replacement() {};
+  assert.equal(instance.reference(), Original);
+  assert.equal(instance.record().Layer, Original);
 });
 
 test('initializes Pixi state exactly once through new and legacy initialize calls', () => {

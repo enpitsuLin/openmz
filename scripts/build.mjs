@@ -21,7 +21,7 @@ export function resolveVersion(version = packageInfo.version) {
 async function bundleScript(input, output = {}) {
   const bundle = await rolldown({ input: join(projectRoot, input), platform: 'browser' });
   try {
-    const result = await bundle.generate({ format: 'iife', codeSplitting: false, ...output });
+    const result = await bundle.generate({ format: 'iife', codeSplitting: false, strict: false, ...output });
     return result.output[0].code;
   } finally {
     await bundle.close();
