@@ -2,11 +2,10 @@ import assert from 'node:assert/strict';
 import { mkdtemp, readFile, rm } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
-import { runInNewContext } from 'node:vm';
+import { runInNewContext, Script } from 'node:vm';
 import { afterAll, beforeAll, test } from 'vitest';
-import { parse } from 'acorn';
 import { Lang, parse as parseAst } from '@ast-grep/napi';
-import { buildRuntime, buildUpdater, compileES5 } from '../../scripts/build.mjs';
+import { buildRuntime, buildUpdater } from '../../scripts/build.mjs';
 import { restorePixiInitializers, transformClasses } from '../../scripts/transform-classes.mjs';
 
 const root = await mkdtemp(join(tmpdir(), 'openmz-build-'));
@@ -20,15 +19,25 @@ afterAll(() => rm(root, { recursive: true, force: true }));
 
 function load(source, globals = {}, transform = true) {
   const context = { ...globals };
-  runInNewContext(transform ? compileES5(transformClasses(source), 'fixture.js') : source, context);
+  runInNewContext(transform ? transformClasses(source) : source, context);
   return context;
 }
 
-function assertES5(source, filename) {
-  assert.doesNotThrow(() => parse(source, { ecmaVersion: 5, sourceType: 'script' }), filename);
+function assertModernScript(source, filename) {
+  new Script(source, { filename });
+  const root = parseAst(Lang.JavaScript, source).root();
+  assert.equal(root.findAll({ rule: {
+    kind: 'identifier', regex: '^__(awaiter|generator|values|read|spreadArray)$',
+  } }).length, 0, `${filename}: unexpected TypeScript helpers`);
+  return root;
 }
 
-test('preserves super receivers, static fields, lexical this and plugin hooks after ES5 compilation', async () => {
+function assertPrototypeScript(source, filename) {
+  const root = assertModernScript(source, filename);
+  assert.equal(root.findAll({ rule: { any: [{ kind: 'class_declaration' }, { kind: 'class' }] } }).length, 0, filename);
+}
+
+test('preserves super receivers, static fields, lexical this and native async plugin hooks', async () => {
   const source = `
     class Base {
       static LIMIT = 10;
@@ -71,6 +80,8 @@ test('preserves super receivers, static fields, lexical this and plugin hooks af
     Base.prototype.describe = function() { return this.value + 10; };
     assert.equal(item.describe(), 32);
     assert.equal(await Leaf.label(), 22);
+    assert.equal(Child.label.constructor.name, 'AsyncFunction');
+    assert.match(item.arrow.toString(), /=>/);
     const accessor = Object.getOwnPropertyDescriptor(Child.prototype, 'score');
     assert.equal(typeof accessor.get, 'function');
     assert.equal(typeof accessor.set, 'function');
@@ -78,10 +89,10 @@ test('preserves super receivers, static fields, lexical this and plugin hooks af
   }
 });
 
-test('preserves the real string formatter when lowering arrow functions', async () => {
-  const source = await readFile(new URL('../../src/js/rmmz_core.js', import.meta.url), 'utf8');
+test('preserves the real string formatter in the runtime', async () => {
+  const source = await readFile(join(runtime.outDir, 'js/rmmz_core.js'), 'utf8');
   const assignment = parseAst(Lang.JavaScript, source).root().find('String.prototype.format = $FN');
-  const result = runInNewContext(`${compileES5(assignment.text(), 'format.js')}\n"Map%1.json".format(7);`, {});
+  const result = runInNewContext(`${assignment.text()};\n"Map%1.json".format(7);`, {});
   assert.equal(result, 'Map7.json');
 });
 
@@ -167,22 +178,24 @@ test('initializes Pixi state exactly once through new and legacy initialize call
   assert.equal(legacy.bitmap, 'legacy');
 });
 
-test('builds a complete ES5 runtime with callable Pixi classes and version metadata', async () => {
+test('builds a complete prototype runtime without syntax downleveling or TypeScript helpers', async () => {
   assert(runtime.files.includes('js/libs/pixi.js'));
   assert(runtime.files.includes('js/libs/effekseer.wasm'));
   assert(runtime.files.includes('js/openmz.json'));
   assert(!runtime.files.some(path => path.startsWith('js/plugins')));
   for (const file of runtime.files.filter(path => path.endsWith('.js'))) {
-    assertES5(await readFile(join(runtime.outDir, file), 'utf8'), file);
+    const source = await readFile(join(runtime.outDir, file), 'utf8');
+    if (file.startsWith('js/libs/') && file !== 'js/libs/pixi.js') assertModernScript(source, file);
+    else assertPrototypeScript(source, file);
   }
   assert.deepEqual(JSON.parse(await readFile(join(runtime.outDir, 'js/openmz.json'), 'utf8')), runtime.metadata);
   assert.equal(runtime.metadata.version, '1.2.3');
-  assert.equal(runtime.metadata.format, 'es5-prototype');
+  assert.equal(runtime.metadata.format, 'prototype');
 });
 
-test('builds a standalone ES5 updater that is inert outside RPG Maker', async () => {
+test('builds a standalone prototype updater that is inert outside RPG Maker', async () => {
   const source = await readFile(updater, 'utf8');
   assert.match(source, /@param manifestUrl/);
-  assertES5(source, 'OpenMzUpdater.js');
+  assertPrototypeScript(source, 'OpenMzUpdater.js');
   assert.doesNotThrow(() => runInNewContext(source, {}));
 });

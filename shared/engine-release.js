@@ -1,4 +1,4 @@
-export const runtimeFormat = 'es5-prototype';
+export const runtimeFormat = 'prototype';
 export const manifestSchema = 3;
 export const statePath = 'js/openmz.json';
 export const coreScripts = [

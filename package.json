@@ -1,7 +1,7 @@
 {
   "name": "openmz",
   "version": "2.0.0-rc.0",
-  "description": "RPG Maker MZ engine with ES6 class sources and an ES5 prototype runtime.",
+  "description": "RPG Maker MZ engine with ES6 class sources and a prototype-based runtime.",
   "main": "index.js",
   "scripts": {
     "build": "node scripts/build.mjs",
@@ -24,7 +24,6 @@
     "@types/node": "^15.14.9",
     "@types/nw.js": "^0.13.21",
     "@vitest/browser-playwright": "^5.1.1",
-    "acorn": "^8.19.0",
     "pixi.js": "8.23.0",
     "playwright": "^1.65.1",
     "rolldown": "^1.3.3",

@@ -2,7 +2,6 @@ import { mkdir, readdir, readFile, writeFile } from 'node:fs/promises';
 import { dirname, join } from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
 import { rolldown } from 'rolldown';
-import ts from 'typescript';
 import { coreScripts, isVersion, runtimeFormat, statePath } from '../shared/engine-release.js';
 import { restorePixiInitializers, transformClasses } from './transform-classes.mjs';
 
@@ -17,29 +16,6 @@ export function resolveVersion(version = packageInfo.version) {
   const value = version.replace(/^v/, '');
   if (!isVersion(value)) throw new Error(`Invalid release version: ${version}`);
   return value;
-}
-
-export function compileES5(source, filename) {
-  const result = ts.transpileModule(source, {
-    // Treat NW.js require() calls as ordinary globals, not CommonJS module indicators.
-    fileName: filename.replace(/\.js$/, '.ts'),
-    reportDiagnostics: true,
-    compilerOptions: {
-      target: ts.ScriptTarget.ES5,
-      module: ts.ModuleKind.CommonJS,
-      moduleDetection: ts.ModuleDetectionKind.Legacy,
-      alwaysStrict: false,
-      allowJs: true,
-      downlevelIteration: true,
-      newLine: ts.NewLineKind.LineFeed,
-      ignoreDeprecations: '6.0',
-    },
-  });
-  const errors = result.diagnostics.filter(item => item.category === ts.DiagnosticCategory.Error);
-  if (errors.length) {
-    throw new Error(`${filename}: ${errors.map(item => ts.flattenDiagnosticMessageText(item.messageText, '\n')).join('\n')}`);
-  }
-  return result.outputText;
 }
 
 async function bundleScript(input, output = {}) {
@@ -70,14 +46,14 @@ export async function buildRuntime({ outDir = runtimeDir, version } = {}) {
     if (path === statePath) {
       content = `${JSON.stringify(metadata, null, 2)}\n`;
     } else if (path === 'js/libs/pixi.js') {
-      content = compileES5(transformClasses(pixi, path), path);
+      content = transformClasses(pixi, path);
     } else {
       const bytes = await readFile(join(projectRoot, 'src', path));
       if (path.endsWith('.js')) {
         let source = bytes.toString('utf8');
         if (path === 'js/rmmz_core.js') source = restorePixiInitializers(source);
         if (!path.startsWith('js/libs/')) source = transformClasses(source, path);
-        content = compileES5(source, path);
+        content = source;
       } else {
         content = bytes;
       }
@@ -95,7 +71,7 @@ export async function buildUpdater({ outDir = pluginDir } = {}) {
   const source = await bundleScript('plugins/OpenMzUpdater.js');
   const file = join(outDir, 'OpenMzUpdater.js');
   await mkdir(outDir, { recursive: true });
-  await writeFile(file, header + compileES5(source, 'OpenMzUpdater.js'));
+  await writeFile(file, header + transformClasses(source, 'OpenMzUpdater.js'));
   return file;
 }
 

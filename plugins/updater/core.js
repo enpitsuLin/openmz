@@ -83,7 +83,7 @@ const parseManifest = ({ buffer, redirectChain }) => {
     }
     const { name, version, format, pixiVersion, archive } = manifest;
     if (name !== 'OpenMZ' || !isVersion(version) || !isVersion(pixiVersion) || format !== runtimeFormat) {
-        throw new Error('Manifest must describe an OpenMZ ES5 prototype runtime and its PixiJS version.');
+        throw new Error('Manifest must describe an OpenMZ prototype runtime and its PixiJS version.');
     }
     if (!archive || typeof archive.url !== "string" || !archive.url.trim()) {
         throw new Error("Manifest requires an archive URL.");

@@ -1,6 +1,6 @@
 /*:
  * @target MZ
- * @plugindesc Check for OpenMZ updates and install the ES5 prototype runtime.
+ * @plugindesc Check for OpenMZ updates and install the prototype runtime.
  * @author OpenMZ
  *
  * @param manifestUrl
@@ -20,7 +20,7 @@
  */
 /*:zh
  * @target MZ
- * @plugindesc 检查 OpenMZ 更新并安装 ES5 原型式引擎和 PixiJS 8。
+ * @plugindesc 检查 OpenMZ 更新并安装原型式引擎和 PixiJS 8。
  * @author OpenMZ
  *
  * @param manifestUrl

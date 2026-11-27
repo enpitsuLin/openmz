@@ -1,6 +1,6 @@
 # OpenMZ
 
-用 ES6 class 维护的 RPG Maker MZ 引擎核心。构建时生成 ES5 语法的原型式引擎与 PixiJS 8，使既有插件能够通过 `prototype`、`.call(this)` 和 `initialize` 扩展引擎。
+用 ES6 class 维护的 RPG Maker MZ 引擎核心。构建时生成原型式引擎与 PixiJS 8，使既有插件能够通过 `prototype`、`.call(this)` 和 `initialize` 扩展引擎。
 
 ## 构建与使用
 
@@ -25,10 +25,9 @@ pnpm build
 1. Rolldown 从安装的 `pixi.js` 包生成浏览器全局 `PIXI`。
 2. ast-grep 将引擎与 PixiJS 的 class 转换为函数、原型方法及属性描述符。
 3. 构建时将 `Sprite`、`TilingSprite`、`Window`、`Stage` 的 PixiJS 初始化移入 `initialize`。普通 `new` 与旧插件的 `initialize.call(this)` 都在同一个对象上初始化一次。
-4. TypeScript 将箭头函数、可选链、解构、async 等其余语法降级为 ES5。
-5. 生成 `js/openmz.json`，记录引擎版本、PixiJS 版本及产物格式。单元测试使用 Acorn 按 ES5 语法解析全部发布脚本。
+4. 生成 `js/openmz.json`，记录引擎版本、PixiJS 版本及产物格式。单元测试检查原型结构、现代语法保留，以及没有引入 TypeScript 降级辅助函数。
 
-派生构造函数使用 `.call` / `.apply`，不通过 `Reflect.construct` 替换对象。方法可以枚举，访问器不可枚举。ES5 指输出语法；运行环境仍需要 PixiJS 8 使用的现代浏览器 API。
+派生构造函数使用 `.call` / `.apply`，不通过 `Reflect.construct` 替换对象。方法可以枚举，访问器不可枚举。其余现代语法（包括 async/await、箭头函数、可选链、解构和迭代）保留原样，不进行 ES5 语法降级。TypeScript 仅用于类型检查与声明生成。
 
 ## 测试
 
@@ -36,7 +35,7 @@ Vitest 包含两个项目：
 
 | 项目 | 环境 | 范围 |
 | --- | --- | --- |
-| `unit` | Node.js | AST 转换、ES5 构建、版本检查、发布包、安装及回滚 |
+| `unit` | Node.js | AST 转换、原型式构建、版本检查、发布包、安装及回滚 |
 | `plugin-compat` | Playwright Chromium | 对照原版 MZ 与正式产物测试插件、窗口、场景、精灵和渲染 |
 
 ```sh
@@ -78,7 +77,7 @@ pnpm exec playwright install chromium
 | --- | --- |
 | `name` | `OpenMZ` |
 | `version` | 引擎语义版本 |
-| `format` | `es5-prototype` |
+| `format` | `prototype` |
 | `pixiVersion` | 打包的 PixiJS 版本 |
 | `archive.url` | 核心 `tar.gz` 地址，可使用相对路径 |
 | `archive.size` | 压缩包字节数，必填 |
