@@ -13,6 +13,7 @@ import { manifestSchema } from '../shared/engine-release.ts';
 import {
   buildRuntime,
   buildUpdater,
+  formatOutput,
   projectRoot,
   resolveVersion,
 } from './build.ts';
@@ -101,7 +102,10 @@ export async function buildRelease({
   ]);
   await writeFile(
     join(outDir, 'manifest.json'),
-    `${JSON.stringify(manifest, null, 2)}\n`,
+    await formatOutput(
+      'manifest.json',
+      `${JSON.stringify(manifest, null, 2)}\n`,
+    ),
   );
   return { manifest, includedFiles };
 }

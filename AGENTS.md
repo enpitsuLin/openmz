@@ -39,8 +39,8 @@ RPG Maker MZ 核心引擎：使用 TypeScript class 与 PixiJS 8 维护，构建
 4. 数据类型在 `RMMZ` 命名空间。外部环境声明只连接宿主与第三方库。PixiJS 类型使用 `import("pixi.js").Type`。
 5. 源码中的 `RmmzWindow`、`RmmzStorageManager` 在构建时恢复为 `Window`、`StorageManager`，类型别名仍可使用 `RMMZ.Window`、`RMMZ.StorageManager`。`GraphicsFPSCounter`、`TilemapLayer`、`TilemapCombinedLayer` 恢复为原有嵌套类。`Sprite_Name.actorName()` 和 `Window_NameEdit.inputName()` 恢复为 `name()`；其他类的 `actorName()` 保持原样。
 6. 插件兼容性以 `dist/runtime/` 为准。构建时让 `Sprite`、`TilingSprite`、`Window`、`Stage` 的 initialize 在现有 this 上执行 Pixi 父构造；普通 new 也必须只初始化一次。
-7. `main.ts` 只擦除类型，产物保留 `class Main`。其余引擎、PixiJS 和更新器的类转换为平铺的函数与原型定义，不为单个类创建 IIFE 或注入严格模式。Rolldown 命名空间外壳保留，strict 设为 false。保留原生 async/await、箭头函数、可选链、解构与迭代，不做 ES5 降级。
+7. `main.ts` 擦除类型后保留 `class Main`，与其他文本产物一起统一格式化。其余引擎、PixiJS 和更新器的类转换为平铺的函数与原型定义，不为单个类创建 IIFE 或注入严格模式。Rolldown 命名空间外壳保留，strict 设为 false。保留原生 async/await、箭头函数、可选链、解构与迭代，不做 ES5 降级。
 8. 更新清单从 schemaVersion 1 开始，格式为 prototype。版本记录在 js/openmz.json；更新器不得安装 TypeScript 源码或改写工程插件配置。
 9. 不手改 dist，不维护第二份原型式源码。新增引擎语法时扩展转换与相关单元测试，并检查真实插件场景。
-10. 使用 Oxlint 与 Oxfmt，不再临时运行 Prettier。引擎源码保留四空格、双引号；工具代码保留双空格、单引号。vendor、兼容性夹具与生成产物不参与格式化。
+10. 使用 Oxlint 与 Oxfmt，不再临时运行 Prettier。引擎源码保留四空格、双引号；工具代码保留双空格、单引号。vendor、兼容性夹具与生成目录不参与 CLI 格式化；构建通过 Oxfmt API 按基础配置并使用 printWidth 120 格式化文本产物，WASM 按字节复制。
 11. Oxlint 对引擎大写全局声明保留跨文件引用例外，局部未用变量继续由 TypeScript 检查。事件脚本的 eval、文本控制码正则和祖先遍历中的 this 游标是明确允许的引擎机制。

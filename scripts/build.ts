@@ -9,6 +9,8 @@ import { mkdir, readdir, readFile, writeFile } from 'node:fs/promises';
 import { dirname, join } from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
 import { rolldown } from 'rolldown';
+import { format } from 'oxfmt';
+import formatOptions from '../.oxfmtrc.json' with { type: 'json' };
 import {
   coreScripts,
   isVersion,
@@ -24,6 +26,7 @@ import {
 export const projectRoot = fileURLToPath(new URL('../', import.meta.url));
 export const runtimeDir = join(projectRoot, 'dist/runtime');
 export const pluginDir = join(projectRoot, 'dist/plugins');
+export const outputFormatOptions = { ...formatOptions, printWidth: 120 };
 const engineDir = join(projectRoot, 'src');
 const libraryDir = join(projectRoot, 'vendor/libs');
 const packageInfo: { version: string } = JSON.parse(
@@ -58,6 +61,16 @@ async function bundleScript(input: string, output: OutputOptions = {}) {
   } finally {
     await bundle.close();
   }
+}
+
+export async function formatOutput(filename: string, source: string) {
+  const { code, errors } = await format(filename, source, outputFormatOptions);
+  if (errors.length) {
+    throw new Error(
+      `Failed to format ${filename}: ${errors.map((error) => error.message).join('; ')}`,
+    );
+  }
+  return code;
 }
 
 export async function buildRuntime({
@@ -111,6 +124,9 @@ export async function buildRuntime({
           content = bytes;
         }
       }
+      if (typeof content === 'string') {
+        content = await formatOutput(path, content);
+      }
       const target = join(outDir, path);
       await mkdir(dirname(target), { recursive: true });
       await writeFile(target, content);
@@ -130,7 +146,13 @@ export async function buildUpdater({
   const source = await bundleScript('plugins/OpenMzUpdater.ts');
   const file = join(outDir, 'OpenMzUpdater.js');
   await mkdir(outDir, { recursive: true });
-  await writeFile(file, header + transformClasses(source, 'OpenMzUpdater.js'));
+  await writeFile(
+    file,
+    await formatOutput(
+      file,
+      header + transformClasses(source, 'OpenMzUpdater.js'),
+    ),
+  );
   return file;
 }
 

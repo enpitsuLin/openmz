@@ -6,7 +6,12 @@ import { join } from 'node:path';
 import { runInNewContext, Script } from 'node:vm';
 import { afterAll, beforeAll, test } from 'vitest';
 import { Lang, parse as parseAst } from '@ast-grep/napi';
-import { buildRuntime, buildUpdater } from '../../scripts/build.ts';
+import { format } from 'oxfmt';
+import {
+  buildRuntime,
+  buildUpdater,
+  outputFormatOptions,
+} from '../../scripts/build.ts';
 import {
   restorePixiInitializers,
   transformClasses,
@@ -312,6 +317,9 @@ test('builds a complete prototype runtime without syntax downleveling or TypeScr
   assert(!runtime.files.some((path) => path.startsWith('js/plugins')));
   for (const file of runtime.files.filter((path) => path.endsWith('.js'))) {
     const source = await readFile(join(runtime.outDir, file), 'utf8');
+    const formatted = await format(file, source, outputFormatOptions);
+    assert.deepEqual(formatted.errors, []);
+    assert.equal(source, formatted.code, `${file}: output is not formatted`);
     if (file === 'js/libs/pixi.js') {
       assert(
         source.startsWith(`/*! PixiJS v${runtime.metadata.pixiVersion} |`),
@@ -340,9 +348,18 @@ test('builds a complete prototype runtime without syntax downleveling or TypeScr
       );
       assert.equal(
         source,
-        emitEngineSource(
-          await readFile(new URL('../../src/main.ts', import.meta.url), 'utf8'),
-        ),
+        (
+          await format(
+            file,
+            emitEngineSource(
+              await readFile(
+                new URL('../../src/main.ts', import.meta.url),
+                'utf8',
+              ),
+            ),
+            outputFormatOptions,
+          )
+        ).code,
       );
     } else if (file.startsWith('js/libs/') && file !== 'js/libs/pixi.js')
       assertModernScript(source, file);
@@ -358,6 +375,9 @@ test('builds a complete prototype runtime without syntax downleveling or TypeScr
 
 test('builds a standalone prototype updater that is inert outside RPG Maker', async () => {
   const source = await readFile(updater, 'utf8');
+  const formatted = await format(updater, source, outputFormatOptions);
+  assert.deepEqual(formatted.errors, []);
+  assert.equal(source, formatted.code);
   assert.match(source, /@param manifestUrl/);
   assertPrototypeScript(source, 'OpenMzUpdater.js');
   assert.doesNotThrow(() => runInNewContext(source, {}));
