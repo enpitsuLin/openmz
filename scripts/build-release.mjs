@@ -1,30 +1,14 @@
 import { createHash } from 'node:crypto';
-import { copyFile, mkdir, readdir, readFile, writeFile } from 'node:fs/promises';
+import { mkdir, readFile, writeFile } from 'node:fs/promises';
 import { join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { gzipSync } from 'node:zlib';
+import { manifestSchema } from '../shared/engine-release.js';
+import { buildRuntime, buildUpdater, projectRoot, resolveVersion } from './build.mjs';
 
-const projectRoot = fileURLToPath(new URL('../', import.meta.url));
 const blockSize = 512;
-const semver = /^(0|[1-9]\d*)\.(0|[1-9]\d*)\.(0|[1-9]\d*)(?:-(?:0|[1-9]\d*|\d*[a-z-][\da-z-]*)(?:\.(?:0|[1-9]\d*|\d*[a-z-][\da-z-]*))*)?(?:\+[\da-z-]+(?:\.[\da-z-]+)*)?$/i;
 
 export const defaultReleaseDir = join(projectRoot, 'dist/release');
-
-async function collectFiles(sourceDir, relativeDir = 'js') {
-  const files = [];
-  for (const entry of await readdir(join(sourceDir, relativeDir), { withFileTypes: true })) {
-    const path = `${relativeDir}/${entry.name}`;
-    if (entry.name.startsWith('.') || /^js\/plugins(?:\.js)?$/i.test(path)) {
-      continue;
-    }
-    if (entry.isDirectory()) {
-      files.push(...await collectFiles(sourceDir, path));
-    } else if (entry.isFile()) {
-      files.push(path);
-    }
-  }
-  return files;
-}
 
 function createTarHeader(name, size, type) {
   const header = Buffer.alloc(blockSize);
@@ -66,28 +50,19 @@ export function createTarBuffer(entries) {
   return Buffer.concat([...chunks, Buffer.alloc(2 * blockSize)]);
 }
 
-export async function buildRelease({ outDir = defaultReleaseDir, version } = {}) {
-  const packageInfo = JSON.parse(await readFile(join(projectRoot, 'package.json'), 'utf8'));
-  const releaseVersion = (version ?? process.env.RELEASE_TAG ?? process.env.GITHUB_REF_NAME ?? packageInfo.version)
-    .replace(/^v/, '');
-  if (!semver.test(releaseVersion)) {
-    throw new Error(`Invalid release version: ${releaseVersion}`);
-  }
-
-  const sourceDir = join(projectRoot, 'src');
-  const includedFiles = (await collectFiles(sourceDir)).sort();
-  if (!includedFiles.length) {
-    throw new Error('No core engine files found in src/js/.');
-  }
-  const entries = await Promise.all(includedFiles.map(async (relativePath) => ({
+export async function buildRelease({ outDir = defaultReleaseDir, version, runtime } = {}) {
+  const releaseVersion = resolveVersion(version ?? runtime?.metadata.version ?? process.env.RELEASE_TAG ?? process.env.GITHUB_REF_NAME);
+  const built = runtime ?? await buildRuntime({ version: releaseVersion });
+  if (built.metadata.version !== releaseVersion) throw new Error('Runtime and release versions must match.');
+  const includedFiles = built.files;
+  const entries = await Promise.all(includedFiles.map(async relativePath => ({
     relativePath,
-    content: await readFile(join(sourceDir, relativePath)),
+    content: await readFile(join(built.outDir, relativePath)),
   })));
   const archive = gzipSync(createTarBuffer(entries), { level: 9 });
   const manifest = {
-    schemaVersion: 2,
-    name: 'OpenMZ',
-    version: releaseVersion,
+    schemaVersion: manifestSchema,
+    ...built.metadata,
     publishedAt: new Date().toISOString(),
     archive: {
       url: `openmz-core-${releaseVersion}.tar.gz`,
@@ -99,7 +74,7 @@ export async function buildRelease({ outDir = defaultReleaseDir, version } = {})
   await mkdir(outDir, { recursive: true });
   await Promise.all([
     writeFile(join(outDir, manifest.archive.url), archive),
-    copyFile(join(projectRoot, 'plugins/OpenMzUpdater.js'), join(outDir, 'OpenMzUpdater.js')),
+    buildUpdater({ outDir }),
   ]);
   await writeFile(join(outDir, 'manifest.json'), `${JSON.stringify(manifest, null, 2)}\n`);
   return { manifest, includedFiles };

@@ -1,39 +1,40 @@
 # OpenMZ
 
-RPG Maker MZ 运行时引擎的现代化改造项目，在保持既有 RMMZ 插件与工程数据兼容的前提下，将引擎升级为现代 ES6+ Class 与 PixiJS 8 架构。
+RPG Maker MZ 核心引擎：源码使用 ES6+ class 与 PixiJS 8；正式运行时构建为 ES5 语法的原型式脚本，以兼容既有 RMMZ 插件和工程数据。
 
-## 目录结构
+## 目录
 
-- `src/`：可直接运行的完整游戏项目与引擎运行时（仅放运行时文件，不放 `.d.ts`）
-  - `src/js/rmmz_*.js`、`src/js/main.js`：现代化后的核心运行时源码（经典浏览器全局脚本，通过 JSDoc 维护类型）
-  - `src/js/libs/`：第三方浏览器依赖产物（其中 `pixi.js` 由 Rolldown 打包生成）
-  - `src/js/plugins.js`：插件配置入口（全局 `var $plugins`）
-  - `src/data/`、`src/img/`、`src/audio/`、`src/effects/`、`src/fonts/`：示例工程资源与数据库 JSON
-- `types/`：集中存放项目 TypeScript 类型声明
-  - `types/env.d.ts`：运行时全局库声明（`PIXI`、`effekseer`、`pako`、`localforage`、`vorbis`、`nw`、浏览器扩展等，手工维护）
-  - `types/rmmz_data.d.ts`：数据库 JSON、存档、配置、事件指令、`$data*`/`$game*`/`$plugins` 全局类型与 `RMMZ` 命名空间（手工维护）
-  - `types/{main,rmmz_core,rmmz_managers,rmmz_objects,rmmz_sprites,rmmz_windows,rmmz_scenes}.d.ts`：由 `src/js/*.js` 的 JSDoc 自动生成，**不要手改**
-- `scripts/build-dts.mjs`：基于 TypeScript Compiler API 从 `src/js/*.js` 生成/校验 `types/*.d.ts` 的脚本
-- `tests/plugin-compat/`：基于 Vitest Browser + Playwright (Chromium) 的插件兼容性浏览器端测试
-- `vendor/`：原版 RPG Maker MZ 运行时参考（`vendor/js/`）与第三方打包入口（`vendor/lib-entries/pixi.js`）；`vendor/js/` 仅作对照参考，勿直接修改
+- `src/`：完整示例工程与 class 源码。核心在 `src/js/{main,rmmz_*}.js`，仍按经典全局脚本顺序加载，不使用 ES import/export。
+- `src/js/libs/`：示例工程的开发依赖。正式 PixiJS 由构建脚本从 npm 包重新打包，不直接复制此处的 PixiJS。
+- `types/`：全部 `.d.ts`。`env.d.ts` 与 `rmmz_data.d.ts` 手工维护；其他引擎声明由 JSDoc 生成，不手改。
+- `scripts/transform-classes.mjs`：ast-grep 转换类与原地构造，恢复四个 Pixi 边界类的 initialize 路径。
+- `scripts/build.mjs`：Rolldown 打包 PixiJS 和更新器，TypeScript 降级 ES5，生成 `dist/runtime/` 与 `dist/plugins/`。
+- `scripts/build-release.mjs`：仅从正式构建产物生成 `dist/release/`。
+- `shared/engine-release.js`：发布清单、版本及运行时格式协议。
+- `plugins/OpenMzUpdater.js`：更新器的 ESM 源码入口；`plugins/updater/` 存放检查安装核心与标题界面。只能将构建产物放入游戏。
+- `tests/unit/`：Vitest Node.js 单元测试。
+- `tests/plugin-compat/`：Vitest Browser + Playwright Chromium，对照原版和正式产物。
+- `vendor/js/`：原版 MZ 参考，勿修改。`vendor/lib-entries/pixi.js` 为第三方打包入口。
 
-## 技术栈与命令
+## 命令
 
-- 包管理器：`pnpm`（ESM 项目，`"type": "module"`）
-- 核心依赖：`pixi.js` 8.x、`rolldown`、`typescript` 6.x、`vitest` + `@vitest/browser-playwright`
-- 常用命令：
-  - `pnpm build:pixi`：通过 `rolldown.config.js` 重新打包 `src/js/libs/pixi.js`（IIFE，全局 `PIXI`）
-  - `pnpm build:types`：从 `src/js/*.js` 的 JSDoc 重新生成 `types/*.d.ts`
-  - `pnpm check:types`：检查 `types/*.d.ts` 是否与 `src/js/*.js` 保持同步
-  - `pnpm typecheck`：使用唯一配置文件 `tsconfig.json` 运行 `tsc --noEmit`
-  - `pnpm test:plugin-compat`：运行 Chromium 浏览器插件兼容性测试（需要本地监听端口）
+- `pnpm build`：构建 ES5 原型式引擎、PixiJS 8、其他依赖及更新器。
+- `pnpm build:release`：构建并打包发布产物。
+- `pnpm build:types` / `pnpm check:types`：生成或检查源码声明同步。
+- `pnpm typecheck`：使用唯一 `tsconfig.json` 执行 `tsc --noEmit`。
+- `pnpm test`：执行两个 Vitest 项目。
+- `pnpm test:unit`：只执行 Node.js 项目。
+- `pnpm test:plugin-compat`：只执行 Chromium 插件兼容性项目，需要本地监听端口。
+- `pnpm serve:manifest`：构建并提供本地发布源。
 
-## 开发与类型约定
+## 开发约定
 
-1. **运行时加载模式**：`src/js/{rmmz_*,main,plugins}.js` 以经典 `<script>` 顺序加载并暴露到全局作用域，勿在其中引入 ES `import`/`export` 语法。
-2. **类型单一数据源**：修改 `src/js/*.js` 的类、方法或字段签名时，同步更新对应 JSDoc，然后运行 `pnpm build:types` 与 `pnpm typecheck`。
-3. **全局命名空间避冲突**：
-   - 所有数据类型与工具类型位于全局 `declare namespace RMMZ`（在 JSDoc 中使用 `RMMZ.DataActor`、`RMMZ.ParamID` 等）。
-   - 为避免与 `lib.dom.d.ts` 冲突，引擎 `Window` 与 `StorageManager` 在类型层暴露为 `RMMZ.Window`、`RMMZ.StorageManager`。
-   - 在 JSDoc 中引用 PixiJS 8 类型时使用 `import("pixi.js").<Type>`，不要使用值空间的 `PIXI.<Type>`。
-4. **PixiJS 8 差异**：`Graphics.initialize`、`Graphics._createPixiApp`、`SceneManager.{run,initialize,initGraphics}` 为 `async` 方法；渲染层已迁移至 PixiJS 8 API（`TextureSource`、`ContainerChild`、`Renderer`、`Ticker`、`RenderContainer`、`GlProgram` 等）。
+1. 核心源码维持经典全局脚本；构建工具、共享协议和更新器源码使用 ESM。
+2. 核心类、方法或字段签名变化时同步 JSDoc，并执行 `build:types`、`typecheck`。
+3. 数据类型与工具类型放在 `RMMZ` 命名空间；类型层的引擎 `Window`、`StorageManager` 分别暴露为 `RMMZ.Window`、`RMMZ.StorageManager`。
+4. JSDoc 引用 PixiJS 类型使用 `import("pixi.js").Type`，不使用值空间的 `PIXI.Type`。
+5. 源码中的 `Graphics.initialize`、`Graphics._createPixiApp`、`SceneManager.run/initialize/initGraphics` 为 async。构建负责降级其语法。
+6. legacy 插件兼容性以 `dist/runtime/` 为准。构建时让 `Sprite`、`TilingSprite`、`Window`、`Stage` 的 initialize 在现有 this 上执行 Pixi 父构造；普通 new 也必须只初始化一次。
+7. ES5 是语法目标，不要求为现代 Web API 提供旧浏览器 polyfill。
+8. 更新清单为 schemaVersion 3，格式为 es5-prototype。版本记录在 js/openmz.json；更新器不得安装 class 源码或改写工程插件配置。
+9. 不手改 dist，不维护第二份原型式源码。新增引擎语法时扩展转换与相应单元测试，并检查真实插件场景。

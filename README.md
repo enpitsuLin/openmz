@@ -1,125 +1,126 @@
 # OpenMZ
 
-OpenMZ 是 RPG Maker MZ 运行时引擎的现代化改造项目：在保持既有 RMMZ 插件与工程数据兼容的前提下，将核心脚本升级为 ES6+ Class 与 PixiJS 8 架构。
+用 ES6 class 维护的 RPG Maker MZ 引擎核心。构建时生成 ES5 语法的原型式引擎与 PixiJS 8，使既有插件能够通过 `prototype`、`.call(this)` 和 `initialize` 扩展引擎。
 
-## 功能
-
-- **现代化核心运行时**：`rmmz_core` / `rmmz_managers` / `rmmz_objects` / `rmmz_scenes` / `rmmz_sprites` / `rmmz_windows` 与 `main.js` 全部改写为 ES6+ Class，仍以经典 `<script>` 全局脚本方式加载，兼容既有插件。
-- **PixiJS 8 渲染层**：渲染管线迁移至 PixiJS 8 API。
-- **完整类型声明**：`types/` 下提供数据库、存档、全局对象及引擎类的 TypeScript 声明（由 JSDoc 自动生成）。
-- **在线升级插件 `OpenMzUpdater`**：在任意 RPG Maker MZ 工程中一键下载并替换为 OpenMZ 核心脚本，自动备份、校验与回滚。
-
-## 使用插件获取 OpenMZ 核心
-
-`OpenMzUpdater.js` 可以把一个现有的 RPG Maker MZ 工程的 `js/` 核心脚本升级为 OpenMZ。
-
-### 1. 下载插件
-
-从 [GitHub Releases](https://github.com/enpitsuLin/openmz/releases) 下载 `OpenMzUpdater.js`，放入工程的 `js/plugins/` 目录。
-
-> [!IMPORTANT]
-> 升级前请先备份整个工程，或确认工程已纳入版本管理。
-
-### 2. 配置插件
-
-在 RPG Maker MZ 编辑器的「插件管理器」中添加 `OpenMzUpdater`，并设置参数：
-
-| 参数 | 说明 |
-| --- | --- |
-| `manifestUrl`（Manifest 地址） | 更新清单 `manifest.json` 的地址。留空时插件不做任何事。 |
-
-常用地址：
-
-- 最新正式版：`https://github.com/enpitsuLin/openmz/releases/latest/download/manifest.json`
-- 指定版本：`https://github.com/enpitsuLin/openmz/releases/download/<tag>/manifest.json`（例如 `v2.0.0-rc.0`）
-
-### 3. 运行升级
-
-1. 在编辑器中点击「测试游戏」（或运行 NW.js 桌面版）。
-2. 进入标题画面时会弹出升级提示，显示来源地址和目标版本。
-3. 选择「确认升级」，插件会依次：
-   1. 读取更新清单；
-   2. 下载核心压缩包（带进度条）；
-   3. 校验大小与 SHA-256 并解压；
-   4. 备份原脚本并替换核心文件。
-4. 完成后选择「立即重启」即可使用新版引擎；选择「暂不升级」则本次会话不再提示。
-
-升级失败时会显示错误原因，可直接「重试」。
-
-### 升级会做什么
-
-- 仅写入工程的 `js/` 目录；**不会**覆盖 `js/plugins.js` 和 `js/plugins/` 下的插件。
-- 被替换的原文件备份到 `js_backup/<时间戳>/`。
-- 任一文件写入失败时，已替换的文件会全部回滚。
-- 升级成功后，插件会在 `js/plugins.js` 中把自己设为关闭，避免重复提示。之后如需再次升级，在插件管理器中重新启用即可。
-
-### 恢复原版
-
-把 `js_backup/<时间戳>/js/` 中的文件复制回工程的 `js/` 目录即可。
-
-> [!NOTE]
-> 插件依赖 Node.js 文件系统接口，仅在 NW.js 环境（编辑器测试游戏 / 桌面版）生效；浏览器或移动端部署时插件会直接跳过。
-
-## Manifest 格式
-
-```json
-{
-  "schemaVersion": 2,
-  "name": "OpenMZ",
-  "version": "2.0.0",
-  "archive": {
-    "url": "openmz-core-2.0.0.tar.gz",
-    "size": 123456,
-    "sha256": "<64 位十六进制>"
-  }
-}
-```
-
-- `archive.url` 可以是相对地址，相对于清单所在位置解析（经过重定向时，按原始站点上的最后一个地址解析，例如 GitHub Release 的 tag 目录）。
-- `size`、`sha256` 可选，填写后会在安装前校验。
-- 压缩包为 `tar.gz`，其中的文件路径须以 `js/` 开头。
-
-## 开发
-
-需要 Node.js 与 [pnpm](https://pnpm.io/)。
+## 构建与使用
 
 ```sh
 pnpm install
+pnpm build
 ```
 
-| 命令 | 说明 |
-| --- | --- |
-| `pnpm build:pixi` | 重新打包 `src/js/libs/pixi.js` |
-| `pnpm build:types` | 从 `src/js/*.js` 的 JSDoc 生成 `types/*.d.ts` |
-| `pnpm check:types` | 检查 `types/*.d.ts` 是否与源码同步 |
-| `pnpm typecheck` | 运行 `tsc --noEmit` |
-| `pnpm test:release` | 运行打包与升级流程测试 |
-| `pnpm test:plugin-compat` | 运行 Chromium 插件兼容性测试 |
-| `pnpm build:release` | 在 `dist/release/` 生成核心压缩包、`manifest.json` 与 `OpenMzUpdater.js` |
-| `pnpm serve:manifest` | 构建并在 `http://127.0.0.1:4173/manifest.json` 提供本地更新源 |
+构建生成：
 
-### 本地测试升级
+| 目录 | 内容 |
+| --- | --- |
+| `dist/runtime/js/` | 核心脚本、原型式 PixiJS 8、其他运行依赖与 `openmz.json` |
+| `dist/plugins/OpenMzUpdater.js` | 可直接安装的单文件更新插件 |
+
+将 `dist/runtime/js/` 的内容复制到 RPG Maker MZ 工程的 `js/` 目录。产物不包含 `plugins.js` 和 `plugins/`，工程原有的插件配置、数据库、素材和存档保持原样。
+
+`src/` 保留完整的示例工程及 class 源码。运行 legacy 插件时应使用构建产物；插件兼容性测试会自动将构建脚本与示例工程资源组合加载。
+
+## 构建方式
+
+1. Rolldown 从安装的 `pixi.js` 包生成浏览器全局 `PIXI`。
+2. ast-grep 将引擎与 PixiJS 的 class 转换为函数、原型方法及属性描述符。
+3. 构建时将 `Sprite`、`TilingSprite`、`Window`、`Stage` 的 PixiJS 初始化移入 `initialize`。普通 `new` 与旧插件的 `initialize.call(this)` 都在同一个对象上初始化一次。
+4. TypeScript 将箭头函数、可选链、解构、async 等其余语法降级为 ES5。
+5. 生成 `js/openmz.json`，记录引擎版本、PixiJS 版本及产物格式。单元测试使用 Acorn 按 ES5 语法解析全部发布脚本。
+
+派生构造函数使用 `.call` / `.apply`，不通过 `Reflect.construct` 替换对象。方法可以枚举，访问器不可枚举。ES5 指输出语法；运行环境仍需要 PixiJS 8 使用的现代浏览器 API。
+
+## 测试
+
+Vitest 包含两个项目：
+
+| 项目 | 环境 | 范围 |
+| --- | --- | --- |
+| `unit` | Node.js | AST 转换、ES5 构建、版本检查、发布包、安装及回滚 |
+| `plugin-compat` | Playwright Chromium | 对照原版 MZ 与正式产物测试插件、窗口、场景、精灵和渲染 |
 
 ```sh
-pnpm serve:manifest            # 可加 --port 8080 或 --no-build
+pnpm test
+pnpm test:unit
+pnpm test:plugin-compat
 ```
 
-然后把插件的 `manifestUrl` 设为 `http://127.0.0.1:4173/manifest.json`，在编辑器中测试游戏即可。
+首次运行浏览器测试时安装 Chromium：
 
-### 发布
-
-推送 `v*` 标签后，GitHub Actions 会构建并把 `openmz-core-<version>.tar.gz`、`manifest.json`、`OpenMzUpdater.js` 上传到对应的 Release。
-
-## 目录结构
-
-```text
-src/       可直接运行的示例工程与 OpenMZ 核心运行时（src/js/）
-plugins/   OpenMzUpdater 插件源码
-types/     TypeScript 类型声明
-scripts/   类型生成、发布打包与本地更新源脚本
-tests/     发布流程与插件兼容性测试
-vendor/    原版 RPG Maker MZ 运行时参考
+```sh
+pnpm exec playwright install chromium
 ```
+
+## 更新插件
+
+1. 将构建或 Release 中的 `OpenMzUpdater.js` 放入工程的 `js/plugins/`。
+2. 在编辑器的插件管理器中启用它，配置“更新清单地址”。
+3. 在 NW.js 中启动游戏。首次进入标题画面时，插件在后台读取清单并比较版本。
+4. 有新版本时显示当前版本与目标版本。选择“更新”后下载、校验、备份并安装。
+5. 安装成功后重启生效。插件保持启用，后续启动会继续检查新版本。
+
+清单地址可以使用：
+
+- 最新正式版：`https://github.com/enpitsuLin/openmz/releases/latest/download/manifest.json`
+- 指定版本：`https://github.com/enpitsuLin/openmz/releases/download/<tag>/manifest.json`
+
+更新器通过 `js/openmz.json` 识别已安装版本；版本相同或目标更旧时不提示安装。更新器不会改写 `js/plugins.js`，也不会在更新包中接受 `js/plugins/` 的文件。浏览器环境或空清单地址下不检查更新。
+
+安装前必须通过压缩包大小、SHA-256、路径及包内版本校验。被替换文件保存在 `js_backup/<时间戳>/`，任何替换失败都会恢复已修改的文件和版本记录。
+
+恢复备份时，将对应备份中的 `js/` 文件复制回工程；若该次更新首次安装 OpenMZ，还需删除工程的 `js/openmz.json` 以恢复原版版本状态。
+
+### 发布清单
+
+当前使用 `schemaVersion: 3`，不接受旧清单格式。
+
+| 字段 | 内容 |
+| --- | --- |
+| `name` | `OpenMZ` |
+| `version` | 引擎语义版本 |
+| `format` | `es5-prototype` |
+| `pixiVersion` | 打包的 PixiJS 版本 |
+| `archive.url` | 核心 `tar.gz` 地址，可使用相对路径 |
+| `archive.size` | 压缩包字节数，必填 |
+| `archive.sha256` | 压缩包 SHA-256，必填 |
+
+相对压缩包地址以清单重定向链中原站最后一个地址为基准，支持 GitHub Release 的标签跳转与 CDN 下载。
+
+### 本地更新源
+
+```sh
+pnpm serve:manifest
+```
+
+构建发布包并在 `http://127.0.0.1:4173/manifest.json` 提供更新源。将插件清单地址设为该地址即可在编辑器中测试。支持 `--port 8080`，以及使用已有发布包的 `--no-build`。
+
+## 开发命令
+
+| 命令 | 作用 |
+| --- | --- |
+| `pnpm build` | 构建完整运行时与更新插件 |
+| `pnpm build:release` | 从构建产物生成发布压缩包、清单与更新插件 |
+| `pnpm build:types` | 从源码 JSDoc 生成类型声明 |
+| `pnpm check:types` | 检查类型声明是否同步 |
+| `pnpm typecheck` | 执行 TypeScript 类型检查 |
+| `pnpm test` | 执行两个 Vitest 项目 |
+| `pnpm serve:manifest` | 提供本地更新源 |
+
+发布流程从标签或 `--version` 取得版本，保证包内记录与清单一致。推送 `v*` 标签后，GitHub Actions 会完成类型检查、两个项目的测试，再将 `dist/release/` 中的产物上传到 Release。
+
+## 目录
+
+| 路径 | 内容 |
+| --- | --- |
+| `src/` | 示例工程、ES6 class 核心源码与开发依赖 |
+| `types/` | 数据类型、环境声明及自动生成的引擎声明 |
+| `scripts/` | AST 转换、构建、类型生成、发布和本地服务器 |
+| `shared/` | 构建与更新器共用的发布协议 |
+| `plugins/` | 更新插件的 ESM 入口、安装核心与标题界面 |
+| `tests/unit/` | Node.js 单元测试 |
+| `tests/plugin-compat/` | 浏览器插件测试与原版插件样本 |
+| `vendor/` | 原版 MZ 参考及第三方打包入口 |
+| `dist/` | 自动生成的运行时、插件和发布产物 |
 
 ## 许可证
 

@@ -1,17 +1,18 @@
 {
   "name": "openmz",
   "version": "2.0.0-rc.0",
-  "description": "",
+  "description": "RPG Maker MZ engine with ES6 class sources and an ES5 prototype runtime.",
   "main": "index.js",
   "scripts": {
-    "build:pixi": "rolldown -c",
+    "build": "node scripts/build.mjs",
     "build:release": "node scripts/build-release.mjs",
     "build:types": "node scripts/build-dts.mjs",
     "check:types": "node scripts/build-dts.mjs --check",
     "serve:manifest": "node scripts/serve-manifest.mjs",
     "typecheck": "tsc --noEmit",
-    "test:plugin-compat": "vitest run tests/plugin-compat",
-    "test:release": "node --test tests/release.test.mjs"
+    "test": "vitest run",
+    "test:unit": "vitest run --project unit",
+    "test:plugin-compat": "vitest run --project plugin-compat"
   },
   "keywords": [],
   "author": "enpitsulin <enpitsulin@gmail.com>",
@@ -23,6 +24,7 @@
     "@types/node": "^15.14.9",
     "@types/nw.js": "^0.13.21",
     "@vitest/browser-playwright": "^5.1.1",
+    "acorn": "^8.19.0",
     "pixi.js": "8.23.0",
     "playwright": "^1.65.1",
     "rolldown": "^1.3.3",

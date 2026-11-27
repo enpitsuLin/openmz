@@ -3,7 +3,7 @@ import { assert, expect, onTestFinished, test, vi } from 'vitest';
 import { page } from 'vitest/browser';
 import { devDependencies } from '../../package.json';
 
-// The test page loads both engines as classic scripts in an iframe.
+// Compare the original engine with the published ES5 runtime in classic-script iframes.
 type GameBitmap = {
   width: number;
   height: number;
