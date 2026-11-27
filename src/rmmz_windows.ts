@@ -3,14 +3,19 @@
 /**
  * The superclass of all windows within the game.
  */
-class Window_Base extends Window {
-    /** @param {[rect: Rectangle]} args */
-    constructor(...args) {
+class Window_Base extends RmmzWindow {
+    declare _opening: boolean;
+    declare _closing: boolean;
+    declare _dimmerSprite: Sprite | null;
+
+    constructor(..._extra: any[]);
+    constructor(...args: [rect: Rectangle]) {
         super(...args);
     }
 
-    /** @param {Rectangle} rect */
-    initialize(rect) {
+    initialize(rect: Rectangle): void;
+    initialize(...args: any[]): void;
+    initialize(rect: Rectangle): void {
         super.initialize();
         this.loadWindowskin();
         this.checkRectObject(rect);
@@ -19,19 +24,13 @@ class Window_Base extends Window {
         this.updateBackOpacity();
         this.updateTone();
         this.createContents();
-        /** @type {boolean} */
+
         this._opening = false;
-        /** @type {boolean} */
         this._closing = false;
-        /** @type {Sprite | null} */
         this._dimmerSprite = null;
     }
 
-    /**
-     * @param {import("pixi.js").DestroyOptions} [options]
-     * @returns {void}
-     */
-    destroy(options) {
+    destroy(options?: import("pixi.js").DestroyOptions): void {
         this.destroyContents();
         if (this._dimmerSprite) {
             this._dimmerSprite.bitmap.destroy();
@@ -39,75 +38,62 @@ class Window_Base extends Window {
         super.destroy(options);
     }
 
-    /**
-     * @param {Rectangle} rect
-     * @returns {void}
-     */
-    checkRectObject(rect) {
+    checkRectObject(rect: Rectangle): void {
         if (typeof rect !== "object" || !("x" in rect)) {
             // Probably MV plugin is used
             throw new Error("Argument must be a Rectangle");
         }
     }
 
-    /** @returns {number} */
-    lineHeight() {
+    lineHeight(): number {
         return 36;
     }
 
-    /** @returns {number} */
-    itemWidth() {
+    itemWidth(): number {
         return this.innerWidth;
     }
 
-    /** @returns {number} */
-    itemHeight() {
+    itemHeight(): number {
         return this.lineHeight();
     }
 
-    /** @returns {number} */
-    itemPadding() {
+    itemPadding(): number {
         return 8;
     }
 
-    /** @returns {Rectangle} */
-    baseTextRect() {
-        const rect = new PIXI.Rectangle(0, 0, this.innerWidth, this.innerHeight);
+    baseTextRect(): Rectangle {
+        const rect = new PIXI.Rectangle(
+            0,
+            0,
+            this.innerWidth,
+            this.innerHeight,
+        );
         rect.pad(-this.itemPadding(), 0);
         return rect;
     }
 
-    /** @returns {void} */
-    loadWindowskin() {
+    loadWindowskin(): void {
         this.windowskin = ImageManager.loadSystem("Window");
     }
 
-    /** @returns {void} */
-    updatePadding() {
+    updatePadding(): void {
         this.padding = $gameSystem.windowPadding();
     }
 
-    /** @returns {void} */
-    updateBackOpacity() {
+    updateBackOpacity(): void {
         this.backOpacity = $gameSystem.windowOpacity();
     }
 
-    /**
-     * @param {number} numLines
-     * @returns {number}
-     */
-    fittingHeight(numLines) {
+    fittingHeight(numLines: number): number {
         return numLines * this.itemHeight() + $gameSystem.windowPadding() * 2;
     }
 
-    /** @returns {void} */
-    updateTone() {
+    updateTone(): void {
         const tone = $gameSystem.windowTone();
         this.setTone(tone[0], tone[1], tone[2]);
     }
 
-    /** @returns {void} */
-    createContents() {
+    createContents(): void {
         const width = this.contentsWidth();
         const height = this.contentsHeight();
         this.destroyContents();
@@ -116,8 +102,7 @@ class Window_Base extends Window {
         this.resetFontSettings();
     }
 
-    /** @returns {void} */
-    destroyContents() {
+    destroyContents(): void {
         if (this.contents) {
             this.contents.destroy();
         }
@@ -126,31 +111,26 @@ class Window_Base extends Window {
         }
     }
 
-    /** @returns {number} */
-    contentsWidth() {
+    contentsWidth(): number {
         return this.innerWidth;
     }
 
-    /** @returns {number} */
-    contentsHeight() {
+    contentsHeight(): number {
         return this.innerHeight;
     }
 
-    /** @returns {void} */
-    resetFontSettings() {
+    resetFontSettings(): void {
         this.contents.fontFace = $gameSystem.mainFontFace();
         this.contents.fontSize = $gameSystem.mainFontSize();
         this.resetTextColor();
     }
 
-    /** @returns {void} */
-    resetTextColor() {
+    resetTextColor(): void {
         this.changeTextColor(ColorManager.normalColor());
         this.changeOutlineColor(ColorManager.outlineColor());
     }
 
-    /** @returns {void} */
-    update() {
+    update(): void {
         super.update();
         this.updateTone();
         this.updateOpen();
@@ -158,8 +138,7 @@ class Window_Base extends Window {
         this.updateBackgroundDimmer();
     }
 
-    /** @returns {void} */
-    updateOpen() {
+    updateOpen(): void {
         if (this._opening) {
             this.openness += 32;
             if (this.isOpen()) {
@@ -168,8 +147,7 @@ class Window_Base extends Window {
         }
     }
 
-    /** @returns {void} */
-    updateClose() {
+    updateClose(): void {
         if (this._closing) {
             this.openness -= 32;
             if (this.isClosed()) {
@@ -178,139 +156,96 @@ class Window_Base extends Window {
         }
     }
 
-    /** @returns {void} */
-    open() {
+    open(): void {
         if (!this.isOpen()) {
             this._opening = true;
         }
         this._closing = false;
     }
 
-    /** @returns {void} */
-    close() {
+    close(): void {
         if (!this.isClosed()) {
             this._closing = true;
         }
         this._opening = false;
     }
 
-    /** @returns {boolean} */
-    isOpening() {
+    isOpening(): boolean {
         return this._opening;
     }
 
-    /** @returns {boolean} */
-    isClosing() {
+    isClosing(): boolean {
         return this._closing;
     }
 
-    /** @returns {void} */
-    show() {
+    show(): void {
         this.visible = true;
     }
 
-    /** @returns {void} */
-    hide() {
+    hide(): void {
         this.visible = false;
     }
 
-    /** @returns {void} */
-    activate() {
+    activate(): void {
         this.active = true;
     }
 
-    /** @returns {void} */
-    deactivate() {
+    deactivate(): void {
         this.active = false;
     }
 
-    /** @returns {string} */
-    systemColor() {
+    systemColor(): string {
         return ColorManager.systemColor();
     }
 
-    /** @returns {number} */
-    translucentOpacity() {
+    translucentOpacity(): number {
         return 160;
     }
 
-    /**
-     * @param {string} color
-     * @returns {void}
-     */
-    changeTextColor(color) {
+    changeTextColor(color: string): void {
         this.contents.textColor = color;
     }
 
-    /**
-     * @param {string} color
-     * @returns {void}
-     */
-    changeOutlineColor(color) {
+    changeOutlineColor(color: string): void {
         this.contents.outlineColor = color;
     }
 
-    /**
-     * @param {boolean | number} enabled
-     * @returns {void}
-     */
-    changePaintOpacity(enabled) {
+    changePaintOpacity(enabled: boolean | number): void {
         this.contents.paintOpacity = enabled ? 255 : this.translucentOpacity();
     }
 
-    /**
-     * @param {number} x
-     * @param {number} y
-     * @param {number} width
-     * @param {number} height
-     * @returns {void}
-     */
-    drawRect(x, y, width, height) {
+    drawRect(x: number, y: number, width: number, height: number): void {
         const outlineColor = this.contents.outlineColor;
         const mainColor = this.contents.textColor;
         this.contents.fillRect(x, y, width, height, outlineColor);
         this.contents.fillRect(x + 1, y + 1, width - 2, height - 2, mainColor);
     }
 
-    /**
-     * @param {string | number} text
-     * @param {number} x
-     * @param {number} y
-     * @param {number} [maxWidth]
-     * @param {CanvasTextAlign} [align]
-     * @returns {void}
-     */
-    drawText(text, x, y, maxWidth, align) {
+    drawText(
+        text: string | number,
+        x: number,
+        y: number,
+        maxWidth?: number,
+        align?: CanvasTextAlign,
+    ): void {
         this.contents.drawText(text, x, y, maxWidth, this.lineHeight(), align);
     }
 
-    /**
-     * @param {string} text
-     * @returns {number}
-     */
-    textWidth(text) {
+    textWidth(text: string): number {
         return this.contents.measureTextWidth(text);
     }
 
-    /**
-     * @param {string} text
-     * @param {number} x
-     * @param {number} y
-     * @param {number} width
-     * @returns {number}
-     */
-    drawTextEx(text, x, y, width) {
+    drawTextEx(text: string, x: number, y: number, width: number): number {
         this.resetFontSettings();
         const textState = this.createTextState(text, x, y, width);
         this.processAllText(textState);
         return textState.outputWidth;
     }
 
-    /**
-     * @param {string} text
-     * @returns {{ width: number; height: number; }}
-     */
-    textSizeEx(text) {
+    textSizeEx(text: string): {
+        width: number;
+        height: number;
+    } {
         this.resetFontSettings();
         const textState = this.createTextState(text, 0, 0, 0);
         textState.drawing = false;
@@ -318,16 +253,14 @@ class Window_Base extends Window {
         return { width: textState.outputWidth, height: textState.outputHeight };
     }
 
-    /**
-     * @param {string} text
-     * @param {number} x
-     * @param {number} y
-     * @param {number} width
-     * @returns {{ text: string; index: number; x: number; y: number; width: number; height: number; startX: number; startY: number; rtl: boolean; buffer: string; drawing: boolean; outputWidth: number; outputHeight: number; }}
-     */
-    createTextState(text, x, y, width) {
+    createTextState(
+        text: string,
+        x: number,
+        y: number,
+        width: number,
+    ): RMMZ.TextState {
         const rtl = Utils.containsArabic(text);
-        const textState = {};
+        const textState = {} as RMMZ.TextState;
         textState.text = this.convertEscapeCharacters(text);
         textState.index = 0;
         textState.x = rtl ? x + width : x;
@@ -344,22 +277,14 @@ class Window_Base extends Window {
         return textState;
     }
 
-    /**
-     * @param {{ text: string; index: number; x: number; y: number; width: number; height: number; startX: number; startY: number; rtl: boolean; buffer: string; drawing: boolean; outputWidth: number; outputHeight: number; }} textState
-     * @returns {void}
-     */
-    processAllText(textState) {
+    processAllText(textState: RMMZ.TextState): void {
         while (textState.index < textState.text.length) {
             this.processCharacter(textState);
         }
         this.flushTextState(textState);
     }
 
-    /**
-     * @param {{ text: string; index: number; x: number; y: number; width: number; height: number; startX: number; startY: number; rtl: boolean; buffer: string; drawing: boolean; outputWidth: number; outputHeight: number; }} textState
-     * @returns {void}
-     */
-    flushTextState(textState) {
+    flushTextState(textState: RMMZ.TextState): void {
         const text = textState.buffer;
         const rtl = textState.rtl;
         const width = this.textWidth(text);
@@ -378,61 +303,41 @@ class Window_Base extends Window {
         textState.outputHeight = y - textState.startY + height;
     }
 
-    /**
-     * @param {boolean} rtl
-     * @returns {"" | "\u202B"}
-     */
-    createTextBuffer(rtl) {
+    createTextBuffer(rtl: boolean): "" | "\u202B" {
         // U+202B: RIGHT-TO-LEFT EMBEDDING
         return rtl ? "\u202B" : "";
     }
 
-    /**
-     * @param {string} text
-     * @returns {string}
-     */
-    convertEscapeCharacters(text) {
+    convertEscapeCharacters(text: string): string {
         /* eslint no-control-regex: 0 */
         text = text.replace(/\\/g, "\x1b");
         text = text.replace(/\x1b\x1b/g, "\\");
         while (text.match(/\x1bV\[(\d+)\]/gi)) {
             text = text.replace(/\x1bV\[(\d+)\]/gi, (_, p1) =>
-                $gameVariables.value(parseInt(p1))
+                String($gameVariables.value(parseInt(p1))),
             );
         }
         text = text.replace(/\x1bN\[(\d+)\]/gi, (_, p1) =>
-            this.actorName(parseInt(p1))
+            this.actorName(parseInt(p1)),
         );
         text = text.replace(/\x1bP\[(\d+)\]/gi, (_, p1) =>
-            this.partyMemberName(parseInt(p1))
+            this.partyMemberName(parseInt(p1)),
         );
         text = text.replace(/\x1bG/gi, TextManager.currencyUnit);
         return text;
     }
 
-    /**
-     * @param {RMMZ.ActorID} n
-     * @returns {string}
-     */
-    actorName(n) {
+    actorName(n: RMMZ.ActorID): string {
         const actor = n >= 1 ? $gameActors.actor(n) : null;
         return actor ? actor.name() : "";
     }
 
-    /**
-     * @param {number} n
-     * @returns {string}
-     */
-    partyMemberName(n) {
+    partyMemberName(n: number): string {
         const actor = n >= 1 ? $gameParty.members()[n - 1] : null;
         return actor ? actor.name() : "";
     }
 
-    /**
-     * @param {{ text: string; index: number; x: number; y: number; width: number; height: number; startX: number; startY: number; rtl: boolean; buffer: string; drawing: boolean; outputWidth: number; outputHeight: number; }} textState
-     * @returns {void}
-     */
-    processCharacter(textState) {
+    processCharacter(textState: RMMZ.TextState): void {
         const c = textState.text[textState.index++];
         if (c.charCodeAt(0) < 0x20) {
             this.flushTextState(textState);
@@ -442,36 +347,26 @@ class Window_Base extends Window {
         }
     }
 
-    /**
-     * @param {{ text: string; index: number; x: number; y: number; width: number; height: number; startX: number; startY: number; rtl: boolean; buffer: string; drawing: boolean; outputWidth: number; outputHeight: number; }} textState
-     * @param {string} c
-     * @returns {void}
-     */
-    processControlCharacter(textState, c) {
+    processControlCharacter(textState: RMMZ.TextState, c: string): void {
         if (c === "\n") {
             this.processNewLine(textState);
         }
         if (c === "\x1b") {
             const code = this.obtainEscapeCode(textState);
-            this.processEscapeCharacter(code, textState);
+            this.processEscapeCharacter(
+                code as "}" | "C" | "I" | "PX" | "PY" | "FS" | "{",
+                textState,
+            );
         }
     }
 
-    /**
-     * @param {{ text: string; index: number; x: number; y: number; width: number; height: number; startX: number; startY: number; rtl: boolean; buffer: string; drawing: boolean; outputWidth: number; outputHeight: number; }} textState
-     * @returns {void}
-     */
-    processNewLine(textState) {
+    processNewLine(textState: RMMZ.TextState): void {
         textState.x = textState.startX;
         textState.y += textState.height;
         textState.height = this.calcTextHeight(textState);
     }
 
-    /**
-     * @param {{ text: string; index: number; x: number; y: number; width: number; height: number; startX: number; startY: number; rtl: boolean; buffer: string; drawing: boolean; outputWidth: number; outputHeight: number; }} textState
-     * @returns {string}
-     */
-    obtainEscapeCode(textState) {
+    obtainEscapeCode(textState: RMMZ.TextState): string {
         const regExp = /^[$.|^!><{}\\]|^[A-Z]+/i;
         const arr = regExp.exec(textState.text.slice(textState.index));
         if (arr) {
@@ -482,11 +377,7 @@ class Window_Base extends Window {
         }
     }
 
-    /**
-     * @param {{ text: string; index: number; x: number; y: number; width: number; height: number; startX: number; startY: number; rtl: boolean; buffer: string; drawing: boolean; outputWidth: number; outputHeight: number; }} textState
-     * @returns {number}
-     */
-    obtainEscapeParam(textState) {
+    obtainEscapeParam(textState: RMMZ.TextState): number | "" {
         const regExp = /^\[\d+\]/;
         const arr = regExp.exec(textState.text.slice(textState.index));
         if (arr) {
@@ -497,27 +388,32 @@ class Window_Base extends Window {
         }
     }
 
-    /**
-     * @param {"C" | "I" | "PX" | "PY" | "FS" | "{" | "}"} code
-     * @param {{ text: string; index: number; x: number; y: number; width: number; height: number; startX: number; startY: number; rtl: boolean; buffer: string; drawing: boolean; outputWidth: number; outputHeight: number; }} textState
-     * @returns {void}
-     */
-    processEscapeCharacter(code, textState) {
+    processEscapeCharacter(
+        code: "C" | "I" | "PX" | "PY" | "FS" | "{" | "}",
+        textState: RMMZ.TextState,
+    ): void {
         switch (code) {
             case "C":
-                this.processColorChange(this.obtainEscapeParam(textState));
+                this.processColorChange(
+                    this.obtainEscapeParam(textState) as number,
+                );
                 break;
             case "I":
-                this.processDrawIcon(this.obtainEscapeParam(textState), textState);
+                this.processDrawIcon(
+                    this.obtainEscapeParam(textState) as number,
+                    textState,
+                );
                 break;
             case "PX":
-                textState.x = this.obtainEscapeParam(textState);
+                textState.x = this.obtainEscapeParam(textState) as number;
                 break;
             case "PY":
-                textState.y = this.obtainEscapeParam(textState);
+                textState.y = this.obtainEscapeParam(textState) as number;
                 break;
             case "FS":
-                this.contents.fontSize = this.obtainEscapeParam(textState);
+                this.contents.fontSize = this.obtainEscapeParam(
+                    textState,
+                ) as number;
                 break;
             case "{":
                 this.makeFontBigger();
@@ -528,22 +424,14 @@ class Window_Base extends Window {
         }
     }
 
-    /**
-     * @param {number} colorIndex
-     * @returns {void}
-     */
-    processColorChange(colorIndex) {
+    processColorChange(colorIndex: number): void {
         this.changeTextColor(ColorManager.textColor(colorIndex));
     }
 
-    /**
-     * @param {number} iconIndex
-     * @param {{ text: string; index: number; x: number; y: number; width: number; height: number; startX: number; startY: number; rtl: boolean; buffer: string; drawing: boolean; outputWidth: number; outputHeight: number; }} textState
-     * @returns {void}
-     */
-    processDrawIcon(iconIndex, textState) {
+    processDrawIcon(iconIndex: number, textState: RMMZ.TextState): void {
         const deltaX = ImageManager.standardIconWidth - ImageManager.iconWidth;
-        const deltaY = ImageManager.standardIconHeight - ImageManager.iconHeight;
+        const deltaY =
+            ImageManager.standardIconHeight - ImageManager.iconHeight;
         if (textState.drawing) {
             const x = textState.x + deltaX / 2 + 2;
             const y = textState.y + deltaY / 2 + 2;
@@ -552,25 +440,19 @@ class Window_Base extends Window {
         textState.x += ImageManager.standardIconWidth + 4;
     }
 
-    /** @returns {void} */
-    makeFontBigger() {
+    makeFontBigger(): void {
         if (this.contents.fontSize <= 96) {
             this.contents.fontSize += 12;
         }
     }
 
-    /** @returns {void} */
-    makeFontSmaller() {
+    makeFontSmaller(): void {
         if (this.contents.fontSize >= 24) {
             this.contents.fontSize -= 12;
         }
     }
 
-    /**
-     * @param {Partial<{ text: string; index: number; x: number; y: number; width: number; height: number; startX: number; startY: number; rtl: boolean; buffer: string; drawing: boolean; outputWidth: number; outputHeight: number; }> & { text: string; }} textState
-     * @returns {number}
-     */
-    calcTextHeight(textState) {
+    calcTextHeight(textState: RMMZ.TextState): number {
         const lineSpacing = this.lineHeight() - $gameSystem.mainFontSize();
         const lastFontSize = this.contents.fontSize;
         const lines = textState.text.slice(textState.index).split("\n");
@@ -579,11 +461,7 @@ class Window_Base extends Window {
         return textHeight;
     }
 
-    /**
-     * @param {string} line
-     * @returns {number}
-     */
-    maxFontSizeInLine(line) {
+    maxFontSizeInLine(line: string): number {
         let maxFontSize = this.contents.fontSize;
         const regExp = /\x1b({|}|FS)(\[(\d+)])?/gi;
         for (;;) {
@@ -606,13 +484,7 @@ class Window_Base extends Window {
         return maxFontSize;
     }
 
-    /**
-     * @param {number} iconIndex
-     * @param {number} x
-     * @param {number} y
-     * @returns {void}
-     */
-    drawIcon(iconIndex, x, y) {
+    drawIcon(iconIndex: number, x: number, y: number): void {
         const bitmap = ImageManager.loadSystem("IconSet");
         const pw = ImageManager.iconWidth;
         const ph = ImageManager.iconHeight;
@@ -622,18 +494,10 @@ class Window_Base extends Window {
     }
 
     // prettier-ignore
-    /**
-     * @param {string} faceName
-     * @param {number} faceIndex
-     * @param {number} x
-     * @param {number} y
-     * @param {number} [width]
-     * @param {number} [height]
-     * @returns {void}
-     */
+
     drawFace(
-        faceName, faceIndex, x, y, width, height
-    ) {
+        faceName: string, faceIndex: number, x: number, y: number, width?: number, height?: number
+    ): void {
         width = width || ImageManager.standardFaceWidth;
         height = height || ImageManager.standardFaceHeight;
         const bitmap = ImageManager.loadFace(faceName);
@@ -649,16 +513,10 @@ class Window_Base extends Window {
     }
 
     // prettier-ignore
-    /**
-     * @param {string} characterName
-     * @param {number} characterIndex
-     * @param {number} x
-     * @param {number} y
-     * @returns {void}
-     */
+
     drawCharacter(
-        characterName, characterIndex, x, y
-    ) {
+        characterName: string, characterIndex: number, x: number, y: number
+    ): void {
         const bitmap = ImageManager.loadCharacter(characterName);
         const big = ImageManager.isBigCharacter(characterName);
         const pw = bitmap.width / (big ? 3 : 12);
@@ -669,17 +527,16 @@ class Window_Base extends Window {
         this.contents.blt(bitmap, sx, sy, pw, ph, x - pw / 2, y - ph);
     }
 
-    /**
-     * @param {RMMZ.DataItemBase | null} item
-     * @param {number} x
-     * @param {number} y
-     * @param {number} width
-     * @returns {void}
-     */
-    drawItemName(item, x, y, width) {
+    drawItemName(
+        item: RMMZ.DataItemBase | null,
+        x: number,
+        y: number,
+        width: number,
+    ): void {
         if (item) {
             const iconY = y + (this.lineHeight() - ImageManager.iconHeight) / 2;
-            const delta = ImageManager.standardIconWidth - ImageManager.iconWidth;
+            const delta =
+                ImageManager.standardIconWidth - ImageManager.iconWidth;
             const textMargin = ImageManager.standardIconWidth + 4;
             const itemWidth = Math.max(0, width - textMargin);
             this.resetTextColor();
@@ -688,15 +545,13 @@ class Window_Base extends Window {
         }
     }
 
-    /**
-     * @param {number} value
-     * @param {string} unit
-     * @param {number} x
-     * @param {number} y
-     * @param {number} width
-     * @returns {void}
-     */
-    drawCurrencyValue(value, unit, x, y, width) {
+    drawCurrencyValue(
+        value: number,
+        unit: string,
+        x: number,
+        y: number,
+        width: number,
+    ): void {
         const unitWidth = Math.min(80, this.textWidth(unit));
         this.resetTextColor();
         this.drawText(value, x, y, width - unitWidth - 6, "right");
@@ -704,11 +559,7 @@ class Window_Base extends Window {
         this.drawText(unit, x + width - unitWidth, y, unitWidth, "right");
     }
 
-    /**
-     * @param {RMMZ.TextWindowBackgroundType} type
-     * @returns {void}
-     */
-    setBackgroundType(type) {
+    setBackgroundType(type: RMMZ.TextWindowBackgroundType): void {
         if (type === 0) {
             this.opacity = 255;
         } else {
@@ -721,43 +572,38 @@ class Window_Base extends Window {
         }
     }
 
-    /** @returns {void} */
-    showBackgroundDimmer() {
+    showBackgroundDimmer(): void {
         if (!this._dimmerSprite) {
             this.createDimmerSprite();
         }
-        const bitmap = this._dimmerSprite.bitmap;
+        const bitmap = this._dimmerSprite!.bitmap;
         if (bitmap.width !== this.width || bitmap.height !== this.height) {
             this.refreshDimmerBitmap();
         }
-        this._dimmerSprite.visible = true;
+        this._dimmerSprite!.visible = true;
         this.updateBackgroundDimmer();
     }
 
-    /** @returns {void} */
-    createDimmerSprite() {
+    createDimmerSprite(): void {
         this._dimmerSprite = new Sprite();
         this._dimmerSprite.bitmap = new Bitmap(0, 0);
         this._dimmerSprite.x = -4;
         this.addChildToBack(this._dimmerSprite);
     }
 
-    /** @returns {void} */
-    hideBackgroundDimmer() {
+    hideBackgroundDimmer(): void {
         if (this._dimmerSprite) {
             this._dimmerSprite.visible = false;
         }
     }
 
-    /** @returns {void} */
-    updateBackgroundDimmer() {
+    updateBackgroundDimmer(): void {
         if (this._dimmerSprite) {
             this._dimmerSprite.opacity = this.openness;
         }
     }
 
-    /** @returns {void} */
-    refreshDimmerBitmap() {
+    refreshDimmerBitmap(): void {
         if (this._dimmerSprite) {
             const bitmap = this._dimmerSprite.bitmap;
             const w = this.width > 0 ? this.width + 8 : 0;
@@ -773,18 +619,15 @@ class Window_Base extends Window {
         }
     }
 
-    /** @returns {void} */
-    playCursorSound() {
+    playCursorSound(): void {
         SoundManager.playCursor();
     }
 
-    /** @returns {void} */
-    playOkSound() {
+    playOkSound(): void {
         SoundManager.playOk();
     }
 
-    /** @returns {void} */
-    playBuzzerSound() {
+    playBuzzerSound(): void {
         SoundManager.playBuzzer();
     }
 }
@@ -793,27 +636,37 @@ class Window_Base extends Window {
  * The window class with scroll functions.
  */
 class Window_Scrollable extends Window_Base {
-    /** @param {[rect: Rectangle]} args */
-    constructor(...args) {
+    declare _scrollX: number;
+    declare _scrollY: number;
+    declare _scrollBaseX: number;
+    declare _scrollBaseY: number;
+    declare _scrollTargetX: number;
+    declare _scrollTargetY: number;
+    declare _scrollDuration: number;
+    declare _scrollAccelX: number;
+    declare _scrollAccelY: number;
+    declare _scrollTouching: boolean;
+    declare _scrollLastTouchX: number;
+    declare _scrollLastTouchY: number;
+    declare _scrollLastCursorVisible: boolean;
+
+    constructor(...args: [rect: Rectangle]) {
         super(...args);
     }
 
-    /** @param {Rectangle} rect */
-    initialize(rect) {
+    initialize(rect: Rectangle): void;
+    initialize(...args: any[]): void;
+    initialize(rect: Rectangle): void {
         super.initialize(rect);
-        /** @type {number} */
+
         this._scrollX = 0;
-        /** @type {number} */
         this._scrollY = 0;
-        /** @type {number} */
         this._scrollBaseX = 0;
-        /** @type {number} */
         this._scrollBaseY = 0;
         this.clearScrollStatus();
     }
 
-    /** @returns {void} */
-    clearScrollStatus() {
+    clearScrollStatus(): void {
         this._scrollTargetX = 0;
         this._scrollTargetY = 0;
         this._scrollDuration = 0;
@@ -825,32 +678,23 @@ class Window_Scrollable extends Window_Base {
         this._scrollLastCursorVisible = false;
     }
 
-    /** @returns {number} */
-    scrollX() {
+    scrollX(): number {
         return this._scrollX;
     }
 
-    /** @returns {number} */
-    scrollY() {
+    scrollY(): number {
         return this._scrollY;
     }
 
-    /** @returns {number} */
-    scrollBaseX() {
+    scrollBaseX(): number {
         return this._scrollBaseX;
     }
 
-    /** @returns {number} */
-    scrollBaseY() {
+    scrollBaseY(): number {
         return this._scrollBaseY;
     }
 
-    /**
-     * @param {number} x
-     * @param {number} y
-     * @returns {void}
-     */
-    scrollTo(x, y) {
+    scrollTo(x: number, y: number): void {
         const scrollX = x.clamp(0, this.maxScrollX());
         const scrollY = y.clamp(0, this.maxScrollY());
         if (this._scrollX !== scrollX || this._scrollY !== scrollY) {
@@ -860,32 +704,17 @@ class Window_Scrollable extends Window_Base {
         }
     }
 
-    /**
-     * @param {number} x
-     * @param {number} y
-     * @returns {void}
-     */
-    scrollBy(x, y) {
+    scrollBy(x: number, y: number): void {
         this.scrollTo(this._scrollX + x, this._scrollY + y);
     }
 
-    /**
-     * @param {number} x
-     * @param {number} y
-     * @returns {void}
-     */
-    smoothScrollTo(x, y) {
+    smoothScrollTo(x: number, y: number): void {
         this._scrollTargetX = x.clamp(0, this.maxScrollX());
         this._scrollTargetY = y.clamp(0, this.maxScrollY());
         this._scrollDuration = Input.keyRepeatInterval;
     }
 
-    /**
-     * @param {number} x
-     * @param {number} y
-     * @returns {void}
-     */
-    smoothScrollBy(x, y) {
+    smoothScrollBy(x: number, y: number): void {
         if (this._scrollDuration === 0) {
             this._scrollTargetX = this.scrollX();
             this._scrollTargetY = this.scrollY();
@@ -893,64 +722,44 @@ class Window_Scrollable extends Window_Base {
         this.smoothScrollTo(this._scrollTargetX + x, this._scrollTargetY + y);
     }
 
-    /**
-     * @param {number} x
-     * @param {number} y
-     * @returns {void}
-     */
-    setScrollAccel(x, y) {
+    setScrollAccel(x: number, y: number): void {
         this._scrollAccelX = x;
         this._scrollAccelY = y;
     }
 
-    /** @returns {number} */
-    overallWidth() {
+    overallWidth(): number {
         return this.innerWidth;
     }
 
-    /** @returns {number} */
-    overallHeight() {
+    overallHeight(): number {
         return this.innerHeight;
     }
 
-    /** @returns {number} */
-    maxScrollX() {
+    maxScrollX(): number {
         return Math.max(0, this.overallWidth() - this.innerWidth);
     }
 
-    /** @returns {number} */
-    maxScrollY() {
+    maxScrollY(): number {
         return Math.max(0, this.overallHeight() - this.innerHeight);
     }
 
-    /** @returns {number} */
-    scrollBlockWidth() {
+    scrollBlockWidth(): number {
         return this.itemWidth();
     }
 
-    /** @returns {number} */
-    scrollBlockHeight() {
+    scrollBlockHeight(): number {
         return this.itemHeight();
     }
 
-    /**
-     * @param {number} n
-     * @returns {void}
-     */
-    smoothScrollDown(n) {
+    smoothScrollDown(n: number): void {
         this.smoothScrollBy(0, this.itemHeight() * n);
     }
 
-    /**
-     * @param {number} n
-     * @returns {void}
-     */
-    smoothScrollUp(n) {
+    smoothScrollUp(n: number): void {
         this.smoothScrollBy(0, -this.itemHeight() * n);
     }
 
-    /** @returns {void} */
-    update() {
+    update(): void {
         super.update();
         this.processWheelScroll();
         this.processTouchScroll();
@@ -960,8 +769,7 @@ class Window_Scrollable extends Window_Base {
         this.updateOrigin();
     }
 
-    /** @returns {void} */
-    processWheelScroll() {
+    processWheelScroll(): void {
         if (this.isWheelScrollEnabled() && this.isTouchedInsideFrame()) {
             const threshold = 20;
             if (TouchInput.wheelY >= threshold) {
@@ -973,8 +781,7 @@ class Window_Scrollable extends Window_Base {
         }
     }
 
-    /** @returns {void} */
-    processTouchScroll() {
+    processTouchScroll(): void {
         if (this.isTouchScrollEnabled()) {
             if (TouchInput.isTriggered() && this.isTouchedInsideFrame()) {
                 this.onTouchScrollStart();
@@ -989,30 +796,25 @@ class Window_Scrollable extends Window_Base {
         }
     }
 
-    /** @returns {boolean} */
-    isWheelScrollEnabled() {
+    isWheelScrollEnabled(): boolean {
         return this.isScrollEnabled();
     }
 
-    /** @returns {boolean} */
-    isTouchScrollEnabled() {
+    isTouchScrollEnabled(): boolean {
         return this.isScrollEnabled();
     }
 
-    /** @returns {boolean} */
-    isScrollEnabled() {
+    isScrollEnabled(): boolean {
         return true;
     }
 
-    /** @returns {boolean} */
-    isTouchedInsideFrame() {
+    isTouchedInsideFrame(): boolean {
         const touchPos = new PIXI.Point(TouchInput.x, TouchInput.y);
         const localPos = this.toLocal(touchPos);
         return this.innerRect.contains(localPos.x, localPos.y);
     }
 
-    /** @returns {void} */
-    onTouchScrollStart() {
+    onTouchScrollStart(): void {
         this._scrollTouching = true;
         this._scrollLastTouchX = TouchInput.x;
         this._scrollLastTouchY = TouchInput.y;
@@ -1020,8 +822,7 @@ class Window_Scrollable extends Window_Base {
         this.setScrollAccel(0, 0);
     }
 
-    /** @returns {void} */
-    onTouchScroll() {
+    onTouchScroll(): void {
         const accelX = this._scrollLastTouchX - TouchInput.x;
         const accelY = this._scrollLastTouchY - TouchInput.y;
         this.setScrollAccel(accelX, accelY);
@@ -1030,14 +831,12 @@ class Window_Scrollable extends Window_Base {
         this.cursorVisible = false;
     }
 
-    /** @returns {void} */
-    onTouchScrollEnd() {
+    onTouchScrollEnd(): void {
         this._scrollTouching = false;
         this.cursorVisible = this._scrollLastCursorVisible;
     }
 
-    /** @returns {void} */
-    updateSmoothScroll() {
+    updateSmoothScroll(): void {
         if (this._scrollDuration > 0) {
             const d = this._scrollDuration;
             const deltaX = (this._scrollTargetX - this._scrollX) / d;
@@ -1047,8 +846,7 @@ class Window_Scrollable extends Window_Base {
         }
     }
 
-    /** @returns {void} */
-    updateScrollAccel() {
+    updateScrollAccel(): void {
         if (this._scrollAccelX !== 0 || this._scrollAccelY !== 0) {
             this.scrollBy(this._scrollAccelX, this._scrollAccelY);
             this._scrollAccelX *= 0.92;
@@ -1062,14 +860,12 @@ class Window_Scrollable extends Window_Base {
         }
     }
 
-    /** @returns {void} */
-    updateArrows() {
+    updateArrows(): void {
         this.downArrowVisible = this._scrollY < this.maxScrollY();
         this.upArrowVisible = this._scrollY > 0;
     }
 
-    /** @returns {void} */
-    updateOrigin() {
+    updateOrigin(): void {
         const blockWidth = this.scrollBlockWidth() || 1;
         const blockHeight = this.scrollBlockHeight() || 1;
         const baseX = this._scrollX - (this._scrollX % blockWidth);
@@ -1082,12 +878,7 @@ class Window_Scrollable extends Window_Base {
         this.origin.y = this._scrollY % blockHeight;
     }
 
-    /**
-     * @param {number} baseX
-     * @param {number} baseY
-     * @returns {void}
-     */
-    updateScrollBase(baseX, baseY) {
+    updateScrollBase(baseX: number, baseY: number): void {
         const deltaX = baseX - this._scrollBaseX;
         const deltaY = baseY - this._scrollBaseY;
         this._scrollBaseX = baseX;
@@ -1096,8 +887,7 @@ class Window_Scrollable extends Window_Base {
         this.moveInnerChildrenBy(-deltaX, -deltaY);
     }
 
-    /** @returns {void} */
-    paint() {
+    paint(): void {
         // to be overridden
     }
 }
@@ -1106,213 +896,166 @@ class Window_Scrollable extends Window_Base {
  * The window class with cursor movement functions.
  */
 class Window_Selectable extends Window_Scrollable {
-    /** @param {[rect: Rectangle]} args */
-    constructor(...args) {
+    declare _index: number;
+    declare _cursorFixed: boolean;
+    declare _cursorAll: boolean;
+    declare _helpWindow: Window_Help | null;
+    declare _handlers: Record<string, () => void>;
+    declare _doubleTouch: boolean;
+    declare _canRepeat: boolean;
+
+    constructor(..._extra: any[]);
+    constructor(...args: [rect: Rectangle]) {
         super(...args);
     }
 
-    /** @param {Rectangle} rect */
-    initialize(rect) {
+    initialize(rect: Rectangle): void;
+    initialize(...args: any[]): void;
+    initialize(rect: Rectangle): void {
         super.initialize(rect);
-        /** @type {number} */
+
         this._index = -1;
-        /** @type {boolean} */
         this._cursorFixed = false;
-        /** @type {boolean} */
         this._cursorAll = false;
-        /** @type {Window_Help | null} */
         this._helpWindow = null;
-        /** @type {Record<string, () => void>} */
         this._handlers = {};
-        /** @type {boolean} */
         this._doubleTouch = false;
-        /** @type {boolean} */
         this._canRepeat = true;
         this.deactivate();
     }
 
-    /** @returns {number} */
-    index() {
+    index(): number {
         return this._index;
     }
 
-    /** @returns {boolean} */
-    cursorFixed() {
+    cursorFixed(): boolean {
         return this._cursorFixed;
     }
 
-    /**
-     * @param {boolean} cursorFixed
-     * @returns {void}
-     */
-    setCursorFixed(cursorFixed) {
+    setCursorFixed(cursorFixed: boolean): void {
         this._cursorFixed = cursorFixed;
     }
 
-    /** @returns {boolean} */
-    cursorAll() {
+    cursorAll(): boolean {
         return this._cursorAll;
     }
 
-    /**
-     * @param {boolean} cursorAll
-     * @returns {void}
-     */
-    setCursorAll(cursorAll) {
+    setCursorAll(cursorAll: boolean): void {
         this._cursorAll = cursorAll;
     }
 
-    /** @returns {number} */
-    maxCols() {
+    maxCols(): number {
         return 1;
     }
 
-    /** @returns {number} */
-    maxItems() {
+    maxItems(): number {
         return 0;
     }
 
-    /** @returns {number} */
-    colSpacing() {
+    colSpacing(): number {
         return 8;
     }
 
-    /** @returns {number} */
-    rowSpacing() {
+    rowSpacing(): number {
         return 4;
     }
 
-    /** @returns {number} */
-    itemWidth() {
+    itemWidth(): number {
         return Math.floor(this.innerWidth / this.maxCols());
     }
 
-    /** @returns {number} */
-    itemHeight() {
+    itemHeight(): number {
         return super.itemHeight() + 8;
     }
 
-    /** @returns {number} */
-    contentsHeight() {
+    contentsHeight(): number {
         return this.innerHeight + this.itemHeight();
     }
 
-    /** @returns {number} */
-    maxRows() {
+    maxRows(): number {
         return Math.max(Math.ceil(this.maxItems() / this.maxCols()), 1);
     }
 
-    /** @returns {number} */
-    overallHeight() {
+    overallHeight(): number {
         return this.maxRows() * this.itemHeight();
     }
 
-    /** @returns {void} */
-    activate() {
+    activate(): void {
         super.activate();
         this.reselect();
     }
 
-    /** @returns {void} */
-    deactivate() {
+    deactivate(): void {
         super.deactivate();
         this.reselect();
     }
 
-    /**
-     * @param {number} index
-     * @returns {void}
-     */
-    select(index) {
+    select(index: number): void {
         this._index = index;
         this.refreshCursor();
         this.callUpdateHelp();
     }
 
-    /**
-     * @param {number} index
-     * @returns {void}
-     */
-    forceSelect(index) {
+    forceSelect(index: number): void {
         this.select(index);
         this.ensureCursorVisible(false);
     }
 
-    /**
-     * @param {number} index
-     * @returns {void}
-     */
-    smoothSelect(index) {
+    smoothSelect(index: number): void {
         this.select(index);
         this.ensureCursorVisible(true);
     }
 
-    /** @returns {void} */
-    deselect() {
+    deselect(): void {
         this.select(-1);
     }
 
-    /** @returns {void} */
-    reselect() {
+    reselect(): void {
         this.select(this._index);
         this.ensureCursorVisible(true);
         this.cursorVisible = true;
     }
 
-    /** @returns {number} */
-    row() {
+    row(): number {
         return Math.floor(this.index() / this.maxCols());
     }
 
-    /** @returns {number} */
-    topRow() {
+    topRow(): number {
         return Math.floor(this.scrollY() / this.itemHeight());
     }
 
-    /** @returns {number} */
-    maxTopRow() {
+    maxTopRow(): number {
         return Math.max(0, this.maxRows() - this.maxPageRows());
     }
 
-    /**
-     * @param {number} row
-     * @returns {void}
-     */
-    setTopRow(row) {
+    setTopRow(row: number): void {
         this.scrollTo(this.scrollX(), row * this.itemHeight());
     }
 
-    /** @returns {number} */
-    maxPageRows() {
+    maxPageRows(): number {
         return Math.floor(this.innerHeight / this.itemHeight());
     }
 
-    /** @returns {number} */
-    maxPageItems() {
+    maxPageItems(): number {
         return this.maxPageRows() * this.maxCols();
     }
 
-    /** @returns {number} */
-    maxVisibleItems() {
-        const visibleRows = Math.ceil(this.contentsHeight() / this.itemHeight());
+    maxVisibleItems(): number {
+        const visibleRows = Math.ceil(
+            this.contentsHeight() / this.itemHeight(),
+        );
         return visibleRows * this.maxCols();
     }
 
-    /** @returns {boolean} */
-    isHorizontal() {
+    isHorizontal(): boolean {
         return this.maxPageRows() === 1;
     }
 
-    /** @returns {number} */
-    topIndex() {
+    topIndex(): number {
         return this.topRow() * this.maxCols();
     }
 
-    /**
-     * @param {number} index
-     * @returns {Rectangle}
-     */
-    itemRect(index) {
+    itemRect(index: number): Rectangle {
         const maxCols = this.maxCols();
         const itemWidth = this.itemWidth();
         const itemHeight = this.itemHeight();
@@ -1327,11 +1070,7 @@ class Window_Selectable extends Window_Scrollable {
         return new PIXI.Rectangle(x, y, width, height);
     }
 
-    /**
-     * @param {number} index
-     * @returns {Rectangle}
-     */
-    itemRectWithPadding(index) {
+    itemRectWithPadding(index: number): Rectangle {
         const rect = this.itemRect(index);
         const padding = this.itemPadding();
         rect.x += padding;
@@ -1339,11 +1078,7 @@ class Window_Selectable extends Window_Scrollable {
         return rect;
     }
 
-    /**
-     * @param {number} index
-     * @returns {Rectangle}
-     */
-    itemLineRect(index) {
+    itemLineRect(index: number): Rectangle {
         const rect = this.itemRectWithPadding(index);
         const padding = (rect.height - this.lineHeight()) / 2;
         rect.y += padding;
@@ -1351,63 +1086,42 @@ class Window_Selectable extends Window_Scrollable {
         return rect;
     }
 
-    /**
-     * @param {Window_Help} helpWindow
-     * @returns {void}
-     */
-    setHelpWindow(helpWindow) {
+    setHelpWindow(helpWindow: Window_Help): void {
         this._helpWindow = helpWindow;
         this.callUpdateHelp();
     }
 
-    /** @returns {void} */
-    showHelpWindow() {
+    showHelpWindow(): void {
         if (this._helpWindow) {
             this._helpWindow.show();
         }
     }
 
-    /** @returns {void} */
-    hideHelpWindow() {
+    hideHelpWindow(): void {
         if (this._helpWindow) {
             this._helpWindow.hide();
         }
     }
 
-    /**
-     * @param {string} symbol
-     * @param {() => void} method
-     * @returns {void}
-     */
-    setHandler(symbol, method) {
+    setHandler(symbol: string, method: () => void): void {
         this._handlers[symbol] = method;
     }
 
-    /**
-     * @param {string} symbol
-     * @returns {boolean}
-     */
-    isHandled(symbol) {
+    isHandled(symbol: string): boolean {
         return !!this._handlers[symbol];
     }
 
-    /**
-     * @param {string} symbol
-     * @returns {void}
-     */
-    callHandler(symbol) {
+    callHandler(symbol: string): void {
         if (this.isHandled(symbol)) {
             this._handlers[symbol]();
         }
     }
 
-    /** @returns {boolean} */
-    isOpenAndActive() {
+    isOpenAndActive(): boolean {
         return this.isOpen() && this.visible && this.active;
     }
 
-    /** @returns {boolean} */
-    isCursorMovable() {
+    isCursorMovable(): boolean {
         return (
             this.isOpenAndActive() &&
             !this._cursorFixed &&
@@ -1416,11 +1130,7 @@ class Window_Selectable extends Window_Scrollable {
         );
     }
 
-    /**
-     * @param {boolean} wrap
-     * @returns {void}
-     */
-    cursorDown(wrap) {
+    cursorDown(wrap: boolean): void {
         const index = this.index();
         const maxItems = this.maxItems();
         const maxCols = this.maxCols();
@@ -1429,11 +1139,7 @@ class Window_Selectable extends Window_Scrollable {
         }
     }
 
-    /**
-     * @param {boolean} wrap
-     * @returns {void}
-     */
-    cursorUp(wrap) {
+    cursorUp(wrap: boolean): void {
         const index = Math.max(0, this.index());
         const maxItems = this.maxItems();
         const maxCols = this.maxCols();
@@ -1442,11 +1148,7 @@ class Window_Selectable extends Window_Scrollable {
         }
     }
 
-    /**
-     * @param {boolean} wrap
-     * @returns {void}
-     */
-    cursorRight(wrap) {
+    cursorRight(wrap: boolean): void {
         const index = this.index();
         const maxItems = this.maxItems();
         const maxCols = this.maxCols();
@@ -1456,11 +1158,7 @@ class Window_Selectable extends Window_Scrollable {
         }
     }
 
-    /**
-     * @param {boolean} wrap
-     * @returns {void}
-     */
-    cursorLeft(wrap) {
+    cursorLeft(wrap: boolean): void {
         const index = Math.max(0, this.index());
         const maxItems = this.maxItems();
         const maxCols = this.maxCols();
@@ -1470,8 +1168,7 @@ class Window_Selectable extends Window_Scrollable {
         }
     }
 
-    /** @returns {void} */
-    cursorPagedown() {
+    cursorPagedown(): void {
         const index = this.index();
         const maxItems = this.maxItems();
         if (this.topRow() + this.maxPageRows() < this.maxRows()) {
@@ -1480,8 +1177,7 @@ class Window_Selectable extends Window_Scrollable {
         }
     }
 
-    /** @returns {void} */
-    cursorPageup() {
+    cursorPageup(): void {
         const index = this.index();
         if (this.topRow() > 0) {
             this.smoothScrollUp(this.maxPageRows());
@@ -1489,21 +1185,18 @@ class Window_Selectable extends Window_Scrollable {
         }
     }
 
-    /** @returns {boolean} */
-    isScrollEnabled() {
+    isScrollEnabled(): boolean {
         return this.active || this.index() < 0;
     }
 
-    /** @returns {void} */
-    update() {
+    update(): void {
         this.processCursorMove();
         this.processHandling();
         this.processTouch();
         super.update();
     }
 
-    /** @returns {void} */
-    processCursorMove() {
+    processCursorMove(): void {
         if (this.isCursorMovable()) {
             const lastIndex = this.index();
             if (Input.isRepeated("down")) {
@@ -1530,8 +1223,7 @@ class Window_Selectable extends Window_Scrollable {
         }
     }
 
-    /** @returns {void} */
-    processHandling() {
+    processHandling(): void {
         if (this.isOpenAndActive()) {
             if (this.isOkEnabled() && this.isOkTriggered()) {
                 return this.processOk();
@@ -1548,8 +1240,7 @@ class Window_Selectable extends Window_Scrollable {
         }
     }
 
-    /** @returns {void} */
-    processTouch() {
+    processTouch(): void {
         if (this.isOpenAndActive()) {
             if (this.isHoverEnabled() && TouchInput.isHovered()) {
                 this.onTouchSelect(false);
@@ -1564,16 +1255,11 @@ class Window_Selectable extends Window_Scrollable {
         }
     }
 
-    /** @returns {boolean} */
-    isHoverEnabled() {
+    isHoverEnabled(): boolean {
         return true;
     }
 
-    /**
-     * @param {boolean} trigger
-     * @returns {void}
-     */
-    onTouchSelect(trigger) {
+    onTouchSelect(trigger: boolean): void {
         this._doubleTouch = false;
         if (this.isCursorMovable()) {
             const lastIndex = this.index();
@@ -1590,8 +1276,7 @@ class Window_Selectable extends Window_Scrollable {
         }
     }
 
-    /** @returns {void} */
-    onTouchOk() {
+    onTouchOk(): void {
         if (this.isTouchOkEnabled()) {
             const hitIndex = this.hitIndex();
             if (this._cursorFixed) {
@@ -1604,26 +1289,19 @@ class Window_Selectable extends Window_Scrollable {
         }
     }
 
-    /** @returns {void} */
-    onTouchCancel() {
+    onTouchCancel(): void {
         if (this.isCancelEnabled()) {
             this.processCancel();
         }
     }
 
-    /** @returns {number} */
-    hitIndex() {
+    hitIndex(): number {
         const touchPos = new PIXI.Point(TouchInput.x, TouchInput.y);
         const localPos = this.toLocal(touchPos);
         return this.hitTest(localPos.x, localPos.y);
     }
 
-    /**
-     * @param {number} x
-     * @param {number} y
-     * @returns {number}
-     */
-    hitTest(x, y) {
+    hitTest(x: number, y: number): number {
         if (this.innerRect.contains(x, y)) {
             const cx = this.origin.x + x - this.padding;
             const cy = this.origin.y + y - this.padding;
@@ -1641,36 +1319,32 @@ class Window_Selectable extends Window_Scrollable {
         return -1;
     }
 
-    /** @returns {boolean} */
-    isTouchOkEnabled() {
+    isTouchOkEnabled(): boolean {
         return (
             this.isOkEnabled() &&
             (this._cursorFixed || this._cursorAll || this._doubleTouch)
         );
     }
 
-    /** @returns {boolean} */
-    isOkEnabled() {
+    isOkEnabled(): boolean {
         return this.isHandled("ok");
     }
 
-    /** @returns {boolean} */
-    isCancelEnabled() {
+    isCancelEnabled(): boolean {
         return this.isHandled("cancel");
     }
 
-    /** @returns {boolean} */
-    isOkTriggered() {
-        return this._canRepeat ? Input.isRepeated("ok") : Input.isTriggered("ok");
+    isOkTriggered(): boolean {
+        return this._canRepeat
+            ? Input.isRepeated("ok")
+            : Input.isTriggered("ok");
     }
 
-    /** @returns {boolean} */
-    isCancelTriggered() {
+    isCancelTriggered(): boolean {
         return Input.isRepeated("cancel");
     }
 
-    /** @returns {void} */
-    processOk() {
+    processOk(): void {
         if (this.isCurrentItemEnabled()) {
             this.playOkSound();
             this.updateInputData();
@@ -1681,50 +1355,40 @@ class Window_Selectable extends Window_Scrollable {
         }
     }
 
-    /** @returns {void} */
-    callOkHandler() {
+    callOkHandler(): void {
         this.callHandler("ok");
     }
 
-    /** @returns {void} */
-    processCancel() {
+    processCancel(): void {
         SoundManager.playCancel();
         this.updateInputData();
         this.deactivate();
         this.callCancelHandler();
     }
 
-    /** @returns {void} */
-    callCancelHandler() {
+    callCancelHandler(): void {
         this.callHandler("cancel");
     }
 
-    /** @returns {void} */
-    processPageup() {
+    processPageup(): void {
         this.updateInputData();
         this.deactivate();
         this.callHandler("pageup");
     }
 
-    /** @returns {void} */
-    processPagedown() {
+    processPagedown(): void {
         this.updateInputData();
         this.deactivate();
         this.callHandler("pagedown");
     }
 
-    /** @returns {void} */
-    updateInputData() {
+    updateInputData(): void {
         Input.update();
         TouchInput.update();
         this.clearScrollStatus();
     }
 
-    /**
-     * @param {boolean} smooth
-     * @returns {void}
-     */
-    ensureCursorVisible(smooth) {
+    ensureCursorVisible(smooth: boolean): void {
         if (this._cursorAll) {
             this.scrollTo(0, 0);
         } else if (this.innerHeight > 0 && this.row() >= 0) {
@@ -1748,35 +1412,27 @@ class Window_Selectable extends Window_Scrollable {
         }
     }
 
-    /** @returns {void} */
-    callUpdateHelp() {
+    callUpdateHelp(): void {
         if (this.active && this._helpWindow) {
             this.updateHelp();
         }
     }
 
-    /** @returns {void} */
-    updateHelp() {
-        this._helpWindow.clear();
+    updateHelp(): void {
+        this._helpWindow!.clear();
     }
 
-    /**
-     * @param {RMMZ.DataItemBase | null} item
-     * @returns {void}
-     */
-    setHelpWindowItem(item) {
+    setHelpWindowItem(item: RMMZ.DataItemBase | null): void {
         if (this._helpWindow) {
             this._helpWindow.setItem(item);
         }
     }
 
-    /** @returns {boolean} */
-    isCurrentItemEnabled() {
+    isCurrentItemEnabled(): boolean {
         return true;
     }
 
-    /** @returns {void} */
-    drawAllItems() {
+    drawAllItems(): void {
         const topIndex = this.topIndex();
         for (let i = 0; i < this.maxVisibleItems(); i++) {
             const index = topIndex + i;
@@ -1787,38 +1443,22 @@ class Window_Selectable extends Window_Scrollable {
         }
     }
 
-    /**
-     * @param {number} index
-     * @returns {void}
-     */
-    drawItem(/*index*/) {
+    drawItem(index: number): void {
         //
     }
 
-    /**
-     * @param {number} index
-     * @returns {void}
-     */
-    clearItem(index) {
+    clearItem(index: number): void {
         const rect = this.itemRect(index);
         this.contents.clearRect(rect.x, rect.y, rect.width, rect.height);
         this.contentsBack.clearRect(rect.x, rect.y, rect.width, rect.height);
     }
 
-    /**
-     * @param {number} index
-     * @returns {void}
-     */
-    drawItemBackground(index) {
+    drawItemBackground(index: number): void {
         const rect = this.itemRect(index);
         this.drawBackgroundRect(rect);
     }
 
-    /**
-     * @param {Rectangle} rect
-     * @returns {void}
-     */
-    drawBackgroundRect(rect) {
+    drawBackgroundRect(rect: Rectangle): void {
         const c1 = ColorManager.itemBackColor1();
         const c2 = ColorManager.itemBackColor2();
         const x = rect.x;
@@ -1829,11 +1469,7 @@ class Window_Selectable extends Window_Scrollable {
         this.contentsBack.strokeRect(x, y, w, h, c1);
     }
 
-    /**
-     * @param {number} index
-     * @returns {void}
-     */
-    redrawItem(index) {
+    redrawItem(index: number): void {
         if (index >= 0) {
             this.clearItem(index);
             this.drawItemBackground(index);
@@ -1841,18 +1477,15 @@ class Window_Selectable extends Window_Scrollable {
         }
     }
 
-    /** @returns {void} */
-    redrawCurrentItem() {
+    redrawCurrentItem(): void {
         this.redrawItem(this.index());
     }
 
-    /** @returns {void} */
-    refresh() {
+    refresh(): void {
         this.paint();
     }
 
-    /** @returns {void} */
-    paint() {
+    paint(): void {
         if (this.contents) {
             this.contents.clear();
             this.contentsBack.clear();
@@ -1860,8 +1493,7 @@ class Window_Selectable extends Window_Scrollable {
         }
     }
 
-    /** @returns {void} */
-    refreshCursor() {
+    refreshCursor(): void {
         if (this._cursorAll) {
             this.refreshCursorForAll();
         } else if (this.index() >= 0) {
@@ -1872,8 +1504,7 @@ class Window_Selectable extends Window_Scrollable {
         }
     }
 
-    /** @returns {void} */
-    refreshCursorForAll() {
+    refreshCursorForAll(): void {
         const maxItems = this.maxItems();
         if (maxItems > 0) {
             const rect = this.itemRect(0);
@@ -1889,105 +1520,80 @@ class Window_Selectable extends Window_Scrollable {
  * The superclass of windows for selecting a command.
  */
 class Window_Command extends Window_Selectable {
-    /** @param {[rect: Rectangle]} args */
-    constructor(...args) {
+    declare _list: any[];
+
+    constructor(..._extra: any[]);
+    constructor(...args: [rect: Rectangle]) {
         super(...args);
     }
 
-    /** @param {Rectangle} rect */
-    initialize(rect) {
+    initialize(rect: Rectangle): void;
+    initialize(...args: any[]): void;
+    initialize(rect: Rectangle): void {
         super.initialize(rect);
         this.refresh();
         this.select(0);
         this.activate();
     }
 
-    /** @returns {number} */
-    maxItems() {
+    maxItems(): number {
         return this._list.length;
     }
 
-    /** @returns {void} */
-    clearCommandList() {
+    clearCommandList(): void {
         this._list = [];
     }
 
-    /** @returns {void} */
-    makeCommandList() {
+    makeCommandList(): void {
         //
     }
 
     // prettier-ignore
-    /**
-     * @param {string} name
-     * @param {string} symbol
-     * @param {boolean} [enabled]
-     * @param {number | null} [ext]
-     * @returns {void}
-     */
+
     addCommand(
-        name, symbol, enabled = true, ext = null
-    ) {
+        name: string, symbol: string, enabled: boolean = true, ext: number | null = null
+    ): void {
         this._list.push({ name: name, symbol: symbol, enabled: enabled, ext: ext });
     }
 
-    /**
-     * @param {number} index
-     * @returns {string}
-     */
-    commandName(index) {
+    commandName(index: number): string {
         return this._list[index].name;
     }
 
-    /**
-     * @param {number} index
-     * @returns {string}
-     */
-    commandSymbol(index) {
+    commandSymbol(index: number): string {
         return this._list[index].symbol;
     }
 
-    /**
-     * @param {number} index
-     * @returns {boolean}
-     */
-    isCommandEnabled(index) {
+    isCommandEnabled(index: number): boolean {
         return this._list[index].enabled;
     }
 
-    /** @returns {{ name: string; symbol: string; enabled: boolean; ext: number | null; } | null} */
-    currentData() {
+    currentData(): {
+        name: string;
+        symbol: string;
+        enabled: boolean;
+        ext: number | null;
+    } | null {
         return this.index() >= 0 ? this._list[this.index()] : null;
     }
 
-    /** @returns {boolean} */
-    isCurrentItemEnabled() {
-        return this.currentData() ? this.currentData().enabled : false;
+    isCurrentItemEnabled(): boolean {
+        return this.currentData() ? this.currentData()!.enabled : false;
     }
 
-    /** @returns {string | null} */
-    currentSymbol() {
-        return this.currentData() ? this.currentData().symbol : null;
+    currentSymbol(): string | null {
+        return this.currentData() ? this.currentData()!.symbol : null;
     }
 
-    /** @returns {number | null} */
-    currentExt() {
-        return this.currentData() ? this.currentData().ext : null;
+    currentExt(): number | null {
+        return this.currentData() ? this.currentData()!.ext : null;
     }
 
-    /**
-     * @param {string | null} symbol
-     * @returns {number}
-     */
-    findSymbol(symbol) {
-        return this._list.findIndex(item => item.symbol === symbol);
+    findSymbol(symbol: string | null): number {
+        return this._list.findIndex((item) => item.symbol === symbol);
     }
 
-    /**
-     * @param {string | null} symbol
-     * @returns {void}
-     */
-    selectSymbol(symbol) {
+    selectSymbol(symbol: string | null): void {
         const index = this.findSymbol(symbol);
         if (index >= 0) {
             this.forceSelect(index);
@@ -1996,19 +1602,11 @@ class Window_Command extends Window_Selectable {
         }
     }
 
-    /**
-     * @param {number} ext
-     * @returns {number}
-     */
-    findExt(ext) {
-        return this._list.findIndex(item => item.ext === ext);
+    findExt(ext: number): number {
+        return this._list.findIndex((item) => item.ext === ext);
     }
 
-    /**
-     * @param {number} ext
-     * @returns {void}
-     */
-    selectExt(ext) {
+    selectExt(ext: number): void {
         const index = this.findExt(ext);
         if (index >= 0) {
             this.forceSelect(index);
@@ -2017,33 +1615,32 @@ class Window_Command extends Window_Selectable {
         }
     }
 
-    /**
-     * @param {number} index
-     * @returns {void}
-     */
-    drawItem(index) {
+    drawItem(index: number): void {
         const rect = this.itemLineRect(index);
         const align = this.itemTextAlign();
         this.resetTextColor();
         this.changePaintOpacity(this.isCommandEnabled(index));
-        this.drawText(this.commandName(index), rect.x, rect.y, rect.width, align);
+        this.drawText(
+            this.commandName(index),
+            rect.x,
+            rect.y,
+            rect.width,
+            align,
+        );
     }
 
-    /** @returns {CanvasTextAlign} */
-    itemTextAlign() {
+    itemTextAlign(): CanvasTextAlign {
         return "center";
     }
 
-    /** @returns {boolean} */
-    isOkEnabled() {
+    isOkEnabled(): boolean {
         return true;
     }
 
-    /** @returns {void} */
-    callOkHandler() {
+    callOkHandler(): void {
         const symbol = this.currentSymbol();
-        if (this.isHandled(symbol)) {
-            this.callHandler(symbol);
+        if (this.isHandled(symbol!)) {
+            this.callHandler(symbol!);
         } else if (this.isHandled("ok")) {
             super.callOkHandler();
         } else {
@@ -2051,8 +1648,7 @@ class Window_Command extends Window_Selectable {
         }
     }
 
-    /** @returns {void} */
-    refresh() {
+    refresh(): void {
         this.clearCommandList();
         this.makeCommandList();
         super.refresh();
@@ -2063,21 +1659,21 @@ class Window_Command extends Window_Selectable {
  * The command window for the horizontal selection format.
  */
 class Window_HorzCommand extends Window_Command {
-    constructor(...args) {
+    constructor(...args: any[]) {
         super(...args);
     }
 
-    initialize(rect) {
+    initialize(rect: any): void;
+    initialize(...args: any[]): void;
+    initialize(rect: any): void {
         super.initialize(rect);
     }
 
-    /** @returns {number} */
-    maxCols() {
+    maxCols(): number {
         return 4;
     }
 
-    /** @returns {"center"} */
-    itemTextAlign() {
+    itemTextAlign(): "center" {
         return "center";
     }
 }
@@ -2086,44 +1682,36 @@ class Window_HorzCommand extends Window_Command {
  * The window for displaying the description of the selected item.
  */
 class Window_Help extends Window_Base {
-    /** @param {[rect: Rectangle]} args */
-    constructor(...args) {
+    declare _text: string;
+
+    constructor(...args: [rect: Rectangle]) {
         super(...args);
     }
 
-    /** @param {Rectangle} rect */
-    initialize(rect) {
+    initialize(rect: Rectangle): void;
+    initialize(...args: any[]): void;
+    initialize(rect: Rectangle): void {
         super.initialize(rect);
-        /** @type {string} */
+
         this._text = "";
     }
 
-    /**
-     * @param {string} text
-     * @returns {void}
-     */
-    setText(text) {
+    setText(text: string): void {
         if (this._text !== text) {
             this._text = text;
             this.refresh();
         }
     }
 
-    /** @returns {void} */
-    clear() {
+    clear(): void {
         this.setText("");
     }
 
-    /**
-     * @param {RMMZ.DataItemBase | null} item
-     * @returns {void}
-     */
-    setItem(item) {
+    setItem(item: RMMZ.DataItemBase | null): void {
         this.setText(item ? item.description : "");
     }
 
-    /** @returns {void} */
-    refresh() {
+    refresh(): void {
         const rect = this.baseTextRect();
         this.contents.clear();
         this.drawTextEx(this._text, rect.x, rect.y, rect.width);
@@ -2134,24 +1722,22 @@ class Window_Help extends Window_Base {
  * The window for displaying the party's gold.
  */
 class Window_Gold extends Window_Selectable {
-    /** @param {[rect: Rectangle]} args */
-    constructor(...args) {
+    constructor(...args: [rect: Rectangle]) {
         super(...args);
     }
 
-    /** @param {Rectangle} rect */
-    initialize(rect) {
+    initialize(rect: Rectangle): void;
+    initialize(...args: any[]): void;
+    initialize(rect: Rectangle): void {
         super.initialize(rect);
         this.refresh();
     }
 
-    /** @returns {number} */
-    colSpacing() {
+    colSpacing(): number {
         return 0;
     }
 
-    /** @returns {void} */
-    refresh() {
+    refresh(): void {
         const rect = this.itemLineRect(0);
         const x = rect.x;
         const y = rect.y;
@@ -2160,18 +1746,15 @@ class Window_Gold extends Window_Selectable {
         this.drawCurrencyValue(this.value(), this.currencyUnit(), x, y, width);
     }
 
-    /** @returns {number} */
-    value() {
+    value(): number {
         return $gameParty.gold();
     }
 
-    /** @returns {string} */
-    currencyUnit() {
+    currencyUnit(): string {
         return TextManager.currencyUnit;
     }
 
-    /** @returns {void} */
-    open() {
+    open(): void {
         this.refresh();
         super.open();
     }
@@ -2181,46 +1764,40 @@ class Window_Gold extends Window_Selectable {
  * The superclass of windows for displaying actor status.
  */
 class Window_StatusBase extends Window_Selectable {
-    /** @param {[rect: Rectangle]} args */
-    constructor(...args) {
+    declare _additionalSprites: Record<string, Sprite>;
+
+    constructor(..._extra: any[]);
+    constructor(...args: [rect: Rectangle]) {
         super(...args);
     }
 
-    /** @param {Rectangle} rect */
-    initialize(rect) {
+    initialize(rect: Rectangle): void;
+    initialize(...args: any[]): void;
+    initialize(rect: Rectangle): void {
         super.initialize(rect);
-        /** @type {Record<string, Sprite>} */
+
         this._additionalSprites = {};
         this.loadFaceImages();
     }
 
-    /** @returns {void} */
-    loadFaceImages() {
+    loadFaceImages(): void {
         for (const actor of $gameParty.members()) {
             ImageManager.loadFace(actor.faceName());
         }
     }
 
-    /** @returns {void} */
-    refresh() {
+    refresh(): void {
         this.hideAdditionalSprites();
         super.refresh();
     }
 
-    /** @returns {void} */
-    hideAdditionalSprites() {
+    hideAdditionalSprites(): void {
         for (const sprite of Object.values(this._additionalSprites)) {
             sprite.hide();
         }
     }
 
-    /**
-     * @param {Game_Actor} actor
-     * @param {number} x
-     * @param {number} y
-     * @returns {void}
-     */
-    placeActorName(actor, x, y) {
+    placeActorName(actor: Game_Actor, x: number, y: number): void {
         const key = "actor%1-name".format(actor.actorId());
         const sprite = this.createInnerSprite(key, Sprite_Name);
         sprite.setup(actor);
@@ -2228,13 +1805,7 @@ class Window_StatusBase extends Window_Selectable {
         sprite.show();
     }
 
-    /**
-     * @param {Game_Actor} actor
-     * @param {number} x
-     * @param {number} y
-     * @returns {void}
-     */
-    placeStateIcon(actor, x, y) {
+    placeStateIcon(actor: Game_Actor, x: number, y: number): void {
         const key = "actor%1-stateIcon".format(actor.actorId());
         const sprite = this.createInnerSprite(key, Sprite_StateIcon);
         sprite.setup(actor);
@@ -2242,14 +1813,12 @@ class Window_StatusBase extends Window_Selectable {
         sprite.show();
     }
 
-    /**
-     * @param {Game_Actor} actor
-     * @param {"time" | "hp" | "mp" | "tp"} type
-     * @param {number} x
-     * @param {number} y
-     * @returns {void}
-     */
-    placeGauge(actor, type, x, y) {
+    placeGauge(
+        actor: Game_Actor,
+        type: "time" | "hp" | "mp" | "tp",
+        x: number,
+        y: number,
+    ): void {
         const key = "actor%1-gauge-%2".format(actor.actorId(), type);
         const sprite = this.createInnerSprite(key, Sprite_Gauge);
         sprite.setup(actor, type);
@@ -2257,16 +1826,13 @@ class Window_StatusBase extends Window_Selectable {
         sprite.show();
     }
 
-    /**
-     * @template {Sprite} T
-     * @param {string} key
-     * @param {new () => T} spriteClass
-     * @returns {T}
-     */
-    createInnerSprite(key, spriteClass) {
+    createInnerSprite<T extends Sprite>(
+        key: string,
+        spriteClass: new () => T,
+    ): T {
         const dict = this._additionalSprites;
         if (dict[key]) {
-            return dict[key];
+            return dict[key] as T;
         } else {
             const sprite = new spriteClass();
             dict[key] = sprite;
@@ -2275,25 +1841,13 @@ class Window_StatusBase extends Window_Selectable {
         }
     }
 
-    /**
-     * @param {Game_Actor} actor
-     * @param {number} x
-     * @param {number} y
-     * @returns {void}
-     */
-    placeTimeGauge(actor, x, y) {
+    placeTimeGauge(actor: Game_Actor, x: number, y: number): void {
         if (BattleManager.isTpb()) {
             this.placeGauge(actor, "time", x, y);
         }
     }
 
-    /**
-     * @param {Game_Actor} actor
-     * @param {number} x
-     * @param {number} y
-     * @returns {void}
-     */
-    placeBasicGauges(actor, x, y) {
+    placeBasicGauges(actor: Game_Actor, x: number, y: number): void {
         this.placeGauge(actor, "hp", x, y);
         this.placeGauge(actor, "mp", x, y + this.gaugeLineHeight());
         if ($dataSystem.optDisplayTp) {
@@ -2301,96 +1855,68 @@ class Window_StatusBase extends Window_Selectable {
         }
     }
 
-    /** @returns {number} */
-    gaugeLineHeight() {
+    gaugeLineHeight(): number {
         return 24;
     }
 
-    /**
-     * @param {Game_Actor} actor
-     * @param {number} x
-     * @param {number} y
-     * @returns {void}
-     */
-    drawActorCharacter(actor, x, y) {
+    drawActorCharacter(actor: Game_Actor, x: number, y: number): void {
         this.drawCharacter(actor.characterName(), actor.characterIndex(), x, y);
     }
 
     // prettier-ignore
-    /**
-     * @param {Game_Actor} actor
-     * @param {number} x
-     * @param {number} y
-     * @param {number} [width]
-     * @param {number} [height]
-     * @returns {void}
-     */
+
     drawActorFace(
-        actor, x, y, width, height
-    ) {
+        actor: Game_Actor, x: number, y: number, width?: number, height?: number
+    ): void {
         this.drawFace(actor.faceName(), actor.faceIndex(), x, y, width, height);
     }
 
-    /**
-     * @param {Game_Actor} actor
-     * @param {number} x
-     * @param {number} y
-     * @param {number} [width]
-     * @returns {void}
-     */
-    drawActorName(actor, x, y, width) {
+    drawActorName(
+        actor: Game_Actor,
+        x: number,
+        y: number,
+        width?: number,
+    ): void {
         width = width || 168;
         this.changeTextColor(ColorManager.hpColor(actor));
         this.drawText(actor.name(), x, y, width);
     }
 
-    /**
-     * @param {Game_Actor} actor
-     * @param {number} x
-     * @param {number} y
-     * @param {number} [width]
-     * @returns {void}
-     */
-    drawActorClass(actor, x, y, width) {
+    drawActorClass(
+        actor: Game_Actor,
+        x: number,
+        y: number,
+        width?: number,
+    ): void {
         width = width || 168;
         this.resetTextColor();
         this.drawText(actor.currentClass().name, x, y, width);
     }
 
-    /**
-     * @param {Game_Actor} actor
-     * @param {number} x
-     * @param {number} y
-     * @param {number} [width]
-     * @returns {void}
-     */
-    drawActorNickname(actor, x, y, width) {
+    drawActorNickname(
+        actor: Game_Actor,
+        x: number,
+        y: number,
+        width?: number,
+    ): void {
         width = width || 270;
         this.resetTextColor();
         this.drawText(actor.nickname(), x, y, width);
     }
 
-    /**
-     * @param {Game_Actor} actor
-     * @param {number} x
-     * @param {number} y
-     * @returns {void}
-     */
-    drawActorLevel(actor, x, y) {
+    drawActorLevel(actor: Game_Actor, x: number, y: number): void {
         this.changeTextColor(ColorManager.systemColor());
         this.drawText(TextManager.levelA, x, y, 48);
         this.resetTextColor();
         this.drawText(actor.level, x + 84, y, 36, "right");
     }
 
-    /**
-     * @param {Game_Actor} actor
-     * @param {number} x
-     * @param {number} y
-     * @param {number} [width]
-     * @returns {void}
-     */
-    drawActorIcons(actor, x, y, width) {
+    drawActorIcons(
+        actor: Game_Actor,
+        x: number,
+        y: number,
+        width?: number,
+    ): void {
         width = width || 144;
         const delta = ImageManager.standardIconWidth - ImageManager.iconWidth;
         const iconWidth = ImageManager.standardIconWidth;
@@ -2402,13 +1928,7 @@ class Window_StatusBase extends Window_Selectable {
         }
     }
 
-    /**
-     * @param {Game_Actor} actor
-     * @param {number} x
-     * @param {number} y
-     * @returns {void}
-     */
-    drawActorSimpleStatus(actor, x, y) {
+    drawActorSimpleStatus(actor: Game_Actor, x: number, y: number): void {
         const lineHeight = this.lineHeight();
         const x2 = x + 180;
         this.drawActorName(actor, x, y);
@@ -2418,12 +1938,7 @@ class Window_StatusBase extends Window_Selectable {
         this.placeBasicGauges(actor, x2, y + lineHeight);
     }
 
-    /**
-     * @param {Game_Actor} actor
-     * @param {number} index
-     * @returns {string}
-     */
-    actorSlotName(actor, index) {
+    actorSlotName(actor: Game_Actor, index: number): string {
         const slots = actor.equipSlots();
         return $dataSystem.equipTypes[slots[index]];
     }
@@ -2433,29 +1948,26 @@ class Window_StatusBase extends Window_Selectable {
  * The window for selecting a command on the menu screen.
  */
 class Window_MenuCommand extends Window_Command {
-    /** @param {[rect: Rectangle]} args */
-    constructor(...args) {
+    constructor(...args: [rect: Rectangle]) {
         super(...args);
     }
 
-    /** @param {Rectangle} rect */
-    initialize(rect) {
+    initialize(rect: Rectangle): void;
+    initialize(...args: any[]): void;
+    initialize(rect: Rectangle): void {
         super.initialize(rect);
         this.selectLast();
-        /** @type {boolean} */
+
         this._canRepeat = false;
     }
 
-    /** @type {string | null} */
-    static _lastCommandSymbol = null;
+    static _lastCommandSymbol: string | null = null;
 
-    /** @returns {void} */
-    static initCommandPosition() {
+    static initCommandPosition(): void {
         this._lastCommandSymbol = null;
     }
 
-    /** @returns {void} */
-    makeCommandList() {
+    makeCommandList(): void {
         this.addMainCommands();
         this.addFormationCommand();
         this.addOriginalCommands();
@@ -2464,8 +1976,7 @@ class Window_MenuCommand extends Window_Command {
         this.addGameEndCommand();
     }
 
-    /** @returns {void} */
-    addMainCommands() {
+    addMainCommands(): void {
         const enabled = this.areMainCommandsEnabled();
         if (this.needsCommand("item")) {
             this.addCommand(TextManager.item, "item", enabled);
@@ -2481,46 +1992,37 @@ class Window_MenuCommand extends Window_Command {
         }
     }
 
-    /** @returns {void} */
-    addFormationCommand() {
+    addFormationCommand(): void {
         if (this.needsCommand("formation")) {
             const enabled = this.isFormationEnabled();
             this.addCommand(TextManager.formation, "formation", enabled);
         }
     }
 
-    /** @returns {void} */
-    addOriginalCommands() {
+    addOriginalCommands(): void {
         //
     }
 
-    /** @returns {void} */
-    addOptionsCommand() {
+    addOptionsCommand(): void {
         if (this.needsCommand("options")) {
             const enabled = this.isOptionsEnabled();
             this.addCommand(TextManager.options, "options", enabled);
         }
     }
 
-    /** @returns {void} */
-    addSaveCommand() {
+    addSaveCommand(): void {
         if (this.needsCommand("save")) {
             const enabled = this.isSaveEnabled();
             this.addCommand(TextManager.save, "save", enabled);
         }
     }
 
-    /** @returns {void} */
-    addGameEndCommand() {
+    addGameEndCommand(): void {
         const enabled = this.isGameEndEnabled();
         this.addCommand(TextManager.gameEnd, "gameEnd", enabled);
     }
 
-    /**
-     * @param {string} name
-     * @returns {boolean}
-     */
-    needsCommand(name) {
+    needsCommand(name: string): boolean {
         const table = ["item", "skill", "equip", "status", "formation", "save"];
         const index = table.indexOf(name);
         if (index >= 0) {
@@ -2529,39 +2031,32 @@ class Window_MenuCommand extends Window_Command {
         return true;
     }
 
-    /** @returns {boolean} */
-    areMainCommandsEnabled() {
+    areMainCommandsEnabled(): boolean {
         return $gameParty.exists();
     }
 
-    /** @returns {boolean} */
-    isFormationEnabled() {
+    isFormationEnabled(): boolean {
         return $gameParty.size() >= 2 && $gameSystem.isFormationEnabled();
     }
 
-    /** @returns {boolean} */
-    isOptionsEnabled() {
+    isOptionsEnabled(): boolean {
         return true;
     }
 
-    /** @returns {boolean} */
-    isSaveEnabled() {
+    isSaveEnabled(): boolean {
         return !DataManager.isEventTest() && $gameSystem.isSaveEnabled();
     }
 
-    /** @returns {boolean} */
-    isGameEndEnabled() {
+    isGameEndEnabled(): boolean {
         return true;
     }
 
-    /** @returns {void} */
-    processOk() {
+    processOk(): void {
         Window_MenuCommand._lastCommandSymbol = this.currentSymbol();
         super.processOk();
     }
 
-    /** @returns {void} */
-    selectLast() {
+    selectLast(): void {
         this.selectSymbol(Window_MenuCommand._lastCommandSymbol);
     }
 }
@@ -2570,73 +2065,62 @@ class Window_MenuCommand extends Window_Command {
  * The window for displaying party member status on the menu screen.
  */
 class Window_MenuStatus extends Window_StatusBase {
-    /** @param {[rect: Rectangle]} args */
-    constructor(...args) {
+    declare _formationMode: boolean;
+    declare _pendingIndex: number;
+
+    constructor(...args: [rect: Rectangle]) {
         super(...args);
     }
 
-    /** @param {Rectangle} rect */
-    initialize(rect) {
+    initialize(rect: Rectangle): void;
+    initialize(...args: any[]): void;
+    initialize(rect: Rectangle): void {
         super.initialize(rect);
-        /** @type {boolean} */
+
         this._formationMode = false;
-        /** @type {number} */
         this._pendingIndex = -1;
         this.refresh();
     }
 
-    /** @returns {number} */
-    maxItems() {
+    maxItems(): number {
         return $gameParty.size();
     }
 
-    /** @returns {number} */
-    numVisibleRows() {
+    numVisibleRows(): number {
         return 4;
     }
 
-    /** @returns {number} */
-    itemHeight() {
+    itemHeight(): number {
         return Math.floor(this.innerHeight / this.numVisibleRows());
     }
 
-    /**
-     * @param {number} index
-     * @returns {import("..").Game_Actor}
-     */
-    actor(index) {
+    actor(index: number): Game_Actor {
         return $gameParty.members()[index];
     }
 
-    /**
-     * @param {number} index
-     * @returns {void}
-     */
-    drawItem(index) {
+    drawItem(index: number): void {
         this.drawPendingItemBackground(index);
         this.drawItemImage(index);
         this.drawItemStatus(index);
     }
 
-    /**
-     * @param {number} index
-     * @returns {void}
-     */
-    drawPendingItemBackground(index) {
+    drawPendingItemBackground(index: number): void {
         if (index === this._pendingIndex) {
             const rect = this.itemRect(index);
             const color = ColorManager.pendingColor();
             this.changePaintOpacity(false);
-            this.contents.fillRect(rect.x, rect.y, rect.width, rect.height, color);
+            this.contents.fillRect(
+                rect.x,
+                rect.y,
+                rect.width,
+                rect.height,
+                color,
+            );
             this.changePaintOpacity(true);
         }
     }
 
-    /**
-     * @param {number} index
-     * @returns {void}
-     */
-    drawItemImage(index) {
+    drawItemImage(index: number): void {
         const actor = this.actor(index);
         const rect = this.itemRect(index);
         const width = ImageManager.standardFaceWidth;
@@ -2646,27 +2130,22 @@ class Window_MenuStatus extends Window_StatusBase {
         this.changePaintOpacity(true);
     }
 
-    /**
-     * @param {number} index
-     * @returns {void}
-     */
-    drawItemStatus(index) {
+    drawItemStatus(index: number): void {
         const actor = this.actor(index);
         const rect = this.itemRect(index);
         const x = rect.x + 180;
-        const y = rect.y + Math.floor(rect.height / 2 - this.lineHeight() * 1.5);
+        const y =
+            rect.y + Math.floor(rect.height / 2 - this.lineHeight() * 1.5);
         this.drawActorSimpleStatus(actor, x, y);
     }
 
-    /** @returns {void} */
-    processOk() {
+    processOk(): void {
         super.processOk();
         const actor = this.actor(this.index());
         $gameParty.setMenuActor(actor);
     }
 
-    /** @returns {boolean} */
-    isCurrentItemEnabled() {
+    isCurrentItemEnabled(): boolean {
         if (this._formationMode) {
             const actor = this.actor(this.index());
             return actor && actor.isFormationChangeOk();
@@ -2675,34 +2154,23 @@ class Window_MenuStatus extends Window_StatusBase {
         }
     }
 
-    /** @returns {void} */
-    selectLast() {
+    selectLast(): void {
         this.smoothSelect($gameParty.menuActor().index() || 0);
     }
 
-    /** @returns {boolean} */
-    formationMode() {
+    formationMode(): boolean {
         return this._formationMode;
     }
 
-    /**
-     * @param {boolean} formationMode
-     * @returns {void}
-     */
-    setFormationMode(formationMode) {
+    setFormationMode(formationMode: boolean): void {
         this._formationMode = formationMode;
     }
 
-    /** @returns {number} */
-    pendingIndex() {
+    pendingIndex(): number {
         return this._pendingIndex;
     }
 
-    /**
-     * @param {number} index
-     * @returns {void}
-     */
-    setPendingIndex(index) {
+    setPendingIndex(index: number): void {
         const lastPendingIndex = this._pendingIndex;
         this._pendingIndex = index;
         this.redrawItem(this._pendingIndex);
@@ -2714,35 +2182,29 @@ class Window_MenuStatus extends Window_StatusBase {
  * The window for selecting a target actor on the item and skill screens.
  */
 class Window_MenuActor extends Window_MenuStatus {
-    /** @param {[rect: Rectangle]} args */
-    constructor(...args) {
+    constructor(...args: [rect: Rectangle]) {
         super(...args);
     }
 
-    /** @param {Rectangle} rect */
-    initialize(rect) {
+    initialize(rect: Rectangle): void;
+    initialize(...args: any[]): void;
+    initialize(rect: Rectangle): void {
         super.initialize(rect);
         this.hide();
     }
 
-    /** @returns {void} */
-    processOk() {
+    processOk(): void {
         if (!this.cursorAll()) {
             $gameParty.setTargetActor($gameParty.members()[this.index()]);
         }
         this.callOkHandler();
     }
 
-    /** @returns {void} */
-    selectLast() {
+    selectLast(): void {
         this.forceSelect($gameParty.targetActor().index() || 0);
     }
 
-    /**
-     * @param {RMMZ.ActionItem} item
-     * @returns {void}
-     */
-    selectForItem(item) {
+    selectForItem(item: RMMZ.ActionItem): void {
         const actor = $gameParty.menuActor();
         const action = new Game_Action(actor);
         action.setItemObject(item);
@@ -2768,29 +2230,30 @@ class Window_MenuActor extends Window_MenuStatus {
  * The window for selecting a category of items on the item and shop screens.
  */
 class Window_ItemCategory extends Window_HorzCommand {
-    constructor(...args) {
+    declare _itemWindow: Window_ItemList;
+
+    constructor(...args: any[]) {
         super(...args);
     }
 
-    initialize(rect) {
+    initialize(rect: Rectangle): void;
+    initialize(...args: any[]): void;
+    initialize(rect: Rectangle): void {
         super.initialize(rect);
     }
 
-    /** @returns {number} */
-    maxCols() {
+    maxCols(): number {
         return 4;
     }
 
-    /** @returns {void} */
-    update() {
+    update(): void {
         super.update();
         if (this._itemWindow) {
             this._itemWindow.setCategory(this.currentSymbol());
         }
     }
 
-    /** @returns {void} */
-    makeCommandList() {
+    makeCommandList(): void {
         if (this.needsCommand("item")) {
             this.addCommand(TextManager.item, "item");
         }
@@ -2805,11 +2268,7 @@ class Window_ItemCategory extends Window_HorzCommand {
         }
     }
 
-    /**
-     * @param {string} name
-     * @returns {boolean}
-     */
-    needsCommand(name) {
+    needsCommand(name: string): boolean {
         const table = ["item", "weapon", "armor", "keyItem"];
         const index = table.indexOf(name);
         if (index >= 0) {
@@ -2818,16 +2277,11 @@ class Window_ItemCategory extends Window_HorzCommand {
         return true;
     }
 
-    /**
-     * @param {Window_ItemList} itemWindow
-     * @returns {void}
-     */
-    setItemWindow(itemWindow) {
+    setItemWindow(itemWindow: Window_ItemList): void {
         this._itemWindow = itemWindow;
     }
 
-    /** @returns {boolean} */
-    needsSelection() {
+    needsSelection(): boolean {
         return this.maxItems() >= 2;
     }
 }
@@ -2836,23 +2290,23 @@ class Window_ItemCategory extends Window_HorzCommand {
  * The window for selecting an item on the item screen.
  */
 class Window_ItemList extends Window_Selectable {
-    constructor(...args) {
+    declare _category: string | null;
+    declare _data: (RMMZ.InventoryItem | null)[];
+
+    constructor(...args: any[]) {
         super(...args);
     }
 
-    initialize(rect) {
+    initialize(rect: any): void;
+    initialize(...args: any[]): void;
+    initialize(rect: any): void {
         super.initialize(rect);
-        /** @type {string | null} */
+
         this._category = "none";
-        /** @type {(RMMZ.DataItemBase | null)[]} */
         this._data = [];
     }
 
-    /**
-     * @param {string | null} category
-     * @returns {void}
-     */
-    setCategory(category) {
+    setCategory(category: string | null): void {
         if (this._category !== category) {
             this._category = category;
             this.refresh();
@@ -2860,44 +2314,31 @@ class Window_ItemList extends Window_Selectable {
         }
     }
 
-    /** @returns {number} */
-    maxCols() {
+    maxCols(): number {
         return 2;
     }
 
-    /** @returns {number} */
-    colSpacing() {
+    colSpacing(): number {
         return 16;
     }
 
-    /** @returns {number} */
-    maxItems() {
+    maxItems(): number {
         return this._data ? this._data.length : 1;
     }
 
-    /** @returns {RMMZ.DataItemBase | null} */
-    item() {
+    item(): RMMZ.InventoryItem | null {
         return this.itemAt(this.index());
     }
 
-    /**
-     * @param {number} index
-     * @returns {RMMZ.DataItemBase | null}
-     */
-    itemAt(index) {
+    itemAt(index: number): RMMZ.InventoryItem | null {
         return this._data && index >= 0 ? this._data[index] : null;
     }
 
-    /** @returns {boolean} */
-    isCurrentItemEnabled() {
+    isCurrentItemEnabled(): boolean {
         return this.isEnabled(this.item());
     }
 
-    /**
-     * @param {RMMZ.DataItemBase | null} item
-     * @returns {boolean}
-     */
-    includes(item) {
+    includes(item: RMMZ.InventoryItem | null): boolean {
         switch (this._category) {
             case "item":
                 return DataManager.isItem(item) && item.itypeId === 1;
@@ -2912,8 +2353,7 @@ class Window_ItemList extends Window_Selectable {
         }
     }
 
-    /** @returns {boolean} */
-    needsNumber() {
+    needsNumber(): boolean {
         if (this._category === "keyItem") {
             return $dataSystem.optKeyItemsNumber;
         } else {
@@ -2921,33 +2361,25 @@ class Window_ItemList extends Window_Selectable {
         }
     }
 
-    /**
-     * @param {RMMZ.DataItemBase | null} item
-     * @returns {boolean}
-     */
-    isEnabled(item) {
+    isEnabled(item: RMMZ.InventoryItem | null): boolean {
         return $gameParty.canUse(item);
     }
 
-    /** @returns {void} */
-    makeItemList() {
-        this._data = $gameParty.allItems().filter(item => this.includes(item));
+    makeItemList(): void {
+        this._data = $gameParty
+            .allItems()
+            .filter((item) => this.includes(item));
         if (this.includes(null)) {
             this._data.push(null);
         }
     }
 
-    /** @returns {void} */
-    selectLast() {
+    selectLast(): void {
         const index = this._data.indexOf($gameParty.lastItem());
         this.forceSelect(index >= 0 ? index : 0);
     }
 
-    /**
-     * @param {number} index
-     * @returns {void}
-     */
-    drawItem(index) {
+    drawItem(index: number): void {
         const item = this.itemAt(index);
         if (item) {
             const numberWidth = this.numberWidth();
@@ -2959,32 +2391,27 @@ class Window_ItemList extends Window_Selectable {
         }
     }
 
-    /** @returns {number} */
-    numberWidth() {
+    numberWidth(): number {
         return this.textWidth("000");
     }
 
-    /**
-     * @param {RMMZ.DataItemBase} item
-     * @param {number} x
-     * @param {number} y
-     * @param {number} width
-     * @returns {void}
-     */
-    drawItemNumber(item, x, y, width) {
+    drawItemNumber(
+        item: RMMZ.InventoryItem,
+        x: number,
+        y: number,
+        width: number,
+    ): void {
         if (this.needsNumber()) {
             this.drawText(":", x, y, width - this.textWidth("00"), "right");
             this.drawText($gameParty.numItems(item), x, y, width, "right");
         }
     }
 
-    /** @returns {void} */
-    updateHelp() {
+    updateHelp(): void {
         this.setHelpWindowItem(this.item());
     }
 
-    /** @returns {void} */
-    refresh() {
+    refresh(): void {
         this.makeItemList();
         super.refresh();
     }
@@ -2994,21 +2421,22 @@ class Window_ItemList extends Window_Selectable {
  * The window for selecting a skill type on the skill screen.
  */
 class Window_SkillType extends Window_Command {
-    constructor(...args) {
+    declare _actor: Game_Actor | null;
+    declare _skillWindow: Window_SkillList;
+
+    constructor(...args: any[]) {
         super(...args);
     }
 
-    initialize(rect) {
+    initialize(rect: any): void;
+    initialize(...args: any[]): void;
+    initialize(rect: any): void {
         super.initialize(rect);
-        /** @type {Game_Actor | null} */
+
         this._actor = null;
     }
 
-    /**
-     * @param {Game_Actor} actor
-     * @returns {void}
-     */
-    setActor(actor) {
+    setActor(actor: Game_Actor): void {
         if (this._actor !== actor) {
             this._actor = actor;
             this.refresh();
@@ -3016,8 +2444,7 @@ class Window_SkillType extends Window_Command {
         }
     }
 
-    /** @returns {void} */
-    makeCommandList() {
+    makeCommandList(): void {
         if (this._actor) {
             const skillTypes = this._actor.skillTypes();
             for (const stypeId of skillTypes) {
@@ -3027,25 +2454,19 @@ class Window_SkillType extends Window_Command {
         }
     }
 
-    /** @returns {void} */
-    update() {
+    update(): void {
         super.update();
         if (this._skillWindow) {
-            this._skillWindow.setStypeId(this.currentExt());
+            this._skillWindow.setStypeId(this.currentExt()!);
         }
     }
 
-    /**
-     * @param {Window_SkillList} skillWindow
-     * @returns {void}
-     */
-    setSkillWindow(skillWindow) {
+    setSkillWindow(skillWindow: Window_SkillList): void {
         this._skillWindow = skillWindow;
     }
 
-    /** @returns {void} */
-    selectLast() {
-        const skill = this._actor.lastMenuSkill();
+    selectLast(): void {
+        const skill = this._actor!.lastMenuSkill();
         if (skill) {
             this.selectExt(skill.stypeId);
         } else {
@@ -3058,29 +2479,28 @@ class Window_SkillType extends Window_Command {
  * The window for displaying the skill user's status on the skill screen.
  */
 class Window_SkillStatus extends Window_StatusBase {
-    constructor(...args) {
+    declare _actor: Game_Actor | null;
+
+    constructor(...args: any[]) {
         super(...args);
     }
 
-    initialize(rect) {
+    initialize(rect: any): void;
+    initialize(...args: any[]): void;
+    initialize(rect: any): void {
         super.initialize(rect);
-        /** @type {Game_Actor | null} */
+
         this._actor = null;
     }
 
-    /**
-     * @param {Game_Actor} actor
-     * @returns {void}
-     */
-    setActor(actor) {
+    setActor(actor: Game_Actor): void {
         if (this._actor !== actor) {
             this._actor = actor;
             this.refresh();
         }
     }
 
-    /** @returns {void} */
-    refresh() {
+    refresh(): void {
         super.refresh();
         if (this._actor) {
             const x = this.colSpacing() / 2;
@@ -3096,25 +2516,25 @@ class Window_SkillStatus extends Window_StatusBase {
  * The window for selecting a skill on the skill screen.
  */
 class Window_SkillList extends Window_Selectable {
-    constructor(...args) {
+    declare _actor: Game_Actor | null;
+    declare _stypeId: RMMZ.SkillType;
+    declare _data: RMMZ.DataSkill[];
+
+    constructor(...args: any[]) {
         super(...args);
     }
 
-    initialize(rect) {
+    initialize(rect: any): void;
+    initialize(...args: any[]): void;
+    initialize(rect: any): void {
         super.initialize(rect);
-        /** @type {Game_Actor | null} */
+
         this._actor = null;
-        /** @type {RMMZ.SkillType} */
         this._stypeId = 0;
-        /** @type {RMMZ.DataSkill[]} */
         this._data = [];
     }
 
-    /**
-     * @param {Game_Actor} actor
-     * @returns {void}
-     */
-    setActor(actor) {
+    setActor(actor: Game_Actor): void {
         if (this._actor !== actor) {
             this._actor = actor;
             this.refresh();
@@ -3122,11 +2542,7 @@ class Window_SkillList extends Window_Selectable {
         }
     }
 
-    /**
-     * @param {RMMZ.SkillType} stypeId
-     * @returns {void}
-     */
-    setStypeId(stypeId) {
+    setStypeId(stypeId: RMMZ.SkillType): void {
         if (this._stypeId !== stypeId) {
             this._stypeId = stypeId;
             this.refresh();
@@ -3134,75 +2550,54 @@ class Window_SkillList extends Window_Selectable {
         }
     }
 
-    /** @returns {number} */
-    maxCols() {
+    maxCols(): number {
         return 2;
     }
 
-    /** @returns {number} */
-    colSpacing() {
+    colSpacing(): number {
         return 16;
     }
 
-    /** @returns {number} */
-    maxItems() {
+    maxItems(): number {
         return this._data ? this._data.length : 1;
     }
 
-    /** @returns {RMMZ.DataSkill | null} */
-    item() {
+    item(): RMMZ.DataSkill | null {
         return this.itemAt(this.index());
     }
 
-    /**
-     * @param {number} index
-     * @returns {RMMZ.DataSkill | null}
-     */
-    itemAt(index) {
+    itemAt(index: number): RMMZ.DataSkill | null {
         return this._data && index >= 0 ? this._data[index] : null;
     }
 
-    /** @returns {boolean} */
-    isCurrentItemEnabled() {
+    isCurrentItemEnabled(): boolean {
         return this.isEnabled(this._data[this.index()]);
     }
 
-    /**
-     * @param {RMMZ.DataSkill} item
-     * @returns {boolean}
-     */
-    includes(item) {
+    includes(item: RMMZ.DataSkill): boolean {
         return item && item.stypeId === this._stypeId;
     }
 
-    /**
-     * @param {RMMZ.DataSkill} item
-     * @returns {boolean}
-     */
-    isEnabled(item) {
-        return this._actor && this._actor.canUse(item);
+    isEnabled(item: RMMZ.DataSkill): boolean {
+        return (this._actor && this._actor.canUse(item))!;
     }
 
-    /** @returns {void} */
-    makeItemList() {
+    makeItemList(): void {
         if (this._actor) {
-            this._data = this._actor.skills().filter(item => this.includes(item));
+            this._data = this._actor
+                .skills()
+                .filter((item) => this.includes(item));
         } else {
             this._data = [];
         }
     }
 
-    /** @returns {void} */
-    selectLast() {
-        const index = this._data.indexOf(this._actor.lastSkill());
+    selectLast(): void {
+        const index = this._data.indexOf(this._actor!.lastSkill());
         this.forceSelect(index >= 0 ? index : 0);
     }
 
-    /**
-     * @param {number} index
-     * @returns {void}
-     */
-    drawItem(index) {
+    drawItem(index: number): void {
         const skill = this.itemAt(index);
         if (skill) {
             const costWidth = this.costWidth();
@@ -3214,35 +2609,42 @@ class Window_SkillList extends Window_Selectable {
         }
     }
 
-    /** @returns {number} */
-    costWidth() {
+    costWidth(): number {
         return this.textWidth("000");
     }
 
-    /**
-     * @param {RMMZ.DataSkill} skill
-     * @param {number} x
-     * @param {number} y
-     * @param {number} width
-     * @returns {void}
-     */
-    drawSkillCost(skill, x, y, width) {
-        if (this._actor.skillTpCost(skill) > 0) {
+    drawSkillCost(
+        skill: RMMZ.DataSkill,
+        x: number,
+        y: number,
+        width: number,
+    ): void {
+        if (this._actor!.skillTpCost(skill) > 0) {
             this.changeTextColor(ColorManager.tpCostColor());
-            this.drawText(this._actor.skillTpCost(skill), x, y, width, "right");
-        } else if (this._actor.skillMpCost(skill) > 0) {
+            this.drawText(
+                this._actor!.skillTpCost(skill),
+                x,
+                y,
+                width,
+                "right",
+            );
+        } else if (this._actor!.skillMpCost(skill) > 0) {
             this.changeTextColor(ColorManager.mpCostColor());
-            this.drawText(this._actor.skillMpCost(skill), x, y, width, "right");
+            this.drawText(
+                this._actor!.skillMpCost(skill),
+                x,
+                y,
+                width,
+                "right",
+            );
         }
     }
 
-    /** @returns {void} */
-    updateHelp() {
+    updateHelp(): void {
         this.setHelpWindowItem(this.item());
     }
 
-    /** @returns {void} */
-    refresh() {
+    refresh(): void {
         this.makeItemList();
         super.refresh();
     }
@@ -3252,39 +2654,35 @@ class Window_SkillList extends Window_Selectable {
  * The window for displaying parameter changes on the equipment screen.
  */
 class Window_EquipStatus extends Window_StatusBase {
-    /** @param {[rect: Rectangle]} args */
-    constructor(...args) {
+    declare _actor: Game_Actor | null;
+    declare _tempActor: Game_Actor | null;
+
+    constructor(...args: [rect: Rectangle]) {
         super(...args);
     }
 
-    /** @param {Rectangle} rect */
-    initialize(rect) {
+    initialize(rect: Rectangle): void;
+    initialize(...args: any[]): void;
+    initialize(rect: Rectangle): void {
         super.initialize(rect);
-        /** @type {Game_Actor | null} */
+
         this._actor = null;
-        /** @type {Game_Actor | null} */
         this._tempActor = null;
         this.refresh();
     }
 
-    /**
-     * @param {Game_Actor} actor
-     * @returns {void}
-     */
-    setActor(actor) {
+    setActor(actor: Game_Actor): void {
         if (this._actor !== actor) {
             this._actor = actor;
             this.refresh();
         }
     }
 
-    /** @returns {number} */
-    colSpacing() {
+    colSpacing(): number {
         return 0;
     }
 
-    /** @returns {void} */
-    refresh() {
+    refresh(): void {
         this.contents.clear();
         if (this._actor) {
             const nameRect = this.itemLineRect(0);
@@ -3294,19 +2692,14 @@ class Window_EquipStatus extends Window_StatusBase {
         }
     }
 
-    /**
-     * @param {Game_Actor | null} tempActor
-     * @returns {void}
-     */
-    setTempActor(tempActor) {
+    setTempActor(tempActor: Game_Actor | null): void {
         if (this._tempActor !== tempActor) {
             this._tempActor = tempActor;
             this.refresh();
         }
     }
 
-    /** @returns {void} */
-    drawAllParams() {
+    drawAllParams(): void {
         for (let i = 0; i < 6; i++) {
             const x = this.itemPadding();
             const y = this.paramY(i);
@@ -3314,13 +2707,9 @@ class Window_EquipStatus extends Window_StatusBase {
         }
     }
 
-    /**
-     * @param {number} x
-     * @param {number} y
-     * @param {RMMZ.ParamID} paramId
-     * @returns {void}
-     */
-    drawItem(x, y, paramId) {
+    drawItem(x: number, y: number, paramId: RMMZ.ParamID): void;
+    drawItem(...args: any[]): void;
+    drawItem(x: number, y: number, paramId: RMMZ.ParamID): void {
         const paramX = this.paramX();
         const paramWidth = this.paramWidth();
         const rightArrowWidth = this.rightArrowWidth();
@@ -3330,82 +2719,56 @@ class Window_EquipStatus extends Window_StatusBase {
         }
         this.drawRightArrow(paramX + paramWidth, y);
         if (this._tempActor) {
-            this.drawNewParam(paramX + paramWidth + rightArrowWidth, y, paramId);
+            this.drawNewParam(
+                paramX + paramWidth + rightArrowWidth,
+                y,
+                paramId,
+            );
         }
     }
 
-    /**
-     * @param {number} x
-     * @param {number} y
-     * @param {RMMZ.ParamID} paramId
-     * @returns {void}
-     */
-    drawParamName(x, y, paramId) {
+    drawParamName(x: number, y: number, paramId: RMMZ.ParamID): void {
         const width = this.paramX() - this.itemPadding() * 2;
         this.changeTextColor(ColorManager.systemColor());
         this.drawText(TextManager.param(paramId), x, y, width);
     }
 
-    /**
-     * @param {number} x
-     * @param {number} y
-     * @param {RMMZ.ParamID} paramId
-     * @returns {void}
-     */
-    drawCurrentParam(x, y, paramId) {
+    drawCurrentParam(x: number, y: number, paramId: RMMZ.ParamID): void {
         const paramWidth = this.paramWidth();
         this.resetTextColor();
-        this.drawText(this._actor.param(paramId), x, y, paramWidth, "right");
+        this.drawText(this._actor!.param(paramId), x, y, paramWidth, "right");
     }
 
-    /**
-     * @param {number} x
-     * @param {number} y
-     * @returns {void}
-     */
-    drawRightArrow(x, y) {
+    drawRightArrow(x: number, y: number): void {
         const rightArrowWidth = this.rightArrowWidth();
         this.changeTextColor(ColorManager.systemColor());
         this.drawText("\u2192", x, y, rightArrowWidth, "center");
     }
 
-    /**
-     * @param {number} x
-     * @param {number} y
-     * @param {RMMZ.ParamID} paramId
-     * @returns {void}
-     */
-    drawNewParam(x, y, paramId) {
+    drawNewParam(x: number, y: number, paramId: RMMZ.ParamID): void {
         const paramWidth = this.paramWidth();
-        const newValue = this._tempActor.param(paramId);
-        const diffvalue = newValue - this._actor.param(paramId);
+        const newValue = this._tempActor!.param(paramId);
+        const diffvalue = newValue - this._actor!.param(paramId);
         this.changeTextColor(ColorManager.paramchangeTextColor(diffvalue));
         this.drawText(newValue, x, y, paramWidth, "right");
     }
 
-    /** @returns {number} */
-    rightArrowWidth() {
+    rightArrowWidth(): number {
         return 32;
     }
 
-    /** @returns {number} */
-    paramWidth() {
+    paramWidth(): number {
         return 48;
     }
 
-    /** @returns {number} */
-    paramX() {
+    paramX(): number {
         const itemPadding = this.itemPadding();
         const rightArrowWidth = this.rightArrowWidth();
         const paramWidth = this.paramWidth();
         return this.innerWidth - itemPadding - paramWidth * 2 - rightArrowWidth;
     }
 
-    /**
-     * @param {number} index
-     * @returns {number}
-     */
-    paramY(index) {
+    paramY(index: number): number {
         const faceHeight = ImageManager.standardFaceHeight;
         return faceHeight + Math.floor(this.lineHeight() * (index + 1.5));
     }
@@ -3415,21 +2778,21 @@ class Window_EquipStatus extends Window_StatusBase {
  * The window for selecting a command on the equipment screen.
  */
 class Window_EquipCommand extends Window_HorzCommand {
-    constructor(...args) {
+    constructor(...args: any[]) {
         super(...args);
     }
 
-    initialize(rect) {
+    initialize(rect: Rectangle): void;
+    initialize(...args: any[]): void;
+    initialize(rect: Rectangle): void {
         super.initialize(rect);
     }
 
-    /** @returns {number} */
-    maxCols() {
+    maxCols(): number {
         return 3;
     }
 
-    /** @returns {void} */
-    makeCommandList() {
+    makeCommandList(): void {
         this.addCommand(TextManager.equip2, "equip");
         this.addCommand(TextManager.optimize, "optimize");
         this.addCommand(TextManager.clear, "clear");
@@ -3440,61 +2803,50 @@ class Window_EquipCommand extends Window_HorzCommand {
  * The window for selecting an equipment slot on the equipment screen.
  */
 class Window_EquipSlot extends Window_StatusBase {
-    /** @param {[rect: Rectangle]} args */
-    constructor(...args) {
+    declare _actor: Game_Actor | null;
+    declare _statusWindow: Window_EquipStatus;
+    declare _itemWindow: Window_EquipItem;
+
+    constructor(...args: [rect: Rectangle]) {
         super(...args);
     }
 
-    /** @param {Rectangle} rect */
-    initialize(rect) {
+    initialize(rect: Rectangle): void;
+    initialize(...args: any[]): void;
+    initialize(rect: Rectangle): void {
         super.initialize(rect);
-        /** @type {Game_Actor | null} */
+
         this._actor = null;
         this.refresh();
     }
 
-    /**
-     * @param {Game_Actor} actor
-     * @returns {void}
-     */
-    setActor(actor) {
+    setActor(actor: Game_Actor): void {
         if (this._actor !== actor) {
             this._actor = actor;
             this.refresh();
         }
     }
 
-    /** @returns {void} */
-    update() {
+    update(): void {
         super.update();
         if (this._itemWindow) {
             this._itemWindow.setSlotId(this.index());
         }
     }
 
-    /** @returns {number} */
-    maxItems() {
+    maxItems(): number {
         return this._actor ? this._actor.equipSlots().length : 0;
     }
 
-    /** @returns {import("..").DataEquipment | null} */
-    item() {
+    item(): RMMZ.DataEquipment | null {
         return this.itemAt(this.index());
     }
 
-    /**
-     * @param {number} index
-     * @returns {import("..").DataEquipment | null}
-     */
-    itemAt(index) {
+    itemAt(index: number): RMMZ.DataEquipment | null {
         return this._actor ? this._actor.equips()[index] : null;
     }
 
-    /**
-     * @param {number} index
-     * @returns {void}
-     */
-    drawItem(index) {
+    drawItem(index: number): void {
         if (this._actor) {
             const slotName = this.actorSlotName(this._actor, index);
             const item = this.itemAt(index);
@@ -3503,49 +2855,39 @@ class Window_EquipSlot extends Window_StatusBase {
             const itemWidth = rect.width - slotNameWidth;
             this.changeTextColor(ColorManager.systemColor());
             this.changePaintOpacity(this.isEnabled(index));
-            this.drawText(slotName, rect.x, rect.y, slotNameWidth, rect.height);
-            this.drawItemName(item, rect.x + slotNameWidth, rect.y, itemWidth);
+            this.drawText(slotName, rect.x, rect.y, slotNameWidth);
+            this.drawItemName(
+                item as RMMZ.DatabaseItem | null,
+                rect.x + slotNameWidth,
+                rect.y,
+                itemWidth,
+            );
             this.changePaintOpacity(true);
         }
     }
 
-    /** @returns {number} */
-    slotNameWidth() {
+    slotNameWidth(): number {
         return 138;
     }
 
-    /**
-     * @param {number} index
-     * @returns {boolean}
-     */
-    isEnabled(index) {
+    isEnabled(index: number): boolean {
         return this._actor ? this._actor.isEquipChangeOk(index) : false;
     }
 
-    /** @returns {boolean} */
-    isCurrentItemEnabled() {
+    isCurrentItemEnabled(): boolean {
         return this.isEnabled(this.index());
     }
 
-    /**
-     * @param {Window_EquipStatus} statusWindow
-     * @returns {void}
-     */
-    setStatusWindow(statusWindow) {
+    setStatusWindow(statusWindow: Window_EquipStatus): void {
         this._statusWindow = statusWindow;
         this.callUpdateHelp();
     }
 
-    /**
-     * @param {Window_EquipItem} itemWindow
-     * @returns {void}
-     */
-    setItemWindow(itemWindow) {
+    setItemWindow(itemWindow: Window_EquipItem): void {
         this._itemWindow = itemWindow;
     }
 
-    /** @returns {void} */
-    updateHelp() {
+    updateHelp(): void {
         super.updateHelp();
         this.setHelpWindowItem(this.item());
         if (this._statusWindow) {
@@ -3558,33 +2900,32 @@ class Window_EquipSlot extends Window_StatusBase {
  * The window for selecting an equipment item on the equipment screen.
  */
 class Window_EquipItem extends Window_ItemList {
-    constructor(...args) {
+    declare _actor: Game_Actor | null;
+    declare _slotId: RMMZ.EquipmentSlotID;
+    declare _statusWindow: Window_EquipStatus;
+
+    constructor(...args: any[]) {
         super(...args);
     }
 
-    initialize(rect) {
+    initialize(rect: Rectangle): void;
+    initialize(...args: any[]): void;
+    initialize(rect: Rectangle): void {
         super.initialize(rect);
-        /** @type {Game_Actor | null} */
+
         this._actor = null;
-        /** @type {RMMZ.EquipmentSlotID} */
         this._slotId = 0;
     }
 
-    /** @returns {number} */
-    maxCols() {
+    maxCols(): number {
         return 1;
     }
 
-    /** @returns {number} */
-    colSpacing() {
+    colSpacing(): number {
         return 8;
     }
 
-    /**
-     * @param {Game_Actor} actor
-     * @returns {void}
-     */
-    setActor(actor) {
+    setActor(actor: Game_Actor): void {
         if (this._actor !== actor) {
             this._actor = actor;
             this.refresh();
@@ -3592,11 +2933,7 @@ class Window_EquipItem extends Window_ItemList {
         }
     }
 
-    /**
-     * @param {RMMZ.EquipmentSlotID} slotId
-     * @returns {void}
-     */
-    setSlotId(slotId) {
+    setSlotId(slotId: RMMZ.EquipmentSlotID): void {
         if (this._slotId !== slotId) {
             this._slotId = slotId;
             this.refresh();
@@ -3604,23 +2941,16 @@ class Window_EquipItem extends Window_ItemList {
         }
     }
 
-    /**
-     * @param {RMMZ.DataItemBase | null} item
-     * @returns {boolean}
-     */
-    includes(item) {
+    includes(item: RMMZ.DatabaseItem | null): boolean {
         if (item === null) {
             return true;
         }
-        return (
-            this._actor &&
+        return (this._actor &&
             this._actor.canEquip(item) &&
-            item.etypeId === this.etypeId()
-        );
+            item.etypeId === this.etypeId())!;
     }
 
-    /** @returns {number} */
-    etypeId() {
+    etypeId(): number {
         if (this._actor && this._slotId >= 0) {
             return this._actor.equipSlots()[this._slotId];
         } else {
@@ -3628,27 +2958,20 @@ class Window_EquipItem extends Window_ItemList {
         }
     }
 
-    /** @returns {boolean} */
-    isEnabled(/*item*/) {
+    isEnabled(/*item*/): boolean {
         return true;
     }
 
-    /** @returns {void} */
-    selectLast() {
+    selectLast(): void {
         //
     }
 
-    /**
-     * @param {Window_EquipStatus} statusWindow
-     * @returns {void}
-     */
-    setStatusWindow(statusWindow) {
+    setStatusWindow(statusWindow: Window_EquipStatus): void {
         this._statusWindow = statusWindow;
         this.callUpdateHelp();
     }
 
-    /** @returns {void} */
-    updateHelp() {
+    updateHelp(): void {
         super.updateHelp();
         if (this._actor && this._statusWindow && this._slotId >= 0) {
             const actor = JsonEx.makeDeepCopy(this._actor);
@@ -3657,8 +2980,7 @@ class Window_EquipItem extends Window_ItemList {
         }
     }
 
-    /** @returns {void} */
-    playOkSound() {
+    playOkSound(): void {
         //
     }
 }
@@ -3667,33 +2989,30 @@ class Window_EquipItem extends Window_ItemList {
  * The window for displaying full status on the status screen.
  */
 class Window_Status extends Window_StatusBase {
-    /** @param {[rect: Rectangle]} args */
-    constructor(...args) {
+    declare _actor: Game_Actor | null;
+
+    constructor(...args: [rect: Rectangle]) {
         super(...args);
     }
 
-    /** @param {Rectangle} rect */
-    initialize(rect) {
+    initialize(rect: Rectangle): void;
+    initialize(...args: any[]): void;
+    initialize(rect: Rectangle): void {
         super.initialize(rect);
-        /** @type {Game_Actor | null} */
+
         this._actor = null;
         this.refresh();
         this.activate();
     }
 
-    /**
-     * @param {Game_Actor} actor
-     * @returns {void}
-     */
-    setActor(actor) {
+    setActor(actor: Game_Actor): void {
         if (this._actor !== actor) {
             this._actor = actor;
             this.refresh();
         }
     }
 
-    /** @returns {void} */
-    refresh() {
+    refresh(): void {
         super.refresh();
         if (this._actor) {
             this.drawBlock1();
@@ -3701,53 +3020,39 @@ class Window_Status extends Window_StatusBase {
         }
     }
 
-    /** @returns {void} */
-    drawBlock1() {
+    drawBlock1(): void {
         const y = this.block1Y();
-        this.drawActorName(this._actor, 6, y, 168);
-        this.drawActorClass(this._actor, 192, y, 168);
-        this.drawActorNickname(this._actor, 432, y, 270);
+        this.drawActorName(this._actor!, 6, y, 168);
+        this.drawActorClass(this._actor!, 192, y, 168);
+        this.drawActorNickname(this._actor!, 432, y, 270);
     }
 
-    /** @returns {number} */
-    block1Y() {
+    block1Y(): number {
         return 0;
     }
 
-    /** @returns {void} */
-    drawBlock2() {
+    drawBlock2(): void {
         const y = this.block2Y();
-        this.drawActorFace(this._actor, 12, y);
+        this.drawActorFace(this._actor!, 12, y);
         this.drawBasicInfo(204, y);
         this.drawExpInfo(456, y);
     }
 
-    /** @returns {number} */
-    block2Y() {
+    block2Y(): number {
         const lineHeight = this.lineHeight();
         const min = lineHeight;
         const max = this.innerHeight - lineHeight * 4;
         return Math.floor((lineHeight * 1.4).clamp(min, max));
     }
 
-    /**
-     * @param {number} x
-     * @param {number} y
-     * @returns {void}
-     */
-    drawBasicInfo(x, y) {
+    drawBasicInfo(x: number, y: number): void {
         const lineHeight = this.lineHeight();
-        this.drawActorLevel(this._actor, x, y + lineHeight * 0);
-        this.drawActorIcons(this._actor, x, y + lineHeight * 1);
-        this.placeBasicGauges(this._actor, x, y + lineHeight * 2);
+        this.drawActorLevel(this._actor!, x, y + lineHeight * 0);
+        this.drawActorIcons(this._actor!, x, y + lineHeight * 1);
+        this.placeBasicGauges(this._actor!, x, y + lineHeight * 2);
     }
 
-    /**
-     * @param {number} x
-     * @param {number} y
-     * @returns {void}
-     */
-    drawExpInfo(x, y) {
+    drawExpInfo(x: number, y: number): void {
         const lineHeight = this.lineHeight();
         const expTotal = TextManager.expTotal.format(TextManager.exp);
         const expNext = TextManager.expNext.format(TextManager.level);
@@ -3755,25 +3060,29 @@ class Window_Status extends Window_StatusBase {
         this.drawText(expTotal, x, y + lineHeight * 0, 270);
         this.drawText(expNext, x, y + lineHeight * 2, 270);
         this.resetTextColor();
-        this.drawText(this.expTotalValue(), x, y + lineHeight * 1, 270, "right");
+        this.drawText(
+            this.expTotalValue(),
+            x,
+            y + lineHeight * 1,
+            270,
+            "right",
+        );
         this.drawText(this.expNextValue(), x, y + lineHeight * 3, 270, "right");
     }
 
-    /** @returns {number | "-------"} */
-    expTotalValue() {
-        if (this._actor.isMaxLevel()) {
+    expTotalValue(): number | "-------" {
+        if (this._actor!.isMaxLevel()) {
             return "-------";
         } else {
-            return this._actor.currentExp();
+            return this._actor!.currentExp();
         }
     }
 
-    /** @returns {number | "-------"} */
-    expNextValue() {
-        if (this._actor.isMaxLevel()) {
+    expNextValue(): number | "-------" {
+        if (this._actor!.isMaxLevel()) {
             return "-------";
         } else {
-            return this._actor.nextRequiredExp();
+            return this._actor!.nextRequiredExp();
         }
     }
 }
@@ -3782,57 +3091,47 @@ class Window_Status extends Window_StatusBase {
  * The window for displaying parameters on the status screen.
  */
 class Window_StatusParams extends Window_StatusBase {
-    constructor(...args) {
+    declare _actor: Game_Actor | null;
+
+    constructor(...args: any[]) {
         super(...args);
     }
 
-    initialize(rect) {
+    initialize(rect: any): void;
+    initialize(...args: any[]): void;
+    initialize(rect: any): void {
         super.initialize(rect);
-        /** @type {Game_Actor | null} */
+
         this._actor = null;
     }
 
-    /**
-     * @param {Game_Actor} actor
-     * @returns {void}
-     */
-    setActor(actor) {
+    setActor(actor: Game_Actor): void {
         if (this._actor !== actor) {
             this._actor = actor;
             this.refresh();
         }
     }
 
-    /** @returns {number} */
-    maxItems() {
+    maxItems(): number {
         return 6;
     }
 
-    /** @returns {number} */
-    itemHeight() {
+    itemHeight(): number {
         return this.lineHeight();
     }
 
-    /**
-     * @param {number} index
-     * @returns {void}
-     */
-    drawItem(index) {
+    drawItem(index: number): void {
         const rect = this.itemLineRect(index);
         const paramId = index + 2;
         const name = TextManager.param(paramId);
-        const value = this._actor.param(paramId);
+        const value = this._actor!.param(paramId as RMMZ.ParamID);
         this.changeTextColor(ColorManager.systemColor());
         this.drawText(name, rect.x, rect.y, 160);
         this.resetTextColor();
         this.drawText(value, rect.x + 160, rect.y, 60, "right");
     }
 
-    /**
-     * @param {number} index
-     * @returns {void}
-     */
-    drawItemBackground(/*index*/) {
+    drawItemBackground(index: number): void {
         //
     }
 }
@@ -3841,54 +3140,52 @@ class Window_StatusParams extends Window_StatusBase {
  * The window for displaying equipment items on the status screen.
  */
 class Window_StatusEquip extends Window_StatusBase {
-    constructor(...args) {
+    declare _actor: Game_Actor | null;
+
+    constructor(...args: any[]) {
         super(...args);
     }
 
-    initialize(rect) {
+    initialize(rect: any): void;
+    initialize(...args: any[]): void;
+    initialize(rect: any): void {
         super.initialize(rect);
-        /** @type {Game_Actor | null} */
+
         this._actor = null;
     }
 
-    /**
-     * @param {Game_Actor} actor
-     * @returns {void}
-     */
-    setActor(actor) {
+    setActor(actor: Game_Actor): void {
         if (this._actor !== actor) {
             this._actor = actor;
             this.refresh();
         }
     }
 
-    /** @returns {number} */
-    maxItems() {
+    maxItems(): number {
         return this._actor ? this._actor.equipSlots().length : 0;
     }
 
-    /** @returns {number} */
-    itemHeight() {
+    itemHeight(): number {
         return this.lineHeight();
     }
 
-    /**
-     * @param {number} index
-     * @returns {void}
-     */
-    drawItem(index) {
+    drawItem(index: number): void {
         const rect = this.itemLineRect(index);
-        const equips = this._actor.equips();
+        const equips = this._actor!.equips();
         const item = equips[index];
-        const slotName = this.actorSlotName(this._actor, index);
+        const slotName = this.actorSlotName(this._actor!, index);
         const sw = 138;
         this.changeTextColor(ColorManager.systemColor());
-        this.drawText(slotName, rect.x, rect.y, sw, rect.height);
-        this.drawItemName(item, rect.x + sw, rect.y, rect.width - sw);
+        this.drawText(slotName, rect.x, rect.y, sw);
+        this.drawItemName(
+            item as RMMZ.DatabaseItem | null,
+            rect.x + sw,
+            rect.y,
+            rect.width - sw,
+        );
     }
 
-    /** @returns {void} */
-    drawItemBackground(/*index*/) {
+    drawItemBackground(/*index*/): void {
         //
     }
 }
@@ -3897,40 +3194,36 @@ class Window_StatusEquip extends Window_StatusBase {
  * The window for changing various settings on the options screen.
  */
 class Window_Options extends Window_Command {
-    constructor(...args) {
+    declare commandSymbol: (index: number) => keyof RMMZ.DataConfig;
+    constructor(...args: any[]) {
         super(...args);
     }
 
-    initialize(rect) {
+    initialize(rect: any): void;
+    initialize(...args: any[]): void;
+    initialize(rect: any): void {
         super.initialize(rect);
     }
 
-    /** @returns {void} */
-    makeCommandList() {
+    makeCommandList(): void {
         this.addGeneralOptions();
         this.addVolumeOptions();
     }
 
-    /** @returns {void} */
-    addGeneralOptions() {
+    addGeneralOptions(): void {
         this.addCommand(TextManager.alwaysDash, "alwaysDash");
         this.addCommand(TextManager.commandRemember, "commandRemember");
         this.addCommand(TextManager.touchUI, "touchUI");
     }
 
-    /** @returns {void} */
-    addVolumeOptions() {
+    addVolumeOptions(): void {
         this.addCommand(TextManager.bgmVolume, "bgmVolume");
         this.addCommand(TextManager.bgsVolume, "bgsVolume");
         this.addCommand(TextManager.meVolume, "meVolume");
         this.addCommand(TextManager.seVolume, "seVolume");
     }
 
-    /**
-     * @param {number} index
-     * @returns {void}
-     */
-    drawItem(index) {
+    drawItem(index: number): void {
         const title = this.commandName(index);
         const status = this.statusText(index);
         const rect = this.itemLineRect(index);
@@ -3939,54 +3232,44 @@ class Window_Options extends Window_Command {
         this.resetTextColor();
         this.changePaintOpacity(this.isCommandEnabled(index));
         this.drawText(title, rect.x, rect.y, titleWidth, "left");
-        this.drawText(status, rect.x + titleWidth, rect.y, statusWidth, "right");
+        this.drawText(
+            status,
+            rect.x + titleWidth,
+            rect.y,
+            statusWidth,
+            "right",
+        );
     }
 
-    /** @returns {number} */
-    statusWidth() {
+    statusWidth(): number {
         return 120;
     }
 
-    /**
-     * @param {number} index
-     * @returns {string}
-     */
-    statusText(index) {
+    statusText(index: number): string {
         const symbol = this.commandSymbol(index);
         const value = this.getConfigValue(symbol);
         if (this.isVolumeSymbol(symbol)) {
-            return this.volumeStatusText(value);
+            return this.volumeStatusText(value as number);
         } else {
-            return this.booleanStatusText(value);
+            return this.booleanStatusText(value as boolean);
         }
     }
 
-    /**
-     * @param {"alwaysDash" | "commandRemember" | "touchUI" | ("bgmVolume" | "bgsVolume" | "meVolume" | "seVolume")} symbol
-     * @returns {symbol is "bgmVolume" | "bgsVolume" | "meVolume" | "seVolume"}
-     */
-    isVolumeSymbol(symbol) {
+    isVolumeSymbol(
+        symbol: string,
+    ): symbol is "bgmVolume" | "bgsVolume" | "meVolume" | "seVolume" {
         return symbol.includes("Volume");
     }
 
-    /**
-     * @param {boolean} value
-     * @returns {"ON" | "OFF"}
-     */
-    booleanStatusText(value) {
+    booleanStatusText(value: boolean): "ON" | "OFF" {
         return value ? "ON" : "OFF";
     }
 
-    /**
-     * @param {number} value
-     * @returns {string}
-     */
-    volumeStatusText(value) {
+    volumeStatusText(value: number): string {
         return value + "%";
     }
 
-    /** @returns {void} */
-    processOk() {
+    processOk(): void {
         const index = this.index();
         const symbol = this.commandSymbol(index);
         if (this.isVolumeSymbol(symbol)) {
@@ -3996,8 +3279,7 @@ class Window_Options extends Window_Command {
         }
     }
 
-    /** @returns {void} */
-    cursorRight() {
+    cursorRight(): void {
         const index = this.index();
         const symbol = this.commandSymbol(index);
         if (this.isVolumeSymbol(symbol)) {
@@ -4007,8 +3289,7 @@ class Window_Options extends Window_Command {
         }
     }
 
-    /** @returns {void} */
-    cursorLeft() {
+    cursorLeft(): void {
         const index = this.index();
         const symbol = this.commandSymbol(index);
         if (this.isVolumeSymbol(symbol)) {
@@ -4018,14 +3299,11 @@ class Window_Options extends Window_Command {
         }
     }
 
-    /**
-     * @template {"bgmVolume" | "bgsVolume" | "meVolume" | "seVolume"} T
-     * @param {T} symbol
-     * @param {boolean} forward
-     * @param {boolean} wrap
-     * @returns {void}
-     */
-    changeVolume(symbol, forward, wrap) {
+    changeVolume<T extends "bgmVolume" | "bgsVolume" | "meVolume" | "seVolume">(
+        symbol: T,
+        forward: boolean,
+        wrap: boolean,
+    ): void {
         const lastValue = this.getConfigValue(symbol);
         const offset = this.volumeOffset();
         const value = lastValue + (forward ? offset : -offset);
@@ -4036,17 +3314,18 @@ class Window_Options extends Window_Command {
         }
     }
 
-    /** @returns {number} */
-    volumeOffset() {
+    volumeOffset(): number {
         return 20;
     }
 
-    /**
-     * @param {"alwaysDash" | "commandRemember" | "touchUI" | ("bgmVolume" | "bgsVolume" | "meVolume" | "seVolume")} symbol
-     * @param {boolean | number} value
-     * @returns {void}
-     */
-    changeValue(symbol, value) {
+    changeValue(
+        symbol:
+            | "alwaysDash"
+            | "commandRemember"
+            | "touchUI"
+            | ("bgmVolume" | "bgsVolume" | "meVolume" | "seVolume"),
+        value: boolean | number,
+    ): void {
         const lastValue = this.getConfigValue(symbol);
         if (lastValue !== value) {
             this.setConfigValue(symbol, value);
@@ -4055,22 +3334,23 @@ class Window_Options extends Window_Command {
         }
     }
 
-    /**
-     * @template {"alwaysDash" | "commandRemember" | "touchUI" | ("bgmVolume" | "bgsVolume" | "meVolume" | "seVolume")} T
-     * @param {T} symbol
-     * @returns {typeof ConfigManager[T]}
-     */
-    getConfigValue(symbol) {
+    getConfigValue<
+        T extends
+            | "alwaysDash"
+            | "commandRemember"
+            | "touchUI"
+            | ("bgmVolume" | "bgsVolume" | "meVolume" | "seVolume"),
+    >(symbol: T): (typeof ConfigManager)[T] {
         return ConfigManager[symbol];
     }
 
-    /**
-     * @template {"alwaysDash" | "commandRemember" | "touchUI" | ("bgmVolume" | "bgsVolume" | "meVolume" | "seVolume")} T
-     * @param {T} symbol
-     * @param {typeof ConfigManager[T]} volume
-     * @returns {void}
-     */
-    setConfigValue(symbol, volume) {
+    setConfigValue<
+        T extends
+            | "alwaysDash"
+            | "commandRemember"
+            | "touchUI"
+            | ("bgmVolume" | "bgsVolume" | "meVolume" | "seVolume"),
+    >(symbol: T, volume: (typeof ConfigManager)[T]): void {
         ConfigManager[symbol] = volume;
     }
 }
@@ -4079,52 +3359,42 @@ class Window_Options extends Window_Command {
  * The window for selecting a save file on the save and load screens.
  */
 class Window_SavefileList extends Window_Selectable {
-    /** @param {[rect: Rectangle]} args */
-    constructor(...args) {
+    declare _mode: ("save" | "load") | null;
+    declare _autosave: boolean;
+
+    constructor(...args: [rect: Rectangle]) {
         super(...args);
     }
 
-    /** @param {Rectangle} rect */
-    initialize(rect) {
+    initialize(rect: Rectangle): void;
+    initialize(...args: any[]): void;
+    initialize(rect: Rectangle): void {
         super.initialize(rect);
         this.activate();
-        /** @type {("save" | "load") | null} */
+
         this._mode = null;
-        /** @type {boolean} */
         this._autosave = false;
     }
 
-    /**
-     * @param {"save" | "load"} mode
-     * @param {boolean} autosave
-     * @returns {void}
-     */
-    setMode(mode, autosave) {
+    setMode(mode: "save" | "load", autosave: boolean): void {
         this._mode = mode;
         this._autosave = autosave;
         this.refresh();
     }
 
-    /** @returns {number} */
-    maxItems() {
+    maxItems(): number {
         return DataManager.maxSavefiles() - (this._autosave ? 0 : 1);
     }
 
-    /** @returns {number} */
-    numVisibleRows() {
+    numVisibleRows(): number {
         return 5;
     }
 
-    /** @returns {number} */
-    itemHeight() {
+    itemHeight(): number {
         return Math.floor(this.innerHeight / this.numVisibleRows());
     }
 
-    /**
-     * @param {number} index
-     * @returns {void}
-     */
-    drawItem(index) {
+    drawItem(index: number): void {
         const savefileId = this.indexToSavefileId(index);
         const info = DataManager.savefileInfo(savefileId);
         const rect = this.itemRectWithPadding(index);
@@ -4136,27 +3406,15 @@ class Window_SavefileList extends Window_Selectable {
         }
     }
 
-    /**
-     * @param {number} index
-     * @returns {number}
-     */
-    indexToSavefileId(index) {
+    indexToSavefileId(index: number): number {
         return index + (this._autosave ? 0 : 1);
     }
 
-    /**
-     * @param {number} savefileId
-     * @returns {number}
-     */
-    savefileIdToIndex(savefileId) {
+    savefileIdToIndex(savefileId: number): number {
         return savefileId - (this._autosave ? 0 : 1);
     }
 
-    /**
-     * @param {number} savefileId
-     * @returns {boolean}
-     */
-    isEnabled(savefileId) {
+    isEnabled(savefileId: number): boolean {
         if (this._mode === "save") {
             return savefileId > 0;
         } else {
@@ -4164,28 +3422,17 @@ class Window_SavefileList extends Window_Selectable {
         }
     }
 
-    /** @returns {number} */
-    savefileId() {
+    savefileId(): number {
         return this.indexToSavefileId(this.index());
     }
 
-    /**
-     * @param {number} savefileId
-     * @returns {void}
-     */
-    selectSavefile(savefileId) {
+    selectSavefile(savefileId: number): void {
         const index = Math.max(0, this.savefileIdToIndex(savefileId));
         this.select(index);
         this.setTopRow(index - 2);
     }
 
-    /**
-     * @param {number} savefileId
-     * @param {number} x
-     * @param {number} y
-     * @returns {void}
-     */
-    drawTitle(savefileId, x, y) {
+    drawTitle(savefileId: number, x: number, y: number): void {
         if (savefileId === 0) {
             this.drawText(TextManager.autosave, x, y, 180);
         } else {
@@ -4193,12 +3440,7 @@ class Window_SavefileList extends Window_Selectable {
         }
     }
 
-    /**
-     * @param {RMMZ.DataSaveInfo} info
-     * @param {Rectangle} rect
-     * @returns {void}
-     */
-    drawContents(info, rect) {
+    drawContents(info: RMMZ.DataSaveInfo, rect: Rectangle): void {
         const bottom = rect.y + rect.height;
         if (rect.width >= 420) {
             this.drawPartyCharacters(info, rect.x + 220, bottom - 8);
@@ -4210,13 +3452,7 @@ class Window_SavefileList extends Window_Selectable {
         }
     }
 
-    /**
-     * @param {RMMZ.DataSaveInfo} info
-     * @param {number} x
-     * @param {number} y
-     * @returns {void}
-     */
-    drawPartyCharacters(info, x, y) {
+    drawPartyCharacters(info: RMMZ.DataSaveInfo, x: number, y: number): void {
         if (info.characters) {
             let characterX = x;
             for (const data of info.characters) {
@@ -4226,21 +3462,18 @@ class Window_SavefileList extends Window_Selectable {
         }
     }
 
-    /**
-     * @param {RMMZ.DataSaveInfo} info
-     * @param {number} x
-     * @param {number} y
-     * @param {number} width
-     * @returns {void}
-     */
-    drawPlaytime(info, x, y, width) {
+    drawPlaytime(
+        info: RMMZ.DataSaveInfo,
+        x: number,
+        y: number,
+        width: number,
+    ): void {
         if (info.playtime) {
             this.drawText(info.playtime, x, y, width, "right");
         }
     }
 
-    /** @returns {void} */
-    playOkSound() {
+    playOkSound(): void {
         //
     }
 }
@@ -4249,30 +3482,28 @@ class Window_SavefileList extends Window_Selectable {
  * The window for selecting buy/sell on the shop screen.
  */
 class Window_ShopCommand extends Window_HorzCommand {
-    constructor(...args) {
+    declare _purchaseOnly: boolean;
+
+    constructor(...args: any[]) {
         super(...args);
     }
 
-    initialize(rect) {
+    initialize(rect: Rectangle): void;
+    initialize(...args: any[]): void;
+    initialize(rect: Rectangle): void {
         super.initialize(rect);
     }
 
-    /**
-     * @param {boolean} purchaseOnly
-     * @returns {void}
-     */
-    setPurchaseOnly(purchaseOnly) {
+    setPurchaseOnly(purchaseOnly: boolean): void {
         this._purchaseOnly = purchaseOnly;
         this.refresh();
     }
 
-    /** @returns {number} */
-    maxCols() {
+    maxCols(): number {
         return 3;
     }
 
-    /** @returns {void} */
-    makeCommandList() {
+    makeCommandList(): void {
         this.addCommand(TextManager.buy, "buy");
         this.addCommand(TextManager.sell, "sell", !this._purchaseOnly);
         this.addCommand(TextManager.cancel, "cancel");
@@ -4283,84 +3514,67 @@ class Window_ShopCommand extends Window_HorzCommand {
  * The window for selecting an item to buy on the shop screen.
  */
 class Window_ShopBuy extends Window_Selectable {
-    constructor(...args) {
+    declare _money: number;
+    declare _shopGoods: RMMZ.ShopGoodsEntry[];
+    declare _data: any[];
+    declare _price: any[];
+    declare _statusWindow: Window_ShopStatus;
+
+    constructor(...args: any[]) {
         super(...args);
     }
 
-    initialize(rect) {
+    initialize(rect: any): void;
+    initialize(...args: any[]): void;
+    initialize(rect: any): void {
         super.initialize(rect);
-        /** @type {number} */
+
         this._money = 0;
     }
 
-    /**
-     * @param {RMMZ.ShopGoods[]} shopGoods
-     * @returns {void}
-     */
-    setupGoods(shopGoods) {
+    setupGoods(shopGoods: RMMZ.ShopGoodsEntry[]): void {
         this._shopGoods = shopGoods;
         this.refresh();
         this.select(0);
     }
 
-    /** @returns {number} */
-    maxItems() {
+    maxItems(): number {
         return this._data ? this._data.length : 1;
     }
 
-    /** @returns {RMMZ.DataPricedItemBase | null} */
-    item() {
+    item(): RMMZ.InventoryItem | null {
         return this.itemAt(this.index());
     }
 
-    /**
-     * @param {number} index
-     * @returns {RMMZ.DataPricedItemBase | null}
-     */
-    itemAt(index) {
+    itemAt(index: number): RMMZ.InventoryItem | null {
         return this._data && index >= 0 ? this._data[index] : null;
     }
 
-    /**
-     * @param {number} money
-     * @returns {void}
-     */
-    setMoney(money) {
+    setMoney(money: number): void {
         this._money = money;
         this.refresh();
     }
 
-    /** @returns {boolean} */
-    isCurrentItemEnabled() {
+    isCurrentItemEnabled(): boolean {
         return this.isEnabled(this._data[this.index()]);
     }
 
-    /**
-     * @param {RMMZ.DataPricedItemBase} item
-     * @returns {number}
-     */
-    price(item) {
+    price(item: RMMZ.InventoryItem): number {
         return this._price[this._data.indexOf(item)] || 0;
     }
 
-    /**
-     * @param {RMMZ.DataPricedItemBase | null} item
-     * @returns {boolean}
-     */
-    isEnabled(item) {
-        return (
-            item && this.price(item) <= this._money && !$gameParty.hasMaxItems(item)
-        );
+    isEnabled(item: RMMZ.InventoryItem | null): boolean {
+        return (item &&
+            this.price(item) <= this._money &&
+            !$gameParty.hasMaxItems(item))!;
     }
 
-    /** @returns {void} */
-    refresh() {
+    refresh(): void {
         this.makeItemList();
         super.refresh();
     }
 
-    /** @returns {void} */
-    makeItemList() {
+    makeItemList(): void {
         this._data = [];
         this._price = [];
         for (const goods of this._shopGoods) {
@@ -4372,11 +3586,9 @@ class Window_ShopBuy extends Window_Selectable {
         }
     }
 
-    /**
-     * @param {RMMZ.ShopGoods} goods
-     * @returns {import("../data").DataItem | import("../data").DataWeapon | import("../data").DataArmor | null}
-     */
-    goodsToItem(goods) {
+    goodsToItem(
+        goods: RMMZ.ShopGoodsEntry,
+    ): RMMZ.DataItem | RMMZ.DataWeapon | RMMZ.DataArmor | null {
         switch (goods[0]) {
             case 0:
                 return $dataItems[goods[1]];
@@ -4389,13 +3601,9 @@ class Window_ShopBuy extends Window_Selectable {
         }
     }
 
-    /**
-     * @param {number} index
-     * @returns {void}
-     */
-    drawItem(index) {
+    drawItem(index: number): void {
         const item = this.itemAt(index);
-        const price = this.price(item);
+        const price = this.price(item!);
         const rect = this.itemLineRect(index);
         const priceWidth = this.priceWidth();
         const priceX = rect.x + rect.width - priceWidth;
@@ -4406,22 +3614,16 @@ class Window_ShopBuy extends Window_Selectable {
         this.changePaintOpacity(true);
     }
 
-    /** @returns {number} */
-    priceWidth() {
+    priceWidth(): number {
         return 96;
     }
 
-    /**
-     * @param {Window_ShopStatus} statusWindow
-     * @returns {void}
-     */
-    setStatusWindow(statusWindow) {
+    setStatusWindow(statusWindow: Window_ShopStatus): void {
         this._statusWindow = statusWindow;
         this.callUpdateHelp();
     }
 
-    /** @returns {void} */
-    updateHelp() {
+    updateHelp(): void {
         this.setHelpWindowItem(this.item());
         if (this._statusWindow) {
             this._statusWindow.setItem(this.item());
@@ -4433,20 +3635,18 @@ class Window_ShopBuy extends Window_Selectable {
  * The window for selecting an item to sell on the shop screen.
  */
 class Window_ShopSell extends Window_ItemList {
-    constructor(...args) {
+    constructor(...args: any[]) {
         super(...args);
     }
 
-    initialize(rect) {
+    initialize(rect: Rectangle): void;
+    initialize(...args: any[]): void;
+    initialize(rect: Rectangle): void {
         super.initialize(rect);
     }
 
-    /**
-     * @param {RMMZ.DataPricedItemBase | null} item
-     * @returns {boolean}
-     */
-    isEnabled(item) {
-        return item && item.price > 0;
+    isEnabled(item: RMMZ.InventoryItem | null): boolean {
+        return (item && item.price > 0)!;
     }
 }
 
@@ -4455,47 +3655,42 @@ class Window_ShopSell extends Window_ItemList {
  * screen.
  */
 class Window_ShopNumber extends Window_Selectable {
-    /** @param {[rect: Rectangle]} args */
-    constructor(...args) {
+    declare _item: RMMZ.InventoryItem | null;
+    declare _max: number;
+    declare _price: number;
+    declare _number: number;
+    declare _currencyUnit: string;
+    declare _buttons: any[];
+
+    constructor(...args: [rect: Rectangle]) {
         super(...args);
     }
 
-    /** @param {Rectangle} rect */
-    initialize(rect) {
+    initialize(rect: Rectangle): void;
+    initialize(...args: any[]): void;
+    initialize(rect: Rectangle): void {
         super.initialize(rect);
-        /** @type {RMMZ.DataPricedItemBase | null} */
+
         this._item = null;
-        /** @type {number} */
         this._max = 1;
-        /** @type {number} */
         this._price = 0;
-        /** @type {number} */
         this._number = 1;
-        /** @type {string} */
         this._currencyUnit = TextManager.currencyUnit;
         this.createButtons();
         this.select(0);
-        /** @type {boolean} */
+
         this._canRepeat = false;
     }
 
-    /** @returns {boolean} */
-    isScrollEnabled() {
+    isScrollEnabled(): boolean {
         return false;
     }
 
-    /** @returns {number} */
-    number() {
+    number(): number {
         return this._number;
     }
 
-    /**
-     * @param {RMMZ.DataPricedItemBase | null} item
-     * @param {number} max
-     * @param {number} price
-     * @returns {void}
-     */
-    setup(item, max, price) {
+    setup(item: RMMZ.InventoryItem | null, max: number, price: number): void {
         this._item = item;
         this._max = Math.floor(max);
         this._price = price;
@@ -4504,21 +3699,27 @@ class Window_ShopNumber extends Window_Selectable {
         this.refresh();
     }
 
-    /**
-     * @param {string} currencyUnit
-     * @returns {void}
-     */
-    setCurrencyUnit(currencyUnit) {
+    setCurrencyUnit(currencyUnit: string): void {
         this._currencyUnit = currencyUnit;
         this.refresh();
     }
 
-    /** @returns {void} */
-    createButtons() {
+    createButtons(): void {
         this._buttons = [];
         if (ConfigManager.touchUI) {
             for (const type of ["down2", "down", "up", "up2", "ok"]) {
-                const button = new Sprite_Button(type);
+                const button = new Sprite_Button(
+                    type as
+                        | "menu"
+                        | "cancel"
+                        | "ok"
+                        | "pageup"
+                        | "pagedown"
+                        | "up"
+                        | "down"
+                        | "down2"
+                        | "up2",
+                );
                 this._buttons.push(button);
                 this.addInnerChild(button);
             }
@@ -4530,8 +3731,7 @@ class Window_ShopNumber extends Window_Selectable {
         }
     }
 
-    /** @returns {void} */
-    placeButtons() {
+    placeButtons(): void {
         const sp = this.buttonSpacing();
         const totalWidth = this.totalButtonWidth();
         let x = (this.innerWidth - totalWidth) / 2;
@@ -4542,19 +3742,16 @@ class Window_ShopNumber extends Window_Selectable {
         }
     }
 
-    /** @returns {number} */
-    totalButtonWidth() {
+    totalButtonWidth(): number {
         const sp = this.buttonSpacing();
         return this._buttons.reduce((r, button) => r + button.width + sp, -sp);
     }
 
-    /** @returns {number} */
-    buttonSpacing() {
+    buttonSpacing(): number {
         return 8;
     }
 
-    /** @returns {void} */
-    refresh() {
+    refresh(): void {
         super.refresh();
         this.drawItemBackground(0);
         this.drawCurrentItemName();
@@ -4564,8 +3761,7 @@ class Window_ShopNumber extends Window_Selectable {
         this.drawTotalPrice();
     }
 
-    /** @returns {void} */
-    drawCurrentItemName() {
+    drawCurrentItemName(): void {
         const padding = this.itemPadding();
         const x = padding * 2;
         const y = this.itemNameY();
@@ -4573,8 +3769,7 @@ class Window_ShopNumber extends Window_Selectable {
         this.drawItemName(this._item, x, y, width);
     }
 
-    /** @returns {void} */
-    drawMultiplicationSign() {
+    drawMultiplicationSign(): void {
         const sign = this.multiplicationSign();
         const width = this.textWidth(sign);
         const x = this.multiplicationSignX();
@@ -4583,20 +3778,17 @@ class Window_ShopNumber extends Window_Selectable {
         this.drawText(sign, x, y, width);
     }
 
-    /** @returns {string} */
-    multiplicationSign() {
+    multiplicationSign(): string {
         return "\u00d7";
     }
 
-    /** @returns {number} */
-    multiplicationSignX() {
+    multiplicationSignX(): number {
         const sign = this.multiplicationSign();
         const width = this.textWidth(sign);
         return this.cursorX() - width * 2;
     }
 
-    /** @returns {void} */
-    drawNumber() {
+    drawNumber(): void {
         const x = this.cursorX();
         const y = this.itemNameY();
         const width = this.cursorWidth() - this.itemPadding();
@@ -4604,8 +3796,7 @@ class Window_ShopNumber extends Window_Selectable {
         this.drawText(this._number, x, y, width, "right");
     }
 
-    /** @returns {void} */
-    drawHorzLine() {
+    drawHorzLine(): void {
         const padding = this.itemPadding();
         const lineHeight = this.lineHeight();
         const itemY = this.itemNameY();
@@ -4616,8 +3807,7 @@ class Window_ShopNumber extends Window_Selectable {
         this.drawRect(x, y, width, 5);
     }
 
-    /** @returns {void} */
-    drawTotalPrice() {
+    drawTotalPrice(): void {
         const padding = this.itemPadding();
         const total = this._price * this._number;
         const width = this.innerWidth - padding * 2;
@@ -4625,52 +3815,43 @@ class Window_ShopNumber extends Window_Selectable {
         this.drawCurrencyValue(total, this._currencyUnit, 0, y, width);
     }
 
-    /** @returns {number} */
-    itemNameY() {
+    itemNameY(): number {
         return Math.floor(this.innerHeight / 2 - this.lineHeight() * 1.5);
     }
 
-    /** @returns {number} */
-    totalPriceY() {
+    totalPriceY(): number {
         return Math.floor(this.itemNameY() + this.lineHeight() * 2);
     }
 
-    /** @returns {number} */
-    buttonY() {
+    buttonY(): number {
         return Math.floor(this.totalPriceY() + this.lineHeight() * 2);
     }
 
-    /** @returns {number} */
-    cursorWidth() {
+    cursorWidth(): number {
         const padding = this.itemPadding();
         const digitWidth = this.textWidth("0");
         return this.maxDigits() * digitWidth + padding * 2;
     }
 
-    /** @returns {number} */
-    cursorX() {
+    cursorX(): number {
         const padding = this.itemPadding();
         return this.innerWidth - this.cursorWidth() - padding * 2;
     }
 
-    /** @returns {number} */
-    maxDigits() {
+    maxDigits(): number {
         return 2;
     }
 
-    /** @returns {void} */
-    update() {
+    update(): void {
         super.update();
         this.processNumberChange();
     }
 
-    /** @returns {void} */
-    playOkSound() {
+    playOkSound(): void {
         //
     }
 
-    /** @returns {void} */
-    processNumberChange() {
+    processNumberChange(): void {
         if (this.isOpenAndActive()) {
             if (Input.isRepeated("right")) {
                 this.changeNumber(1);
@@ -4687,11 +3868,7 @@ class Window_ShopNumber extends Window_Selectable {
         }
     }
 
-    /**
-     * @param {number} amount
-     * @returns {void}
-     */
-    changeNumber(amount) {
+    changeNumber(amount: number): void {
         const lastNumber = this._number;
         this._number = (this._number + amount).clamp(1, this._max);
         if (this._number !== lastNumber) {
@@ -4700,8 +3877,7 @@ class Window_ShopNumber extends Window_Selectable {
         }
     }
 
-    /** @returns {Rectangle} */
-    itemRect() {
+    itemRect(): Rectangle {
         const rect = new PIXI.Rectangle();
         rect.x = this.cursorX();
         rect.y = this.itemNameY();
@@ -4710,33 +3886,27 @@ class Window_ShopNumber extends Window_Selectable {
         return rect;
     }
 
-    /** @returns {boolean} */
-    isTouchOkEnabled() {
+    isTouchOkEnabled(): boolean {
         return false;
     }
 
-    /** @returns {void} */
-    onButtonUp() {
+    onButtonUp(): void {
         this.changeNumber(1);
     }
 
-    /** @returns {void} */
-    onButtonUp2() {
+    onButtonUp2(): void {
         this.changeNumber(10);
     }
 
-    /** @returns {void} */
-    onButtonDown() {
+    onButtonDown(): void {
         this.changeNumber(-1);
     }
 
-    /** @returns {void} */
-    onButtonDown2() {
+    onButtonDown2(): void {
         this.changeNumber(-10);
     }
 
-    /** @returns {void} */
-    onButtonOk() {
+    onButtonOk(): void {
         this.processOk();
     }
 }
@@ -4746,23 +3916,24 @@ class Window_ShopNumber extends Window_Selectable {
  * equipment on the shop screen.
  */
 class Window_ShopStatus extends Window_StatusBase {
-    /** @param {[rect: Rectangle]} args */
-    constructor(...args) {
+    declare _item: RMMZ.InventoryItem | null;
+    declare _pageIndex: number;
+
+    constructor(...args: [rect: Rectangle]) {
         super(...args);
     }
 
-    /** @param {Rectangle} rect */
-    initialize(rect) {
+    initialize(rect: Rectangle): void;
+    initialize(...args: any[]): void;
+    initialize(rect: Rectangle): void {
         super.initialize(rect);
-        /** @type {RMMZ.DataPricedItemBase | null} */
+
         this._item = null;
-        /** @type {number} */
         this._pageIndex = 0;
         this.refresh();
     }
 
-    /** @returns {void} */
-    refresh() {
+    refresh(): void {
         this.contents.clear();
         if (this._item) {
             const x = this.itemPadding();
@@ -4774,26 +3945,18 @@ class Window_ShopStatus extends Window_StatusBase {
         }
     }
 
-    /**
-     * @param {RMMZ.DataPricedItemBase | null} item
-     * @returns {void}
-     */
-    setItem(item) {
+    setItem(item: RMMZ.InventoryItem | null): void {
         this._item = item;
         this.refresh();
     }
 
-    /** @returns {boolean} */
-    isEquipItem() {
-        return DataManager.isWeapon(this._item) || DataManager.isArmor(this._item);
+    isEquipItem(): boolean {
+        return (
+            DataManager.isWeapon(this._item) || DataManager.isArmor(this._item)
+        );
     }
 
-    /**
-     * @param {number} x
-     * @param {number} y
-     * @returns {void}
-     */
-    drawPossession(x, y) {
+    drawPossession(x: number, y: number): void {
         const width = this.innerWidth - this.itemPadding() - x;
         const possessionWidth = this.textWidth("0000");
         this.changeTextColor(ColorManager.systemColor());
@@ -4802,12 +3965,7 @@ class Window_ShopStatus extends Window_StatusBase {
         this.drawText($gameParty.numItems(this._item), x, y, width, "right");
     }
 
-    /**
-     * @param {number} x
-     * @param {number} y
-     * @returns {void}
-     */
-    drawEquipInfo(x, y) {
+    drawEquipInfo(x: number, y: number): void {
         const members = this.statusMembers();
         for (let i = 0; i < members.length; i++) {
             const actorY = y + Math.floor(this.lineHeight() * i * 2.2);
@@ -4815,75 +3973,65 @@ class Window_ShopStatus extends Window_StatusBase {
         }
     }
 
-    /** @returns {Game_Actor[]} */
-    statusMembers() {
+    statusMembers(): Game_Actor[] {
         const start = this._pageIndex * this.pageSize();
         const end = start + this.pageSize();
         return $gameParty.members().slice(start, end);
     }
 
-    /** @returns {number} */
-    pageSize() {
+    pageSize(): number {
         return 4;
     }
 
-    /** @returns {number} */
-    maxPages() {
+    maxPages(): number {
         return Math.floor(
-            ($gameParty.size() + this.pageSize() - 1) / this.pageSize()
+            ($gameParty.size() + this.pageSize() - 1) / this.pageSize(),
         );
     }
 
-    /**
-     * @param {number} x
-     * @param {number} y
-     * @param {Game_Actor} actor
-     * @returns {void}
-     */
-    drawActorEquipInfo(x, y, actor) {
-        const item1 = this.currentEquippedItem(actor, this._item.etypeId);
+    drawActorEquipInfo(x: number, y: number, actor: Game_Actor): void {
+        const item1 = this.currentEquippedItem(
+            actor,
+            (this._item as RMMZ.DataEquipment).etypeId,
+        );
         const width = this.innerWidth - x - this.itemPadding();
-        const enabled = actor.canEquip(this._item);
+        const enabled = actor.canEquip(this._item!);
         this.changePaintOpacity(enabled);
         this.resetTextColor();
         this.drawText(actor.name(), x, y, width);
         if (enabled) {
             this.drawActorParamChange(x, y, actor, item1);
         }
-        this.drawItemName(item1, x, y + this.lineHeight(), width);
+        this.drawItemName(
+            item1 as RMMZ.DatabaseItem | null,
+            x,
+            y + this.lineHeight(),
+            width,
+        );
         this.changePaintOpacity(true);
     }
 
     // prettier-ignore
-    /**
-     * @param {number} x
-     * @param {number} y
-     * @param {Game_Actor} actor
-     * @param {RMMZ.DataEquipment | null} item1
-     * @returns {void}
-     */
+
     drawActorParamChange(
-        x, y, actor, item1
-    ) {
+        x: number, y: number, actor: Game_Actor, item1: RMMZ.DataEquipment | null
+    ): void {
         const width = this.innerWidth - this.itemPadding() - x;
         const paramId = this.paramId();
         const change =
-            this._item.params[paramId] - (item1 ? item1.params[paramId] : 0);
+            (this._item as RMMZ.DataEquipment).params[paramId] - (item1 ? item1.params[paramId] : 0);
         this.changeTextColor(ColorManager.paramchangeTextColor(change));
         this.drawText((change > 0 ? "+" : "") + change, x, y, width, "right");
     }
 
-    /** @returns {RMMZ.ParamID} */
-    paramId() {
+    paramId(): RMMZ.ParamID {
         return DataManager.isWeapon(this._item) ? 2 : 3;
     }
 
-    /**
-     * @param {Game_Actor} actor
-     * @param {RMMZ.EquipmentType} etypeId
-     * @returns {RMMZ.DataEquipment | null}
-     */
-    currentEquippedItem(actor, etypeId) {
+    currentEquippedItem(
+        actor: Game_Actor,
+        etypeId: RMMZ.EquipmentType,
+    ): RMMZ.DataEquipment | null {
         const list = [];
         const equips = actor.equips();
         const slots = actor.equipSlots();
@@ -4904,26 +4052,22 @@ class Window_ShopStatus extends Window_StatusBase {
         return worstItem;
     }
 
-    /** @returns {void} */
-    update() {
+    update(): void {
         super.update();
         this.updatePage();
     }
 
-    /** @returns {void} */
-    updatePage() {
+    updatePage(): void {
         if (this.isPageChangeEnabled() && this.isPageChangeRequested()) {
             this.changePage();
         }
     }
 
-    /** @returns {boolean} */
-    isPageChangeEnabled() {
+    isPageChangeEnabled(): boolean {
         return this.visible && this.maxPages() >= 2;
     }
 
-    /** @returns {boolean} */
-    isPageChangeRequested() {
+    isPageChangeRequested(): boolean {
         if (Input.isTriggered("shift")) {
             return true;
         }
@@ -4933,8 +4077,7 @@ class Window_ShopStatus extends Window_StatusBase {
         return false;
     }
 
-    /** @returns {void} */
-    changePage() {
+    changePage(): void {
         this._pageIndex = (this._pageIndex + 1) % this.maxPages();
         this.refresh();
         this.playCursorSound();
@@ -4945,33 +4088,29 @@ class Window_ShopStatus extends Window_StatusBase {
  * The window for editing an actor's name on the name input screen.
  */
 class Window_NameEdit extends Window_StatusBase {
-    /** @param {[rect: Rectangle]} args */
-    constructor(...args) {
+    declare _actor: Game_Actor | null;
+    declare _maxLength: number;
+    declare _name: string;
+    declare _defaultName: string;
+
+    constructor(...args: [rect: Rectangle]) {
         super(...args);
     }
 
-    /** @param {Rectangle} rect */
-    initialize(rect) {
+    initialize(rect: Rectangle): void;
+    initialize(...args: any[]): void;
+    initialize(rect: Rectangle): void {
         super.initialize(rect);
-        /** @type {Game_Actor | null} */
+
         this._actor = null;
-        /** @type {number} */
         this._maxLength = 0;
-        /** @type {string} */
         this._name = "";
-        /** @type {number} */
         this._index = 0;
-        /** @type {string} */
-        this._defaultName = 0;
+        this._defaultName = "";
         this.deactivate();
     }
 
-    /**
-     * @param {Game_Actor} actor
-     * @param {number} maxLength
-     * @returns {void}
-     */
-    setup(actor, maxLength) {
+    setup(actor: Game_Actor, maxLength: number): void {
         this._actor = actor;
         this._maxLength = maxLength;
         this._name = actor.name().slice(0, this._maxLength);
@@ -4980,24 +4119,18 @@ class Window_NameEdit extends Window_StatusBase {
         ImageManager.loadFace(actor.faceName());
     }
 
-    /** @returns {string} */
-    name() {
+    inputName(): string {
         return this._name;
     }
 
-    /** @returns {boolean} */
-    restoreDefault() {
+    restoreDefault(): boolean {
         this._name = this._defaultName;
         this._index = this._name.length;
         this.refresh();
         return this._name.length > 0;
     }
 
-    /**
-     * @param {string} ch
-     * @returns {boolean}
-     */
-    add(ch) {
+    add(ch: string): boolean {
         if (this._index < this._maxLength) {
             this._name += ch;
             this._index++;
@@ -5008,8 +4141,7 @@ class Window_NameEdit extends Window_StatusBase {
         }
     }
 
-    /** @returns {boolean} */
-    back() {
+    back(): boolean {
         if (this._index > 0) {
             this._index--;
             this._name = this._name.slice(0, this._index);
@@ -5020,29 +4152,25 @@ class Window_NameEdit extends Window_StatusBase {
         }
     }
 
-    /** @returns {number} */
-    faceWidth() {
+    faceWidth(): number {
         return 144;
     }
 
-    /** @returns {number} */
-    charWidth() {
+    charWidth(): number {
         const text = $gameSystem.isJapanese() ? "\uff21" : "A";
         return this.textWidth(text);
     }
 
-    /** @returns {number} */
-    left() {
+    left(): number {
         const nameCenter = (this.innerWidth + this.faceWidth()) / 2;
         const nameWidth = (this._maxLength + 1) * this.charWidth();
-        return Math.min(nameCenter - nameWidth / 2, this.innerWidth - nameWidth);
+        return Math.min(
+            nameCenter - nameWidth / 2,
+            this.innerWidth - nameWidth,
+        );
     }
 
-    /**
-     * @param {number} index
-     * @returns {Rectangle}
-     */
-    itemRect(index) {
+    itemRect(index: number): Rectangle {
         const x = this.left() + index * this.charWidth();
         const y = 54;
         const width = this.charWidth();
@@ -5050,11 +4178,7 @@ class Window_NameEdit extends Window_StatusBase {
         return new PIXI.Rectangle(x, y, width, height);
     }
 
-    /**
-     * @param {number} index
-     * @returns {Rectangle}
-     */
-    underlineRect(index) {
+    underlineRect(index: number): Rectangle {
         const rect = this.itemRect(index);
         rect.x++;
         rect.y += rect.height - 4;
@@ -5063,16 +4187,11 @@ class Window_NameEdit extends Window_StatusBase {
         return rect;
     }
 
-    /** @returns {string} */
-    underlineColor() {
+    underlineColor(): string {
         return ColorManager.normalColor();
     }
 
-    /**
-     * @param {number} index
-     * @returns {void}
-     */
-    drawUnderline(index) {
+    drawUnderline(index: number): void {
         const rect = this.underlineRect(index);
         const color = this.underlineColor();
         this.contents.paintOpacity = 48;
@@ -5080,20 +4199,15 @@ class Window_NameEdit extends Window_StatusBase {
         this.contents.paintOpacity = 255;
     }
 
-    /**
-     * @param {number} index
-     * @returns {void}
-     */
-    drawChar(index) {
+    drawChar(index: number): void {
         const rect = this.itemRect(index);
         this.resetTextColor();
         this.drawText(this._name[index] || "", rect.x, rect.y);
     }
 
-    /** @returns {void} */
-    refresh() {
+    refresh(): void {
         this.contents.clear();
-        this.drawActorFace(this._actor, 0, 0);
+        this.drawActorFace(this._actor!, 0, 0);
         for (let i = 0; i < this._maxLength; i++) {
             this.drawUnderline(i);
         }
@@ -5109,13 +4223,16 @@ class Window_NameEdit extends Window_StatusBase {
  * The window for selecting text characters on the name input screen.
  */
 class Window_NameInput extends Window_Selectable {
-    constructor(...args) {
+    declare _editWindow: Window_NameEdit | null;
+    declare _page: number;
+
+    constructor(...args: any[]) {
         super(...args);
     }
 
     // prettier-ignore
-    /** @type {string[]} */
-    static LATIN1 = [ "A","B","C","D","E",  "a","b","c","d","e",
+
+    static LATIN1: string[] = [ "A","B","C","D","E",  "a","b","c","d","e",
               "F","G","H","I","J",  "f","g","h","i","j",
               "K","L","M","N","O",  "k","l","m","n","o",
               "P","Q","R","S","T",  "p","q","r","s","t",
@@ -5126,8 +4243,8 @@ class Window_NameInput extends Window_Selectable {
               "/","=","@","<",">",  ":",";"," ","Page","OK" ];
 
     // prettier-ignore
-    /** @type {string[]} */
-    static LATIN2 = [ "Á","É","Í","Ó","Ú",  "á","é","í","ó","ú",
+
+    static LATIN2: string[] = [ "Á","É","Í","Ó","Ú",  "á","é","í","ó","ú",
               "À","È","Ì","Ò","Ù",  "à","è","ì","ò","ù",
               "Â","Ê","Î","Ô","Û",  "â","ê","î","ô","û",
               "Ä","Ë","Ï","Ö","Ü",  "ä","ë","ï","ö","ü",
@@ -5138,8 +4255,8 @@ class Window_NameInput extends Window_Selectable {
               "Ĳ","Œ","ĳ","œ","ß",  "«","»"," ","Page","OK" ];
 
     // prettier-ignore
-    /** @type {string[]} */
-    static RUSSIA = [ "А","Б","В","Г","Д",  "а","б","в","г","д",
+
+    static RUSSIA: string[] = [ "А","Б","В","Г","Д",  "а","б","в","г","д",
               "Е","Ё","Ж","З","И",  "е","ё","ж","з","и",
               "Й","К","Л","М","Н",  "й","к","л","м","н",
               "О","П","Р","С","Т",  "о","п","р","с","т",
@@ -5150,8 +4267,8 @@ class Window_NameInput extends Window_Selectable {
               "5","6","7","8","9",  ":",";"," ","","OK" ];
 
     // prettier-ignore
-    /** @type {string[]} */
-    static JAPAN1 = [ "あ","い","う","え","お",  "が","ぎ","ぐ","げ","ご",
+
+    static JAPAN1: string[] = [ "あ","い","う","え","お",  "が","ぎ","ぐ","げ","ご",
               "か","き","く","け","こ",  "ざ","じ","ず","ぜ","ぞ",
               "さ","し","す","せ","そ",  "だ","ぢ","づ","で","ど",
               "た","ち","つ","て","と",  "ば","び","ぶ","べ","ぼ",
@@ -5162,8 +4279,8 @@ class Window_NameInput extends Window_Selectable {
               "ら","り","る","れ","ろ",  "ゔ","を","　","カナ","決定" ];
 
     // prettier-ignore
-    /** @type {string[]} */
-    static JAPAN2 = [ "ア","イ","ウ","エ","オ",  "ガ","ギ","グ","ゲ","ゴ",
+
+    static JAPAN2: string[] = [ "ア","イ","ウ","エ","オ",  "ガ","ギ","グ","ゲ","ゴ",
               "カ","キ","ク","ケ","コ",  "ザ","ジ","ズ","ゼ","ゾ",
               "サ","シ","ス","セ","ソ",  "ダ","ヂ","ヅ","デ","ド",
               "タ","チ","ツ","テ","ト",  "バ","ビ","ブ","ベ","ボ",
@@ -5174,8 +4291,8 @@ class Window_NameInput extends Window_Selectable {
               "ラ","リ","ル","レ","ロ",  "ヴ","ヲ","　","英数","決定" ];
 
     // prettier-ignore
-    /** @type {string[]} */
-    static JAPAN3 = [ "Ａ","Ｂ","Ｃ","Ｄ","Ｅ",  "ａ","ｂ","ｃ","ｄ","ｅ",
+
+    static JAPAN3: string[] = [ "Ａ","Ｂ","Ｃ","Ｄ","Ｅ",  "ａ","ｂ","ｃ","ｄ","ｅ",
               "Ｆ","Ｇ","Ｈ","Ｉ","Ｊ",  "ｆ","ｇ","ｈ","ｉ","ｊ",
               "Ｋ","Ｌ","Ｍ","Ｎ","Ｏ",  "ｋ","ｌ","ｍ","ｎ","ｏ",
               "Ｐ","Ｑ","Ｒ","Ｓ","Ｔ",  "ｐ","ｑ","ｒ","ｓ","ｔ",
@@ -5185,34 +4302,29 @@ class Window_NameInput extends Window_Selectable {
               "５","６","７","８","９",  "（","）","＊","＋","－",
               "／","＝","＠","＜","＞",  "：","；","　","かな","決定" ];
 
-    initialize(rect) {
+    initialize(rect: any): void;
+    initialize(...args: any[]): void;
+    initialize(rect: any): void {
         super.initialize(rect);
-        /** @type {Window_NameEdit | null} */
+
         this._editWindow = null;
-        /** @type {number} */
         this._page = 0;
-        /** @type {number} */
         this._index = 0;
     }
 
-    /**
-     * @param {Window_NameEdit} editWindow
-     * @returns {void}
-     */
-    setEditWindow(editWindow) {
+    setEditWindow(editWindow: Window_NameEdit): void {
         this._editWindow = editWindow;
         this.refresh();
         this.updateCursor();
         this.activate();
     }
 
-    /** @returns {string[][]} */
-    table() {
+    table(): string[][] {
         if ($gameSystem.isJapanese()) {
             return [
                 Window_NameInput.JAPAN1,
                 Window_NameInput.JAPAN2,
-                Window_NameInput.JAPAN3
+                Window_NameInput.JAPAN3,
             ];
         } else if ($gameSystem.isRussian()) {
             return [Window_NameInput.RUSSIA];
@@ -5221,46 +4333,35 @@ class Window_NameInput extends Window_Selectable {
         }
     }
 
-    /** @returns {number} */
-    maxCols() {
+    maxCols(): number {
         return 10;
     }
 
-    /** @returns {number} */
-    maxItems() {
+    maxItems(): number {
         return 90;
     }
 
-    /** @returns {number} */
-    itemWidth() {
+    itemWidth(): number {
         return Math.floor((this.innerWidth - this.groupSpacing()) / 10);
     }
 
-    /** @returns {number} */
-    groupSpacing() {
+    groupSpacing(): number {
         return 24;
     }
 
-    /** @returns {string} */
-    character() {
+    character(): string {
         return this._index < 88 ? this.table()[this._page][this._index] : "";
     }
 
-    /** @returns {boolean} */
-    isPageChange() {
+    isPageChange(): boolean {
         return this._index === 88;
     }
 
-    /** @returns {boolean} */
-    isOk() {
+    isOk(): boolean {
         return this._index === 89;
     }
 
-    /**
-     * @param {number} index
-     * @returns {Rectangle}
-     */
-    itemRect(index) {
+    itemRect(index: number): Rectangle {
         const itemWidth = this.itemWidth();
         const itemHeight = this.itemHeight();
         const colSpacing = this.colSpacing();
@@ -5275,53 +4376,35 @@ class Window_NameInput extends Window_Selectable {
         return new PIXI.Rectangle(x, y, width, height);
     }
 
-    /**
-     * @param {number} index
-     * @returns {void}
-     */
-    drawItem(index) {
+    drawItem(index: number): void {
         const table = this.table();
         const character = table[this._page][index];
         const rect = this.itemLineRect(index);
         this.drawText(character, rect.x, rect.y, rect.width, "center");
     }
 
-    /** @returns {void} */
-    updateCursor() {
+    updateCursor(): void {
         const rect = this.itemRect(this._index);
         this.setCursorRect(rect.x, rect.y, rect.width, rect.height);
     }
 
-    /** @returns {boolean} */
-    isCursorMovable() {
+    isCursorMovable(): boolean {
         return this.active;
     }
 
-    /**
-     * @param {boolean} wrap
-     * @returns {void}
-     */
-    cursorDown(wrap) {
+    cursorDown(wrap: boolean): void {
         if (this._index < 80 || wrap) {
             this._index = (this._index + 10) % 90;
         }
     }
 
-    /**
-     * @param {boolean} wrap
-     * @returns {void}
-     */
-    cursorUp(wrap) {
+    cursorUp(wrap: boolean): void {
         if (this._index >= 10 || wrap) {
             this._index = (this._index + 80) % 90;
         }
     }
 
-    /**
-     * @param {boolean} wrap
-     * @returns {void}
-     */
-    cursorRight(wrap) {
+    cursorRight(wrap: boolean): void {
         if (this._index % 10 < 9) {
             this._index++;
         } else if (wrap) {
@@ -5329,11 +4412,7 @@ class Window_NameInput extends Window_Selectable {
         }
     }
 
-    /**
-     * @param {boolean} wrap
-     * @returns {void}
-     */
-    cursorLeft(wrap) {
+    cursorLeft(wrap: boolean): void {
         if (this._index % 10 > 0) {
             this._index--;
         } else if (wrap) {
@@ -5341,20 +4420,18 @@ class Window_NameInput extends Window_Selectable {
         }
     }
 
-    /** @returns {void} */
-    cursorPagedown() {
+    cursorPagedown(): void {
         this._page = (this._page + 1) % this.table().length;
         this.refresh();
     }
 
-    /** @returns {void} */
-    cursorPageup() {
-        this._page = (this._page + this.table().length - 1) % this.table().length;
+    cursorPageup(): void {
+        this._page =
+            (this._page + this.table().length - 1) % this.table().length;
         this.refresh();
     }
 
-    /** @returns {void} */
-    processCursorMove() {
+    processCursorMove(): void {
         const lastPage = this._page;
         super.processCursorMove();
         this.updateCursor();
@@ -5363,8 +4440,7 @@ class Window_NameInput extends Window_Selectable {
         }
     }
 
-    /** @returns {void} */
-    processHandling() {
+    processHandling(): void {
         if (this.isOpen() && this.active) {
             if (Input.isTriggered("shift")) {
                 this.processJump();
@@ -5378,33 +4454,28 @@ class Window_NameInput extends Window_Selectable {
         }
     }
 
-    /** @returns {boolean} */
-    isCancelEnabled() {
+    isCancelEnabled(): boolean {
         return true;
     }
 
-    /** @returns {void} */
-    processCancel() {
+    processCancel(): void {
         this.processBack();
     }
 
-    /** @returns {void} */
-    processJump() {
+    processJump(): void {
         if (this._index !== 89) {
             this._index = 89;
             this.playCursorSound();
         }
     }
 
-    /** @returns {void} */
-    processBack() {
-        if (this._editWindow.back()) {
+    processBack(): void {
+        if (this._editWindow!.back()) {
             SoundManager.playCancel();
         }
     }
 
-    /** @returns {void} */
-    processOk() {
+    processOk(): void {
         if (this.character()) {
             this.onNameAdd();
         } else if (this.isPageChange()) {
@@ -5415,19 +4486,17 @@ class Window_NameInput extends Window_Selectable {
         }
     }
 
-    /** @returns {void} */
-    onNameAdd() {
-        if (this._editWindow.add(this.character())) {
+    onNameAdd(): void {
+        if (this._editWindow!.add(this.character())) {
             this.playOkSound();
         } else {
             this.playBuzzerSound();
         }
     }
 
-    /** @returns {void} */
-    onNameOk() {
-        if (this._editWindow.name() === "") {
-            if (this._editWindow.restoreDefault()) {
+    onNameOk(): void {
+        if (this._editWindow!.inputName() === "") {
+            if (this._editWindow!.restoreDefault()) {
                 this.playOkSound();
             } else {
                 this.playBuzzerSound();
@@ -5443,52 +4512,44 @@ class Window_NameInput extends Window_Selectable {
  * The window for displaying a speaker name above the message window.
  */
 class Window_NameBox extends Window_Base {
-    /** @param {[]} args */
-    constructor(...args) {
+    declare _name: string;
+    declare _messageWindow: Window_Message;
+
+    constructor(...args: []) {
         super(...args);
     }
 
-    initialize() {
+    initialize(): void;
+    initialize(...args: any[]): void;
+    initialize(): void {
         super.initialize(new PIXI.Rectangle());
         this.openness = 0;
-        /** @type {string} */
         this._name = "";
     }
 
-    /**
-     * @param {Window_Message} messageWindow
-     * @returns {void}
-     */
-    setMessageWindow(messageWindow) {
+    setMessageWindow(messageWindow: Window_Message): void {
         this._messageWindow = messageWindow;
     }
 
-    /**
-     * @param {string} name
-     * @returns {void}
-     */
-    setName(name) {
+    setName(name: string): void {
         if (this._name !== name) {
             this._name = name;
             this.refresh();
         }
     }
 
-    /** @returns {void} */
-    clear() {
+    clear(): void {
         this.setName("");
     }
 
-    /** @returns {void} */
-    start() {
+    start(): void {
         this.updatePlacement();
         this.updateBackground();
         this.createContents();
         this.refresh();
     }
 
-    /** @returns {void} */
-    updatePlacement() {
+    updatePlacement(): void {
         this.width = this.windowWidth();
         this.height = this.windowHeight();
         const messageWindow = this._messageWindow;
@@ -5504,13 +4565,11 @@ class Window_NameBox extends Window_Base {
         }
     }
 
-    /** @returns {void} */
-    updateBackground() {
+    updateBackground(): void {
         this.setBackgroundType($gameMessage.background());
     }
 
-    /** @returns {number} */
-    windowWidth() {
+    windowWidth(): number {
         if (this._name) {
             const textWidth = this.textSizeEx(this._name).width;
             const padding = this.padding + this.itemPadding();
@@ -5521,13 +4580,11 @@ class Window_NameBox extends Window_Base {
         }
     }
 
-    /** @returns {number} */
-    windowHeight() {
+    windowHeight(): number {
         return this.fittingHeight(1);
     }
 
-    /** @returns {void} */
-    refresh() {
+    refresh(): void {
         const rect = this.baseTextRect();
         this.contents.clear();
         this.drawTextEx(this._name, rect.x, rect.y, rect.width);
@@ -5538,32 +4595,31 @@ class Window_NameBox extends Window_Base {
  * The window used for the event command [Show Choices].
  */
 class Window_ChoiceList extends Window_Command {
-    /** @param {[]} args */
-    constructor(...args) {
+    declare _background: RMMZ.TextWindowBackgroundType;
+    declare _messageWindow: Window_Message;
+    declare _cancelButton: Sprite_Button;
+
+    constructor(...args: []) {
         super(...args);
     }
 
-    initialize() {
+    initialize(): void;
+    initialize(...args: any[]): void;
+    initialize(): void {
         super.initialize(new PIXI.Rectangle());
         this.createCancelButton();
         this.openness = 0;
         this.deactivate();
-        /** @type {RMMZ.TextWindowBackgroundType} */
+
         this._background = 0;
-        /** @type {boolean} */
         this._canRepeat = false;
     }
 
-    /**
-     * @param {Window_Message} messageWindow
-     * @returns {void}
-     */
-    setMessageWindow(messageWindow) {
+    setMessageWindow(messageWindow: Window_Message): void {
         this._messageWindow = messageWindow;
     }
 
-    /** @returns {void} */
-    createCancelButton() {
+    createCancelButton(): void {
         if (ConfigManager.touchUI) {
             this._cancelButton = new Sprite_Button("cancel");
             this._cancelButton.visible = false;
@@ -5571,8 +4627,7 @@ class Window_ChoiceList extends Window_Command {
         }
     }
 
-    /** @returns {void} */
-    start() {
+    start(): void {
         this.updatePlacement();
         this.updateBackground();
         this.placeCancelButton();
@@ -5584,40 +4639,35 @@ class Window_ChoiceList extends Window_Command {
         this.activate();
     }
 
-    /** @returns {void} */
-    update() {
+    update(): void {
         super.update();
         this.updateCancelButton();
     }
 
-    /** @returns {void} */
-    updateCancelButton() {
+    updateCancelButton(): void {
         if (this._cancelButton) {
-            this._cancelButton.visible = this.needsCancelButton() && this.isOpen();
+            this._cancelButton.visible =
+                this.needsCancelButton() && this.isOpen();
         }
     }
 
-    /** @returns {void} */
-    selectDefault() {
+    selectDefault(): void {
         this.select($gameMessage.choiceDefaultType());
     }
 
-    /** @returns {void} */
-    updatePlacement() {
+    updatePlacement(): void {
         this.x = this.windowX();
         this.y = this.windowY();
         this.width = this.windowWidth();
         this.height = this.windowHeight();
     }
 
-    /** @returns {void} */
-    updateBackground() {
+    updateBackground(): void {
         this._background = $gameMessage.choiceBackground();
         this.setBackgroundType(this._background);
     }
 
-    /** @returns {void} */
-    placeCancelButton() {
+    placeCancelButton(): void {
         if (this._cancelButton) {
             const spacing = 8;
             const button = this._cancelButton;
@@ -5631,8 +4681,7 @@ class Window_ChoiceList extends Window_Command {
         }
     }
 
-    /** @returns {number} */
-    windowX() {
+    windowX(): number {
         const positionType = $gameMessage.choicePositionType();
         if (positionType === 1) {
             return (Graphics.boxWidth - this.windowWidth()) / 2;
@@ -5643,8 +4692,7 @@ class Window_ChoiceList extends Window_Command {
         }
     }
 
-    /** @returns {number} */
-    windowY() {
+    windowY(): number {
         const messageY = this._messageWindow.y;
         if (messageY >= Graphics.boxHeight / 2) {
             return messageY - this.windowHeight();
@@ -5653,25 +4701,22 @@ class Window_ChoiceList extends Window_Command {
         }
     }
 
-    /** @returns {number} */
-    windowWidth() {
-        const width = this.maxChoiceWidth() + this.colSpacing() + this.padding * 2;
+    windowWidth(): number {
+        const width =
+            this.maxChoiceWidth() + this.colSpacing() + this.padding * 2;
         return Math.min(width, Graphics.boxWidth);
     }
 
-    /** @returns {number} */
-    windowHeight() {
+    windowHeight(): number {
         return this.fittingHeight(this.numVisibleRows());
     }
 
-    /** @returns {number} */
-    numVisibleRows() {
+    numVisibleRows(): number {
         const choices = $gameMessage.choices();
         return Math.min(choices.length, this.maxLines());
     }
 
-    /** @returns {4 | 8} */
-    maxLines() {
+    maxLines(): 4 | 8 {
         const messageWindow = this._messageWindow;
         const messageY = messageWindow ? messageWindow.y : 0;
         const messageHeight = messageWindow ? messageWindow.height : 0;
@@ -5683,8 +4728,7 @@ class Window_ChoiceList extends Window_Command {
         }
     }
 
-    /** @returns {number} */
-    maxChoiceWidth() {
+    maxChoiceWidth(): number {
         let maxWidth = 96;
         const choices = $gameMessage.choices();
         for (const choice of choices) {
@@ -5697,42 +4741,33 @@ class Window_ChoiceList extends Window_Command {
         return maxWidth;
     }
 
-    /** @returns {void} */
-    makeCommandList() {
+    makeCommandList(): void {
         const choices = $gameMessage.choices();
         for (const choice of choices) {
             this.addCommand(choice, "choice");
         }
     }
 
-    /**
-     * @param {number} index
-     * @returns {void}
-     */
-    drawItem(index) {
+    drawItem(index: number): void {
         const rect = this.itemLineRect(index);
         this.drawTextEx(this.commandName(index), rect.x, rect.y, rect.width);
     }
 
-    /** @returns {boolean} */
-    isCancelEnabled() {
+    isCancelEnabled(): boolean {
         return $gameMessage.choiceCancelType() !== -1;
     }
 
-    /** @returns {boolean} */
-    needsCancelButton() {
+    needsCancelButton(): boolean {
         return $gameMessage.choiceCancelType() === -2;
     }
 
-    /** @returns {void} */
-    callOkHandler() {
+    callOkHandler(): void {
         $gameMessage.onChoice(this.index());
         this._messageWindow.terminateMessage();
         this.close();
     }
 
-    /** @returns {void} */
-    callCancelHandler() {
+    callCancelHandler(): void {
         $gameMessage.onChoice($gameMessage.choiceCancelType());
         this._messageWindow.terminateMessage();
         this.close();
@@ -5743,34 +4778,34 @@ class Window_ChoiceList extends Window_Command {
  * The window used for the event command [Input Number].
  */
 class Window_NumberInput extends Window_Selectable {
-    /** @param {[]} args */
-    constructor(...args) {
+    declare _number: number;
+    declare _maxDigits: number;
+    declare _messageWindow: Window_Message;
+    declare _buttons: any[];
+
+    constructor(...args: []) {
         super(...args);
     }
 
-    initialize() {
+    initialize(): void;
+    initialize(...args: any[]): void;
+    initialize(): void {
         super.initialize(new PIXI.Rectangle());
-        /** @type {number} */
+
         this._number = 0;
-        /** @type {number} */
         this._maxDigits = 1;
         this.openness = 0;
         this.createButtons();
         this.deactivate();
-        /** @type {boolean} */
+
         this._canRepeat = false;
     }
 
-    /**
-     * @param {Window_Message} messageWindow
-     * @returns {void}
-     */
-    setMessageWindow(messageWindow) {
+    setMessageWindow(messageWindow: Window_Message): void {
         this._messageWindow = messageWindow;
     }
 
-    /** @returns {void} */
-    start() {
+    start(): void {
         this._maxDigits = $gameMessage.numInputMaxDigits();
         this._number = $gameVariables.value($gameMessage.numInputVariableId());
         this._number = this._number.clamp(0, Math.pow(10, this._maxDigits) - 1);
@@ -5783,8 +4818,7 @@ class Window_NumberInput extends Window_Selectable {
         this.select(0);
     }
 
-    /** @returns {void} */
-    updatePlacement() {
+    updatePlacement(): void {
         const messageY = this._messageWindow.y;
         const spacing = 8;
         this.width = this.windowWidth();
@@ -5797,15 +4831,13 @@ class Window_NumberInput extends Window_Selectable {
         }
     }
 
-    /** @returns {number} */
-    windowWidth() {
+    windowWidth(): number {
         const totalItemWidth = this.maxCols() * this.itemWidth();
         const totalButtonWidth = this.totalButtonWidth();
         return Math.max(totalItemWidth, totalButtonWidth) + this.padding * 2;
     }
 
-    /** @returns {number} */
-    windowHeight() {
+    windowHeight(): number {
         if (ConfigManager.touchUI) {
             return this.fittingHeight(1) + this.buttonSpacing() + 48;
         } else {
@@ -5813,48 +4845,49 @@ class Window_NumberInput extends Window_Selectable {
         }
     }
 
-    /** @returns {number} */
-    maxCols() {
+    maxCols(): number {
         return this._maxDigits;
     }
 
-    /** @returns {number} */
-    maxItems() {
+    maxItems(): number {
         return this._maxDigits;
     }
 
-    /** @returns {number} */
-    itemWidth() {
+    itemWidth(): number {
         return 48;
     }
 
-    /**
-     * @param {number} index
-     * @returns {Rectangle}
-     */
-    itemRect(index) {
+    itemRect(index: number): Rectangle {
         const rect = super.itemRect(index);
         const innerMargin = this.innerWidth - this.maxCols() * this.itemWidth();
         rect.x += innerMargin / 2;
         return rect;
     }
 
-    /** @returns {boolean} */
-    isScrollEnabled() {
+    isScrollEnabled(): boolean {
         return false;
     }
 
-    /** @returns {boolean} */
-    isHoverEnabled() {
+    isHoverEnabled(): boolean {
         return false;
     }
 
-    /** @returns {void} */
-    createButtons() {
+    createButtons(): void {
         this._buttons = [];
         if (ConfigManager.touchUI) {
             for (const type of ["down", "up", "ok"]) {
-                const button = new Sprite_Button(type);
+                const button = new Sprite_Button(
+                    type as
+                        | "menu"
+                        | "cancel"
+                        | "ok"
+                        | "pageup"
+                        | "pagedown"
+                        | "up"
+                        | "down"
+                        | "down2"
+                        | "up2",
+                );
                 this._buttons.push(button);
                 this.addInnerChild(button);
             }
@@ -5864,8 +4897,7 @@ class Window_NumberInput extends Window_Selectable {
         }
     }
 
-    /** @returns {void} */
-    placeButtons() {
+    placeButtons(): void {
         const sp = this.buttonSpacing();
         const totalWidth = this.totalButtonWidth();
         let x = (this.innerWidth - totalWidth) / 2;
@@ -5876,30 +4908,25 @@ class Window_NumberInput extends Window_Selectable {
         }
     }
 
-    /** @returns {number} */
-    totalButtonWidth() {
+    totalButtonWidth(): number {
         const sp = this.buttonSpacing();
         return this._buttons.reduce((r, button) => r + button.width + sp, -sp);
     }
 
-    /** @returns {number} */
-    buttonSpacing() {
+    buttonSpacing(): number {
         return 8;
     }
 
-    /** @returns {number} */
-    buttonY() {
+    buttonY(): number {
         return this.itemHeight() + this.buttonSpacing();
     }
 
-    /** @returns {void} */
-    update() {
+    update(): void {
         super.update();
         this.processDigitChange();
     }
 
-    /** @returns {void} */
-    processDigitChange() {
+    processDigitChange(): void {
         if (this.isOpenAndActive()) {
             if (Input.isRepeated("up")) {
                 this.changeDigit(true);
@@ -5909,11 +4936,7 @@ class Window_NumberInput extends Window_Selectable {
         }
     }
 
-    /**
-     * @param {boolean} up
-     * @returns {void}
-     */
-    changeDigit(up) {
+    changeDigit(up: boolean): void {
         const index = this.index();
         const place = Math.pow(10, this._maxDigits - 1 - index);
         let n = Math.floor(this._number / place) % 10;
@@ -5928,36 +4951,31 @@ class Window_NumberInput extends Window_Selectable {
         this.playCursorSound();
     }
 
-    /** @returns {boolean} */
-    isTouchOkEnabled() {
+    isTouchOkEnabled(): boolean {
         return false;
     }
 
-    /** @returns {boolean} */
-    isOkEnabled() {
+    isOkEnabled(): boolean {
         return true;
     }
 
-    /** @returns {boolean} */
-    isCancelEnabled() {
+    isCancelEnabled(): boolean {
         return false;
     }
 
-    /** @returns {void} */
-    processOk() {
+    processOk(): void {
         this.playOkSound();
-        $gameVariables.setValue($gameMessage.numInputVariableId(), this._number);
+        $gameVariables.setValue(
+            $gameMessage.numInputVariableId(),
+            this._number,
+        );
         this._messageWindow.terminateMessage();
         this.updateInputData();
         this.deactivate();
         this.close();
     }
 
-    /**
-     * @param {number} index
-     * @returns {void}
-     */
-    drawItem(index) {
+    drawItem(index: number): void {
         const rect = this.itemLineRect(index);
         const align = "center";
         const s = this._number.padZero(this._maxDigits);
@@ -5966,18 +4984,15 @@ class Window_NumberInput extends Window_Selectable {
         this.drawText(c, rect.x, rect.y, rect.width, align);
     }
 
-    /** @returns {void} */
-    onButtonUp() {
+    onButtonUp(): void {
         this.changeDigit(true);
     }
 
-    /** @returns {void} */
-    onButtonDown() {
+    onButtonDown(): void {
         this.changeDigit(false);
     }
 
-    /** @returns {void} */
-    onButtonOk() {
+    onButtonOk(): void {
         this.processOk();
     }
 }
@@ -5986,13 +5001,16 @@ class Window_NumberInput extends Window_Selectable {
  * The window used for the event command [Select Item].
  */
 class Window_EventItem extends Window_ItemList {
-    /** @param {[rect: Rectangle]} args */
-    constructor(...args) {
+    declare _messageWindow: Window_Message;
+    declare _cancelButton: Sprite_Button;
+
+    constructor(...args: [rect: Rectangle]) {
         super(...args);
     }
 
-    /** @param {Rectangle} rect */
-    initialize(rect) {
+    initialize(rect: Rectangle): void;
+    initialize(...args: any[]): void;
+    initialize(rect: Rectangle): void {
         super.initialize(rect);
         this.createCancelButton();
         this.openness = 0;
@@ -6002,16 +5020,11 @@ class Window_EventItem extends Window_ItemList {
         this._canRepeat = false;
     }
 
-    /**
-     * @param {Window_Message} messageWindow
-     * @returns {void}
-     */
-    setMessageWindow(messageWindow) {
+    setMessageWindow(messageWindow: Window_Message): void {
         this._messageWindow = messageWindow;
     }
 
-    /** @returns {void} */
-    createCancelButton() {
+    createCancelButton(): void {
         if (ConfigManager.touchUI) {
             this._cancelButton = new Sprite_Button("cancel");
             this._cancelButton.visible = false;
@@ -6019,8 +5032,7 @@ class Window_EventItem extends Window_ItemList {
         }
     }
 
-    /** @returns {void} */
-    start() {
+    start(): void {
         this.refresh();
         this.updatePlacement();
         this.placeCancelButton();
@@ -6029,21 +5041,18 @@ class Window_EventItem extends Window_ItemList {
         this.activate();
     }
 
-    /** @returns {void} */
-    update() {
+    update(): void {
         super.update();
         this.updateCancelButton();
     }
 
-    /** @returns {void} */
-    updateCancelButton() {
+    updateCancelButton(): void {
         if (this._cancelButton) {
             this._cancelButton.visible = this.isOpen();
         }
     }
 
-    /** @returns {void} */
-    updatePlacement() {
+    updatePlacement(): void {
         if (this._messageWindow.y >= Graphics.boxHeight / 2) {
             this.y = 0;
         } else {
@@ -6051,8 +5060,7 @@ class Window_EventItem extends Window_ItemList {
         }
     }
 
-    /** @returns {void} */
-    placeCancelButton() {
+    placeCancelButton(): void {
         if (this._cancelButton) {
             const spacing = 8;
             const button = this._cancelButton;
@@ -6068,17 +5076,12 @@ class Window_EventItem extends Window_ItemList {
         }
     }
 
-    /**
-     * @param {RMMZ.DataItemBase} item
-     * @returns {boolean}
-     */
-    includes(item) {
+    includes(item: RMMZ.InventoryItem | null): boolean {
         const itypeId = $gameMessage.itemChoiceItypeId();
         return DataManager.isItem(item) && item.itypeId === itypeId;
     }
 
-    /** @returns {boolean} */
-    needsNumber() {
+    needsNumber(): boolean {
         const itypeId = $gameMessage.itemChoiceItypeId();
         if (itypeId === 2) {
             // Key Item
@@ -6092,13 +5095,11 @@ class Window_EventItem extends Window_ItemList {
         }
     }
 
-    /** @returns {boolean} */
-    isEnabled(/*item*/) {
+    isEnabled(/*item*/): boolean {
         return true;
     }
 
-    /** @returns {void} */
-    onOk() {
+    onOk(): void {
         const item = this.item();
         const itemId = item ? item.id : 0;
         $gameVariables.setValue($gameMessage.itemChoiceVariableId(), itemId);
@@ -6106,8 +5107,7 @@ class Window_EventItem extends Window_ItemList {
         this.close();
     }
 
-    /** @returns {void} */
-    onCancel() {
+    onCancel(): void {
         $gameVariables.setValue($gameMessage.itemChoiceVariableId(), 0);
         this._messageWindow.terminateMessage();
         this.close();
@@ -6118,92 +5118,87 @@ class Window_EventItem extends Window_ItemList {
  * The window for displaying text messages.
  */
 class Window_Message extends Window_Base {
-    /** @param {[rect: Rectangle]} args */
-    constructor(...args) {
+    declare _background: RMMZ.TextWindowBackgroundType;
+    declare _positionType: RMMZ.TextWindowPositionType;
+    declare _waitCount: number;
+    declare _faceBitmap: Bitmap | null;
+    declare _textState: {
+        text: string;
+        index: number;
+        x: number;
+        y: number;
+        width: number;
+        height: number;
+        startX: number;
+        startY: number;
+        rtl: boolean;
+        buffer: string;
+        drawing: boolean;
+        outputWidth: number;
+        outputHeight: number;
+    } | null;
+    declare _goldWindow: Window_Gold | null;
+    declare _nameBoxWindow: Window_NameBox | null;
+    declare _choiceListWindow: Window_ChoiceList | null;
+    declare _numberInputWindow: Window_NumberInput | null;
+    declare _eventItemWindow: Window_EventItem | null;
+    declare _showFast: boolean;
+    declare _lineShowFast: boolean;
+    declare _pauseSkip: boolean;
+
+    constructor(...args: [rect: Rectangle]) {
         super(...args);
     }
 
-    /** @param {Rectangle} rect */
-    initialize(rect) {
+    initialize(rect: Rectangle): void;
+    initialize(...args: any[]): void;
+    initialize(rect: Rectangle): void {
         super.initialize(rect);
         this.openness = 0;
         this.initMembers();
     }
 
-    /** @returns {void} */
-    initMembers() {
-        /** @type {RMMZ.TextWindowBackgroundType} */
+    initMembers(): void {
         this._background = 0;
-        /** @type {RMMZ.TextWindowPositionType} */
         this._positionType = 2;
-        /** @type {number} */
         this._waitCount = 0;
-        /** @type {Bitmap | null} */
         this._faceBitmap = null;
-        /** @type {{ text: string; index: number; x: number; y: number; width: number; height: number; startX: number; startY: number; rtl: boolean; buffer: string; drawing: boolean; outputWidth: number; outputHeight: number; } | null} */
         this._textState = null;
-        /** @type {Window_Gold | null} */
         this._goldWindow = null;
-        /** @type {Window_NameBox | null} */
         this._nameBoxWindow = null;
-        /** @type {Window_ChoiceList | null} */
         this._choiceListWindow = null;
-        /** @type {Window_NumberInput | null} */
         this._numberInputWindow = null;
-        /** @type {Window_EventItem | null} */
         this._eventItemWindow = null;
         this.clearFlags();
     }
 
-    /**
-     * @param {Window_Gold} goldWindow
-     * @returns {void}
-     */
-    setGoldWindow(goldWindow) {
+    setGoldWindow(goldWindow: Window_Gold): void {
         this._goldWindow = goldWindow;
     }
 
-    /**
-     * @param {Window_NameBox} nameBoxWindow
-     * @returns {void}
-     */
-    setNameBoxWindow(nameBoxWindow) {
+    setNameBoxWindow(nameBoxWindow: Window_NameBox): void {
         this._nameBoxWindow = nameBoxWindow;
     }
 
-    /**
-     * @param {Window_ChoiceList} choiceListWindow
-     * @returns {void}
-     */
-    setChoiceListWindow(choiceListWindow) {
+    setChoiceListWindow(choiceListWindow: Window_ChoiceList): void {
         this._choiceListWindow = choiceListWindow;
     }
 
-    /**
-     * @param {Window_NumberInput} numberInputWindow
-     * @returns {void}
-     */
-    setNumberInputWindow(numberInputWindow) {
+    setNumberInputWindow(numberInputWindow: Window_NumberInput): void {
         this._numberInputWindow = numberInputWindow;
     }
 
-    /**
-     * @param {Window_EventItem} eventItemWindow
-     * @returns {void}
-     */
-    setEventItemWindow(eventItemWindow) {
+    setEventItemWindow(eventItemWindow: Window_EventItem): void {
         this._eventItemWindow = eventItemWindow;
     }
 
-    /** @returns {void} */
-    clearFlags() {
+    clearFlags(): void {
         this._showFast = false;
         this._lineShowFast = false;
         this._pauseSkip = false;
     }
 
-    /** @returns {void} */
-    update() {
+    update(): void {
         this.checkToNotClose();
         super.update();
         this.synchronizeNameBox();
@@ -6225,25 +5220,21 @@ class Window_Message extends Window_Base {
         }
     }
 
-    /** @returns {void} */
-    checkToNotClose() {
+    checkToNotClose(): void {
         if (this.isOpen() && this.isClosing() && this.doesContinue()) {
             this.open();
         }
     }
 
-    /** @returns {void} */
-    synchronizeNameBox() {
-        this._nameBoxWindow.openness = this.openness;
+    synchronizeNameBox(): void {
+        this._nameBoxWindow!.openness = this.openness;
     }
 
-    /** @returns {boolean} */
-    canStart() {
+    canStart(): boolean {
         return $gameMessage.hasText() && !$gameMessage.scrollMode();
     }
 
-    /** @returns {void} */
-    startMessage() {
+    startMessage(): void {
         const text = $gameMessage.allText();
         const textState = this.createTextState(text, 0, 0, 0);
         textState.x = this.newLineX(textState);
@@ -6253,14 +5244,10 @@ class Window_Message extends Window_Base {
         this.updatePlacement();
         this.updateBackground();
         this.open();
-        this._nameBoxWindow.start();
+        this._nameBoxWindow!.start();
     }
 
-    /**
-     * @param {{ text: string; index: number; x: number; y: number; width: number; height: number; startX: number; startY: number; rtl: boolean; buffer: string; drawing: boolean; outputWidth: number; outputHeight: number; }} textState
-     * @returns {number}
-     */
-    newLineX(textState) {
+    newLineX(textState: RMMZ.TextState): number {
         const faceExists = $gameMessage.faceName() !== "";
         const faceWidth = ImageManager.standardFaceWidth;
         const spacing = 20;
@@ -6268,31 +5255,28 @@ class Window_Message extends Window_Base {
         return textState.rtl ? this.innerWidth - margin : margin;
     }
 
-    /** @returns {void} */
-    updatePlacement() {
+    updatePlacement(): void {
         const goldWindow = this._goldWindow;
         this._positionType = $gameMessage.positionType();
         this.y = (this._positionType * (Graphics.boxHeight - this.height)) / 2;
         if (goldWindow) {
-            goldWindow.y = this.y > 0 ? 0 : Graphics.boxHeight - goldWindow.height;
+            goldWindow.y =
+                this.y > 0 ? 0 : Graphics.boxHeight - goldWindow.height;
         }
     }
 
-    /** @returns {void} */
-    updateBackground() {
+    updateBackground(): void {
         this._background = $gameMessage.background();
         this.setBackgroundType(this._background);
     }
 
-    /** @returns {void} */
-    terminateMessage() {
+    terminateMessage(): void {
         this.close();
-        this._goldWindow.close();
+        this._goldWindow!.close();
         $gameMessage.clear();
     }
 
-    /** @returns {boolean} */
-    updateWait() {
+    updateWait(): boolean {
         if (this._waitCount > 0) {
             this._waitCount--;
             return true;
@@ -6301,15 +5285,13 @@ class Window_Message extends Window_Base {
         }
     }
 
-    /** @returns {void} */
-    cancelWait() {
+    cancelWait(): void {
         if ($gameSystem.isMessageSkipEnabled()) {
             this._waitCount = 0;
         }
     }
 
-    /** @returns {boolean} */
-    updateLoading() {
+    updateLoading(): boolean {
         if (this._faceBitmap) {
             if (this._faceBitmap.isReady()) {
                 this.drawMessageFace();
@@ -6323,8 +5305,7 @@ class Window_Message extends Window_Base {
         }
     }
 
-    /** @returns {boolean} */
-    updateInput() {
+    updateInput(): boolean {
         if (this.isAnySubWindowActive()) {
             return true;
         }
@@ -6341,17 +5322,15 @@ class Window_Message extends Window_Base {
         return false;
     }
 
-    /** @returns {boolean} */
-    isAnySubWindowActive() {
+    isAnySubWindowActive(): boolean {
         return (
-            this._choiceListWindow.active ||
-            this._numberInputWindow.active ||
-            this._eventItemWindow.active
+            this._choiceListWindow!.active ||
+            this._numberInputWindow!.active ||
+            this._eventItemWindow!.active
         );
     }
 
-    /** @returns {boolean} */
-    updateMessage() {
+    updateMessage(): boolean {
         const textState = this._textState;
         if (textState) {
             while (!this.isEndOfText(textState)) {
@@ -6374,11 +5353,7 @@ class Window_Message extends Window_Base {
         }
     }
 
-    /**
-     * @param {{ text: string; index: number; x: number; y: number; width: number; height: number; startX: number; startY: number; rtl: boolean; buffer: string; drawing: boolean; outputWidth: number; outputHeight: number; }} textState
-     * @returns {boolean}
-     */
-    shouldBreakHere(textState) {
+    shouldBreakHere(textState: RMMZ.TextState): boolean {
         if (this.canBreakHere(textState)) {
             if (!this._showFast && !this._lineShowFast) {
                 return true;
@@ -6390,11 +5365,7 @@ class Window_Message extends Window_Base {
         return false;
     }
 
-    /**
-     * @param {{ text: string; index: number; x: number; y: number; width: number; height: number; startX: number; startY: number; rtl: boolean; buffer: string; drawing: boolean; outputWidth: number; outputHeight: number; }} textState
-     * @returns {boolean}
-     */
-    canBreakHere(textState) {
+    canBreakHere(textState: RMMZ.TextState): boolean {
         if (!this.isEndOfText(textState)) {
             const c = textState.text[textState.index];
             if (c.charCodeAt(0) >= 0xdc00 && c.charCodeAt(0) <= 0xdfff) {
@@ -6408,8 +5379,7 @@ class Window_Message extends Window_Base {
         return true;
     }
 
-    /** @returns {void} */
-    onEndOfText() {
+    onEndOfText(): void {
         if (!this.startInput()) {
             if (!this._pauseSkip) {
                 this.startPause();
@@ -6420,24 +5390,22 @@ class Window_Message extends Window_Base {
         this._textState = null;
     }
 
-    /** @returns {boolean} */
-    startInput() {
+    startInput(): boolean {
         if ($gameMessage.isChoice()) {
-            this._choiceListWindow.start();
+            this._choiceListWindow!.start();
             return true;
         } else if ($gameMessage.isNumberInput()) {
-            this._numberInputWindow.start();
+            this._numberInputWindow!.start();
             return true;
         } else if ($gameMessage.isItemChoice()) {
-            this._eventItemWindow.start();
+            this._eventItemWindow!.start();
             return true;
         } else {
             return false;
         }
     }
 
-    /** @returns {boolean} */
-    isTriggered() {
+    isTriggered(): boolean {
         return (
             Input.isRepeated("ok") ||
             Input.isRepeated("cancel") ||
@@ -6445,8 +5413,7 @@ class Window_Message extends Window_Base {
         );
     }
 
-    /** @returns {boolean} */
-    doesContinue() {
+    doesContinue(): boolean {
         return (
             $gameMessage.hasText() &&
             !$gameMessage.scrollMode() &&
@@ -6454,26 +5421,20 @@ class Window_Message extends Window_Base {
         );
     }
 
-    /** @returns {boolean} */
-    areSettingsChanged() {
+    areSettingsChanged(): boolean {
         return (
             this._background !== $gameMessage.background() ||
             this._positionType !== $gameMessage.positionType()
         );
     }
 
-    /** @returns {void} */
-    updateShowFast() {
+    updateShowFast(): void {
         if (this.isTriggered()) {
             this._showFast = true;
         }
     }
 
-    /**
-     * @param {{ text: string; index: number; x: number; y: number; width: number; height: number; startX: number; startY: number; rtl: boolean; buffer: string; drawing: boolean; outputWidth: number; outputHeight: number; }} textState
-     * @returns {void}
-     */
-    newPage(textState) {
+    newPage(textState: RMMZ.TextState): void {
         this.contents.clear();
         this.resetFontSettings();
         this.clearFlags();
@@ -6484,18 +5445,15 @@ class Window_Message extends Window_Base {
         textState.height = this.calcTextHeight(textState);
     }
 
-    /** @returns {void} */
-    updateSpeakerName() {
-        this._nameBoxWindow.setName($gameMessage.speakerName());
+    updateSpeakerName(): void {
+        this._nameBoxWindow!.setName($gameMessage.speakerName());
     }
 
-    /** @returns {void} */
-    loadMessageFace() {
+    loadMessageFace(): void {
         this._faceBitmap = ImageManager.loadFace($gameMessage.faceName());
     }
 
-    /** @returns {void} */
-    drawMessageFace() {
+    drawMessageFace(): void {
         const faceName = $gameMessage.faceName();
         const faceIndex = $gameMessage.faceIndex();
         const rtl = $gameMessage.isRTL();
@@ -6505,23 +5463,14 @@ class Window_Message extends Window_Base {
         this.drawFace(faceName, faceIndex, x, 0, width, height);
     }
 
-    /**
-     * @param {{ text: string; index: number; x: number; y: number; width: number; height: number; startX: number; startY: number; rtl: boolean; buffer: string; drawing: boolean; outputWidth: number; outputHeight: number; }} textState
-     * @param {string} c
-     * @returns {void}
-     */
-    processControlCharacter(textState, c) {
+    processControlCharacter(textState: RMMZ.TextState, c: string): void {
         super.processControlCharacter(textState, c);
         if (c === "\f") {
             this.processNewPage(textState);
         }
     }
 
-    /**
-     * @param {{ text: string; index: number; x: number; y: number; width: number; height: number; startX: number; startY: number; rtl: boolean; buffer: string; drawing: boolean; outputWidth: number; outputHeight: number; }} textState
-     * @returns {void}
-     */
-    processNewLine(textState) {
+    processNewLine(textState: RMMZ.TextState): void {
         this._lineShowFast = false;
         super.processNewLine(textState);
         if (this.needsNewPage(textState)) {
@@ -6529,11 +5478,7 @@ class Window_Message extends Window_Base {
         }
     }
 
-    /**
-     * @param {{ text: string; index: number; x: number; y: number; width: number; height: number; startX: number; startY: number; rtl: boolean; buffer: string; drawing: boolean; outputWidth: number; outputHeight: number; }} textState
-     * @returns {void}
-     */
-    processNewPage(textState) {
+    processNewPage(textState: RMMZ.TextState): void {
         if (textState.text[textState.index] === "\n") {
             textState.index++;
         }
@@ -6541,34 +5486,26 @@ class Window_Message extends Window_Base {
         this.startPause();
     }
 
-    /**
-     * @param {{ text: string; index: number; x: number; y: number; width: number; height: number; startX: number; startY: number; rtl: boolean; buffer: string; drawing: boolean; outputWidth: number; outputHeight: number; }} textState
-     * @returns {boolean}
-     */
-    isEndOfText(textState) {
+    isEndOfText(textState: RMMZ.TextState): boolean {
         return textState.index >= textState.text.length;
     }
 
-    /**
-     * @param {{ text: string; index: number; x: number; y: number; width: number; height: number; startX: number; startY: number; rtl: boolean; buffer: string; drawing: boolean; outputWidth: number; outputHeight: number; }} textState
-     * @returns {boolean}
-     */
-    needsNewPage(textState) {
+    needsNewPage(textState: RMMZ.TextState): boolean {
         return (
             !this.isEndOfText(textState) &&
             textState.y + textState.height > this.contents.height
         );
     }
 
-    /**
-     * @param {("$" | "." | "|" | "!" | ">" | "<" | "^") | ("C" | "I" | "PX" | "PY" | "FS" | "{" | "}")} code
-     * @param {{ text: string; index: number; x: number; y: number; width: number; height: number; startX: number; startY: number; rtl: boolean; buffer: string; drawing: boolean; outputWidth: number; outputHeight: number; }} textState
-     * @returns {void}
-     */
-    processEscapeCharacter(code, textState) {
+    processEscapeCharacter(
+        code:
+            | ("$" | "." | "|" | "!" | ">" | "<" | "^")
+            | ("C" | "I" | "PX" | "PY" | "FS" | "{" | "}"),
+        textState: RMMZ.TextState,
+    ): void {
         switch (code) {
             case "$":
-                this._goldWindow.open();
+                this._goldWindow!.open();
                 break;
             case ".":
                 this.startWait(15);
@@ -6594,22 +5531,16 @@ class Window_Message extends Window_Base {
         }
     }
 
-    /**
-     * @param {number} count
-     * @returns {void}
-     */
-    startWait(count) {
+    startWait(count: number): void {
         this._waitCount = count;
     }
 
-    /** @returns {void} */
-    startPause() {
+    startPause(): void {
         this.startWait(10);
         this.pause = true;
     }
 
-    /** @returns {boolean} */
-    isWaiting() {
+    isWaiting(): boolean {
         return this.pause || this._waitCount > 0;
     }
 }
@@ -6619,30 +5550,35 @@ class Window_Message extends Window_Base {
  * is handled as a window for convenience.
  */
 class Window_ScrollText extends Window_Base {
-    /** @param {[rect: Rectangle]} args */
-    constructor(...args) {
+    declare _reservedRect: Rectangle;
+    declare _text: string | null;
+    declare _maxBitmapHeight: number;
+    declare _allTextHeight: number;
+    declare _blockHeight: number;
+    declare _blockIndex: number;
+    declare _scrollY: number;
+
+    constructor(...args: [rect: Rectangle]) {
         super(...args);
     }
 
-    /** @param {Rectangle} rect */
-    initialize(rect) {
+    initialize(rect: Rectangle): void;
+    initialize(...args: any[]): void;
+    initialize(rect: Rectangle): void {
         super.initialize(new PIXI.Rectangle());
         this.opacity = 0;
         this.hide();
-        /** @type {Rectangle} */
+
         this._reservedRect = rect;
-        /** @type {string | null} */
         this._text = "";
         this._maxBitmapHeight = 2048;
-        /** @type {number} */
         this._allTextHeight = 0;
         this._blockHeight = 0;
         this._blockIndex = 0;
         this._scrollY = 0;
     }
 
-    /** @returns {void} */
-    update() {
+    update(): void {
         super.update();
         if ($gameMessage.scrollMode()) {
             if (this._text) {
@@ -6654,8 +5590,7 @@ class Window_ScrollText extends Window_Base {
         }
     }
 
-    /** @returns {void} */
-    startMessage() {
+    startMessage(): void {
         this._text = $gameMessage.allText();
         if (this._text) {
             this.updatePlacement();
@@ -6671,22 +5606,19 @@ class Window_ScrollText extends Window_Base {
         }
     }
 
-    /** @returns {void} */
-    refresh() {
+    refresh(): void {
         const rect = this.baseTextRect();
         const y = rect.y - this._scrollY + (this._scrollY % this._blockHeight);
         this.contents.clear();
-        this.drawTextEx(this._text, rect.x, y, rect.width);
+        this.drawTextEx(this._text!, rect.x, y, rect.width);
     }
 
-    /** @returns {void} */
-    updatePlacement() {
+    updatePlacement(): void {
         const rect = this._reservedRect;
         this.move(rect.x, rect.y, rect.width, rect.height);
     }
 
-    /** @returns {number} */
-    contentsHeight() {
+    contentsHeight(): number {
         if (this._allTextHeight > 0) {
             return Math.min(this._allTextHeight, this._maxBitmapHeight);
         } else {
@@ -6694,8 +5626,7 @@ class Window_ScrollText extends Window_Base {
         }
     }
 
-    /** @returns {void} */
-    updateMessage() {
+    updateMessage(): void {
         this._scrollY += this.scrollSpeed();
         if (this._scrollY >= this._allTextHeight) {
             this.terminateMessage();
@@ -6709,8 +5640,7 @@ class Window_ScrollText extends Window_Base {
         }
     }
 
-    /** @returns {number} */
-    scrollSpeed() {
+    scrollSpeed(): number {
         let speed = $gameMessage.scrollSpeed() / 2;
         if (this.isFastForward()) {
             speed *= this.fastForwardRate();
@@ -6718,8 +5648,7 @@ class Window_ScrollText extends Window_Base {
         return speed;
     }
 
-    /** @returns {boolean} */
-    isFastForward() {
+    isFastForward(): boolean {
         if ($gameMessage.scrollNoFast()) {
             return false;
         } else {
@@ -6731,13 +5660,11 @@ class Window_ScrollText extends Window_Base {
         }
     }
 
-    /** @returns {number} */
-    fastForwardRate() {
+    fastForwardRate(): number {
         return 3;
     }
 
-    /** @returns {void} */
-    terminateMessage() {
+    terminateMessage(): void {
         this._text = null;
         $gameMessage.clear();
         this.hide();
@@ -6748,23 +5675,23 @@ class Window_ScrollText extends Window_Base {
  * The window for displaying the map name on the map screen.
  */
 class Window_MapName extends Window_Base {
-    /** @param {[rect: Rectangle]} args */
-    constructor(...args) {
+    declare _showCount: number;
+
+    constructor(...args: [rect: Rectangle]) {
         super(...args);
     }
 
-    /** @param {Rectangle} rect */
-    initialize(rect) {
+    initialize(rect: Rectangle): void;
+    initialize(...args: any[]): void;
+    initialize(rect: Rectangle): void {
         super.initialize(rect);
         this.opacity = 0;
         this.contentsOpacity = 0;
-        /** @type {number} */
         this._showCount = 0;
         this.refresh();
     }
 
-    /** @returns {void} */
-    update() {
+    update(): void {
         super.update();
         if (this._showCount > 0 && $gameMap.isNameDisplayEnabled()) {
             this.updateFadeIn();
@@ -6774,29 +5701,24 @@ class Window_MapName extends Window_Base {
         }
     }
 
-    /** @returns {void} */
-    updateFadeIn() {
+    updateFadeIn(): void {
         this.contentsOpacity += 16;
     }
 
-    /** @returns {void} */
-    updateFadeOut() {
+    updateFadeOut(): void {
         this.contentsOpacity -= 16;
     }
 
-    /** @returns {void} */
-    open() {
+    open(): void {
         this.refresh();
         this._showCount = 150;
     }
 
-    /** @returns {void} */
-    close() {
+    close(): void {
         this._showCount = 0;
     }
 
-    /** @returns {void} */
-    refresh() {
+    refresh(): void {
         this.contents.clear();
         if ($gameMap.displayName()) {
             const width = this.innerWidth;
@@ -6805,19 +5727,19 @@ class Window_MapName extends Window_Base {
         }
     }
 
-    /**
-     * @param {number} x
-     * @param {number} y
-     * @param {number} width
-     * @param {number} height
-     * @returns {void}
-     */
-    drawBackground(x, y, width, height) {
+    drawBackground(x: number, y: number, width: number, height: number): void {
         const color1 = ColorManager.dimColor1();
         const color2 = ColorManager.dimColor2();
         const half = width / 2;
         this.contents.gradientFillRect(x, y, half, height, color2, color1);
-        this.contents.gradientFillRect(x + half, y, half, height, color1, color2);
+        this.contents.gradientFillRect(
+            x + half,
+            y,
+            half,
+            height,
+            color1,
+            color2,
+        );
     }
 }
 
@@ -6826,72 +5748,80 @@ class Window_MapName extends Window_Base {
  * handled as a window for convenience.
  */
 class Window_BattleLog extends Window_Base {
-    /** @param {[rect: Rectangle]} args */
-    constructor(...args) {
+    declare _lines: string[];
+    declare _methods: {
+        name: RMMZ.MethodName<Omit<Window_BattleLog, "_methods" | "push">>;
+        params: unknown[];
+    }[];
+    declare _waitCount: number;
+    declare _waitMode: RMMZ.WaitMode;
+    declare _baseLineStack: number[];
+    declare _spriteset: Spriteset_Battle | null;
+
+    constructor(...args: [rect: Rectangle]) {
         super(...args);
     }
 
-    /** @param {Rectangle} rect */
-    initialize(rect) {
+    initialize(rect: Rectangle): void;
+    initialize(...args: any[]): void;
+    initialize(rect: Rectangle): void {
         super.initialize(rect);
         this.opacity = 0;
-        /** @type {string[]} */
         this._lines = [];
-        /** @type {((Window_BattleLog["performActionStart"] extends (...args: any[]) => any ? { name: "performActionStart"; params: Parameters<Window_BattleLog["performActionStart"]>; } : never) | (Window_BattleLog["performAction"] extends (...args: any[]) => any ? { name: "performAction"; params: Parameters<Window_BattleLog["performAction"]>; } : never) | (Window_BattleLog["performActionEnd"] extends (...args: any[]) => any ? { name: "performActionEnd"; params: Parameters<Window_BattleLog["performActionEnd"]>; } : never) | (Window_BattleLog["performCounter"] extends (...args: any[]) => any ? { name: "performCounter"; params: Parameters<Window_BattleLog["performCounter"]>; } : never) | (Window_BattleLog["performReflection"] extends (...args: any[]) => any ? { name: "performReflection"; params: Parameters<Window_BattleLog["performReflection"]>; } : never) | (Window_BattleLog["performSubstitute"] extends (...args: any[]) => any ? { name: "performSubstitute"; params: Parameters<Window_BattleLog["performSubstitute"]>; } : never) | (Window_BattleLog["performMiss"] extends (...args: any[]) => any ? { name: "performMiss"; params: Parameters<Window_BattleLog["performMiss"]>; } : never) | (Window_BattleLog["performEvasion"] extends (...args: any[]) => any ? { name: "performEvasion"; params: Parameters<Window_BattleLog["performEvasion"]>; } : never) | (Window_BattleLog["performMagicEvasion"] extends (...args: any[]) => any ? { name: "performMagicEvasion"; params: Parameters<Window_BattleLog["performMagicEvasion"]>; } : never) | (Window_BattleLog["performDamage"] extends (...args: any[]) => any ? { name: "performDamage"; params: Parameters<Window_BattleLog["performDamage"]>; } : never) | (Window_BattleLog["performRecovery"] extends (...args: any[]) => any ? { name: "performRecovery"; params: Parameters<Window_BattleLog["performRecovery"]>; } : never) | (Window_BattleLog["performCollapse"] extends (...args: any[]) => any ? { name: "performCollapse"; params: Parameters<Window_BattleLog["performCollapse"]>; } : never) | (Window_BattleLog["pushBaseLine"] extends (...args: any[]) => any ? { name: "pushBaseLine"; params: Parameters<Window_BattleLog["pushBaseLine"]>; } : never) | (Window_BattleLog["popBaseLine"] extends (...args: any[]) => any ? { name: "popBaseLine"; params: Parameters<Window_BattleLog["popBaseLine"]>; } : never) | (Window_BattleLog["addText"] extends (...args: any[]) => any ? { name: "addText"; params: Parameters<Window_BattleLog["addText"]>; } : never) | (Window_BattleLog["popupDamage"] extends (...args: any[]) => any ? { name: "popupDamage"; params: Parameters<Window_BattleLog["popupDamage"]>; } : never) | (Window_BattleLog["wait"] extends (...args: any[]) => any ? { name: "wait"; params: Parameters<Window_BattleLog["wait"]>; } : never) | (Window_BattleLog["waitForMovement"] extends (...args: any[]) => any ? { name: "waitForMovement"; params: Parameters<Window_BattleLog["waitForMovement"]>; } : never) | (Window_BattleLog["waitForNewLine"] extends (...args: any[]) => any ? { name: "waitForNewLine"; params: Parameters<Window_BattleLog["waitForNewLine"]>; } : never) | (Window_BattleLog["waitForEffect"] extends (...args: any[]) => any ? { name: "waitForEffect"; params: Parameters<Window_BattleLog["waitForEffect"]>; } : never) | (Window_BattleLog["showAnimation"] extends (...args: any[]) => any ? { name: "showAnimation"; params: Parameters<Window_BattleLog["showAnimation"]>; } : never) | (Window_BattleLog["clear"] extends (...args: any[]) => any ? { name: "clear"; params: Parameters<Window_BattleLog["clear"]>; } : never))[]} */
         this._methods = [];
-        /** @type {number} */
         this._waitCount = 0;
-        /** @type {RMMZ.WaitMode} */
         this._waitMode = "";
-        /** @type {number[]} */
         this._baseLineStack = [];
-        /** @type {Spriteset_Battle | null} */
         this._spriteset = null;
         this.refresh();
     }
 
-    /**
-     * @param {Spriteset_Battle} spriteset
-     * @returns {void}
-     */
-    setSpriteset(spriteset) {
+    setSpriteset(spriteset: Spriteset_Battle): void {
         this._spriteset = spriteset;
     }
 
-    /** @returns {number} */
-    maxLines() {
+    maxLines(): number {
         return 10;
     }
 
-    /** @returns {number} */
-    numLines() {
+    numLines(): number {
         return this._lines.length;
     }
 
-    /** @returns {number} */
-    messageSpeed() {
+    messageSpeed(): number {
         return 16;
     }
 
-    /** @returns {boolean | "video" | "scroll" | "image" | "message" | "transfer" | "route" | "animation" | "balloon" | "gather" | "action" | "effect" | "movement"} */
-    isBusy() {
-        return this._waitCount > 0 || this._waitMode || this._methods.length > 0;
+    isBusy():
+        | boolean
+        | "video"
+        | "scroll"
+        | "image"
+        | "message"
+        | "transfer"
+        | "route"
+        | "animation"
+        | "balloon"
+        | "gather"
+        | "action"
+        | "effect"
+        | "movement" {
+        return (
+            this._waitCount > 0 || this._waitMode || this._methods.length > 0
+        );
     }
 
-    /** @returns {void} */
-    update() {
+    update(): void {
         if (!this.updateWait()) {
             this.callNextMethod();
         }
     }
 
-    /** @returns {boolean} */
-    updateWait() {
+    updateWait(): boolean {
         return this.updateWaitCount() || this.updateWaitMode();
     }
 
-    /** @returns {boolean} */
-    updateWaitCount() {
+    updateWaitCount(): boolean {
         if (this._waitCount > 0) {
             this._waitCount -= this.isFastForward() ? 3 : 1;
             if (this._waitCount < 0) {
@@ -6902,15 +5832,14 @@ class Window_BattleLog extends Window_Base {
         return false;
     }
 
-    /** @returns {boolean} */
-    updateWaitMode() {
+    updateWaitMode(): boolean {
         let waiting = false;
         switch (this._waitMode) {
             case "effect":
-                waiting = this._spriteset.isEffecting();
+                waiting = this._spriteset!.isEffecting();
                 break;
             case "movement":
-                waiting = this._spriteset.isAnyoneMoving();
+                waiting = this._spriteset!.isAnyoneMoving();
                 break;
         }
         if (!waiting) {
@@ -6919,28 +5848,28 @@ class Window_BattleLog extends Window_Base {
         return waiting;
     }
 
-    /**
-     * @param {RMMZ.WaitMode} waitMode
-     * @returns {void}
-     */
-    setWaitMode(waitMode) {
+    setWaitMode(waitMode: RMMZ.WaitMode): void {
         this._waitMode = waitMode;
     }
 
-    /** @returns {void} */
-    callNextMethod() {
+    callNextMethod(): void {
         if (this._methods.length > 0) {
             const method = this._methods.shift();
-            if (method.name && this[method.name]) {
-                this[method.name].apply(this, method.params);
+            if (
+                method!.name &&
+                (this[method!.name] as (...args: unknown[]) => unknown)
+            ) {
+                (this[method!.name] as (...args: unknown[]) => unknown).apply(
+                    this,
+                    method!.params,
+                );
             } else {
-                throw new Error("Method not found: " + method.name);
+                throw new Error("Method not found: " + method!.name);
             }
         }
     }
 
-    /** @returns {boolean} */
-    isFastForward() {
+    isFastForward(): boolean {
         return (
             Input.isLongPressed("ok") ||
             Input.isPressed("shift") ||
@@ -6948,63 +5877,59 @@ class Window_BattleLog extends Window_Base {
         );
     }
 
-    /**
-     * @template T
-     * @param {T} methodName
-     * @returns {void}
-     */
-    push(methodName) {
+    push<
+        K extends RMMZ.MethodName<Omit<Window_BattleLog, "_methods" | "push">>,
+    >(
+        methodName: K,
+        ...params: Window_BattleLog[K] extends (...args: infer P) => any
+            ? P
+            : never
+    ): void;
+    push(
+        methodName: RMMZ.MethodName<
+            Omit<Window_BattleLog, "_methods" | "push">
+        >,
+    ): void {
         const methodArgs = Array.prototype.slice.call(arguments, 1);
         this._methods.push({ name: methodName, params: methodArgs });
     }
 
-    /** @returns {void} */
-    clear() {
+    clear(): void {
         this._lines = [];
         this._baseLineStack = [];
         this.refresh();
     }
 
-    /** @returns {void} */
-    wait() {
+    wait(): void {
         this._waitCount = this.messageSpeed();
     }
 
-    /** @returns {void} */
-    waitForEffect() {
+    waitForEffect(): void {
         this.setWaitMode("effect");
     }
 
-    /** @returns {void} */
-    waitForMovement() {
+    waitForMovement(): void {
         this.setWaitMode("movement");
     }
 
-    /**
-     * @param {string} text
-     * @returns {void}
-     */
-    addText(text) {
+    addText(text: string): void {
         this._lines.push(text);
         this.refresh();
         this.wait();
     }
 
-    /** @returns {void} */
-    pushBaseLine() {
+    pushBaseLine(): void {
         this._baseLineStack.push(this._lines.length);
     }
 
-    /** @returns {void} */
-    popBaseLine() {
+    popBaseLine(): void {
         const baseLine = this._baseLineStack.pop();
-        while (this._lines.length > baseLine) {
+        while (this._lines.length > baseLine!) {
             this._lines.pop();
         }
     }
 
-    /** @returns {void} */
-    waitForNewLine() {
+    waitForNewLine(): void {
         let baseLine = 0;
         if (this._baseLineStack.length > 0) {
             baseLine = this._baseLineStack[this._baseLineStack.length - 1];
@@ -7014,125 +5939,68 @@ class Window_BattleLog extends Window_Base {
         }
     }
 
-    /**
-     * @param {RMMZ.ActionTarget} target
-     * @returns {void}
-     */
-    popupDamage(target) {
+    popupDamage(target: RMMZ.ActionTarget): void {
         if (target.shouldPopupDamage()) {
             target.startDamagePopup();
         }
     }
 
-    /**
-     * @param {RMMZ.ActionTarget} subject
-     * @param {Game_Action} action
-     * @returns {void}
-     */
-    performActionStart(subject, action) {
+    performActionStart(subject: RMMZ.ActionTarget, action: Game_Action): void {
         subject.performActionStart(action);
     }
 
-    /**
-     * @param {RMMZ.ActionTarget} subject
-     * @param {Game_Action} action
-     * @returns {void}
-     */
-    performAction(subject, action) {
+    performAction(subject: RMMZ.ActionTarget, action: Game_Action): void {
         subject.performAction(action);
     }
 
-    /**
-     * @param {RMMZ.ActionTarget} subject
-     * @returns {void}
-     */
-    performActionEnd(subject) {
+    performActionEnd(subject: RMMZ.ActionTarget): void {
         subject.performActionEnd();
     }
 
-    /**
-     * @param {RMMZ.ActionTarget} target
-     * @returns {void}
-     */
-    performDamage(target) {
+    performDamage(target: RMMZ.ActionTarget): void {
         target.performDamage();
     }
 
-    /**
-     * @param {RMMZ.ActionTarget} target
-     * @returns {void}
-     */
-    performMiss(target) {
+    performMiss(target: RMMZ.ActionTarget): void {
         target.performMiss();
     }
 
-    /**
-     * @param {RMMZ.ActionTarget} target
-     * @returns {void}
-     */
-    performRecovery(target) {
+    performRecovery(target: RMMZ.ActionTarget): void {
         target.performRecovery();
     }
 
-    /**
-     * @param {RMMZ.ActionTarget} target
-     * @returns {void}
-     */
-    performEvasion(target) {
+    performEvasion(target: RMMZ.ActionTarget): void {
         target.performEvasion();
     }
 
-    /**
-     * @param {RMMZ.ActionTarget} target
-     * @returns {void}
-     */
-    performMagicEvasion(target) {
+    performMagicEvasion(target: RMMZ.ActionTarget): void {
         target.performMagicEvasion();
     }
 
-    /**
-     * @param {RMMZ.ActionTarget} target
-     * @returns {void}
-     */
-    performCounter(target) {
+    performCounter(target: RMMZ.ActionTarget): void {
         target.performCounter();
     }
 
-    /**
-     * @param {RMMZ.ActionTarget} target
-     * @returns {void}
-     */
-    performReflection(target) {
+    performReflection(target: RMMZ.ActionTarget): void {
         target.performReflection();
     }
 
-    /**
-     * @param {RMMZ.ActionTarget} substitute
-     * @param {RMMZ.ActionTarget} target
-     * @returns {void}
-     */
-    performSubstitute(substitute, target) {
+    performSubstitute(
+        substitute: RMMZ.ActionTarget,
+        target: RMMZ.ActionTarget,
+    ): void {
         substitute.performSubstitute(target);
     }
 
-    /**
-     * @param {RMMZ.ActionTarget} target
-     * @returns {void}
-     */
-    performCollapse(target) {
+    performCollapse(target: RMMZ.ActionTarget): void {
         target.performCollapse();
     }
 
     // prettier-ignore
-    /**
-     * @param {RMMZ.ActionTarget} subject
-     * @param {RMMZ.ActionTarget[]} targets
-     * @param {RMMZ.AnimationID} animationId
-     * @returns {void}
-     */
+
     showAnimation(
-        subject, targets, animationId
-    ) {
+        subject: RMMZ.ActionTarget, targets: RMMZ.ActionTarget[], animationId: RMMZ.AnimationID
+    ): void {
         if (animationId < 0) {
             this.showAttackAnimation(subject, targets);
         } else {
@@ -7140,12 +6008,10 @@ class Window_BattleLog extends Window_Base {
         }
     }
 
-    /**
-     * @param {RMMZ.ActionTarget} subject
-     * @param {RMMZ.ActionTarget[]} targets
-     * @returns {void}
-     */
-    showAttackAnimation(subject, targets) {
+    showAttackAnimation(
+        subject: RMMZ.ActionTarget,
+        targets: RMMZ.ActionTarget[],
+    ): void {
         if (subject.isActor()) {
             this.showActorAttackAnimation(subject, targets);
         } else {
@@ -7154,48 +6020,31 @@ class Window_BattleLog extends Window_Base {
     }
 
     // prettier-ignore
-    /**
-     * @param {Game_Actor} subject
-     * @param {RMMZ.ActionTarget[]} targets
-     * @returns {void}
-     */
+
     showActorAttackAnimation(
-        subject, targets
-    ) {
+        subject: Game_Actor, targets: RMMZ.ActionTarget[]
+    ): void {
         this.showNormalAnimation(targets, subject.attackAnimationId1(), false);
         this.showNormalAnimation(targets, subject.attackAnimationId2(), true);
     }
 
-    /**
-     * @param {Game_Enemy} subject
-     * @param {RMMZ.ActionTarget[]} targets
-     * @returns {void}
-     */
     // prettier-ignore
-    showEnemyAttackAnimation(
-        /* subject, targets */
-    ) {
+    showEnemyAttackAnimation(subject: Game_Enemy, targets: RMMZ.ActionTarget[]): void {
         SoundManager.playEnemyAttack();
     }
 
     // prettier-ignore
-    /**
-     * @param {RMMZ.ActionTarget[]} targets
-     * @param {RMMZ.AnimationID} animationId
-     * @param {boolean} [mirror]
-     * @returns {void}
-     */
+
     showNormalAnimation(
-        targets, animationId, mirror
-    ) {
+        targets: RMMZ.ActionTarget[], animationId: RMMZ.AnimationID, mirror?: boolean
+    ): void {
         const animation = $dataAnimations[animationId];
         if (animation) {
             $gameTemp.requestAnimation(targets, animationId, mirror);
         }
     }
 
-    /** @returns {void} */
-    refresh() {
+    refresh(): void {
         this.drawBackground();
         this.contents.clear();
         for (let i = 0; i < this._lines.length; i++) {
@@ -7203,27 +6052,27 @@ class Window_BattleLog extends Window_Base {
         }
     }
 
-    /** @returns {void} */
-    drawBackground() {
+    drawBackground(): void {
         const rect = this.backRect();
         const color = this.backColor();
         this.contentsBack.clear();
         this.contentsBack.paintOpacity = this.backPaintOpacity();
-        this.contentsBack.fillRect(rect.x, rect.y, rect.width, rect.height, color);
+        this.contentsBack.fillRect(
+            rect.x,
+            rect.y,
+            rect.width,
+            rect.height,
+            color,
+        );
         this.contentsBack.paintOpacity = 255;
     }
 
-    /** @returns {Rectangle} */
-    backRect() {
+    backRect(): Rectangle {
         const height = this.numLines() * this.itemHeight();
         return new PIXI.Rectangle(0, 0, this.innerWidth, height);
     }
 
-    /**
-     * @param {number} index
-     * @returns {Rectangle}
-     */
-    lineRect(index) {
+    lineRect(index: number): Rectangle {
         const itemHeight = this.itemHeight();
         const padding = this.itemPadding();
         const x = padding;
@@ -7233,38 +6082,29 @@ class Window_BattleLog extends Window_Base {
         return new PIXI.Rectangle(x, y, width, height);
     }
 
-    /** @returns {string} */
-    backColor() {
+    backColor(): string {
         return "#000000";
     }
 
-    /** @returns {number} */
-    backPaintOpacity() {
+    backPaintOpacity(): number {
         return 64;
     }
 
-    /**
-     * @param {number} index
-     * @returns {void}
-     */
-    drawLineText(index) {
+    drawLineText(index: number): void {
         const rect = this.lineRect(index);
         this.contents.clearRect(rect.x, rect.y, rect.width, rect.height);
         this.drawTextEx(this._lines[index], rect.x, rect.y, rect.width);
     }
 
-    /** @returns {void} */
-    startTurn() {
+    startTurn(): void {
         this.push("wait");
     }
 
-    /**
-     * @param {RMMZ.ActionTarget} subject
-     * @param {Game_Action} action
-     * @param {RMMZ.ActionTarget[]} targets
-     * @returns {void}
-     */
-    startAction(subject, action, targets) {
+    startAction(
+        subject: RMMZ.ActionTarget,
+        action: Game_Action,
+        targets: RMMZ.ActionTarget[],
+    ): void {
         const item = action.item();
         this.push("performActionStart", subject, action);
         this.push("waitForMovement");
@@ -7273,21 +6113,13 @@ class Window_BattleLog extends Window_Base {
         this.displayAction(subject, item);
     }
 
-    /**
-     * @param {RMMZ.ActionTarget} subject
-     * @returns {void}
-     */
-    endAction(subject) {
+    endAction(subject: RMMZ.ActionTarget): void {
         this.push("waitForNewLine");
         this.push("clear");
         this.push("performActionEnd", subject);
     }
 
-    /**
-     * @param {RMMZ.ActionTarget} subject
-     * @returns {void}
-     */
-    displayCurrentState(subject) {
+    displayCurrentState(subject: RMMZ.ActionTarget): void {
         const stateText = subject.mostImportantStateText();
         if (stateText) {
             this.push("addText", stateText.format(subject.name()));
@@ -7296,20 +6128,11 @@ class Window_BattleLog extends Window_Base {
         }
     }
 
-    /**
-     * @param {RMMZ.ActionTarget} subject
-     * @returns {void}
-     */
-    displayRegeneration(subject) {
+    displayRegeneration(subject: RMMZ.ActionTarget): void {
         this.push("popupDamage", subject);
     }
 
-    /**
-     * @param {RMMZ.ActionTarget} subject
-     * @param {RMMZ.DataItemBase} item
-     * @returns {void}
-     */
-    displayAction(subject, item) {
+    displayAction(subject: RMMZ.ActionTarget, item: RMMZ.DatabaseItem): void {
         const numMethods = this._methods.length;
         if (DataManager.isSkill(item)) {
             this.displayItemMessage(item.message1, subject, item);
@@ -7322,54 +6145,40 @@ class Window_BattleLog extends Window_Base {
         }
     }
 
-    /**
-     * @param {string} fmt
-     * @param {RMMZ.ActionTarget} subject
-     * @param {RMMZ.DataItemBase} item
-     * @returns {void}
-     */
-    displayItemMessage(fmt, subject, item) {
+    displayItemMessage(
+        fmt: string,
+        subject: RMMZ.ActionTarget,
+        item: RMMZ.DatabaseItem,
+    ): void {
         if (fmt) {
             this.push("addText", fmt.format(subject.name(), item.name));
         }
     }
 
-    /**
-     * @param {RMMZ.ActionTarget} target
-     * @returns {void}
-     */
-    displayCounter(target) {
+    displayCounter(target: RMMZ.ActionTarget): void {
         this.push("performCounter", target);
         this.push("addText", TextManager.counterAttack.format(target.name()));
     }
 
-    /**
-     * @param {RMMZ.ActionTarget} target
-     * @returns {void}
-     */
-    displayReflection(target) {
+    displayReflection(target: RMMZ.ActionTarget): void {
         this.push("performReflection", target);
         this.push("addText", TextManager.magicReflection.format(target.name()));
     }
 
-    /**
-     * @param {RMMZ.ActionTarget} substitute
-     * @param {RMMZ.ActionTarget} target
-     * @returns {void}
-     */
-    displaySubstitute(substitute, target) {
+    displaySubstitute(
+        substitute: RMMZ.ActionTarget,
+        target: RMMZ.ActionTarget,
+    ): void {
         const substName = substitute.name();
         const text = TextManager.substitute.format(substName, target.name());
         this.push("performSubstitute", substitute, target);
         this.push("addText", text);
     }
 
-    /**
-     * @param {RMMZ.ActionTarget} subject
-     * @param {RMMZ.ActionTarget} target
-     * @returns {void}
-     */
-    displayActionResults(subject, target) {
+    displayActionResults(
+        subject: RMMZ.ActionTarget,
+        target: RMMZ.ActionTarget,
+    ): void {
         if (target.result().used) {
             this.push("pushBaseLine");
             this.displayCritical(target);
@@ -7383,21 +6192,16 @@ class Window_BattleLog extends Window_Base {
         }
     }
 
-    /**
-     * @param {RMMZ.ActionTarget} target
-     * @returns {void}
-     */
-    displayFailure(target) {
+    displayFailure(target: RMMZ.ActionTarget): void {
         if (target.result().isHit() && !target.result().success) {
-            this.push("addText", TextManager.actionFailure.format(target.name()));
+            this.push(
+                "addText",
+                TextManager.actionFailure.format(target.name()),
+            );
         }
     }
 
-    /**
-     * @param {RMMZ.ActionTarget} target
-     * @returns {void}
-     */
-    displayCritical(target) {
+    displayCritical(target: RMMZ.ActionTarget): void {
         if (target.result().critical) {
             if (target.isActor()) {
                 this.push("addText", TextManager.criticalToActor);
@@ -7407,11 +6211,7 @@ class Window_BattleLog extends Window_Base {
         }
     }
 
-    /**
-     * @param {RMMZ.ActionTarget} target
-     * @returns {void}
-     */
-    displayDamage(target) {
+    displayDamage(target: RMMZ.ActionTarget): void {
         if (target.result().missed) {
             this.displayMiss(target);
         } else if (target.result().evaded) {
@@ -7423,11 +6223,7 @@ class Window_BattleLog extends Window_Base {
         }
     }
 
-    /**
-     * @param {RMMZ.ActionTarget} target
-     * @returns {void}
-     */
-    displayMiss(target) {
+    displayMiss(target: RMMZ.ActionTarget): void {
         let fmt;
         if (target.result().physical) {
             const isActor = target.isActor();
@@ -7439,11 +6235,7 @@ class Window_BattleLog extends Window_Base {
         this.push("addText", fmt.format(target.name()));
     }
 
-    /**
-     * @param {RMMZ.ActionTarget} target
-     * @returns {void}
-     */
-    displayEvasion(target) {
+    displayEvasion(target: RMMZ.ActionTarget): void {
         let fmt;
         if (target.result().physical) {
             fmt = TextManager.evasion;
@@ -7455,11 +6247,7 @@ class Window_BattleLog extends Window_Base {
         this.push("addText", fmt.format(target.name()));
     }
 
-    /**
-     * @param {RMMZ.ActionTarget} target
-     * @returns {void}
-     */
-    displayHpDamage(target) {
+    displayHpDamage(target: RMMZ.ActionTarget): void {
         if (target.result().hpAffected) {
             if (target.result().hpDamage > 0 && !target.result().drain) {
                 this.push("performDamage", target);
@@ -7471,11 +6259,7 @@ class Window_BattleLog extends Window_Base {
         }
     }
 
-    /**
-     * @param {RMMZ.ActionTarget} target
-     * @returns {void}
-     */
-    displayMpDamage(target) {
+    displayMpDamage(target: RMMZ.ActionTarget): void {
         if (target.isAlive() && target.result().mpDamage !== 0) {
             if (target.result().mpDamage < 0) {
                 this.push("performRecovery", target);
@@ -7484,11 +6268,7 @@ class Window_BattleLog extends Window_Base {
         }
     }
 
-    /**
-     * @param {RMMZ.ActionTarget} target
-     * @returns {void}
-     */
-    displayTpDamage(target) {
+    displayTpDamage(target: RMMZ.ActionTarget): void {
         if (target.isAlive() && target.result().tpDamage !== 0) {
             if (target.result().tpDamage < 0) {
                 this.push("performRecovery", target);
@@ -7497,11 +6277,8 @@ class Window_BattleLog extends Window_Base {
         }
     }
 
-    /**
-     * @param {RMMZ.ActionTarget} target
-     * @returns {void}
-     */
-    displayAffectedStatus(target) {
+    displayAffectedStatus(target: RMMZ.ActionTarget, ..._extra: any[]): void;
+    displayAffectedStatus(target: RMMZ.ActionTarget): void {
         if (target.result().isStatusAffected()) {
             this.push("pushBaseLine");
             this.displayChangedStates(target);
@@ -7511,35 +6288,25 @@ class Window_BattleLog extends Window_Base {
         }
     }
 
-    /**
-     * @param {RMMZ.ActionTarget} target
-     * @returns {void}
-     */
-    displayAutoAffectedStatus(target) {
+    displayAutoAffectedStatus(target: RMMZ.ActionTarget): void {
         if (target.result().isStatusAffected()) {
             this.displayAffectedStatus(target, null);
             this.push("clear");
         }
     }
 
-    /**
-     * @param {RMMZ.ActionTarget} target
-     * @returns {void}
-     */
-    displayChangedStates(target) {
+    displayChangedStates(target: RMMZ.ActionTarget): void {
         this.displayAddedStates(target);
         this.displayRemovedStates(target);
     }
 
-    /**
-     * @param {RMMZ.ActionTarget} target
-     * @returns {void}
-     */
-    displayAddedStates(target) {
+    displayAddedStates(target: RMMZ.ActionTarget): void {
         const result = target.result();
         const states = result.addedStateObjects();
         for (const state of states) {
-            const stateText = target.isActor() ? state.message1 : state.message2;
+            const stateText = target.isActor()
+                ? state.message1
+                : state.message2;
             if (state.id === target.deathStateId()) {
                 this.push("performCollapse", target);
             }
@@ -7552,11 +6319,7 @@ class Window_BattleLog extends Window_Base {
         }
     }
 
-    /**
-     * @param {RMMZ.ActionTarget} target
-     * @returns {void}
-     */
-    displayRemovedStates(target) {
+    displayRemovedStates(target: RMMZ.ActionTarget): void {
         const result = target.result();
         const states = result.removedStateObjects();
         for (const state of states) {
@@ -7568,24 +6331,18 @@ class Window_BattleLog extends Window_Base {
         }
     }
 
-    /**
-     * @param {RMMZ.ActionTarget} target
-     * @returns {void}
-     */
-    displayChangedBuffs(target) {
+    displayChangedBuffs(target: RMMZ.ActionTarget): void {
         const result = target.result();
         this.displayBuffs(target, result.addedBuffs, TextManager.buffAdd);
         this.displayBuffs(target, result.addedDebuffs, TextManager.debuffAdd);
         this.displayBuffs(target, result.removedBuffs, TextManager.buffRemove);
     }
 
-    /**
-     * @param {RMMZ.ActionTarget} target
-     * @param {RMMZ.ParamID[]} buffs
-     * @param {string} fmt
-     * @returns {void}
-     */
-    displayBuffs(target, buffs, fmt) {
+    displayBuffs(
+        target: RMMZ.ActionTarget,
+        buffs: RMMZ.ParamID[],
+        fmt: string,
+    ): void {
         for (const paramId of buffs) {
             const text = fmt.format(target.name(), TextManager.param(paramId));
             this.push("popBaseLine");
@@ -7594,11 +6351,8 @@ class Window_BattleLog extends Window_Base {
         }
     }
 
-    /**
-     * @param {RMMZ.ActionTarget} target
-     * @returns {string}
-     */
-    makeHpDamageText(target) {
+    makeHpDamageText(target: RMMZ.ActionTarget, ..._extra: any[]): string;
+    makeHpDamageText(target: RMMZ.ActionTarget): string {
         const result = target.result();
         const damage = result.hpDamage;
         const isActor = target.isActor();
@@ -7610,19 +6364,20 @@ class Window_BattleLog extends Window_Base {
             fmt = isActor ? TextManager.actorDamage : TextManager.enemyDamage;
             return fmt.format(target.name(), damage);
         } else if (damage < 0) {
-            fmt = isActor ? TextManager.actorRecovery : TextManager.enemyRecovery;
+            fmt = isActor
+                ? TextManager.actorRecovery
+                : TextManager.enemyRecovery;
             return fmt.format(target.name(), TextManager.hp, -damage);
         } else {
-            fmt = isActor ? TextManager.actorNoDamage : TextManager.enemyNoDamage;
+            fmt = isActor
+                ? TextManager.actorNoDamage
+                : TextManager.enemyNoDamage;
             return fmt.format(target.name());
         }
     }
 
-    /**
-     * @param {RMMZ.ActionTarget} target
-     * @returns {string}
-     */
-    makeMpDamageText(target) {
+    makeMpDamageText(target: RMMZ.ActionTarget, ..._extra: any[]): string;
+    makeMpDamageText(target: RMMZ.ActionTarget): string {
         const result = target.result();
         const damage = result.mpDamage;
         const isActor = target.isActor();
@@ -7634,18 +6389,17 @@ class Window_BattleLog extends Window_Base {
             fmt = isActor ? TextManager.actorLoss : TextManager.enemyLoss;
             return fmt.format(target.name(), TextManager.mp, damage);
         } else if (damage < 0) {
-            fmt = isActor ? TextManager.actorRecovery : TextManager.enemyRecovery;
+            fmt = isActor
+                ? TextManager.actorRecovery
+                : TextManager.enemyRecovery;
             return fmt.format(target.name(), TextManager.mp, -damage);
         } else {
             return "";
         }
     }
 
-    /**
-     * @param {RMMZ.ActionTarget} target
-     * @returns {string}
-     */
-    makeTpDamageText(target) {
+    makeTpDamageText(target: RMMZ.ActionTarget, ..._extra: any[]): string;
+    makeTpDamageText(target: RMMZ.ActionTarget): string {
         const result = target.result();
         const damage = result.tpDamage;
         const isActor = target.isActor();
@@ -7666,26 +6420,28 @@ class Window_BattleLog extends Window_Base {
  * The window for selecting whether to fight or escape on the battle screen.
  */
 class Window_PartyCommand extends Window_Command {
-    /** @param {[rect: Rectangle]} args */
-    constructor(...args) {
+    constructor(...args: [rect: Rectangle]) {
         super(...args);
     }
 
-    /** @param {Rectangle} rect */
-    initialize(rect) {
+    initialize(rect: Rectangle): void;
+    initialize(...args: any[]): void;
+    initialize(rect: Rectangle): void {
         super.initialize(rect);
         this.openness = 0;
         this.deactivate();
     }
 
-    /** @returns {void} */
-    makeCommandList() {
+    makeCommandList(): void {
         this.addCommand(TextManager.fight, "fight");
-        this.addCommand(TextManager.escape, "escape", BattleManager.canEscape());
+        this.addCommand(
+            TextManager.escape,
+            "escape",
+            BattleManager.canEscape(),
+        );
     }
 
-    /** @returns {void} */
-    setup() {
+    setup(): void {
         this.refresh();
         this.forceSelect(0);
         this.activate();
@@ -7697,22 +6453,23 @@ class Window_PartyCommand extends Window_Command {
  * The window for selecting an actor's action on the battle screen.
  */
 class Window_ActorCommand extends Window_Command {
-    /** @param {[rect: Rectangle]} args */
-    constructor(...args) {
+    declare _actor: Game_Actor | null;
+
+    constructor(...args: [rect: Rectangle]) {
         super(...args);
     }
 
-    /** @param {Rectangle} rect */
-    initialize(rect) {
+    initialize(rect: Rectangle): void;
+    initialize(...args: any[]): void;
+    initialize(rect: Rectangle): void {
         super.initialize(rect);
         this.openness = 0;
         this.deactivate();
-        /** @type {Game_Actor | null} */
+
         this._actor = null;
     }
 
-    /** @returns {void} */
-    makeCommandList() {
+    makeCommandList(): void {
         if (this._actor) {
             this.addAttackCommand();
             this.addSkillCommands();
@@ -7721,35 +6478,27 @@ class Window_ActorCommand extends Window_Command {
         }
     }
 
-    /** @returns {void} */
-    addAttackCommand() {
-        this.addCommand(TextManager.attack, "attack", this._actor.canAttack());
+    addAttackCommand(): void {
+        this.addCommand(TextManager.attack, "attack", this._actor!.canAttack());
     }
 
-    /** @returns {void} */
-    addSkillCommands() {
-        const skillTypes = this._actor.skillTypes();
+    addSkillCommands(): void {
+        const skillTypes = this._actor!.skillTypes();
         for (const stypeId of skillTypes) {
             const name = $dataSystem.skillTypes[stypeId];
             this.addCommand(name, "skill", true, stypeId);
         }
     }
 
-    /** @returns {void} */
-    addGuardCommand() {
-        this.addCommand(TextManager.guard, "guard", this._actor.canGuard());
+    addGuardCommand(): void {
+        this.addCommand(TextManager.guard, "guard", this._actor!.canGuard());
     }
 
-    /** @returns {void} */
-    addItemCommand() {
+    addItemCommand(): void {
         this.addCommand(TextManager.item, "item");
     }
 
-    /**
-     * @param {Game_Actor | null} actor
-     * @returns {void}
-     */
-    setup(actor) {
+    setup(actor: Game_Actor | null): void {
         this._actor = actor;
         this.refresh();
         this.selectLast();
@@ -7757,16 +6506,14 @@ class Window_ActorCommand extends Window_Command {
         this.open();
     }
 
-    /** @returns {Game_Actor | null} */
-    actor() {
+    actor(): Game_Actor | null {
         return this._actor;
     }
 
-    /** @returns {void} */
-    processOk() {
+    processOk(): void {
         if (this._actor) {
             if (ConfigManager.commandRemember) {
-                this._actor.setLastCommandSymbol(this.currentSymbol());
+                this._actor.setLastCommandSymbol(this.currentSymbol()!);
             } else {
                 this._actor.setLastCommandSymbol("");
             }
@@ -7774,8 +6521,7 @@ class Window_ActorCommand extends Window_Command {
         super.processOk();
     }
 
-    /** @returns {void} */
-    selectLast() {
+    selectLast(): void {
         this.forceSelect(0);
         if (this._actor && ConfigManager.commandRemember) {
             const symbol = this._actor.lastCommandSymbol();
@@ -7794,78 +6540,63 @@ class Window_ActorCommand extends Window_Command {
  * The window for displaying the status of party members on the battle screen.
  */
 class Window_BattleStatus extends Window_StatusBase {
-    /** @param {[rect: Rectangle]} args */
-    constructor(...args) {
+    declare _bitmapsReady: number;
+
+    constructor(...args: [rect: Rectangle]) {
         super(...args);
     }
 
-    /** @param {Rectangle} rect */
-    initialize(rect) {
+    initialize(rect: Rectangle): void;
+    initialize(...args: any[]): void;
+    initialize(rect: Rectangle): void {
         super.initialize(rect);
         this.frameVisible = false;
         this.openness = 0;
-        /** @type {number} */
         this._bitmapsReady = 0;
         this.preparePartyRefresh();
     }
 
-    /** @returns {number} */
-    extraHeight() {
+    extraHeight(): number {
         return 10;
     }
 
-    /** @returns {number} */
-    maxCols() {
+    maxCols(): number {
         return 4;
     }
 
-    /** @returns {number} */
-    itemHeight() {
+    itemHeight(): number {
         return this.innerHeight;
     }
 
-    /** @returns {number} */
-    maxItems() {
+    maxItems(): number {
         return $gameParty.battleMembers().length;
     }
 
-    /** @returns {number} */
-    rowSpacing() {
+    rowSpacing(): number {
         return 0;
     }
 
-    /** @returns {void} */
-    updatePadding() {
+    updatePadding(): void {
         this.padding = 8;
     }
 
-    /**
-     * @param {number} index
-     * @returns {Game_Actor}
-     */
-    actor(index) {
+    actor(index: number): Game_Actor {
         return $gameParty.battleMembers()[index];
     }
 
-    /**
-     * @param {Game_Actor | null} actor
-     * @returns {void}
-     */
-    selectActor(actor) {
+    selectActor(actor: Game_Actor | null): void {
         const members = $gameParty.battleMembers();
-        this.select(members.indexOf(actor));
+        this.select(members.indexOf(actor!));
     }
 
-    /** @returns {void} */
-    update() {
+    update(): void {
         super.update();
         if ($gameTemp.isBattleRefreshRequested()) {
             this.preparePartyRefresh();
         }
     }
 
-    /** @returns {void} */
-    preparePartyRefresh() {
+    preparePartyRefresh(): void {
         $gameTemp.clearBattleRefreshRequest();
         this._bitmapsReady = 0;
         for (const actor of $gameParty.members()) {
@@ -7874,38 +6605,25 @@ class Window_BattleStatus extends Window_StatusBase {
         }
     }
 
-    /** @returns {void} */
-    performPartyRefresh() {
+    performPartyRefresh(): void {
         this._bitmapsReady++;
         if (this._bitmapsReady >= $gameParty.members().length) {
             this.refresh();
         }
     }
 
-    /**
-     * @param {number} index
-     * @returns {void}
-     */
-    drawItem(index) {
+    drawItem(index: number): void {
         this.drawItemImage(index);
         this.drawItemStatus(index);
     }
 
-    /**
-     * @param {number} index
-     * @returns {void}
-     */
-    drawItemImage(index) {
+    drawItemImage(index: number): void {
         const actor = this.actor(index);
         const rect = this.faceRect(index);
         this.drawActorFace(actor, rect.x, rect.y, rect.width, rect.height);
     }
 
-    /**
-     * @param {number} index
-     * @returns {void}
-     */
-    drawItemStatus(index) {
+    drawItemStatus(index: number): void {
         const actor = this.actor(index);
         const rect = this.itemRectWithPadding(index);
         const nameX = this.nameX(rect);
@@ -7920,62 +6638,34 @@ class Window_BattleStatus extends Window_StatusBase {
         this.placeBasicGauges(actor, basicGaugesX, basicGaugesY);
     }
 
-    /**
-     * @param {number} index
-     * @returns {Rectangle}
-     */
-    faceRect(index) {
+    faceRect(index: number): Rectangle {
         const rect = this.itemRect(index);
         rect.pad(-1);
         rect.height = this.nameY(rect) + this.gaugeLineHeight() / 2 - rect.y;
         return rect;
     }
 
-    /**
-     * @param {Rectangle} rect
-     * @returns {number}
-     */
-    nameX(rect) {
+    nameX(rect: Rectangle): number {
         return rect.x;
     }
 
-    /**
-     * @param {Rectangle} rect
-     * @returns {number}
-     */
-    nameY(rect) {
+    nameY(rect: Rectangle): number {
         return this.basicGaugesY(rect) - this.gaugeLineHeight();
     }
 
-    /**
-     * @param {Rectangle} rect
-     * @returns {number}
-     */
-    stateIconX(rect) {
+    stateIconX(rect: Rectangle): number {
         return rect.x + rect.width - ImageManager.standardIconWidth / 2 + 4;
     }
 
-    /**
-     * @param {Rectangle} rect
-     * @returns {number}
-     */
-    stateIconY(rect) {
+    stateIconY(rect: Rectangle): number {
         return rect.y + ImageManager.standardIconHeight / 2 + 4;
     }
 
-    /**
-     * @param {Rectangle} rect
-     * @returns {number}
-     */
-    basicGaugesX(rect) {
+    basicGaugesX(rect: Rectangle): number {
         return rect.x;
     }
 
-    /**
-     * @param {Rectangle} rect
-     * @returns {number}
-     */
-    basicGaugesY(rect) {
+    basicGaugesY(rect: Rectangle): number {
         const bottom = rect.y + rect.height - this.extraHeight();
         const numGauges = $dataSystem.optDisplayTp ? 3 : 2;
         return bottom - this.gaugeLineHeight() * numGauges;
@@ -7986,49 +6676,42 @@ class Window_BattleStatus extends Window_StatusBase {
  * The window for selecting a target actor on the battle screen.
  */
 class Window_BattleActor extends Window_BattleStatus {
-    /** @param {[rect: Rectangle]} args */
-    constructor(...args) {
+    constructor(...args: [rect: Rectangle]) {
         super(...args);
     }
 
-    /** @param {Rectangle} rect */
-    initialize(rect) {
+    initialize(rect: Rectangle): void;
+    initialize(...args: any[]): void;
+    initialize(rect: Rectangle): void {
         super.initialize(rect);
         this.openness = 255;
         this.hide();
     }
 
-    /** @returns {void} */
-    show() {
+    show(): void {
         this.forceSelect(0);
         $gameTemp.clearTouchState();
         super.show();
     }
 
-    /** @returns {void} */
-    hide() {
+    hide(): void {
         super.hide();
         $gameParty.select(null);
     }
 
-    /**
-     * @param {number} index
-     * @returns {void}
-     */
-    select(index) {
+    select(index: number): void {
         super.select(index);
         $gameParty.select(this.actor(index));
     }
 
-    /** @returns {void} */
-    processTouch() {
+    processTouch(): void {
         super.processTouch();
         if (this.isOpenAndActive()) {
             const target = $gameTemp.touchTarget();
             if (target) {
                 const members = $gameParty.battleMembers();
-                if (members.includes(target)) {
-                    this.select(members.indexOf(target));
+                if (members.includes(target as Game_Actor)) {
+                    this.select(members.indexOf(target as Game_Actor));
                     if ($gameTemp.touchState() === "click") {
                         this.processOk();
                     }
@@ -8043,89 +6726,74 @@ class Window_BattleActor extends Window_BattleStatus {
  * The window for selecting a target enemy on the battle screen.
  */
 class Window_BattleEnemy extends Window_Selectable {
-    /** @param {[rect: Rectangle]} args */
-    constructor(...args) {
+    declare _enemies: Game_Enemy[];
+
+    constructor(...args: [rect: Rectangle]) {
         super(...args);
     }
 
-    /** @param {Rectangle} rect */
-    initialize(rect) {
-        /** @type {Game_Enemy[]} */
+    initialize(rect: Rectangle): void;
+    initialize(...args: any[]): void;
+    initialize(rect: Rectangle): void {
         this._enemies = [];
         super.initialize(rect);
         this.refresh();
         this.hide();
     }
 
-    /** @returns {number} */
-    maxCols() {
+    maxCols(): number {
         return 2;
     }
 
-    /** @returns {number} */
-    maxItems() {
+    maxItems(): number {
         return this._enemies.length;
     }
 
-    /** @returns {Game_Enemy} */
-    enemy() {
+    enemy(): Game_Enemy {
         return this._enemies[this.index()];
     }
 
-    /** @returns {number} */
-    enemyIndex() {
+    enemyIndex(): number {
         const enemy = this.enemy();
         return enemy ? enemy.index() : -1;
     }
 
-    /**
-     * @param {number} index
-     * @returns {void}
-     */
-    drawItem(index) {
+    drawItem(index: number): void {
         this.resetTextColor();
         const name = this._enemies[index].name();
         const rect = this.itemLineRect(index);
         this.drawText(name, rect.x, rect.y, rect.width);
     }
 
-    /** @returns {void} */
-    show() {
+    show(): void {
         this.refresh();
         this.forceSelect(0);
         $gameTemp.clearTouchState();
         super.show();
     }
 
-    /** @returns {void} */
-    hide() {
+    hide(): void {
         super.hide();
         $gameTroop.select(null);
     }
 
-    /** @returns {void} */
-    refresh() {
+    refresh(): void {
         this._enemies = $gameTroop.aliveMembers();
         super.refresh();
     }
 
-    /**
-     * @param {number} index
-     * @returns {void}
-     */
-    select(index) {
+    select(index: number): void {
         super.select(index);
         $gameTroop.select(this.enemy());
     }
 
-    /** @returns {void} */
-    processTouch() {
+    processTouch(): void {
         super.processTouch();
         if (this.isOpenAndActive()) {
             const target = $gameTemp.touchTarget();
             if (target) {
-                if (this._enemies.includes(target)) {
-                    this.select(this._enemies.indexOf(target));
+                if (this._enemies.includes(target as Game_Enemy)) {
+                    this.select(this._enemies.indexOf(target as Game_Enemy));
                     if ($gameTemp.touchState() === "click") {
                         this.processOk();
                     }
@@ -8140,26 +6808,24 @@ class Window_BattleEnemy extends Window_Selectable {
  * The window for selecting a skill to use on the battle screen.
  */
 class Window_BattleSkill extends Window_SkillList {
-    /** @param {[rect: Rectangle]} args */
-    constructor(...args) {
+    constructor(...args: [rect: Rectangle]) {
         super(...args);
     }
 
-    /** @param {Rectangle} rect */
-    initialize(rect) {
+    initialize(rect: Rectangle): void;
+    initialize(...args: any[]): void;
+    initialize(rect: Rectangle): void {
         super.initialize(rect);
         this.hide();
     }
 
-    /** @returns {void} */
-    show() {
+    show(): void {
         this.selectLast();
         this.showHelpWindow();
         super.show();
     }
 
-    /** @returns {void} */
-    hide() {
+    hide(): void {
         this.hideHelpWindow();
         super.hide();
     }
@@ -8169,34 +6835,28 @@ class Window_BattleSkill extends Window_SkillList {
  * The window for selecting an item to use on the battle screen.
  */
 class Window_BattleItem extends Window_ItemList {
-    /** @param {[rect: Rectangle]} args */
-    constructor(...args) {
+    constructor(...args: [rect: Rectangle]) {
         super(...args);
     }
 
-    /** @param {Rectangle} rect */
-    initialize(rect) {
+    initialize(rect: Rectangle): void;
+    initialize(...args: any[]): void;
+    initialize(rect: Rectangle): void {
         super.initialize(rect);
         this.hide();
     }
 
-    /**
-     * @param {RMMZ.DataItemBase} item
-     * @returns {boolean}
-     */
-    includes(item) {
+    includes(item: RMMZ.InventoryItem | null): boolean {
         return $gameParty.canUse(item);
     }
 
-    /** @returns {void} */
-    show() {
+    show(): void {
         this.selectLast();
         this.showHelpWindow();
         super.show();
     }
 
-    /** @returns {void} */
-    hide() {
+    hide(): void {
         this.hideHelpWindow();
         super.hide();
     }
@@ -8206,47 +6866,41 @@ class Window_BattleItem extends Window_ItemList {
  * The window for selecting New Game/Continue on the title screen.
  */
 class Window_TitleCommand extends Window_Command {
-    /** @param {[rect: Rectangle]} args */
-    constructor(...args) {
+    constructor(...args: [rect: Rectangle]) {
         super(...args);
     }
 
-    /** @param {Rectangle} rect */
-    initialize(rect) {
+    initialize(rect: Rectangle): void;
+    initialize(...args: any[]): void;
+    initialize(rect: Rectangle): void {
         super.initialize(rect);
         this.openness = 0;
         this.selectLast();
     }
 
-    /** @type {string | null} */
-    static _lastCommandSymbol = null;
+    static _lastCommandSymbol: string | null = null;
 
-    /** @returns {void} */
-    static initCommandPosition() {
+    static initCommandPosition(): void {
         this._lastCommandSymbol = null;
     }
 
-    /** @returns {void} */
-    makeCommandList() {
+    makeCommandList(): void {
         const continueEnabled = this.isContinueEnabled();
         this.addCommand(TextManager.newGame, "newGame");
         this.addCommand(TextManager.continue_, "continue", continueEnabled);
         this.addCommand(TextManager.options, "options");
     }
 
-    /** @returns {boolean} */
-    isContinueEnabled() {
+    isContinueEnabled(): boolean {
         return DataManager.isAnySavefileExists();
     }
 
-    /** @returns {void} */
-    processOk() {
+    processOk(): void {
         Window_TitleCommand._lastCommandSymbol = this.currentSymbol();
         super.processOk();
     }
 
-    /** @returns {void} */
-    selectLast() {
+    selectLast(): void {
         if (Window_TitleCommand._lastCommandSymbol) {
             this.selectSymbol(Window_TitleCommand._lastCommandSymbol);
         } else if (this.isContinueEnabled()) {
@@ -8259,20 +6913,19 @@ class Window_TitleCommand extends Window_Command {
  * The window for selecting "Go to Title" on the game end screen.
  */
 class Window_GameEnd extends Window_Command {
-    /** @param {[rect: Rectangle]} args */
-    constructor(...args) {
+    constructor(...args: [rect: Rectangle]) {
         super(...args);
     }
 
-    /** @param {Rectangle} rect */
-    initialize(rect) {
+    initialize(rect: Rectangle): void;
+    initialize(...args: any[]): void;
+    initialize(rect: Rectangle): void {
         super.initialize(rect);
         this.openness = 0;
         this.open();
     }
 
-    /** @returns {void} */
-    makeCommandList() {
+    makeCommandList(): void {
         this.addCommand(TextManager.toTitle, "toTitle");
         this.addCommand(TextManager.cancel, "cancel");
     }
@@ -8282,22 +6935,22 @@ class Window_GameEnd extends Window_Command {
  * The window for selecting a block of switches/variables on the debug screen.
  */
 class Window_DebugRange extends Window_Selectable {
-    /** @param {[rect: Rectangle]} args */
-    constructor(...args) {
+    declare _maxSwitches: number;
+    declare _maxVariables: number;
+    declare _editWindow: Window_DebugEdit;
+
+    constructor(...args: [rect: Rectangle]) {
         super(...args);
     }
 
-    /** @type {number} */
-    static lastTopRow = 0;
+    static lastTopRow: number = 0;
 
-    /** @type {number} */
-    static lastIndex = 0;
+    static lastIndex: number = 0;
 
-    /** @param {Rectangle} rect */
-    initialize(rect) {
-        /** @type {number} */
+    initialize(rect: Rectangle): void;
+    initialize(...args: any[]): void;
+    initialize(rect: Rectangle): void {
         this._maxSwitches = Math.ceil(($dataSystem.switches.length - 1) / 10);
-        /** @type {number} */
         this._maxVariables = Math.ceil(($dataSystem.variables.length - 1) / 10);
         super.initialize(rect);
         this.refresh();
@@ -8306,13 +6959,11 @@ class Window_DebugRange extends Window_Selectable {
         this.activate();
     }
 
-    /** @returns {number} */
-    maxItems() {
+    maxItems(): number {
         return this._maxSwitches + this._maxVariables;
     }
 
-    /** @returns {void} */
-    update() {
+    update(): void {
         super.update();
         if (this._editWindow) {
             const index = this.index();
@@ -8321,19 +6972,11 @@ class Window_DebugRange extends Window_Selectable {
         }
     }
 
-    /**
-     * @param {number} [index]
-     * @returns {"switch" | "variable"}
-     */
-    mode(index) {
+    mode(index?: number): "switch" | "variable" {
         return this.isSwitchMode(index) ? "switch" : "variable";
     }
 
-    /**
-     * @param {number} index
-     * @returns {number}
-     */
-    topId(index) {
+    topId(index: number): number {
         if (this.isSwitchMode(index)) {
             return index * 10 + 1;
         } else {
@@ -8341,19 +6984,11 @@ class Window_DebugRange extends Window_Selectable {
         }
     }
 
-    /**
-     * @param {number} [index]
-     * @returns {boolean}
-     */
-    isSwitchMode(index) {
-        return index < this._maxSwitches;
+    isSwitchMode(index?: number): boolean {
+        return index! < this._maxSwitches;
     }
 
-    /**
-     * @param {number} index
-     * @returns {void}
-     */
-    drawItem(index) {
+    drawItem(index: number): void {
         const rect = this.itemLineRect(index);
         const c = this.isSwitchMode(index) ? "S" : "V";
         const start = this.topId(index);
@@ -8362,26 +6997,20 @@ class Window_DebugRange extends Window_Selectable {
         this.drawText(text, rect.x, rect.y, rect.width);
     }
 
-    /** @returns {boolean} */
-    isCancelTriggered() {
+    isCancelTriggered(): boolean {
         return (
             Window_Selectable.prototype.isCancelTriggered() ||
             Input.isTriggered("debug")
         );
     }
 
-    /** @returns {void} */
-    processCancel() {
+    processCancel(): void {
         super.processCancel();
         Window_DebugRange.lastTopRow = this.topRow();
         Window_DebugRange.lastIndex = this.index();
     }
 
-    /**
-     * @param {Window_DebugEdit} editWindow
-     * @returns {void}
-     */
-    setEditWindow(editWindow) {
+    setEditWindow(editWindow: Window_DebugEdit): void {
         this._editWindow = editWindow;
     }
 }
@@ -8390,31 +7019,28 @@ class Window_DebugRange extends Window_Selectable {
  * The window for displaying switches and variables on the debug screen.
  */
 class Window_DebugEdit extends Window_Selectable {
-    /** @param {[rect: Rectangle]} args */
-    constructor(...args) {
+    declare _mode: "switch" | "variable";
+    declare _topId: number;
+
+    constructor(...args: [rect: Rectangle]) {
         super(...args);
     }
 
-    /** @param {Rectangle} rect */
-    initialize(rect) {
+    initialize(rect: Rectangle): void;
+    initialize(...args: any[]): void;
+    initialize(rect: Rectangle): void {
         super.initialize(rect);
-        /** @type {"switch" | "variable"} */
+
         this._mode = "switch";
-        /** @type {number} */
         this._topId = 1;
         this.refresh();
     }
 
-    /** @returns {number} */
-    maxItems() {
+    maxItems(): number {
         return 10;
     }
 
-    /**
-     * @param {number} index
-     * @returns {void}
-     */
-    drawItem(index) {
+    drawItem(index: number): void {
         const dataId = this._topId + index;
         const idText = dataId.padZero(4) + ":";
         const idWidth = this.textWidth(idText);
@@ -8427,14 +7053,16 @@ class Window_DebugEdit extends Window_Selectable {
         rect.x += idWidth;
         rect.width -= idWidth + statusWidth;
         this.drawText(name, rect.x, rect.y, rect.width);
-        this.drawText(status, rect.x + rect.width, rect.y, statusWidth, "right");
+        this.drawText(
+            status,
+            rect.x + rect.width,
+            rect.y,
+            statusWidth,
+            "right",
+        );
     }
 
-    /**
-     * @param {RMMZ.SwitchID | RMMZ.VariableID} dataId
-     * @returns {string}
-     */
-    itemName(dataId) {
+    itemName(dataId: RMMZ.SwitchID | RMMZ.VariableID): string {
         if (this._mode === "switch") {
             return $dataSystem.switches[dataId];
         } else {
@@ -8442,11 +7070,7 @@ class Window_DebugEdit extends Window_Selectable {
         }
     }
 
-    /**
-     * @param {RMMZ.SwitchID | RMMZ.VariableID} dataId
-     * @returns {string}
-     */
-    itemStatus(dataId) {
+    itemStatus(dataId: RMMZ.SwitchID | RMMZ.VariableID): string {
         if (this._mode === "switch") {
             return $gameSwitches.value(dataId) ? "[ON]" : "[OFF]";
         } else {
@@ -8454,35 +7078,25 @@ class Window_DebugEdit extends Window_Selectable {
         }
     }
 
-    /**
-     * @param {"switch" | "variable"} mode
-     * @returns {void}
-     */
-    setMode(mode) {
+    setMode(mode: "switch" | "variable"): void {
         if (this._mode !== mode) {
             this._mode = mode;
             this.refresh();
         }
     }
 
-    /**
-     * @param {RMMZ.SwitchID | RMMZ.VariableID} id
-     * @returns {void}
-     */
-    setTopId(id) {
+    setTopId(id: RMMZ.SwitchID | RMMZ.VariableID): void {
         if (this._topId !== id) {
             this._topId = id;
             this.refresh();
         }
     }
 
-    /** @returns {number} */
-    currentId() {
+    currentId(): number {
         return this._topId + this.index();
     }
 
-    /** @returns {void} */
-    update() {
+    update(): void {
         super.update();
         if (this.active) {
             if (this._mode === "switch") {
@@ -8493,8 +7107,7 @@ class Window_DebugEdit extends Window_Selectable {
         }
     }
 
-    /** @returns {void} */
-    updateSwitch() {
+    updateSwitch(): void {
         if (Input.isRepeated("ok")) {
             const switchId = this.currentId();
             this.playCursorSound();
@@ -8503,8 +7116,7 @@ class Window_DebugEdit extends Window_Selectable {
         }
     }
 
-    /** @returns {void} */
-    updateVariable() {
+    updateVariable(): void {
         const variableId = this.currentId();
         const value = $gameVariables.value(variableId);
         if (typeof value === "number") {
@@ -8517,8 +7129,7 @@ class Window_DebugEdit extends Window_Selectable {
         }
     }
 
-    /** @returns {0 | 1 | 10 | -1 | -10} */
-    deltaForVariable() {
+    deltaForVariable(): 0 | 1 | 10 | -1 | -10 {
         if (Input.isRepeated("right")) {
             return 1;
         } else if (Input.isRepeated("left")) {
@@ -8531,59 +7142,3 @@ class Window_DebugEdit extends Window_Selectable {
         return 0;
     }
 }
-
-// Class declarations are lexical bindings, while plugins and JsonEx resolve
-// constructors through the global object, so expose them as global properties.
-Object.assign(globalThis, {
-    Window_Base,
-    Window_Scrollable,
-    Window_Selectable,
-    Window_Command,
-    Window_HorzCommand,
-    Window_Help,
-    Window_Gold,
-    Window_StatusBase,
-    Window_MenuCommand,
-    Window_MenuStatus,
-    Window_MenuActor,
-    Window_ItemCategory,
-    Window_ItemList,
-    Window_SkillType,
-    Window_SkillStatus,
-    Window_SkillList,
-    Window_EquipStatus,
-    Window_EquipCommand,
-    Window_EquipSlot,
-    Window_EquipItem,
-    Window_Status,
-    Window_StatusParams,
-    Window_StatusEquip,
-    Window_Options,
-    Window_SavefileList,
-    Window_ShopCommand,
-    Window_ShopBuy,
-    Window_ShopSell,
-    Window_ShopNumber,
-    Window_ShopStatus,
-    Window_NameEdit,
-    Window_NameInput,
-    Window_NameBox,
-    Window_ChoiceList,
-    Window_NumberInput,
-    Window_EventItem,
-    Window_Message,
-    Window_ScrollText,
-    Window_MapName,
-    Window_BattleLog,
-    Window_PartyCommand,
-    Window_ActorCommand,
-    Window_BattleStatus,
-    Window_BattleActor,
-    Window_BattleEnemy,
-    Window_BattleSkill,
-    Window_BattleItem,
-    Window_TitleCommand,
-    Window_GameEnd,
-    Window_DebugRange,
-    Window_DebugEdit,
-});

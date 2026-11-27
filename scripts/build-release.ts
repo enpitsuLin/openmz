@@ -1,16 +1,27 @@
+import type { ArchiveEntry } from '../shared/engine-release.ts';
+interface ReleaseOptions {
+  outDir?: string;
+  version?: string;
+  runtime?: Awaited<ReturnType<typeof buildRuntime>>;
+}
 import { createHash } from 'node:crypto';
 import { mkdir, readFile, writeFile } from 'node:fs/promises';
 import { join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { gzipSync } from 'node:zlib';
-import { manifestSchema } from '../shared/engine-release.js';
-import { buildRuntime, buildUpdater, projectRoot, resolveVersion } from './build.mjs';
+import { manifestSchema } from '../shared/engine-release.ts';
+import {
+  buildRuntime,
+  buildUpdater,
+  projectRoot,
+  resolveVersion,
+} from './build.ts';
 
 const blockSize = 512;
 
 export const defaultReleaseDir = join(projectRoot, 'dist/release');
 
-function createTarHeader(name, size, type) {
+function createTarHeader(name: string, size: number, type: string) {
   const header = Buffer.alloc(blockSize);
   header.write(name, 0, 100);
   header.write('0000644\0', 100);
@@ -26,11 +37,11 @@ function createTarHeader(name, size, type) {
   return header;
 }
 
-export function createTarBuffer(entries) {
-  const chunks = [];
-  const append = (name, content, type) => {
+export function createTarBuffer(entries: ArchiveEntry[]) {
+  const chunks: Buffer[] = [];
+  const append = (name: string, content: Buffer, type: string) => {
     chunks.push(createTarHeader(name, content.length, type), content);
-    const padding = (blockSize - content.length % blockSize) % blockSize;
+    const padding = (blockSize - (content.length % blockSize)) % blockSize;
     if (padding) {
       chunks.push(Buffer.alloc(padding));
     }
@@ -50,15 +61,27 @@ export function createTarBuffer(entries) {
   return Buffer.concat([...chunks, Buffer.alloc(2 * blockSize)]);
 }
 
-export async function buildRelease({ outDir = defaultReleaseDir, version, runtime } = {}) {
-  const releaseVersion = resolveVersion(version ?? runtime?.metadata.version ?? process.env.RELEASE_TAG ?? process.env.GITHUB_REF_NAME);
-  const built = runtime ?? await buildRuntime({ version: releaseVersion });
-  if (built.metadata.version !== releaseVersion) throw new Error('Runtime and release versions must match.');
+export async function buildRelease({
+  outDir = defaultReleaseDir,
+  version,
+  runtime,
+}: ReleaseOptions = {}) {
+  const releaseVersion = resolveVersion(
+    version ??
+      runtime?.metadata.version ??
+      process.env.RELEASE_TAG ??
+      process.env.GITHUB_REF_NAME,
+  );
+  const built = runtime ?? (await buildRuntime({ version: releaseVersion }));
+  if (built.metadata.version !== releaseVersion)
+    throw new Error('Runtime and release versions must match.');
   const includedFiles = built.files;
-  const entries = await Promise.all(includedFiles.map(async relativePath => ({
-    relativePath,
-    content: await readFile(join(built.outDir, relativePath)),
-  })));
+  const entries = await Promise.all(
+    includedFiles.map(async (relativePath) => ({
+      relativePath,
+      content: await readFile(join(built.outDir, relativePath)),
+    })),
+  );
   const archive = gzipSync(createTarBuffer(entries), { level: 9 });
   const manifest = {
     schemaVersion: manifestSchema,
@@ -76,14 +99,22 @@ export async function buildRelease({ outDir = defaultReleaseDir, version, runtim
     writeFile(join(outDir, manifest.archive.url), archive),
     buildUpdater({ outDir }),
   ]);
-  await writeFile(join(outDir, 'manifest.json'), `${JSON.stringify(manifest, null, 2)}\n`);
+  await writeFile(
+    join(outDir, 'manifest.json'),
+    `${JSON.stringify(manifest, null, 2)}\n`,
+  );
   return { manifest, includedFiles };
 }
 
-if (process.argv[1] && resolve(process.argv[1]) === fileURLToPath(import.meta.url)) {
+if (
+  process.argv[1] &&
+  resolve(process.argv[1]) === fileURLToPath(import.meta.url)
+) {
   const args = process.argv.slice(2);
   const index = args.indexOf('--version');
-  const version = index === -1 ? undefined : args[index + 1] ?? '';
+  const version = index === -1 ? undefined : (args[index + 1] ?? '');
   const release = await buildRelease({ version });
-  console.log(`Built ${release.manifest.archive.url} (${release.includedFiles.length} files)`);
+  console.log(
+    `Built ${release.manifest.archive.url} (${release.includedFiles.length} files)`,
+  );
 }

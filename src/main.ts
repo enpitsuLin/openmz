@@ -1,7 +1,8 @@
-// main.js v2.0.0
+// main.ts v2.0.0
 
-/** @type {string[]} */
-const scriptUrls = [
+type EngineScript = HTMLScriptElement & { _url: string };
+
+const scriptUrls: string[] = [
     "js/libs/pixi.js",
     "js/libs/pako.min.js",
     "js/libs/localforage.min.js",
@@ -13,31 +14,31 @@ const scriptUrls = [
     "js/rmmz_scenes.js",
     "js/rmmz_sprites.js",
     "js/rmmz_windows.js",
-    "js/plugins.js"
+    "js/plugins.js",
 ];
-/** @type {string} */
-const effekseerWasmUrl = "js/libs/effekseer.wasm";
+
+const effekseerWasmUrl: string = "js/libs/effekseer.wasm";
 
 class Main {
+    declare xhrSucceeded: boolean;
+    declare loadCount: number;
+    declare error: Error | null;
+    declare numScripts: number;
+
     constructor() {
-        /** @type {boolean} */
         this.xhrSucceeded = false;
-        /** @type {number} */
         this.loadCount = 0;
-        /** @type {Error | null} */
         this.error = null;
     }
 
-    /** @returns {void} */
-    run() {
+    run(): void {
         this.showLoadingSpinner();
         this.testXhr();
         this.hookNwjsClose();
         this.loadMainScripts();
     }
 
-    /** @returns {void} */
-    showLoadingSpinner() {
+    showLoadingSpinner(): void {
         const loadingSpinner = document.createElement("div");
         const loadingSpinnerImage = document.createElement("div");
         loadingSpinner.id = "loadingSpinner";
@@ -46,18 +47,16 @@ class Main {
         document.body.appendChild(loadingSpinner);
     }
 
-    /** @returns {void} */
-    eraseLoadingSpinner() {
+    eraseLoadingSpinner(): void {
         const loadingSpinner = document.getElementById("loadingSpinner");
         if (loadingSpinner) {
             document.body.removeChild(loadingSpinner);
         }
     }
 
-    /** @returns {void} */
-    testXhr() {
+    testXhr(): void {
         const xhr = new XMLHttpRequest();
-        xhr.open("GET", document.currentScript.src);
+        xhr.open("GET", (document.currentScript as HTMLScriptElement).src);
         xhr.onload = () => (this.xhrSucceeded = true);
         xhr.send();
     }
@@ -65,25 +64,24 @@ class Main {
     /**
      * Quits NW.js explicitly when its window closes, since the process
      * sometimes does not terminate properly on its own.
-     *
-     * @returns {void}
      */
-    hookNwjsClose() {
+    hookNwjsClose(): void {
         if (typeof nw === "object") {
             nw.Window.get().on("close", () => nw.App.quit());
         }
     }
 
-    /** @returns {void} */
-    loadMainScripts() {
+    loadMainScripts(): void {
         for (const url of scriptUrls) {
-            const script = document.createElement("script");
+            const script = document.createElement("script") as EngineScript;
             script.type = "text/javascript";
             script.src = url;
             script.async = false;
             script.defer = true;
             script.onload = this.onScriptLoad.bind(this);
-            script.onerror = this.onScriptError.bind(this);
+            script.onerror = this.onScriptError.bind(
+                this,
+            ) as OnErrorEventHandler;
             script._url = url;
             document.body.appendChild(script);
         }
@@ -92,27 +90,17 @@ class Main {
         window.addEventListener("error", this.onWindowError.bind(this));
     }
 
-    /** @returns {void} */
-    onScriptLoad() {
+    onScriptLoad(): void {
         if (++this.loadCount === this.numScripts) {
             PluginManager.setup($plugins);
         }
     }
 
-    /**
-     * @param {Event} e
-     * @returns {void}
-     */
-    onScriptError(e) {
-        this.printError("Failed to load", e.target._url);
+    onScriptError(e: Event): void {
+        this.printError("Failed to load", (e.target as EngineScript)._url);
     }
 
-    /**
-     * @param {string} name
-     * @param {string} message
-     * @returns {void}
-     */
-    printError(name, message) {
+    printError(name: string, message: string): void {
         this.eraseLoadingSpinner();
         if (!document.getElementById("errorPrinter")) {
             const errorPrinter = document.createElement("div");
@@ -122,12 +110,7 @@ class Main {
         }
     }
 
-    /**
-     * @param {string} name
-     * @param {string} message
-     * @returns {string}
-     */
-    makeErrorHtml(name, message) {
+    makeErrorHtml(name: string, message: string): string {
         const nameDiv = document.createElement("div");
         const messageDiv = document.createElement("div");
         nameDiv.id = "errorName";
@@ -137,8 +120,7 @@ class Main {
         return nameDiv.outerHTML + messageDiv.outerHTML;
     }
 
-    /** @returns {void} */
-    onWindowLoad() {
+    onWindowLoad(): void {
         if (!this.xhrSucceeded) {
             const message = "Your browser does not allow to read local files.";
             this.printError("Error", message);
@@ -152,11 +134,7 @@ class Main {
         }
     }
 
-    /**
-     * @param {ErrorEvent} event
-     * @returns {void}
-     */
-    onWindowError(event) {
+    onWindowError(event: ErrorEvent): void {
         if (!this.error) {
             this.error = event.error;
         }
@@ -165,35 +143,31 @@ class Main {
     /**
      * Checks for Gatekeeper Path Randomization, which prevents the game
      * from saving properly.
-     *
-     * @returns {boolean}
      */
-    isPathRandomized() {
+    isPathRandomized(): boolean {
         return (
             typeof process === "object" &&
-            /** @type {NodeModule} */ (process.mainModule).filename.startsWith("/private/var")
+            (process.mainModule as NodeModule).filename.startsWith(
+                "/private/var",
+            )
         );
     }
 
-    /** @returns {void} */
-    initEffekseerRuntime() {
+    initEffekseerRuntime(): void {
         const onLoad = this.onEffekseerLoad.bind(this);
         const onError = this.onEffekseerError.bind(this);
         effekseer.initRuntime(effekseerWasmUrl, onLoad, onError);
     }
 
-    /** @returns {void} */
-    onEffekseerLoad() {
+    onEffekseerLoad(): void {
         this.eraseLoadingSpinner();
         SceneManager.run(Scene_Boot);
     }
 
-    /** @returns {void} */
-    onEffekseerError() {
+    onEffekseerError(): void {
         this.printError("Failed to load", effekseerWasmUrl);
     }
 }
 
-/** @type {Main} */
-const main = new Main();
+const main: Main = new Main();
 main.run();

@@ -1,33 +1,28 @@
 {
   "compilerOptions": {
-    "target": "es2021",
-    "lib": [],
-    "moduleDetection": "force",
+    "target": "ESNext",
+    "lib": ["ES2023", "DOM", "DOM.Iterable", "DOM.AsyncIterable"],
+    "moduleDetection": "legacy",
     "module": "preserve",
     "moduleResolution": "bundler",
     "resolveJsonModule": true,
     "allowImportingTsExtensions": true,
     "strict": true,
-    "types": [
-      "node",
-      "nw.js",
-      "./types/env.d.ts",
-      "typescript/lib/lib.es2021",
-      "typescript/lib/lib.dom",
-      "typescript/lib/lib.dom.iterable",
-      "typescript/lib/lib.dom.asynciterable"
-    ],
+    "types": ["node", "nw.js"],
     "noUnusedLocals": true,
     "esModuleInterop": true,
     "isolatedModules": true,
     "verbatimModuleSyntax": true,
+    "erasableSyntaxOnly": true,
     "skipLibCheck": true,
-    "allowJs": true,
     "noEmit": true
   },
   "include": [
     "src",
-    "types",
-    "tests/**/*.test.ts"
+    "scripts/**/*.ts",
+    "plugins/**/*.ts",
+    "shared/**/*.ts",
+    "tests/**/*.ts",
+    "vitest.config.ts"
   ]
 }

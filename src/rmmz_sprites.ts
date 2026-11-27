@@ -4,26 +4,28 @@
  * The sprite class with click handling functions.
  */
 class Sprite_Clickable extends Sprite {
-    constructor(...args) {
+    declare _pressed: boolean;
+    declare _hovered: boolean;
+
+    constructor(...args: any[]) {
         super(...args);
     }
 
-    initialize() {
+    initialize(..._args: any[]): void;
+    initialize(...args: any[]): void;
+    initialize(..._args: any[]): void {
         super.initialize();
-        /** @type {boolean} */
+
         this._pressed = false;
-        /** @type {boolean} */
         this._hovered = false;
     }
 
-    /** @returns {void} */
-    update() {
+    update(): void {
         super.update();
         this.processTouch();
     }
 
-    /** @returns {void} */
-    processTouch() {
+    processTouch(): void {
         if (this.isClickEnabled()) {
             if (this.isBeingTouched()) {
                 if (!this._hovered && TouchInput.isHovered()) {
@@ -51,14 +53,16 @@ class Sprite_Clickable extends Sprite {
         }
     }
 
-    /** @returns {boolean} */
-    isPressed() {
+    isPressed(): boolean {
         return this._pressed;
     }
 
-    /** @returns {boolean} */
-    isClickEnabled() {
-        for (let sprite = this; sprite; sprite = sprite.parent) {
+    isClickEnabled(): boolean {
+        for (
+            let sprite: import("pixi.js").Container | null = this;
+            sprite;
+            sprite = sprite.parent!
+        ) {
             if (!sprite.visible) {
                 return false;
             }
@@ -66,45 +70,35 @@ class Sprite_Clickable extends Sprite {
         return true;
     }
 
-    /** @returns {boolean} */
-    isBeingTouched() {
+    isBeingTouched(): boolean {
         const touchPos = new PIXI.Point(TouchInput.x, TouchInput.y);
         const localPos = this.toLocal(touchPos);
         return this.hitTest(localPos.x, localPos.y);
     }
 
-    /**
-     * @param {number} x
-     * @param {number} y
-     * @returns {boolean}
-     */
-    hitTest(x, y) {
+    hitTest(x: number, y: number): boolean {
         const rect = new PIXI.Rectangle(
             -this.anchor.x * this.width,
             -this.anchor.y * this.height,
             this.width,
-            this.height
+            this.height,
         );
         return rect.contains(x, y);
     }
 
-    /** @returns {void} */
-    onMouseEnter() {
+    onMouseEnter(): void {
         //
     }
 
-    /** @returns {void} */
-    onMouseExit() {
+    onMouseExit(): void {
         //
     }
 
-    /** @returns {void} */
-    onPress() {
+    onPress(): void {
         //
     }
 
-    /** @returns {void} */
-    onClick() {
+    onClick(): void {
         //
     }
 }
@@ -113,27 +107,72 @@ class Sprite_Clickable extends Sprite {
  * The sprite for displaying a button.
  */
 class Sprite_Button extends Sprite_Clickable {
-    /** @param {[buttonType: "cancel" | "pageup" | "pagedown" | "down" | "up" | "down2" | "up2" | "ok" | "menu"]} args */
-    constructor(...args) {
+    declare _buttonType:
+        | "cancel"
+        | "pageup"
+        | "pagedown"
+        | "down"
+        | "up"
+        | "down2"
+        | "up2"
+        | "ok"
+        | "menu";
+    declare _clickHandler: (() => void) | null;
+    declare _coldFrame: Rectangle | null;
+    declare _hotFrame: Rectangle | null;
+
+    constructor(
+        ...args: [
+            buttonType:
+                | "cancel"
+                | "pageup"
+                | "pagedown"
+                | "down"
+                | "up"
+                | "down2"
+                | "up2"
+                | "ok"
+                | "menu",
+        ]
+    ) {
         super(...args);
     }
 
-    /** @param {"cancel" | "pageup" | "pagedown" | "down" | "up" | "down2" | "up2" | "ok" | "menu"} buttonType */
-    initialize(buttonType) {
+    initialize(
+        buttonType:
+            | "cancel"
+            | "pageup"
+            | "pagedown"
+            | "down"
+            | "up"
+            | "down2"
+            | "up2"
+            | "ok"
+            | "menu",
+    ): void;
+    initialize(...args: any[]): void;
+    initialize(
+        buttonType:
+            | "cancel"
+            | "pageup"
+            | "pagedown"
+            | "down"
+            | "up"
+            | "down2"
+            | "up2"
+            | "ok"
+            | "menu",
+    ): void {
         super.initialize();
-        /** @type {"cancel" | "pageup" | "pagedown" | "down" | "up" | "down2" | "up2" | "ok" | "menu"} */
+
         this._buttonType = buttonType;
-        /** @type {(() => void) | null} */
         this._clickHandler = null;
-        /** @type {Rectangle | null} */
         this._coldFrame = null;
-        /** @type {Rectangle | null} */
         this._hotFrame = null;
         this.setupFrames();
     }
 
-    /** @returns {void} */
-    setupFrames() {
+    setupFrames(): void {
         const data = this.buttonData();
         const x = data.x * this.blockWidth();
         const width = data.w * this.blockWidth();
@@ -145,23 +184,55 @@ class Sprite_Button extends Sprite_Clickable {
         this.updateOpacity();
     }
 
-    /** @returns {number} */
-    blockWidth() {
+    blockWidth(): number {
         return 48;
     }
 
-    /** @returns {number} */
-    blockHeight() {
+    blockHeight(): number {
         return 48;
     }
 
-    /** @returns {void} */
-    loadButtonImage() {
+    loadButtonImage(): void {
         this.bitmap = ImageManager.loadSystem("ButtonSet");
     }
 
-    /** @returns {{ x: number; w: number; } | { x: number; w: number; } | { x: number; w: number; } | { x: number; w: number; } | { x: number; w: number; } | { x: number; w: number; } | { x: number; w: number; } | { x: number; w: number; } | { x: number; w: number; }} */
-    buttonData() {
+    buttonData():
+        | {
+              x: number;
+              w: number;
+          }
+        | {
+              x: number;
+              w: number;
+          }
+        | {
+              x: number;
+              w: number;
+          }
+        | {
+              x: number;
+              w: number;
+          }
+        | {
+              x: number;
+              w: number;
+          }
+        | {
+              x: number;
+              w: number;
+          }
+        | {
+              x: number;
+              w: number;
+          }
+        | {
+              x: number;
+              w: number;
+          }
+        | {
+              x: number;
+              w: number;
+          } {
         const buttonTable = {
             cancel: { x: 0, w: 2 },
             pageup: { x: 2, w: 1 },
@@ -171,13 +242,12 @@ class Sprite_Button extends Sprite_Clickable {
             down2: { x: 6, w: 1 },
             up2: { x: 7, w: 1 },
             ok: { x: 8, w: 2 },
-            menu: { x: 10, w: 1 }
+            menu: { x: 10, w: 1 },
         };
         return buttonTable[this._buttonType];
     }
 
-    /** @returns {void} */
-    update() {
+    update(): void {
         super.update();
         this.checkBitmap();
         this.updateFrame();
@@ -185,59 +255,40 @@ class Sprite_Button extends Sprite_Clickable {
         this.processTouch();
     }
 
-    /** @returns {void} */
-    checkBitmap() {
-        if (this.bitmap.isReady() && this.bitmap.width < this.blockWidth() * 11) {
+    checkBitmap(): void {
+        if (
+            this.bitmap.isReady() &&
+            this.bitmap.width < this.blockWidth() * 11
+        ) {
             // Probably MV image is used
             throw new Error("ButtonSet image is too small");
         }
     }
 
-    /** @returns {void} */
-    updateFrame() {
+    updateFrame(): void {
         const frame = this.isPressed() ? this._hotFrame : this._coldFrame;
         if (frame) {
             this.setFrame(frame.x, frame.y, frame.width, frame.height);
         }
     }
 
-    /** @returns {void} */
-    updateOpacity() {
+    updateOpacity(): void {
         this.opacity = this._pressed ? 255 : 192;
     }
 
-    /**
-     * @param {number} x
-     * @param {number} y
-     * @param {number} width
-     * @param {number} height
-     * @returns {void}
-     */
-    setColdFrame(x, y, width, height) {
+    setColdFrame(x: number, y: number, width: number, height: number): void {
         this._coldFrame = new PIXI.Rectangle(x, y, width, height);
     }
 
-    /**
-     * @param {number} x
-     * @param {number} y
-     * @param {number} width
-     * @param {number} height
-     * @returns {void}
-     */
-    setHotFrame(x, y, width, height) {
+    setHotFrame(x: number, y: number, width: number, height: number): void {
         this._hotFrame = new PIXI.Rectangle(x, y, width, height);
     }
 
-    /**
-     * @param {() => void} method
-     * @returns {void}
-     */
-    setClickHandler(method) {
+    setClickHandler(method: () => void): void {
         this._clickHandler = method;
     }
 
-    /** @returns {void} */
-    onClick() {
+    onClick(): void {
         if (this._clickHandler) {
             this._clickHandler();
         } else {
@@ -250,52 +301,50 @@ class Sprite_Button extends Sprite_Clickable {
  * The sprite for displaying a character.
  */
 class Sprite_Character extends Sprite {
-    /** @param {[character: Game_Character]} args */
-    constructor(...args) {
+    declare _character: Game_Character;
+    declare _balloonDuration: number;
+    declare _tilesetId: RMMZ.TilesetID;
+    declare _upperBody: Sprite;
+    declare _lowerBody: Sprite;
+    declare _tileId: number;
+    declare _characterName: string;
+    declare _characterIndex: number;
+    declare _isBigCharacter: boolean;
+    declare z: number;
+    declare _bushDepth: number;
+
+    constructor(...args: [character: Game_Character]) {
         super(...args);
     }
 
-    /** @param {Game_Character} character */
-    initialize(character) {
+    initialize(character: Game_Character): void;
+    initialize(...args: any[]): void;
+    initialize(character: Game_Character): void {
         super.initialize();
         this.initMembers();
         this.setCharacter(character);
     }
 
-    /** @returns {void} */
-    initMembers() {
+    initMembers(): void {
         this.anchor.x = 0.5;
         this.anchor.y = 1;
-        /** @type {Game_Character} */
-        this._character = null;
-        /** @type {number} */
+
+        this._character = null!;
         this._balloonDuration = 0;
-        /** @type {RMMZ.TilesetID} */
         this._tilesetId = 0;
-        /** @type {Sprite} */
-        this._upperBody = null;
-        /** @type {Sprite} */
-        this._lowerBody = null;
+        this._upperBody = null!;
+        this._lowerBody = null!;
     }
 
-    /**
-     * @param {Game_Character} character
-     * @returns {void}
-     */
-    setCharacter(character) {
+    setCharacter(character: Game_Character): void {
         this._character = character;
     }
 
-    /**
-     * @param {Game_Character} character
-     * @returns {boolean}
-     */
-    checkCharacter(character) {
+    checkCharacter(character: Game_Character): boolean {
         return this._character === character;
     }
 
-    /** @returns {void} */
-    update() {
+    update(): void {
         super.update();
         this.updateBitmap();
         this.updateFrame();
@@ -304,41 +353,32 @@ class Sprite_Character extends Sprite {
         this.updateVisibility();
     }
 
-    /** @returns {void} */
-    updateVisibility() {
+    updateVisibility(): void {
         super.updateVisibility();
         if (this.isEmptyCharacter() || this._character.isTransparent()) {
             this.visible = false;
         }
     }
 
-    /** @returns {boolean} */
-    isTile() {
+    isTile(): boolean {
         return this._character.isTile();
     }
 
-    /** @returns {boolean} */
-    isObjectCharacter() {
+    isObjectCharacter(): boolean {
         return this._character.isObjectCharacter();
     }
 
-    /** @returns {boolean} */
-    isEmptyCharacter() {
+    isEmptyCharacter(): boolean {
         return this._tileId === 0 && !this._characterName;
     }
 
-    /**
-     * @param {RMMZ.TileID} tileId
-     * @returns {import("../core").Bitmap}
-     */
-    tilesetBitmap(tileId) {
+    tilesetBitmap(tileId: RMMZ.TileID): Bitmap {
         const tileset = $gameMap.tileset();
         const setNumber = 5 + Math.floor(tileId / 256);
         return ImageManager.loadTileset(tileset.tilesetNames[setNumber]);
     }
 
-    /** @returns {void} */
-    updateBitmap() {
+    updateBitmap(): void {
         if (this.isImageChanged()) {
             this._tilesetId = $gameMap.tilesetId();
             this._tileId = this._character.tileId();
@@ -352,8 +392,7 @@ class Sprite_Character extends Sprite {
         }
     }
 
-    /** @returns {boolean} */
-    isImageChanged() {
+    isImageChanged(): boolean {
         return (
             this._tilesetId !== $gameMap.tilesetId() ||
             this._tileId !== this._character.tileId() ||
@@ -362,19 +401,16 @@ class Sprite_Character extends Sprite {
         );
     }
 
-    /** @returns {void} */
-    setTileBitmap() {
+    setTileBitmap(): void {
         this.bitmap = this.tilesetBitmap(this._tileId);
     }
 
-    /** @returns {void} */
-    setCharacterBitmap() {
+    setCharacterBitmap(): void {
         this.bitmap = ImageManager.loadCharacter(this._characterName);
         this._isBigCharacter = ImageManager.isBigCharacter(this._characterName);
     }
 
-    /** @returns {void} */
-    updateFrame() {
+    updateFrame(): void {
         if (this._tileId > 0) {
             this.updateTileFrame();
         } else {
@@ -382,8 +418,7 @@ class Sprite_Character extends Sprite {
         }
     }
 
-    /** @returns {void} */
-    updateTileFrame() {
+    updateTileFrame(): void {
         const tileId = this._tileId;
         const pw = this.patternWidth();
         const ph = this.patternHeight();
@@ -392,8 +427,7 @@ class Sprite_Character extends Sprite {
         this.setFrame(sx, sy, pw, ph);
     }
 
-    /** @returns {void} */
-    updateCharacterFrame() {
+    updateCharacterFrame(): void {
         const pw = this.patternWidth();
         const ph = this.patternHeight();
         const sx = (this.characterBlockX() + this.characterPatternX()) * pw;
@@ -409,8 +443,7 @@ class Sprite_Character extends Sprite {
         }
     }
 
-    /** @returns {number} */
-    characterBlockX() {
+    characterBlockX(): number {
         if (this._isBigCharacter) {
             return 0;
         } else {
@@ -419,8 +452,7 @@ class Sprite_Character extends Sprite {
         }
     }
 
-    /** @returns {number} */
-    characterBlockY() {
+    characterBlockY(): number {
         if (this._isBigCharacter) {
             return 0;
         } else {
@@ -429,18 +461,15 @@ class Sprite_Character extends Sprite {
         }
     }
 
-    /** @returns {number} */
-    characterPatternX() {
+    characterPatternX(): number {
         return this._character.pattern();
     }
 
-    /** @returns {number} */
-    characterPatternY() {
+    characterPatternY(): number {
         return (this._character.direction() - 2) / 2;
     }
 
-    /** @returns {number} */
-    patternWidth() {
+    patternWidth(): number {
         if (this._tileId > 0) {
             return $gameMap.tileWidth();
         } else if (this._isBigCharacter) {
@@ -450,8 +479,7 @@ class Sprite_Character extends Sprite {
         }
     }
 
-    /** @returns {number} */
-    patternHeight() {
+    patternHeight(): number {
         if (this._tileId > 0) {
             return $gameMap.tileHeight();
         } else if (this._isBigCharacter) {
@@ -461,8 +489,7 @@ class Sprite_Character extends Sprite {
         }
     }
 
-    /** @returns {void} */
-    updateHalfBodySprites() {
+    updateHalfBodySprites(): void {
         if (this._bushDepth > 0) {
             this.createHalfBodySprites();
             this._upperBody.bitmap = this.bitmap;
@@ -482,8 +509,7 @@ class Sprite_Character extends Sprite {
         }
     }
 
-    /** @returns {void} */
-    createHalfBodySprites() {
+    createHalfBodySprites(): void {
         if (!this._upperBody) {
             this._upperBody = new Sprite();
             this._upperBody.anchor.x = 0.5;
@@ -499,15 +525,13 @@ class Sprite_Character extends Sprite {
         }
     }
 
-    /** @returns {void} */
-    updatePosition() {
+    updatePosition(): void {
         this.x = this._character.screenX();
         this.y = this._character.screenY();
         this.z = this._character.screenZ();
     }
 
-    /** @returns {void} */
-    updateOther() {
+    updateOther(): void {
         this.opacity = this._character.opacity();
         this.blendMode = this._character.blendMode();
         this._bushDepth = this._character.bushDepth();
@@ -518,78 +542,65 @@ class Sprite_Character extends Sprite {
  * The superclass of Sprite_Actor and Sprite_Enemy.
  */
 class Sprite_Battler extends Sprite_Clickable {
-    /** @param {[battler: RMMZ.ActionTarget]} args */
-    constructor(...args) {
+    declare _battler: RMMZ.ActionTarget;
+    declare _damages: Sprite_Damage[];
+    declare _homeX: number;
+    declare _homeY: number;
+    declare _offsetX: number;
+    declare _offsetY: number;
+    declare _targetOffsetX: number;
+    declare _targetOffsetY: number;
+    declare _movementDuration: number;
+    declare _selectionEffectCount: number;
+
+    constructor(..._extra: any[]);
+    constructor(...args: [battler: RMMZ.ActionTarget]) {
         super(...args);
     }
 
-    /** @param {RMMZ.ActionTarget} battler */
-    initialize(battler) {
+    initialize(battler: RMMZ.ActionTarget): void;
+    initialize(...args: any[]): void;
+    initialize(battler: RMMZ.ActionTarget): void {
         super.initialize();
         this.initMembers();
         this.setBattler(battler);
     }
 
-    /** @returns {void} */
-    initMembers() {
+    initMembers(): void {
         this.anchor.x = 0.5;
         this.anchor.y = 1;
-        /** @type {RMMZ.ActionTarget} */
-        this._battler = null;
-        /** @type {Sprite_Damage[]} */
+
+        this._battler = null!;
         this._damages = [];
-        /** @type {number} */
         this._homeX = 0;
-        /** @type {number} */
         this._homeY = 0;
-        /** @type {number} */
         this._offsetX = 0;
-        /** @type {number} */
         this._offsetY = 0;
-        /** @type {number} */
         this._targetOffsetX = NaN;
-        /** @type {number} */
         this._targetOffsetY = NaN;
-        /** @type {number} */
         this._movementDuration = 0;
-        /** @type {number} */
         this._selectionEffectCount = 0;
     }
 
-    /**
-     * @param {RMMZ.ActionTarget} battler
-     * @returns {void}
-     */
-    setBattler(battler) {
+    setBattler(battler: RMMZ.ActionTarget): void {
         this._battler = battler;
     }
 
-    /**
-     * @param {RMMZ.ActionTarget} battler
-     * @returns {boolean}
-     */
-    checkBattler(battler) {
+    checkBattler(battler: RMMZ.ActionTarget): boolean {
         return this._battler === battler;
     }
 
-    /** @returns {Sprite} */
-    mainSprite() {
+    mainSprite(): Sprite {
         return this;
     }
 
-    /**
-     * @param {number} x
-     * @param {number} y
-     * @returns {void}
-     */
-    setHome(x, y) {
+    setHome(x: number, y: number): void {
         this._homeX = x;
         this._homeY = y;
         this.updatePosition();
     }
 
-    /** @returns {void} */
-    update() {
+    update(): void {
         super.update();
         if (this._battler) {
             this.updateMain();
@@ -597,20 +608,18 @@ class Sprite_Battler extends Sprite_Clickable {
             this.updateSelectionEffect();
             this.updateVisibility();
         } else {
-            this.bitmap = null;
+            this.bitmap = null!;
         }
     }
 
-    /** @returns {void} */
-    updateVisibility() {
+    updateVisibility(): void {
         super.updateVisibility();
         if (!this._battler || !this._battler.isSpriteVisible()) {
             this.visible = false;
         }
     }
 
-    /** @returns {void} */
-    updateMain() {
+    updateMain(): void {
         if (this._battler.isSpriteVisible()) {
             this.updateBitmap();
             this.updateFrame();
@@ -619,18 +628,15 @@ class Sprite_Battler extends Sprite_Clickable {
         this.updatePosition();
     }
 
-    /** @returns {void} */
-    updateBitmap() {
+    updateBitmap(): void {
         //
     }
 
-    /** @returns {void} */
-    updateFrame() {
+    updateFrame(): void {
         //
     }
 
-    /** @returns {void} */
-    updateMove() {
+    updateMove(): void {
         if (this._movementDuration > 0) {
             const d = this._movementDuration;
             this._offsetX = (this._offsetX * (d - 1) + this._targetOffsetX) / d;
@@ -642,18 +648,16 @@ class Sprite_Battler extends Sprite_Clickable {
         }
     }
 
-    /** @returns {void} */
-    updatePosition() {
+    updatePosition(): void {
         this.x = this._homeX + this._offsetX;
         this.y = this._homeY + this._offsetY;
     }
 
-    /** @returns {void} */
-    updateDamagePopup() {
+    updateDamagePopup(): void {
         this.setupDamagePopup();
         if (this._damages.length > 0) {
             for (const damage of this._damages) {
-                damage.update();
+                damage.update!();
             }
             if (!this._damages[0].isPlaying()) {
                 this.destroyDamageSprite(this._damages[0]);
@@ -661,8 +665,7 @@ class Sprite_Battler extends Sprite_Clickable {
         }
     }
 
-    /** @returns {void} */
-    updateSelectionEffect() {
+    updateSelectionEffect(): void {
         const target = this.mainSprite();
         if (this._battler.isSelected()) {
             this._selectionEffectCount++;
@@ -677,8 +680,7 @@ class Sprite_Battler extends Sprite_Clickable {
         }
     }
 
-    /** @returns {void} */
-    setupDamagePopup() {
+    setupDamagePopup(): void {
         if (this._battler.isDamagePopupRequested()) {
             if (this._battler.isSpriteVisible()) {
                 this.createDamageSprite();
@@ -688,8 +690,7 @@ class Sprite_Battler extends Sprite_Clickable {
         }
     }
 
-    /** @returns {void} */
-    createDamageSprite() {
+    createDamageSprite(): void {
         const last = this._damages[this._damages.length - 1];
         const sprite = new Sprite_Damage();
         if (last) {
@@ -701,36 +702,24 @@ class Sprite_Battler extends Sprite_Clickable {
         }
         sprite.setup(this._battler);
         this._damages.push(sprite);
-        this.parent.addChild(sprite);
+        this.parent!.addChild(sprite);
     }
 
-    /**
-     * @param {Sprite_Damage} sprite
-     * @returns {void}
-     */
-    destroyDamageSprite(sprite) {
-        this.parent.removeChild(sprite);
+    destroyDamageSprite(sprite: Sprite_Damage): void {
+        this.parent!.removeChild(sprite);
         this._damages.remove(sprite);
         sprite.destroy();
     }
 
-    /** @returns {number} */
-    damageOffsetX() {
+    damageOffsetX(): number {
         return 0;
     }
 
-    /** @returns {number} */
-    damageOffsetY() {
+    damageOffsetY(): number {
         return 0;
     }
 
-    /**
-     * @param {number} x
-     * @param {number} y
-     * @param {number} duration
-     * @returns {void}
-     */
-    startMove(x, y, duration) {
+    startMove(x: number, y: number, duration: number): void {
         if (this._targetOffsetX !== x || this._targetOffsetY !== y) {
             this._targetOffsetX = x;
             this._targetOffsetY = y;
@@ -742,38 +731,31 @@ class Sprite_Battler extends Sprite_Clickable {
         }
     }
 
-    /** @returns {void} */
-    onMoveEnd() {
+    onMoveEnd(): void {
         //
     }
 
-    /** @returns {boolean} */
-    isEffecting() {
+    isEffecting(): boolean {
         return false;
     }
 
-    /** @returns {boolean} */
-    isMoving() {
+    isMoving(): boolean {
         return this._movementDuration > 0;
     }
 
-    /** @returns {boolean} */
-    inHomePosition() {
+    inHomePosition(): boolean {
         return this._offsetX === 0 && this._offsetY === 0;
     }
 
-    /** @returns {void} */
-    onMouseEnter() {
+    onMouseEnter(): void {
         $gameTemp.setTouchState(this._battler, "select");
     }
 
-    /** @returns {void} */
-    onPress() {
+    onPress(): void {
         $gameTemp.setTouchState(this._battler, "select");
     }
 
-    /** @returns {void} */
-    onClick() {
+    onClick(): void {
         $gameTemp.setTouchState(this._battler, "click");
     }
 }
@@ -782,13 +764,95 @@ class Sprite_Battler extends Sprite_Clickable {
  * The sprite for displaying an actor.
  */
 class Sprite_Actor extends Sprite_Battler {
-    /** @param {[battler?: Game_Actor]} args */
-    constructor(...args) {
-        super(...args);
+    declare _battlerName: string;
+    declare _motion:
+        (typeof Sprite_Actor.MOTIONS)[RMMZ.BattlerMotionType] | null;
+    declare _motionCount: number;
+    declare _pattern: number;
+    declare _mainSprite: Sprite;
+    declare _shadowSprite: Sprite;
+    declare _weaponSprite: Sprite_Weapon;
+    declare _stateSprite: Sprite_StateOverlay;
+    declare _actor: any;
+
+    constructor(...args: [battler?: Game_Actor]) {
+        super(...args!);
     }
 
-    /** @type {{ walk: { index: number; loop: boolean; }; wait: { index: number; loop: boolean; }; chant: { index: number; loop: boolean; }; guard: { index: number; loop: boolean; }; damage: { index: number; loop: boolean; }; evade: { index: number; loop: boolean; }; thrust: { index: number; loop: boolean; }; swing: { index: number; loop: boolean; }; missile: { index: number; loop: boolean; }; skill: { index: number; loop: boolean; }; spell: { index: number; loop: boolean; }; item: { index: number; loop: boolean; }; escape: { index: number; loop: boolean; }; victory: { index: number; loop: boolean; }; dying: { index: number; loop: boolean; }; abnormal: { index: number; loop: boolean; }; sleep: { index: number; loop: boolean; }; dead: { index: number; loop: boolean; }; }} */
-    static MOTIONS = {
+    static MOTIONS: {
+        walk: {
+            index: number;
+            loop: boolean;
+        };
+        wait: {
+            index: number;
+            loop: boolean;
+        };
+        chant: {
+            index: number;
+            loop: boolean;
+        };
+        guard: {
+            index: number;
+            loop: boolean;
+        };
+        damage: {
+            index: number;
+            loop: boolean;
+        };
+        evade: {
+            index: number;
+            loop: boolean;
+        };
+        thrust: {
+            index: number;
+            loop: boolean;
+        };
+        swing: {
+            index: number;
+            loop: boolean;
+        };
+        missile: {
+            index: number;
+            loop: boolean;
+        };
+        skill: {
+            index: number;
+            loop: boolean;
+        };
+        spell: {
+            index: number;
+            loop: boolean;
+        };
+        item: {
+            index: number;
+            loop: boolean;
+        };
+        escape: {
+            index: number;
+            loop: boolean;
+        };
+        victory: {
+            index: number;
+            loop: boolean;
+        };
+        dying: {
+            index: number;
+            loop: boolean;
+        };
+        abnormal: {
+            index: number;
+            loop: boolean;
+        };
+        sleep: {
+            index: number;
+            loop: boolean;
+        };
+        dead: {
+            index: number;
+            loop: boolean;
+        };
+    } = {
         walk: { index: 0, loop: true },
         wait: { index: 1, loop: true },
         chant: { index: 2, loop: true },
@@ -806,25 +870,22 @@ class Sprite_Actor extends Sprite_Battler {
         dying: { index: 14, loop: true },
         abnormal: { index: 15, loop: true },
         sleep: { index: 16, loop: true },
-        dead: { index: 17, loop: true }
+        dead: { index: 17, loop: true },
     };
 
-    /** @param {Game_Actor} [battler] */
-    initialize(battler) {
-        super.initialize(battler);
+    initialize(battler?: Game_Actor): void;
+    initialize(...args: any[]): void;
+    initialize(battler?: Game_Actor): void {
+        super.initialize(battler!);
         this.moveToStartPosition();
     }
 
-    /** @returns {void} */
-    initMembers() {
+    initMembers(): void {
         super.initMembers();
-        /** @type {string} */
+
         this._battlerName = "";
-        /** @type {(typeof Sprite_Actor.MOTIONS)[RMMZ.BattlerMotionType] | null} */
         this._motion = null;
-        /** @type {number} */
         this._motionCount = 0;
-        /** @type {number} */
         this._pattern = 0;
         this.createShadowSprite();
         this.createWeaponSprite();
@@ -832,21 +893,18 @@ class Sprite_Actor extends Sprite_Battler {
         this.createStateSprite();
     }
 
-    /** @returns {Sprite} */
-    mainSprite() {
+    mainSprite(): Sprite {
         return this._mainSprite;
     }
 
-    /** @returns {void} */
-    createMainSprite() {
+    createMainSprite(): void {
         this._mainSprite = new Sprite();
         this._mainSprite.anchor.x = 0.5;
         this._mainSprite.anchor.y = 1;
         this.addChild(this._mainSprite);
     }
 
-    /** @returns {void} */
-    createShadowSprite() {
+    createShadowSprite(): void {
         this._shadowSprite = new Sprite();
         this._shadowSprite.bitmap = ImageManager.loadSystem("Shadow2");
         this._shadowSprite.anchor.x = 0.5;
@@ -855,30 +913,24 @@ class Sprite_Actor extends Sprite_Battler {
         this.addChild(this._shadowSprite);
     }
 
-    /** @returns {void} */
-    createWeaponSprite() {
+    createWeaponSprite(): void {
         this._weaponSprite = new Sprite_Weapon();
         this.addChild(this._weaponSprite);
     }
 
-    /** @returns {void} */
-    createStateSprite() {
+    createStateSprite(): void {
         this._stateSprite = new Sprite_StateOverlay();
         this.addChild(this._stateSprite);
     }
 
-    /**
-     * @param {Game_Actor} battler
-     * @returns {void}
-     */
-    setBattler(battler) {
+    setBattler(battler: Game_Actor): void {
         super.setBattler(battler);
         if (battler !== this._actor) {
             this._actor = battler;
             if (battler) {
                 this.setActorHome(battler.index());
             } else {
-                this._mainSprite.bitmap = null;
+                this._mainSprite.bitmap = null!;
                 this._battlerName = "";
             }
             this.startEntryMotion();
@@ -886,21 +938,15 @@ class Sprite_Actor extends Sprite_Battler {
         }
     }
 
-    /** @returns {void} */
-    moveToStartPosition() {
+    moveToStartPosition(): void {
         this.startMove(300, 0, 0);
     }
 
-    /**
-     * @param {number} index
-     * @returns {void}
-     */
-    setActorHome(index) {
+    setActorHome(index: number): void {
         this.setHome(600 + index * 32, 280 + index * 48);
     }
 
-    /** @returns {void} */
-    update() {
+    update(): void {
         super.update();
         this.updateShadow();
         if (this._actor) {
@@ -908,40 +954,32 @@ class Sprite_Actor extends Sprite_Battler {
         }
     }
 
-    /** @returns {void} */
-    updateShadow() {
+    updateShadow(): void {
         this._shadowSprite.visible = !!this._actor;
     }
 
-    /** @returns {void} */
-    updateMain() {
+    updateMain(): void {
         super.updateMain();
         if (this._actor.isSpriteVisible() && !this.isMoving()) {
             this.updateTargetPosition();
         }
     }
 
-    /** @returns {void} */
-    setupMotion() {
+    setupMotion(): void {
         if (this._actor.isMotionRequested()) {
             this.startMotion(this._actor.motionType());
             this._actor.clearMotion();
         }
     }
 
-    /** @returns {void} */
-    setupWeaponAnimation() {
+    setupWeaponAnimation(): void {
         if (this._actor.isWeaponAnimationRequested()) {
             this._weaponSprite.setup(this._actor.weaponImageId());
             this._actor.clearWeaponAnimation();
         }
     }
 
-    /**
-     * @param {RMMZ.BattlerMotionType} motionType
-     * @returns {void}
-     */
-    startMotion(motionType) {
+    startMotion(motionType: RMMZ.BattlerMotionType): void {
         const newMotion = Sprite_Actor.MOTIONS[motionType];
         if (this._motion !== newMotion) {
             this._motion = newMotion;
@@ -950,8 +988,7 @@ class Sprite_Actor extends Sprite_Battler {
         }
     }
 
-    /** @returns {void} */
-    updateTargetPosition() {
+    updateTargetPosition(): void {
         if (this._actor.canMove() && BattleManager.isEscaped()) {
             this.retreat();
         } else if (this.shouldStepForward()) {
@@ -961,13 +998,11 @@ class Sprite_Actor extends Sprite_Battler {
         }
     }
 
-    /** @returns {boolean} */
-    shouldStepForward() {
+    shouldStepForward(): boolean {
         return this._actor.isInputting() || this._actor.isActing();
     }
 
-    /** @returns {void} */
-    updateBitmap() {
+    updateBitmap(): void {
         super.updateBitmap();
         const name = this._actor.battlerName();
         if (this._battlerName !== name) {
@@ -976,8 +1011,7 @@ class Sprite_Actor extends Sprite_Battler {
         }
     }
 
-    /** @returns {void} */
-    updateFrame() {
+    updateFrame(): void {
         super.updateFrame();
         const bitmap = this._mainSprite.bitmap;
         if (bitmap) {
@@ -992,16 +1026,14 @@ class Sprite_Actor extends Sprite_Battler {
         }
     }
 
-    /** @returns {void} */
-    updateMove() {
+    updateMove(): void {
         const bitmap = this._mainSprite.bitmap;
         if (!bitmap || bitmap.isReady()) {
             super.updateMove();
         }
     }
 
-    /** @returns {void} */
-    updateMotion() {
+    updateMotion(): void {
         this.setupMotion();
         this.setupWeaponAnimation();
         if (this._actor.isMotionRefreshRequested()) {
@@ -1011,8 +1043,7 @@ class Sprite_Actor extends Sprite_Battler {
         this.updateMotionCount();
     }
 
-    /** @returns {void} */
-    updateMotionCount() {
+    updateMotionCount(): void {
         if (this._motion && ++this._motionCount >= this.motionSpeed()) {
             if (this._motion.loop) {
                 this._pattern = (this._pattern + 1) % 4;
@@ -1025,13 +1056,11 @@ class Sprite_Actor extends Sprite_Battler {
         }
     }
 
-    /** @returns {number} */
-    motionSpeed() {
+    motionSpeed(): number {
         return 12;
     }
 
-    /** @returns {void} */
-    refreshMotion() {
+    refreshMotion(): void {
         const actor = this._actor;
         if (actor) {
             const stateMotion = actor.stateMotionIndex();
@@ -1057,8 +1086,7 @@ class Sprite_Actor extends Sprite_Battler {
         }
     }
 
-    /** @returns {void} */
-    startEntryMotion() {
+    startEntryMotion(): void {
         if (this._actor && this._actor.canMove()) {
             this.startMotion("walk");
             this.startMove(0, 0, 30);
@@ -1068,36 +1096,30 @@ class Sprite_Actor extends Sprite_Battler {
         }
     }
 
-    /** @returns {void} */
-    stepForward() {
+    stepForward(): void {
         this.startMove(-48, 0, 12);
     }
 
-    /** @returns {void} */
-    stepBack() {
+    stepBack(): void {
         this.startMove(0, 0, 12);
     }
 
-    /** @returns {void} */
-    retreat() {
+    retreat(): void {
         this.startMove(300, 0, 30);
     }
 
-    /** @returns {void} */
-    onMoveEnd() {
+    onMoveEnd(): void {
         super.onMoveEnd();
         if (!BattleManager.isBattleEnd()) {
             this.refreshMotion();
         }
     }
 
-    /** @returns {number} */
-    damageOffsetX() {
+    damageOffsetX(): number {
         return super.damageOffsetX() - 32;
     }
 
-    /** @returns {number} */
-    damageOffsetY() {
+    damageOffsetY(): number {
         return super.damageOffsetY();
     }
 }
@@ -1106,53 +1128,51 @@ class Sprite_Actor extends Sprite_Battler {
  * The sprite for displaying an enemy.
  */
 class Sprite_Enemy extends Sprite_Battler {
-    constructor(...args) {
+    declare _enemy: Game_Enemy;
+    declare _appeared: boolean;
+    declare _battlerName: string | null;
+    declare _battlerHue: number;
+    declare _effectType: RMMZ.BattlerEffectType | null;
+    declare _effectDuration: number;
+    declare _shake: number;
+    declare _stateIconSprite: Sprite_StateIcon;
+
+    constructor(...args: any[]) {
         super(...args);
     }
 
-    initialize(battler) {
+    initialize(battler: any): void;
+    initialize(...args: any[]): void;
+    initialize(battler: any): void {
         super.initialize(battler);
     }
 
-    /** @returns {void} */
-    initMembers() {
+    initMembers(): void {
         super.initMembers();
-        /** @type {Game_Enemy} */
-        this._enemy = null;
-        /** @type {boolean} */
+
+        this._enemy = null!;
         this._appeared = false;
-        /** @type {string | null} */
         this._battlerName = null;
-        /** @type {number} */
         this._battlerHue = 0;
-        /** @type {RMMZ.BattlerEffectType | null} */
         this._effectType = null;
-        /** @type {number} */
         this._effectDuration = 0;
-        /** @type {number} */
         this._shake = 0;
         this.createStateIconSprite();
     }
 
-    /** @returns {void} */
-    createStateIconSprite() {
+    createStateIconSprite(): void {
         this._stateIconSprite = new Sprite_StateIcon();
         this.addChild(this._stateIconSprite);
     }
 
-    /**
-     * @param {Game_Enemy} battler
-     * @returns {void}
-     */
-    setBattler(battler) {
+    setBattler(battler: Game_Enemy): void {
         super.setBattler(battler);
         this._enemy = battler;
         this.setHome(battler.screenX(), battler.screenY());
         this._stateIconSprite.setup(battler);
     }
 
-    /** @returns {void} */
-    update() {
+    update(): void {
         super.update();
         if (this._enemy) {
             this.updateEffect();
@@ -1160,8 +1180,7 @@ class Sprite_Enemy extends Sprite_Battler {
         }
     }
 
-    /** @returns {void} */
-    updateBitmap() {
+    updateBitmap(): void {
         super.updateBitmap();
         const name = this._enemy.battlerName();
         const hue = this._enemy.battlerHue();
@@ -1174,11 +1193,7 @@ class Sprite_Enemy extends Sprite_Battler {
         }
     }
 
-    /**
-     * @param {string} name
-     * @returns {void}
-     */
-    loadBitmap(name) {
+    loadBitmap(name: string): void {
         if ($gameSystem.isSideView()) {
             this.bitmap = ImageManager.loadSvEnemy(name);
         } else {
@@ -1186,21 +1201,16 @@ class Sprite_Enemy extends Sprite_Battler {
         }
     }
 
-    /**
-     * @param {number} hue
-     * @returns {void}
-     */
-    setHue(hue) {
+    setHue(hue: number): void {
         super.setHue(hue);
-        for (const child of this.children) {
+        for (const child of this.children as Sprite[]) {
             if (child.setHue) {
                 child.setHue(-hue);
             }
         }
     }
 
-    /** @returns {void} */
-    updateFrame() {
+    updateFrame(): void {
         super.updateFrame();
         if (this._effectType === "bossCollapse") {
             this.setFrame(0, 0, this.bitmap.width, this._effectDuration);
@@ -1209,32 +1219,28 @@ class Sprite_Enemy extends Sprite_Battler {
         }
     }
 
-    /** @returns {void} */
-    updatePosition() {
+    updatePosition(): void {
         super.updatePosition();
         this.x += this._shake;
     }
 
-    /** @returns {void} */
-    updateStateSprite() {
+    updateStateSprite(): void {
         this._stateIconSprite.y = -Math.round((this.bitmap.height + 40) * 0.9);
         if (this._stateIconSprite.y < 20 - this.y) {
             this._stateIconSprite.y = 20 - this.y;
         }
     }
 
-    /** @returns {void} */
-    initVisibility() {
+    initVisibility(): void {
         this._appeared = this._enemy.isAlive();
         if (!this._appeared) {
             this.opacity = 0;
         }
     }
 
-    /** @returns {void} */
-    setupEffect() {
+    setupEffect(): void {
         if (this._appeared && this._enemy.isEffectRequested()) {
-            this.startEffect(this._enemy.effectType());
+            this.startEffect(this._enemy.effectType()!);
             this._enemy.clearEffect();
         }
         if (!this._appeared && this._enemy.isAlive()) {
@@ -1244,11 +1250,7 @@ class Sprite_Enemy extends Sprite_Battler {
         }
     }
 
-    /**
-     * @param {RMMZ.BattlerEffectType} effectType
-     * @returns {void}
-     */
-    startEffect(effectType) {
+    startEffect(effectType: RMMZ.BattlerEffectType): void {
         this._effectType = effectType;
         switch (this._effectType) {
             case "appear":
@@ -1276,48 +1278,40 @@ class Sprite_Enemy extends Sprite_Battler {
         this.revertToNormal();
     }
 
-    /** @returns {void} */
-    startAppear() {
+    startAppear(): void {
         this._effectDuration = 16;
         this._appeared = true;
     }
 
-    /** @returns {void} */
-    startDisappear() {
+    startDisappear(): void {
         this._effectDuration = 32;
         this._appeared = false;
     }
 
-    /** @returns {void} */
-    startWhiten() {
+    startWhiten(): void {
         this._effectDuration = 16;
     }
 
-    /** @returns {void} */
-    startBlink() {
+    startBlink(): void {
         this._effectDuration = 20;
     }
 
-    /** @returns {void} */
-    startCollapse() {
+    startCollapse(): void {
         this._effectDuration = 32;
         this._appeared = false;
     }
 
-    /** @returns {void} */
-    startBossCollapse() {
+    startBossCollapse(): void {
         this._effectDuration = this.bitmap.height;
         this._appeared = false;
     }
 
-    /** @returns {void} */
-    startInstantCollapse() {
+    startInstantCollapse(): void {
         this._effectDuration = 16;
         this._appeared = false;
     }
 
-    /** @returns {void} */
-    updateEffect() {
+    updateEffect(): void {
         this.setupEffect();
         if (this._effectDuration > 0) {
             this._effectDuration--;
@@ -1350,49 +1344,41 @@ class Sprite_Enemy extends Sprite_Battler {
         }
     }
 
-    /** @returns {boolean} */
-    isEffecting() {
+    isEffecting(): boolean {
         return this._effectType !== null;
     }
 
-    /** @returns {void} */
-    revertToNormal() {
+    revertToNormal(): void {
         this._shake = 0;
         this.blendMode = 0;
         this.opacity = 255;
         this.setBlendColor([0, 0, 0, 0]);
     }
 
-    /** @returns {void} */
-    updateWhiten() {
+    updateWhiten(): void {
         const alpha = 128 - (16 - this._effectDuration) * 8;
         this.setBlendColor([255, 255, 255, alpha]);
     }
 
-    /** @returns {void} */
-    updateBlink() {
+    updateBlink(): void {
         this.opacity = this._effectDuration % 10 < 5 ? 255 : 0;
     }
 
-    /** @returns {void} */
-    updateAppear() {
+    updateAppear(): void {
         this.opacity = (16 - this._effectDuration) * 16;
     }
 
-    /** @returns {void} */
-    updateDisappear() {
+    updateDisappear(): void {
         this.opacity = 256 - (32 - this._effectDuration) * 10;
     }
 
-    /** @returns {void} */
-    updateCollapse() {
+    updateCollapse(): void {
         this.blendMode = 1;
         this.setBlendColor([255, 128, 128, 128]);
         this.opacity *= this._effectDuration / (this._effectDuration + 1);
     }
 
-    /** @returns {void} */
-    updateBossCollapse() {
+    updateBossCollapse(): void {
         this._shake = (this._effectDuration % 2) * 4 - 2;
         this.blendMode = 1;
         this.opacity *= this._effectDuration / (this._effectDuration + 1);
@@ -1402,18 +1388,15 @@ class Sprite_Enemy extends Sprite_Battler {
         }
     }
 
-    /** @returns {void} */
-    updateInstantCollapse() {
+    updateInstantCollapse(): void {
         this.opacity = 0;
     }
 
-    /** @returns {number} */
-    damageOffsetX() {
+    damageOffsetX(): number {
         return super.damageOffsetX();
     }
 
-    /** @returns {number} */
-    damageOffsetY() {
+    damageOffsetY(): number {
         return super.damageOffsetY() - 8;
     }
 }
@@ -1422,50 +1405,50 @@ class Sprite_Enemy extends Sprite_Battler {
  * The sprite for displaying an animation.
  */
 class Sprite_Animation extends PIXI.RenderContainer {
+    declare targetObjects: RMMZ.AnimationTarget[];
+
+    declare spriteId: number;
+    declare _targets: Sprite[];
+    declare _animation: RMMZ.DataAnimation;
+    declare _mirror: boolean;
+    declare _delay: number;
+    declare _previous: Sprite_Animation | Sprite_AnimationMV | null;
+    declare _effect: effekseer.EffekseerEffect | null;
+    declare _handle: effekseer.EffekseerHandle | null;
+    declare _playing: boolean;
+    declare _started: boolean;
+    declare _frameIndex: number;
+    declare _maxTimingFrames: number;
+    declare _flashColor: RMMZ.Writable<RMMZ.Color>;
+    declare _flashDuration: number;
+    declare _viewportSize: number;
+    declare z: number;
+
     constructor() {
         super({});
         this.spriteId = Sprite._counter++;
         this.initMembers();
     }
 
-    /** @returns {void} */
-    initMembers() {
-        /** @type {Sprite[]} */
+    initMembers(): void {
         this._targets = [];
-        /** @type {RMMZ.DataAnimation} */
-        this._animation = null;
-        /** @type {boolean} */
+        this._animation = null!;
         this._mirror = false;
-        /** @type {number} */
         this._delay = 0;
-        /** @type {Sprite_Animation | null} */
         this._previous = null;
-        /** @type {effekseer.EffekseerEffect | null} */
         this._effect = null;
-        /** @type {effekseer.EffekseerHandle | null} */
         this._handle = null;
-        /** @type {boolean} */
         this._playing = false;
-        /** @type {boolean} */
         this._started = false;
-        /** @type {number} */
         this._frameIndex = 0;
-        /** @type {number} */
         this._maxTimingFrames = 0;
-        /** @type {RMMZ.Writable<RMMZ.Color>} */
         this._flashColor = [0, 0, 0, 0];
-        /** @type {number} */
         this._flashDuration = 0;
-        /** @type {number} */
         this._viewportSize = 4096;
         this.z = 8;
     }
 
-    /**
-     * @param {import("pixi.js").DestroyOptions} [options]
-     * @returns {void}
-     */
-    destroy(options) {
+    destroy(options?: import("pixi.js").DestroyOptions): void {
         super.destroy(options);
         if (this._handle) {
             this._handle.stop();
@@ -1477,17 +1460,10 @@ class Sprite_Animation extends PIXI.RenderContainer {
     }
 
     // prettier-ignore
-    /**
-     * @param {Sprite[]} targets
-     * @param {RMMZ.DataAnimation} animation
-     * @param {boolean} mirror
-     * @param {number} delay
-     * @param {Sprite_Animation | null} previous
-     * @returns {void}
-     */
+
     setup(
-        targets, animation, mirror, delay, previous
-    ) {
+        targets: Sprite[], animation: RMMZ.DataAnimation, mirror: boolean, delay: number, previous: Sprite_Animation | Sprite_AnimationMV | null
+    ): void {
         this._targets = targets;
         this._animation = animation;
         this._mirror = mirror;
@@ -1495,7 +1471,7 @@ class Sprite_Animation extends PIXI.RenderContainer {
         this._previous = previous;
         this._effect = EffectManager.load(animation.effectName);
         this._playing = true;
-        const timings = animation.soundTimings.concat(animation.flashTimings);
+        const timings = [...animation.soundTimings, ...animation.flashTimings];
         for (const timing of timings) {
             if (timing.frame > this._maxTimingFrames) {
                 this._maxTimingFrames = timing.frame;
@@ -1503,8 +1479,7 @@ class Sprite_Animation extends PIXI.RenderContainer {
         }
     }
 
-    /** @returns {void} */
-    update() {
+    update(): void {
         if (this._delay > 0) {
             this._delay--;
         } else if (this._playing) {
@@ -1528,8 +1503,7 @@ class Sprite_Animation extends PIXI.RenderContainer {
         }
     }
 
-    /** @returns {boolean} */
-    canStart() {
+    canStart(): boolean {
         if (this._previous && this.shouldWaitForPrevious()) {
             return !this._previous.isPlaying();
         } else {
@@ -1541,15 +1515,12 @@ class Sprite_Animation extends PIXI.RenderContainer {
      * Allows the animation to start before the previous one finishes.
      * Waiting was a workaround for older versions of Effekseer that
      * were very heavy on some mobile devices.
-     *
-     * @returns {boolean}
      */
-    shouldWaitForPrevious() {
+    shouldWaitForPrevious(): boolean {
         return false;
     }
 
-    /** @returns {void} */
-    updateEffectGeometry() {
+    updateEffectGeometry(): void {
         const scale = this._animation.scale / 100;
         const r = Math.PI / 180;
         const rx = this._animation.rotation.x * r;
@@ -1563,16 +1534,14 @@ class Sprite_Animation extends PIXI.RenderContainer {
         }
     }
 
-    /** @returns {void} */
-    updateMain() {
+    updateMain(): void {
         this.processSoundTimings();
         this.processFlashTimings();
         this._frameIndex++;
         this.checkEnd();
     }
 
-    /** @returns {void} */
-    processSoundTimings() {
+    processSoundTimings(): void {
         for (const timing of this._animation.soundTimings) {
             if (timing.frame === this._frameIndex) {
                 AudioManager.playSe(timing.se);
@@ -1580,8 +1549,7 @@ class Sprite_Animation extends PIXI.RenderContainer {
         }
     }
 
-    /** @returns {void} */
-    processFlashTimings() {
+    processFlashTimings(): void {
         for (const timing of this._animation.flashTimings) {
             if (timing.frame === this._frameIndex) {
                 this._flashColor = timing.color.clone();
@@ -1590,8 +1558,7 @@ class Sprite_Animation extends PIXI.RenderContainer {
         }
     }
 
-    /** @returns {void} */
-    checkEnd() {
+    checkEnd(): void {
         if (
             this._frameIndex > this._maxTimingFrames &&
             this._flashDuration === 0 &&
@@ -1601,8 +1568,7 @@ class Sprite_Animation extends PIXI.RenderContainer {
         }
     }
 
-    /** @returns {void} */
-    updateFlash() {
+    updateFlash(): void {
         if (this._flashDuration > 0) {
             const d = this._flashDuration--;
             this._flashColor[3] *= (d - 1) / d;
@@ -1612,32 +1578,26 @@ class Sprite_Animation extends PIXI.RenderContainer {
         }
     }
 
-    /** @returns {boolean} */
-    isPlaying() {
+    isPlaying(): boolean {
         return this._playing;
     }
 
-    /**
-     * @param {number} x
-     * @param {number} y
-     * @param {number} z
-     * @returns {void}
-     */
-    setRotation(x, y, z) {
+    setRotation(x: number, y: number, z: number): void {
         if (this._handle) {
             this._handle.setRotation(x, y, z);
         }
     }
 
-    /**
-     * @param {import("pixi.js").Renderer} renderer
-     * @returns {void}
-     */
-    render(renderer) {
+    render(renderer: import("pixi.js").WebGLRenderer): void {
         if (this._targets.length > 0 && this._handle && this._handle.exists) {
             const gl = renderer.gl;
             const program = gl.getParameter(gl.CURRENT_PROGRAM);
-            const viewport = gl.getParameter(gl.VIEWPORT);
+            const viewport = gl.getParameter(gl.VIEWPORT) as [
+                number,
+                number,
+                number,
+                number,
+            ];
             this.setProjectionMatrix(renderer);
             this.setCameraMatrix();
             this.setViewport(renderer);
@@ -1653,11 +1613,7 @@ class Sprite_Animation extends PIXI.RenderContainer {
         }
     }
 
-    /**
-     * @param {import("pixi.js").Renderer} renderer
-     * @returns {void}
-     */
-    setProjectionMatrix(renderer) {
+    setProjectionMatrix(renderer: import("pixi.js").Renderer): void {
         const x = this._mirror ? -1 : 1;
         const y = -1;
         const p = -(this._viewportSize / renderer.canvas.height);
@@ -1670,7 +1626,7 @@ class Sprite_Animation extends PIXI.RenderContainer {
         ]);
     }
 
-    setCameraMatrix() {
+    setCameraMatrix(): void {
         // prettier-ignore
         Graphics.effekseer.setCameraMatrix([
             1, 0, 0, 0,
@@ -1680,11 +1636,7 @@ class Sprite_Animation extends PIXI.RenderContainer {
         ]);
     }
 
-    /**
-     * @param {import("pixi.js").Renderer} renderer
-     * @returns {void}
-     */
-    setViewport(renderer) {
+    setViewport(renderer: import("pixi.js").WebGLRenderer): void {
         const vw = this._viewportSize;
         const vh = this._viewportSize;
         const vx = this._animation.offsetX - vw / 2;
@@ -1693,11 +1645,7 @@ class Sprite_Animation extends PIXI.RenderContainer {
         renderer.gl.viewport(vx + pos.x, vy + pos.y, vw, vh);
     }
 
-    /**
-     * @param {import("pixi.js").Renderer} renderer
-     * @returns {Point}
-     */
-    targetPosition(renderer) {
+    targetPosition(renderer: import("pixi.js").WebGLRenderer): Point {
         const pos = new PIXI.Point();
         if (this._animation.displayType === 2) {
             pos.x = renderer.canvas.width / 2;
@@ -1714,11 +1662,7 @@ class Sprite_Animation extends PIXI.RenderContainer {
         return pos;
     }
 
-    /**
-     * @param {Sprite} sprite
-     * @returns {import("pixi.js").Point}
-     */
-    targetSpritePosition(sprite) {
+    targetSpritePosition(sprite: Sprite): import("pixi.js").Point {
         const point = new PIXI.Point(0, -sprite.height / 2);
         if (this._animation.alignBottom) {
             point.y = 0;
@@ -1731,64 +1675,61 @@ class Sprite_Animation extends PIXI.RenderContainer {
  * The sprite for displaying an old format animation.
  */
 class Sprite_AnimationMV extends Sprite {
-    /** @param {[]} args */
-    constructor(...args) {
+    declare targetObjects: RMMZ.AnimationTarget[];
+
+    declare _targets: Sprite[];
+    declare _animation: RMMZ.DataAnimationMV;
+    declare _mirror: boolean;
+    declare _delay: number;
+    declare _rate: number;
+    declare _duration: number;
+    declare _flashColor: RMMZ.Writable<RMMZ.Color>;
+    declare _flashDuration: number;
+    declare _screenFlashDuration: number;
+    declare _hidingDuration: number;
+    declare _hue1: number;
+    declare _hue2: number;
+    declare _bitmap1: Bitmap;
+    declare _bitmap2: Bitmap;
+    declare _cellSprites: Sprite[];
+    declare _screenFlashSprite: ScreenSprite | null;
+    declare z: number;
+
+    constructor(...args: []) {
         super(...args);
     }
 
-    initialize() {
+    initialize(): void;
+    initialize(...args: any[]): void;
+    initialize(): void {
         super.initialize();
         this.initMembers();
     }
 
-    /** @returns {void} */
-    initMembers() {
-        /** @type {Sprite[]} */
+    initMembers(): void {
         this._targets = [];
-        /** @type {RMMZ.DataAnimationMV} */
-        this._animation = null;
-        /** @type {boolean} */
+        this._animation = null!;
         this._mirror = false;
-        /** @type {number} */
         this._delay = 0;
-        /** @type {number} */
         this._rate = 4;
-        /** @type {number} */
         this._duration = 0;
-        /** @type {RMMZ.Writable<RMMZ.Color>} */
         this._flashColor = [0, 0, 0, 0];
-        /** @type {number} */
         this._flashDuration = 0;
-        /** @type {number} */
         this._screenFlashDuration = 0;
-        /** @type {number} */
         this._hidingDuration = 0;
-        /** @type {number} */
         this._hue1 = 0;
-        /** @type {number} */
         this._hue2 = 0;
-        /** @type {Bitmap} */
-        this._bitmap1 = null;
-        /** @type {Bitmap} */
-        this._bitmap2 = null;
-        /** @type {Sprite[]} */
+        this._bitmap1 = null!;
+        this._bitmap2 = null!;
         this._cellSprites = [];
-        /** @type {ScreenSprite | null} */
         this._screenFlashSprite = null;
         this.z = 8;
     }
 
-    /**
-     * @param {Sprite[]} targets
-     * @param {RMMZ.DataAnimationMV} animation
-     * @param {boolean} mirror
-     * @param {number} delay
-     * @returns {void}
-     */
     // prettier-ignore
     setup(
-        targets, animation, mirror, delay
-    ) {
+        targets: Sprite[], animation: RMMZ.DataAnimationMV, mirror: boolean, delay: number
+    ): void {
         this._targets = targets;
         this._animation = animation;
         this._mirror = mirror;
@@ -1802,18 +1743,15 @@ class Sprite_AnimationMV extends Sprite {
         }
     }
 
-    /** @returns {void} */
-    setupRate() {
+    setupRate(): void {
         this._rate = 4;
     }
 
-    /** @returns {void} */
-    setupDuration() {
+    setupDuration(): void {
         this._duration = this._animation.frames.length * this._rate + 1;
     }
 
-    /** @returns {void} */
-    update() {
+    update(): void {
         super.update();
         this.updateMain();
         this.updateFlash();
@@ -1821,8 +1759,7 @@ class Sprite_AnimationMV extends Sprite {
         this.updateHiding();
     }
 
-    /** @returns {void} */
-    updateFlash() {
+    updateFlash(): void {
         if (this._flashDuration > 0) {
             const d = this._flashDuration--;
             this._flashColor[3] *= (d - 1) / d;
@@ -1832,8 +1769,7 @@ class Sprite_AnimationMV extends Sprite {
         }
     }
 
-    /** @returns {void} */
-    updateScreenFlash() {
+    updateScreenFlash(): void {
         if (this._screenFlashDuration > 0) {
             const d = this._screenFlashDuration--;
             if (this._screenFlashSprite) {
@@ -1845,30 +1781,27 @@ class Sprite_AnimationMV extends Sprite {
         }
     }
 
-    /** @returns {number} */
-    absoluteX() {
+    absoluteX(): number {
         let x = 0;
-        let object = this;
+        let object: import("pixi.js").Container | null = this;
         while (object) {
             x += object.x;
-            object = object.parent;
+            object = object.parent!;
         }
         return x;
     }
 
-    /** @returns {number} */
-    absoluteY() {
+    absoluteY(): number {
         let y = 0;
-        let object = this;
+        let object: import("pixi.js").Container | null = this;
         while (object) {
             y += object.y;
-            object = object.parent;
+            object = object.parent!;
         }
         return y;
     }
 
-    /** @returns {void} */
-    updateHiding() {
+    updateHiding(): void {
         if (this._hidingDuration > 0) {
             this._hidingDuration--;
             if (this._hidingDuration === 0) {
@@ -1879,13 +1812,11 @@ class Sprite_AnimationMV extends Sprite {
         }
     }
 
-    /** @returns {boolean} */
-    isPlaying() {
+    isPlaying(): boolean {
         return this._duration > 0;
     }
 
-    /** @returns {void} */
-    loadBitmaps() {
+    loadBitmaps(): void {
         const name1 = this._animation.animation1Name;
         const name2 = this._animation.animation2Name;
         this._hue1 = this._animation.animation1Hue;
@@ -1894,8 +1825,7 @@ class Sprite_AnimationMV extends Sprite {
         this._bitmap2 = ImageManager.loadAnimation(name2);
     }
 
-    /** @returns {boolean} */
-    isReady() {
+    isReady(): boolean {
         return (
             this._bitmap1 &&
             this._bitmap1.isReady() &&
@@ -1904,8 +1834,7 @@ class Sprite_AnimationMV extends Sprite {
         );
     }
 
-    /** @returns {void} */
-    createCellSprites() {
+    createCellSprites(): void {
         this._cellSprites = [];
         for (let i = 0; i < 16; i++) {
             const sprite = new Sprite();
@@ -1916,14 +1845,12 @@ class Sprite_AnimationMV extends Sprite {
         }
     }
 
-    /** @returns {void} */
-    createScreenFlashSprite() {
+    createScreenFlashSprite(): void {
         this._screenFlashSprite = new ScreenSprite();
         this.addChild(this._screenFlashSprite);
     }
 
-    /** @returns {void} */
-    updateMain() {
+    updateMain(): void {
         if (this.isPlaying() && this.isReady()) {
             if (this._delay > 0) {
                 this._delay--;
@@ -1940,11 +1867,10 @@ class Sprite_AnimationMV extends Sprite {
         }
     }
 
-    /** @returns {void} */
-    updatePosition() {
+    updatePosition(): void {
         if (this._animation.position === 3) {
-            this.x = this.parent.width / 2;
-            this.y = this.parent.height / 2;
+            this.x = this.parent!.width / 2;
+            this.y = this.parent!.height / 2;
         } else if (this._targets.length > 0) {
             const target = this._targets[0];
             const parent = target.parent;
@@ -1952,8 +1878,8 @@ class Sprite_AnimationMV extends Sprite {
             this.x = target.x;
             this.y = target.y;
             if (this.parent === grandparent) {
-                this.x += parent.x;
-                this.y += parent.y;
+                this.x += parent!.x;
+                this.y += parent!.y;
             }
             if (this._animation.position === 0) {
                 this.y -= target.height;
@@ -1963,8 +1889,7 @@ class Sprite_AnimationMV extends Sprite {
         }
     }
 
-    /** @returns {void} */
-    updateFrame() {
+    updateFrame(): void {
         if (this._duration > 0) {
             const frameIndex = this.currentFrameIndex();
             this.updateAllCellSprites(this._animation.frames[frameIndex]);
@@ -1976,19 +1901,14 @@ class Sprite_AnimationMV extends Sprite {
         }
     }
 
-    /** @returns {number} */
-    currentFrameIndex() {
+    currentFrameIndex(): number {
         return (
             this._animation.frames.length -
             Math.floor((this._duration + this._rate - 1) / this._rate)
         );
     }
 
-    /**
-     * @param {RMMZ.DataFrameMV} frame
-     * @returns {void}
-     */
-    updateAllCellSprites(frame) {
+    updateAllCellSprites(frame: RMMZ.DataFrameMV): void {
         if (this._targets.length > 0) {
             for (let i = 0; i < this._cellSprites.length; i++) {
                 const sprite = this._cellSprites[i];
@@ -2001,12 +1921,7 @@ class Sprite_AnimationMV extends Sprite {
         }
     }
 
-    /**
-     * @param {Sprite} sprite
-     * @param {RMMZ.DataFrameCellMV} cell
-     * @returns {void}
-     */
-    updateCellSprite(sprite, cell) {
+    updateCellSprite(sprite: Sprite, cell: RMMZ.DataFrameCellMV): void {
         const pattern = cell[0];
         if (pattern >= 0) {
             const sx = (pattern % 5) * 192;
@@ -2038,11 +1953,7 @@ class Sprite_AnimationMV extends Sprite {
         }
     }
 
-    /**
-     * @param {RMMZ.DataTimingMV} timing
-     * @returns {void}
-     */
-    processTimingData(timing) {
+    processTimingData(timing: RMMZ.DataTimingMV): void {
         const duration = timing.flashDuration * this._rate;
         switch (timing.flashScope) {
             case 1:
@@ -2060,22 +1971,12 @@ class Sprite_AnimationMV extends Sprite {
         }
     }
 
-    /**
-     * @param {RMMZ.Color} color
-     * @param {number} duration
-     * @returns {void}
-     */
-    startFlash(color, duration) {
+    startFlash(color: RMMZ.Color, duration: number): void {
         this._flashColor = color.clone();
         this._flashDuration = duration;
     }
 
-    /**
-     * @param {RMMZ.Color} color
-     * @param {number} duration
-     * @returns {void}
-     */
-    startScreenFlash(color, duration) {
+    startScreenFlash(color: RMMZ.Color, duration: number): void {
         this._screenFlashDuration = duration;
         if (this._screenFlashSprite) {
             this._screenFlashSprite.setColor(color[0], color[1], color[2]);
@@ -2083,19 +1984,14 @@ class Sprite_AnimationMV extends Sprite {
         }
     }
 
-    /**
-     * @param {number} duration
-     * @returns {void}
-     */
-    startHiding(duration) {
+    startHiding(duration: number): void {
         this._hidingDuration = duration;
         for (const target of this._targets) {
             target.hide();
         }
     }
 
-    /** @returns {void} */
-    onEnd() {
+    onEnd(): void {
         this._flashDuration = 0;
         this._screenFlashDuration = 0;
         this._hidingDuration = 0;
@@ -2110,13 +2006,13 @@ class Sprite_AnimationMV extends Sprite {
  * The sprite for displaying a background image in battle.
  */
 class Sprite_Battleback extends TilingSprite {
-    /** @param {[type: 0 | 1]} args */
-    constructor(...args) {
-        super(...args);
+    constructor(...args: [type: 0 | 1]) {
+        super(...args!);
     }
 
-    /** @param {0 | 1} type */
-    initialize(type) {
+    initialize(type: 0 | 1): void;
+    initialize(...args: any[]): void;
+    initialize(type: 0 | 1): void {
         super.initialize();
         if (type === 0) {
             this.bitmap = this.battleback1Bitmap();
@@ -2125,8 +2021,7 @@ class Sprite_Battleback extends TilingSprite {
         }
     }
 
-    /** @returns {void} */
-    adjustPosition() {
+    adjustPosition(): void {
         this.width = Math.floor((1000 * Graphics.width) / 816);
         this.height = Math.floor((740 * Graphics.height) / 624);
         this.x = (Graphics.width - this.width) / 2;
@@ -2142,22 +2037,19 @@ class Sprite_Battleback extends TilingSprite {
         this.scale.y = scale;
     }
 
-    /** @returns {import("../core").Bitmap} */
-    battleback1Bitmap() {
+    battleback1Bitmap(): Bitmap {
         return ImageManager.loadBattleback1(this.battleback1Name());
     }
 
-    /** @returns {import("../core").Bitmap} */
-    battleback2Bitmap() {
+    battleback2Bitmap(): Bitmap {
         return ImageManager.loadBattleback2(this.battleback2Name());
     }
 
-    /** @returns {string} */
-    battleback1Name() {
+    battleback1Name(): string {
         if (BattleManager.isBattleTest()) {
             return $dataSystem.battleback1Name;
         } else if ($gameMap.battleback1Name() !== null) {
-            return $gameMap.battleback1Name();
+            return $gameMap.battleback1Name()!;
         } else if ($gameMap.isOverworld()) {
             return this.overworldBattleback1Name();
         } else {
@@ -2165,12 +2057,11 @@ class Sprite_Battleback extends TilingSprite {
         }
     }
 
-    /** @returns {string} */
-    battleback2Name() {
+    battleback2Name(): string {
         if (BattleManager.isBattleTest()) {
             return $dataSystem.battleback2Name;
         } else if ($gameMap.battleback2Name() !== null) {
-            return $gameMap.battleback2Name();
+            return $gameMap.battleback2Name()!;
         } else if ($gameMap.isOverworld()) {
             return this.overworldBattleback2Name();
         } else {
@@ -2178,8 +2069,7 @@ class Sprite_Battleback extends TilingSprite {
         }
     }
 
-    /** @returns {string} */
-    overworldBattleback1Name() {
+    overworldBattleback1Name(): string {
         if ($gamePlayer.isInVehicle()) {
             return this.shipBattleback1Name();
         } else {
@@ -2187,8 +2077,7 @@ class Sprite_Battleback extends TilingSprite {
         }
     }
 
-    /** @returns {string} */
-    overworldBattleback2Name() {
+    overworldBattleback2Name(): string {
         if ($gamePlayer.isInVehicle()) {
             return this.shipBattleback2Name();
         } else {
@@ -2196,8 +2085,7 @@ class Sprite_Battleback extends TilingSprite {
         }
     }
 
-    /** @returns {string} */
-    normalBattleback1Name() {
+    normalBattleback1Name(): string {
         return (
             this.terrainBattleback1Name(this.autotileType(1)) ||
             this.terrainBattleback1Name(this.autotileType(0)) ||
@@ -2205,8 +2093,7 @@ class Sprite_Battleback extends TilingSprite {
         );
     }
 
-    /** @returns {string} */
-    normalBattleback2Name() {
+    normalBattleback2Name(): string {
         return (
             this.terrainBattleback2Name(this.autotileType(1)) ||
             this.terrainBattleback2Name(this.autotileType(0)) ||
@@ -2214,11 +2101,18 @@ class Sprite_Battleback extends TilingSprite {
         );
     }
 
-    /**
-     * @param {RMMZ.TerrainBattlebackType} type
-     * @returns {"Wasteland" | "DirtField" | "Desert" | "Lava1" | "Lava2" | "Snowfield" | "Clouds" | "PoisonSwamp" | null}
-     */
-    terrainBattleback1Name(type) {
+    terrainBattleback1Name(
+        type: RMMZ.TerrainBattlebackType,
+    ):
+        | "Wasteland"
+        | "DirtField"
+        | "Desert"
+        | "Lava1"
+        | "Lava2"
+        | "Snowfield"
+        | "Clouds"
+        | "PoisonSwamp"
+        | null {
         switch (type) {
             case 24:
             case 25:
@@ -2246,11 +2140,18 @@ class Sprite_Battleback extends TilingSprite {
         }
     }
 
-    /**
-     * @param {RMMZ.TerrainBattlebackType} type
-     * @returns {"Wasteland" | "Desert" | "Snowfield" | "Clouds" | "PoisonSwamp" | "Forest" | "Cliff" | "Lava" | undefined}
-     */
-    terrainBattleback2Name(type) {
+    terrainBattleback2Name(
+        type: RMMZ.TerrainBattlebackType,
+    ):
+        | "Wasteland"
+        | "Desert"
+        | "Snowfield"
+        | "Clouds"
+        | "PoisonSwamp"
+        | "Forest"
+        | "Cliff"
+        | "Lava"
+        | undefined {
         switch (type) {
             case 20:
             case 21:
@@ -2281,32 +2182,28 @@ class Sprite_Battleback extends TilingSprite {
         }
     }
 
-    /** @returns {string} */
-    defaultBattleback1Name() {
+    defaultBattleback1Name(): string {
         return "Grassland";
     }
 
-    /** @returns {string} */
-    defaultBattleback2Name() {
+    defaultBattleback2Name(): string {
         return "Grassland";
     }
 
-    /** @returns {string} */
-    shipBattleback1Name() {
+    shipBattleback1Name(): string {
         return "Ship";
     }
 
-    /** @returns {string} */
-    shipBattleback2Name() {
+    shipBattleback2Name(): string {
         return "Ship";
     }
 
-    /**
-     * @param {number} z
-     * @returns {RMMZ.TerrainBattlebackType}
-     */
-    autotileType(z) {
-        return $gameMap.autotileType($gamePlayer.x, $gamePlayer.y, z);
+    autotileType(z: number): RMMZ.TerrainBattlebackType {
+        return $gameMap.autotileType(
+            $gamePlayer.x,
+            $gamePlayer.y,
+            z,
+        ) as RMMZ.TerrainBattlebackType;
     }
 }
 
@@ -2314,27 +2211,29 @@ class Sprite_Battleback extends TilingSprite {
  * The sprite for displaying a popup damage.
  */
 class Sprite_Damage extends Sprite {
-    constructor(...args) {
+    declare children: RMMZ.DamageDigitSprite[];
+
+    declare _duration: number;
+    declare _flashColor: RMMZ.Writable<RMMZ.Color>;
+    declare _flashDuration: number;
+    declare _colorType: number;
+
+    constructor(...args: any[]) {
         super(...args);
     }
 
-    initialize() {
+    initialize(): void;
+    initialize(...args: any[]): void;
+    initialize(): void {
         super.initialize();
-        /** @type {number} */
+
         this._duration = 90;
-        /** @type {RMMZ.Writable<RMMZ.Color>} */
         this._flashColor = [0, 0, 0, 0];
-        /** @type {number} */
         this._flashDuration = 0;
-        /** @type {number} */
         this._colorType = 0;
     }
 
-    /**
-     * @param {import("pixi.js").DestroyOptions} [options]
-     * @returns {void}
-     */
-    destroy(options) {
+    destroy(options?: import("pixi.js").DestroyOptions): void {
         for (const child of this.children) {
             if (child.bitmap) {
                 child.bitmap.destroy();
@@ -2343,11 +2242,7 @@ class Sprite_Damage extends Sprite {
         super.destroy(options);
     }
 
-    /**
-     * @param {RMMZ.ActionTarget} target
-     * @returns {void}
-     */
-    setup(target) {
+    setup(target: RMMZ.ActionTarget): void {
         const result = target.result();
         if (result.missed || result.evaded) {
             this._colorType = 0;
@@ -2364,39 +2259,32 @@ class Sprite_Damage extends Sprite {
         }
     }
 
-    /** @returns {void} */
-    setupCriticalEffect() {
+    setupCriticalEffect(): void {
         this._flashColor = [255, 0, 0, 160];
         this._flashDuration = 60;
     }
 
-    /** @returns {string} */
-    fontFace() {
+    fontFace(): string {
         return $gameSystem.numberFontFace();
     }
 
-    /** @returns {number} */
-    fontSize() {
+    fontSize(): number {
         return $gameSystem.mainFontSize() + 4;
     }
 
-    /** @returns {"#ffffff" | "#b9ffb5" | "#ffff90" | "#80b0ff" | "#808080"} */
-    damageColor() {
+    damageColor(): "#ffffff" | "#b9ffb5" | "#ffff90" | "#80b0ff" | "#808080" {
         return ColorManager.damageColor(this._colorType);
     }
 
-    /** @returns {string} */
-    outlineColor() {
+    outlineColor(): string {
         return "rgba(0, 0, 0, 0.7)";
     }
 
-    /** @returns {number} */
-    outlineWidth() {
+    outlineWidth(): number {
         return 4;
     }
 
-    /** @returns {void} */
-    createMiss() {
+    createMiss(): void {
         const h = this.fontSize();
         const w = Math.floor(h * 3.0);
         const sprite = this.createChildSprite(w, h);
@@ -2404,11 +2292,7 @@ class Sprite_Damage extends Sprite {
         sprite.dy = 0;
     }
 
-    /**
-     * @param {number} value
-     * @returns {void}
-     */
-    createDigits(value) {
+    createDigits(value: number): void {
         const string = Math.abs(value).toString();
         const h = this.fontSize();
         const w = Math.floor(h * 0.75);
@@ -2420,13 +2304,8 @@ class Sprite_Damage extends Sprite {
         }
     }
 
-    /**
-     * @param {number} width
-     * @param {number} height
-     * @returns {Sprite}
-     */
-    createChildSprite(width, height) {
-        const sprite = new Sprite();
+    createChildSprite(width: number, height: number): RMMZ.DamageDigitSprite {
+        const sprite = new Sprite() as RMMZ.DamageDigitSprite;
         sprite.bitmap = this.createBitmap(width, height);
         sprite.anchor.x = 0.5;
         sprite.anchor.y = 1;
@@ -2436,12 +2315,7 @@ class Sprite_Damage extends Sprite {
         return sprite;
     }
 
-    /**
-     * @param {number} width
-     * @param {number} height
-     * @returns {Bitmap}
-     */
-    createBitmap(width, height) {
+    createBitmap(width: number, height: number): Bitmap {
         const bitmap = new Bitmap(width, height);
         bitmap.fontFace = this.fontFace();
         bitmap.fontSize = this.fontSize();
@@ -2451,8 +2325,7 @@ class Sprite_Damage extends Sprite {
         return bitmap;
     }
 
-    /** @returns {void} */
-    update() {
+    update(): void {
         super.update();
         if (this._duration > 0) {
             this._duration--;
@@ -2464,11 +2337,7 @@ class Sprite_Damage extends Sprite {
         this.updateOpacity();
     }
 
-    /**
-     * @param {Sprite} sprite
-     * @returns {void}
-     */
-    updateChild(sprite) {
+    updateChild(sprite: RMMZ.DamageDigitSprite): void {
         sprite.dy += 0.5;
         sprite.ry += sprite.dy;
         if (sprite.ry >= 0) {
@@ -2479,23 +2348,20 @@ class Sprite_Damage extends Sprite {
         sprite.setBlendColor(this._flashColor);
     }
 
-    /** @returns {void} */
-    updateFlash() {
+    updateFlash(): void {
         if (this._flashDuration > 0) {
             const d = this._flashDuration--;
             this._flashColor[3] *= (d - 1) / d;
         }
     }
 
-    /** @returns {void} */
-    updateOpacity() {
+    updateOpacity(): void {
         if (this._duration < 10) {
             this.opacity = (255 * this._duration) / 10;
         }
     }
 
-    /** @returns {boolean} */
-    isPlaying() {
+    isPlaying(): boolean {
         return this._duration > 0;
     }
 }
@@ -2504,75 +2370,66 @@ class Sprite_Damage extends Sprite {
  * The sprite for displaying a status gauge.
  */
 class Sprite_Gauge extends Sprite {
-    /** @param {[]} args */
-    constructor(...args) {
+    declare _battler: RMMZ.ActionTarget | null;
+    declare _statusType: string;
+    declare _value: number;
+    declare _maxValue: number;
+    declare _targetValue: number;
+    declare _targetMaxValue: number;
+    declare _duration: number;
+    declare _flashingCount: number;
+
+    constructor(...args: []) {
         super(...args);
     }
 
-    initialize() {
+    initialize(): void;
+    initialize(...args: any[]): void;
+    initialize(): void {
         super.initialize();
         this.initMembers();
         this.createBitmap();
     }
 
-    /** @returns {void} */
-    initMembers() {
-        /** @type {RMMZ.ActionTarget | null} */
+    initMembers(): void {
         this._battler = null;
-        /** @type {string} */
         this._statusType = "";
-        /** @type {number} */
         this._value = NaN;
-        /** @type {number} */
         this._maxValue = NaN;
-        /** @type {number} */
         this._targetValue = NaN;
-        /** @type {number} */
         this._targetMaxValue = NaN;
-        /** @type {number} */
         this._duration = 0;
-        /** @type {number} */
         this._flashingCount = 0;
     }
 
-    /**
-     * @param {import("pixi.js").DestroyOptions} [options]
-     * @returns {void}
-     */
-    destroy(options) {
+    destroy(options?: import("pixi.js").DestroyOptions): void {
         this.bitmap.destroy();
         super.destroy(options);
     }
 
-    /** @returns {void} */
-    createBitmap() {
+    createBitmap(): void {
         const width = this.bitmapWidth();
         const height = this.bitmapHeight();
         this.bitmap = new Bitmap(width, height);
     }
 
-    /** @returns {number} */
-    bitmapWidth() {
+    bitmapWidth(): number {
         return 128;
     }
 
-    /** @returns {number} */
-    bitmapHeight() {
+    bitmapHeight(): number {
         return 32;
     }
 
-    /** @returns {number} */
-    textHeight() {
+    textHeight(): number {
         return 24;
     }
 
-    /** @returns {number} */
-    gaugeHeight() {
+    gaugeHeight(): number {
         return 12;
     }
 
-    /** @returns {number} */
-    gaugeX() {
+    gaugeX(): number {
         if (this._statusType === "time") {
             return 0;
         } else {
@@ -2580,37 +2437,30 @@ class Sprite_Gauge extends Sprite {
         }
     }
 
-    /** @returns {number} */
-    labelY() {
+    labelY(): number {
         return 3;
     }
 
-    /** @returns {string} */
-    labelFontFace() {
+    labelFontFace(): string {
         return $gameSystem.mainFontFace();
     }
 
-    /** @returns {number} */
-    labelFontSize() {
+    labelFontSize(): number {
         return $gameSystem.mainFontSize() - 2;
     }
 
-    /** @returns {string} */
-    valueFontFace() {
+    valueFontFace(): string {
         return $gameSystem.numberFontFace();
     }
 
-    /** @returns {number} */
-    valueFontSize() {
+    valueFontSize(): number {
         return $gameSystem.mainFontSize() - 6;
     }
 
-    /**
-     * @param {RMMZ.ActionTarget} battler
-     * @param {"time" | "hp" | "mp" | "tp"} statusType
-     * @returns {void}
-     */
-    setup(battler, statusType) {
+    setup(
+        battler: RMMZ.ActionTarget,
+        statusType: "time" | "hp" | "mp" | "tp",
+    ): void {
         this._battler = battler;
         this._statusType = statusType;
         this._value = this.currentValue();
@@ -2618,14 +2468,12 @@ class Sprite_Gauge extends Sprite {
         this.updateBitmap();
     }
 
-    /** @returns {void} */
-    update() {
+    update(): void {
         super.update();
         this.updateBitmap();
     }
 
-    /** @returns {void} */
-    updateBitmap() {
+    updateBitmap(): void {
         const value = this.currentValue();
         const maxValue = this.currentMaxValue();
         if (value !== this._targetValue || maxValue !== this._targetMaxValue) {
@@ -2635,12 +2483,7 @@ class Sprite_Gauge extends Sprite {
         this.updateFlashing();
     }
 
-    /**
-     * @param {number} value
-     * @param {number} maxValue
-     * @returns {void}
-     */
-    updateTargetValue(value, maxValue) {
+    updateTargetValue(value: number, maxValue: number): void {
         this._targetValue = value;
         this._targetMaxValue = maxValue;
         if (isNaN(this._value)) {
@@ -2652,27 +2495,25 @@ class Sprite_Gauge extends Sprite {
         }
     }
 
-    /** @returns {20 | 5} */
-    smoothness() {
+    smoothness(): 20 | 5 {
         return this._statusType === "time" ? 5 : 20;
     }
 
-    /** @returns {void} */
-    updateGaugeAnimation() {
+    updateGaugeAnimation(): void {
         if (this._duration > 0) {
             const d = this._duration;
             this._value = (this._value * (d - 1) + this._targetValue) / d;
-            this._maxValue = (this._maxValue * (d - 1) + this._targetMaxValue) / d;
+            this._maxValue =
+                (this._maxValue * (d - 1) + this._targetMaxValue) / d;
             this._duration--;
             this.redraw();
         }
     }
 
-    /** @returns {void} */
-    updateFlashing() {
+    updateFlashing(): void {
         if (this._statusType === "time") {
             this._flashingCount++;
-            if (this._battler.isInputting()) {
+            if (this._battler!.isInputting()) {
                 if (this._flashingCount % 30 < 15) {
                     this.setBlendColor(this.flashingColor1());
                 } else {
@@ -2684,18 +2525,15 @@ class Sprite_Gauge extends Sprite {
         }
     }
 
-    /** @returns {RMMZ.Color} */
-    flashingColor1() {
+    flashingColor1(): RMMZ.Color {
         return [255, 255, 255, 64];
     }
 
-    /** @returns {RMMZ.Color} */
-    flashingColor2() {
+    flashingColor2(): RMMZ.Color {
         return [0, 0, 255, 48];
     }
 
-    /** @returns {boolean} */
-    isValid() {
+    isValid(): boolean {
         if (this._battler) {
             if (this._statusType === "tp" && !this._battler.isPreserveTp()) {
                 return $gameParty.inBattle();
@@ -2706,8 +2544,7 @@ class Sprite_Gauge extends Sprite {
         return false;
     }
 
-    /** @returns {number} */
-    currentValue() {
+    currentValue(): number {
         if (this._battler) {
             switch (this._statusType) {
                 case "hp":
@@ -2723,8 +2560,7 @@ class Sprite_Gauge extends Sprite {
         return NaN;
     }
 
-    /** @returns {number} */
-    currentMaxValue() {
+    currentMaxValue(): number {
         if (this._battler) {
             switch (this._statusType) {
                 case "hp":
@@ -2740,8 +2576,7 @@ class Sprite_Gauge extends Sprite {
         return NaN;
     }
 
-    /** @returns {string} */
-    gaugeLabel() {
+    gaugeLabel(): string {
         switch (this._statusType) {
             case "hp":
                 return TextManager.hpA;
@@ -2754,13 +2589,11 @@ class Sprite_Gauge extends Sprite {
         }
     }
 
-    /** @returns {string} */
-    gaugeBackColor() {
+    gaugeBackColor(): string {
         return ColorManager.gaugeBackColor();
     }
 
-    /** @returns {string} */
-    gaugeColor1() {
+    gaugeColor1(): string {
         switch (this._statusType) {
             case "hp":
                 return ColorManager.hpGaugeColor1();
@@ -2775,8 +2608,7 @@ class Sprite_Gauge extends Sprite {
         }
     }
 
-    /** @returns {string} */
-    gaugeColor2() {
+    gaugeColor2(): string {
         switch (this._statusType) {
             case "hp":
                 return ColorManager.hpGaugeColor2();
@@ -2791,23 +2623,19 @@ class Sprite_Gauge extends Sprite {
         }
     }
 
-    /** @returns {string} */
-    labelColor() {
+    labelColor(): string {
         return ColorManager.systemColor();
     }
 
-    /** @returns {string} */
-    labelOutlineColor() {
+    labelOutlineColor(): string {
         return ColorManager.outlineColor();
     }
 
-    /** @returns {number} */
-    labelOutlineWidth() {
+    labelOutlineWidth(): number {
         return 3;
     }
 
-    /** @returns {string} */
-    valueColor() {
+    valueColor(): string {
         switch (this._statusType) {
             case "hp":
                 return ColorManager.hpColor(this._battler);
@@ -2820,18 +2648,15 @@ class Sprite_Gauge extends Sprite {
         }
     }
 
-    /** @returns {string} */
-    valueOutlineColor() {
+    valueOutlineColor(): string {
         return "rgba(0, 0, 0, 1)";
     }
 
-    /** @returns {number} */
-    valueOutlineWidth() {
+    valueOutlineWidth(): number {
         return 2;
     }
 
-    /** @returns {void} */
-    redraw() {
+    redraw(): void {
         this.bitmap.clear();
         const currentValue = this.currentValue();
         if (!isNaN(currentValue)) {
@@ -2845,8 +2670,7 @@ class Sprite_Gauge extends Sprite {
         }
     }
 
-    /** @returns {void} */
-    drawGauge() {
+    drawGauge(): void {
         const gaugeX = this.gaugeX();
         const gaugeY = this.textHeight() - this.gaugeHeight();
         const gaugewidth = this.bitmapWidth() - gaugeX;
@@ -2854,14 +2678,7 @@ class Sprite_Gauge extends Sprite {
         this.drawGaugeRect(gaugeX, gaugeY, gaugewidth, gaugeHeight);
     }
 
-    /**
-     * @param {number} x
-     * @param {number} y
-     * @param {number} width
-     * @param {number} height
-     * @returns {void}
-     */
-    drawGaugeRect(x, y, width, height) {
+    drawGaugeRect(x: number, y: number, width: number, height: number): void {
         const rate = this.gaugeRate();
         const fillW = Math.floor((width - 2) * rate);
         const fillH = height - 2;
@@ -2869,11 +2686,17 @@ class Sprite_Gauge extends Sprite {
         const color1 = this.gaugeColor1();
         const color2 = this.gaugeColor2();
         this.bitmap.fillRect(x, y, width, height, color0);
-        this.bitmap.gradientFillRect(x + 1, y + 1, fillW, fillH, color1, color2);
+        this.bitmap.gradientFillRect(
+            x + 1,
+            y + 1,
+            fillW,
+            fillH,
+            color1,
+            color2,
+        );
     }
 
-    /** @returns {number} */
-    gaugeRate() {
+    gaugeRate(): number {
         if (this.isValid()) {
             const value = this._value;
             const maxValue = this._maxValue;
@@ -2883,8 +2706,7 @@ class Sprite_Gauge extends Sprite {
         }
     }
 
-    /** @returns {void} */
-    drawLabel() {
+    drawLabel(): void {
         const label = this.gaugeLabel();
         const x = this.labelOutlineWidth() / 2;
         const y = this.labelY();
@@ -2896,8 +2718,7 @@ class Sprite_Gauge extends Sprite {
         this.bitmap.paintOpacity = 255;
     }
 
-    /** @returns {void} */
-    setupLabelFont() {
+    setupLabelFont(): void {
         this.bitmap.fontFace = this.labelFontFace();
         this.bitmap.fontSize = this.labelFontSize();
         this.bitmap.textColor = this.labelColor();
@@ -2905,21 +2726,18 @@ class Sprite_Gauge extends Sprite {
         this.bitmap.outlineWidth = this.labelOutlineWidth();
     }
 
-    /** @returns {number} */
-    measureLabelWidth() {
+    measureLabelWidth(): number {
         this.setupLabelFont();
         const labels = [TextManager.hpA, TextManager.mpA, TextManager.tpA];
-        const widths = labels.map(str => this.bitmap.measureTextWidth(str));
+        const widths = labels.map((str) => this.bitmap.measureTextWidth(str));
         return Math.ceil(Math.max(...widths));
     }
 
-    /** @returns {255 | 160} */
-    labelOpacity() {
+    labelOpacity(): 255 | 160 {
         return this.isValid() ? 255 : 160;
     }
 
-    /** @returns {void} */
-    drawValue() {
+    drawValue(): void {
         const currentValue = this.currentValue();
         const width = this.bitmapWidth();
         const height = this.textHeight();
@@ -2927,8 +2745,7 @@ class Sprite_Gauge extends Sprite {
         this.bitmap.drawText(currentValue, 0, 0, width, height, "right");
     }
 
-    /** @returns {void} */
-    setupValueFont() {
+    setupValueFont(): void {
         this.bitmap.fontFace = this.valueFontFace();
         this.bitmap.fontSize = this.valueFontSize();
         this.bitmap.textColor = this.valueColor();
@@ -2941,81 +2758,67 @@ class Sprite_Gauge extends Sprite {
  * The sprite for displaying a battler's name.
  */
 class Sprite_Name extends Sprite {
-    /** @param {[]} args */
-    constructor(...args) {
+    declare _battler: RMMZ.ActionTarget | null;
+    declare _name: string;
+    declare _textColor: string;
+
+    constructor(...args: []) {
         super(...args);
     }
 
-    initialize() {
+    initialize(): void;
+    initialize(...args: any[]): void;
+    initialize(): void {
         super.initialize();
         this.initMembers();
         this.createBitmap();
     }
 
-    /** @returns {void} */
-    initMembers() {
-        /** @type {RMMZ.ActionTarget | null} */
+    initMembers(): void {
         this._battler = null;
-        /** @type {string} */
         this._name = "";
-        /** @type {string} */
         this._textColor = "";
     }
 
-    /**
-     * @param {import("pixi.js").DestroyOptions} [options]
-     * @returns {void}
-     */
-    destroy(options) {
+    destroy(options?: import("pixi.js").DestroyOptions): void {
         this.bitmap.destroy();
         super.destroy(options);
     }
 
-    /** @returns {void} */
-    createBitmap() {
+    createBitmap(): void {
         const width = this.bitmapWidth();
         const height = this.bitmapHeight();
         this.bitmap = new Bitmap(width, height);
     }
 
-    /** @returns {number} */
-    bitmapWidth() {
+    bitmapWidth(): number {
         return 128;
     }
 
-    /** @returns {number} */
-    bitmapHeight() {
+    bitmapHeight(): number {
         return 24;
     }
 
-    /** @returns {string} */
-    fontFace() {
+    fontFace(): string {
         return $gameSystem.mainFontFace();
     }
 
-    /** @returns {number} */
-    fontSize() {
+    fontSize(): number {
         return $gameSystem.mainFontSize();
     }
 
-    /**
-     * @param {RMMZ.ActionTarget} battler
-     * @returns {void}
-     */
-    setup(battler) {
+    setup(battler: RMMZ.ActionTarget): void {
         this._battler = battler;
         this.updateBitmap();
     }
 
-    /** @returns {void} */
-    update() {
+    update(): void {
         super.update();
         this.updateBitmap();
     }
 
-    /** @returns {void} */
-    updateBitmap() {
-        const name = this.name();
+    updateBitmap(): void {
+        const name = this.actorName();
         const color = this.textColor();
         if (name !== this._name || color !== this._textColor) {
             this._name = name;
@@ -3024,29 +2827,24 @@ class Sprite_Name extends Sprite {
         }
     }
 
-    /** @returns {string} */
-    name() {
+    actorName(): string {
         return this._battler ? this._battler.name() : "";
     }
 
-    /** @returns {string} */
-    textColor() {
+    textColor(): string {
         return ColorManager.hpColor(this._battler);
     }
 
-    /** @returns {string} */
-    outlineColor() {
+    outlineColor(): string {
         return ColorManager.outlineColor();
     }
 
-    /** @returns {number} */
-    outlineWidth() {
+    outlineWidth(): number {
         return 3;
     }
 
-    /** @returns {void} */
-    redraw() {
-        const name = this.name();
+    redraw(): void {
+        const name = this.actorName();
         const width = this.bitmapWidth();
         const height = this.bitmapHeight();
         this.setupFont();
@@ -3054,8 +2852,7 @@ class Sprite_Name extends Sprite {
         this.bitmap.drawText(name, 0, 0, width, height, "left");
     }
 
-    /** @returns {void} */
-    setupFont() {
+    setupFont(): void {
         this.bitmap.fontFace = this.fontFace();
         this.bitmap.fontSize = this.fontSize();
         this.bitmap.textColor = this.textColor();
@@ -3068,50 +2865,45 @@ class Sprite_Name extends Sprite {
  * The sprite for displaying state icons.
  */
 class Sprite_StateIcon extends Sprite {
-    /** @param {[]} args */
-    constructor(...args) {
+    declare _battler: RMMZ.ActionTarget | null;
+    declare _iconIndex: number;
+    declare _animationCount: number;
+    declare _animationIndex: number;
+
+    constructor(...args: []) {
         super(...args);
     }
 
-    initialize() {
+    initialize(): void;
+    initialize(...args: any[]): void;
+    initialize(): void {
         super.initialize();
         this.initMembers();
         this.loadBitmap();
     }
 
-    /** @returns {void} */
-    initMembers() {
-        /** @type {RMMZ.ActionTarget | null} */
+    initMembers(): void {
         this._battler = null;
-        /** @type {number} */
         this._iconIndex = 0;
-        /** @type {number} */
         this._animationCount = 0;
-        /** @type {number} */
         this._animationIndex = 0;
         this.anchor.x = 0.5;
         this.anchor.y = 0.5;
     }
 
-    /** @returns {void} */
-    loadBitmap() {
+    loadBitmap(): void {
         this.bitmap = ImageManager.loadSystem("IconSet");
         this.setFrame(0, 0, 0, 0);
     }
 
-    /**
-     * @param {RMMZ.ActionTarget} battler
-     * @returns {void}
-     */
-    setup(battler) {
+    setup(battler: RMMZ.ActionTarget): void {
         if (this._battler !== battler) {
             this._battler = battler;
             this._animationCount = this.animationWait();
         }
     }
 
-    /** @returns {void} */
-    update() {
+    update(): void {
         super.update();
         this._animationCount++;
         if (this._animationCount >= this.animationWait()) {
@@ -3121,13 +2913,11 @@ class Sprite_StateIcon extends Sprite {
         }
     }
 
-    /** @returns {number} */
-    animationWait() {
+    animationWait(): number {
         return 40;
     }
 
-    /** @returns {void} */
-    updateIcon() {
+    updateIcon(): void {
         const icons = [];
         if (this.shouldDisplay()) {
             icons.push(...this._battler.allIcons());
@@ -3144,14 +2934,14 @@ class Sprite_StateIcon extends Sprite {
         }
     }
 
-    /** @returns {this is { _battler: RMMZ.ActionTarget; }} */
-    shouldDisplay() {
+    shouldDisplay(): this is {
+        _battler: RMMZ.ActionTarget;
+    } {
         const battler = this._battler;
-        return battler && (battler.isActor() || battler.isAlive());
+        return (battler && (battler.isActor() || battler.isAlive()))!;
     }
 
-    /** @returns {void} */
-    updateFrame() {
+    updateFrame(): void {
         const pw = ImageManager.iconWidth;
         const ph = ImageManager.iconHeight;
         const sx = (this._iconIndex % 16) * pw;
@@ -3164,47 +2954,42 @@ class Sprite_StateIcon extends Sprite {
  * The sprite for displaying an overlay image for a state.
  */
 class Sprite_StateOverlay extends Sprite {
-    /** @param {[]} args */
-    constructor(...args) {
+    declare _battler: RMMZ.ActionTarget | null;
+    declare _overlayIndex: number;
+    declare _animationCount: number;
+    declare _pattern: number;
+
+    constructor(...args: []) {
         super(...args);
     }
 
-    initialize() {
+    initialize(): void;
+    initialize(...args: any[]): void;
+    initialize(): void {
         super.initialize();
         this.initMembers();
         this.loadBitmap();
     }
 
-    /** @returns {void} */
-    initMembers() {
-        /** @type {RMMZ.ActionTarget | null} */
+    initMembers(): void {
         this._battler = null;
-        /** @type {number} */
         this._overlayIndex = 0;
-        /** @type {number} */
         this._animationCount = 0;
-        /** @type {number} */
         this._pattern = 0;
         this.anchor.x = 0.5;
         this.anchor.y = 1;
     }
 
-    /** @returns {void} */
-    loadBitmap() {
+    loadBitmap(): void {
         this.bitmap = ImageManager.loadSystem("States");
         this.setFrame(0, 0, 0, 0);
     }
 
-    /**
-     * @param {RMMZ.ActionTarget} battler
-     * @returns {void}
-     */
-    setup(battler) {
+    setup(battler: RMMZ.ActionTarget): void {
         this._battler = battler;
     }
 
-    /** @returns {void} */
-    update() {
+    update(): void {
         super.update();
         this._animationCount++;
         if (this._animationCount >= this.animationWait()) {
@@ -3214,13 +2999,11 @@ class Sprite_StateOverlay extends Sprite {
         }
     }
 
-    /** @returns {number} */
-    animationWait() {
+    animationWait(): number {
         return 8;
     }
 
-    /** @returns {void} */
-    updatePattern() {
+    updatePattern(): void {
         this._pattern++;
         this._pattern %= 8;
         if (this._battler) {
@@ -3230,8 +3013,7 @@ class Sprite_StateOverlay extends Sprite {
         }
     }
 
-    /** @returns {void} */
-    updateFrame() {
+    updateFrame(): void {
         if (this._overlayIndex > 0) {
             const w = 96;
             const h = 96;
@@ -3248,34 +3030,31 @@ class Sprite_StateOverlay extends Sprite {
  * The sprite for displaying a weapon image for attacking.
  */
 class Sprite_Weapon extends Sprite {
-    /** @param {[]} args */
-    constructor(...args) {
+    declare _weaponImageId: number;
+    declare _animationCount: number;
+    declare _pattern: number;
+
+    constructor(...args: []) {
         super(...args);
     }
 
-    initialize() {
+    initialize(): void;
+    initialize(...args: any[]): void;
+    initialize(): void {
         super.initialize();
         this.initMembers();
     }
 
-    /** @returns {void} */
-    initMembers() {
-        /** @type {number} */
+    initMembers(): void {
         this._weaponImageId = 0;
-        /** @type {number} */
         this._animationCount = 0;
-        /** @type {number} */
         this._pattern = 0;
         this.anchor.x = 0.5;
         this.anchor.y = 1;
         this.x = -16;
     }
 
-    /**
-     * @param {number} weaponImageId
-     * @returns {void}
-     */
-    setup(weaponImageId) {
+    setup(weaponImageId: number): void {
         this._weaponImageId = weaponImageId;
         this._animationCount = 0;
         this._pattern = 0;
@@ -3283,8 +3062,7 @@ class Sprite_Weapon extends Sprite {
         this.updateFrame();
     }
 
-    /** @returns {void} */
-    update() {
+    update(): void {
         super.update();
         this._animationCount++;
         if (this._animationCount >= this.animationWait()) {
@@ -3294,21 +3072,18 @@ class Sprite_Weapon extends Sprite {
         }
     }
 
-    /** @returns {number} */
-    animationWait() {
+    animationWait(): number {
         return 12;
     }
 
-    /** @returns {void} */
-    updatePattern() {
+    updatePattern(): void {
         this._pattern++;
         if (this._pattern >= 3) {
             this._weaponImageId = 0;
         }
     }
 
-    /** @returns {void} */
-    loadBitmap() {
+    loadBitmap(): void {
         const pageId = Math.floor((this._weaponImageId - 1) / 12) + 1;
         if (pageId >= 1) {
             this.bitmap = ImageManager.loadSystem("Weapons" + pageId);
@@ -3317,8 +3092,7 @@ class Sprite_Weapon extends Sprite {
         }
     }
 
-    /** @returns {void} */
-    updateFrame() {
+    updateFrame(): void {
         if (this._weaponImageId > 0) {
             const index = (this._weaponImageId - 1) % 12;
             const w = 96;
@@ -3331,8 +3105,7 @@ class Sprite_Weapon extends Sprite {
         }
     }
 
-    /** @returns {boolean} */
-    isPlaying() {
+    isPlaying(): boolean {
         return this._weaponImageId > 0;
     }
 }
@@ -3341,49 +3114,46 @@ class Sprite_Weapon extends Sprite {
  * The sprite for displaying a balloon icon.
  */
 class Sprite_Balloon extends Sprite {
-    /** @param {[]} args */
-    constructor(...args) {
+    declare targetObject: Game_Character;
+
+    declare _target: Sprite;
+    declare _balloonId: RMMZ.BalloonIconID;
+    declare _duration: number;
+    declare z: number;
+
+    constructor(...args: []) {
         super(...args);
     }
 
-    initialize() {
+    initialize(): void;
+    initialize(...args: any[]): void;
+    initialize(): void {
         super.initialize();
         this.initMembers();
         this.loadBitmap();
     }
 
-    /** @returns {void} */
-    initMembers() {
-        /** @type {Sprite} */
-        this._target = null;
-        /** @type {RMMZ.BalloonIconID} */
+    initMembers(): void {
+        this._target = null!;
         this._balloonId = 0;
-        /** @type {number} */
         this._duration = 0;
         this.anchor.x = 0.5;
         this.anchor.y = 1;
         this.z = 7;
     }
 
-    /** @returns {void} */
-    loadBitmap() {
+    loadBitmap(): void {
         this.bitmap = ImageManager.loadSystem("Balloon");
         this.setFrame(0, 0, 0, 0);
     }
 
-    /**
-     * @param {Sprite} targetSprite
-     * @param {RMMZ.BalloonIconID} balloonId
-     * @returns {void}
-     */
-    setup(targetSprite, balloonId) {
+    setup(targetSprite: Sprite, balloonId: RMMZ.BalloonIconID): void {
         this._target = targetSprite;
         this._balloonId = balloonId;
         this._duration = 8 * this.speed() + this.waitTime();
     }
 
-    /** @returns {void} */
-    update() {
+    update(): void {
         super.update();
         if (this._duration > 0) {
             this._duration--;
@@ -3394,14 +3164,12 @@ class Sprite_Balloon extends Sprite {
         }
     }
 
-    /** @returns {void} */
-    updatePosition() {
+    updatePosition(): void {
         this.x = this._target.x;
         this.y = this._target.y - this._target.height;
     }
 
-    /** @returns {void} */
-    updateFrame() {
+    updateFrame(): void {
         const w = 48;
         const h = 48;
         const sx = this.frameIndex() * w;
@@ -3409,24 +3177,20 @@ class Sprite_Balloon extends Sprite {
         this.setFrame(sx, sy, w, h);
     }
 
-    /** @returns {number} */
-    speed() {
+    speed(): number {
         return 8;
     }
 
-    /** @returns {number} */
-    waitTime() {
+    waitTime(): number {
         return 12;
     }
 
-    /** @returns {number} */
-    frameIndex() {
+    frameIndex(): number {
         const index = (this._duration - this.waitTime()) / this.speed();
         return 7 - Math.max(Math.floor(index), 0);
     }
 
-    /** @returns {boolean} */
-    isPlaying() {
+    isPlaying(): boolean {
         return this._duration > 0;
     }
 }
@@ -3435,28 +3199,28 @@ class Sprite_Balloon extends Sprite {
  * The sprite for displaying a picture.
  */
 class Sprite_Picture extends Sprite_Clickable {
-    /** @param {[pictureId: RMMZ.PictureID]} args */
-    constructor(...args) {
+    declare _pictureId: RMMZ.PictureID;
+    declare _pictureName: string;
+
+    constructor(...args: [pictureId: RMMZ.PictureID]) {
         super(...args);
     }
 
-    /** @param {RMMZ.PictureID} pictureId */
-    initialize(pictureId) {
+    initialize(pictureId: RMMZ.PictureID): void;
+    initialize(...args: any[]): void;
+    initialize(pictureId: RMMZ.PictureID): void {
         super.initialize();
-        /** @type {RMMZ.PictureID} */
+
         this._pictureId = pictureId;
-        /** @type {string} */
         this._pictureName = "";
         this.update();
     }
 
-    /** @returns {import("..").Game_Picture | null} */
-    picture() {
+    picture(): Game_Picture | null {
         return $gameScreen.picture(this._pictureId);
     }
 
-    /** @returns {void} */
-    update() {
+    update(): void {
         super.update();
         this.updateBitmap();
         if (this.visible) {
@@ -3468,8 +3232,7 @@ class Sprite_Picture extends Sprite_Clickable {
         }
     }
 
-    /** @returns {void} */
-    updateBitmap() {
+    updateBitmap(): void {
         const picture = this.picture();
         if (picture) {
             const pictureName = picture.name();
@@ -3480,15 +3243,14 @@ class Sprite_Picture extends Sprite_Clickable {
             this.visible = true;
         } else {
             this._pictureName = "";
-            this.bitmap = null;
+            this.bitmap = null!;
             this.visible = false;
         }
     }
 
-    /** @returns {void} */
-    updateOrigin() {
+    updateOrigin(): void {
         const picture = this.picture();
-        if (picture.origin() === 0) {
+        if (picture!.origin() === 0) {
             this.anchor.x = 0;
             this.anchor.y = 0;
         } else {
@@ -3497,40 +3259,35 @@ class Sprite_Picture extends Sprite_Clickable {
         }
     }
 
-    /** @returns {void} */
-    updatePosition() {
+    updatePosition(): void {
         const picture = this.picture();
-        this.x = Math.round(picture.x());
-        this.y = Math.round(picture.y());
+        this.x = Math.round(picture!.x());
+        this.y = Math.round(picture!.y());
     }
 
-    /** @returns {void} */
-    updateScale() {
+    updateScale(): void {
         const picture = this.picture();
-        this.scale.x = picture.scaleX() / 100;
-        this.scale.y = picture.scaleY() / 100;
+        this.scale.x = picture!.scaleX() / 100;
+        this.scale.y = picture!.scaleY() / 100;
     }
 
-    /** @returns {void} */
-    updateTone() {
+    updateTone(): void {
         const picture = this.picture();
-        if (picture.tone()) {
-            this.setColorTone(picture.tone());
+        if (picture!.tone()) {
+            this.setColorTone(picture!.tone()!);
         } else {
             this.setColorTone([0, 0, 0, 0]);
         }
     }
 
-    /** @returns {void} */
-    updateOther() {
+    updateOther(): void {
         const picture = this.picture();
-        this.opacity = picture.opacity();
-        this.blendMode = picture.blendMode();
-        this.rotation = (picture.angle() * Math.PI) / 180;
+        this.opacity = picture!.opacity();
+        this.blendMode = picture!.blendMode();
+        this.rotation = (picture!.angle() * Math.PI) / 180;
     }
 
-    /** @returns {void} */
-    loadBitmap() {
+    loadBitmap(): void {
         this.bitmap = ImageManager.loadPicture(this._pictureName);
     }
 }
@@ -3539,64 +3296,57 @@ class Sprite_Picture extends Sprite_Clickable {
  * The sprite for displaying the timer.
  */
 class Sprite_Timer extends Sprite {
-    /** @param {[]} args */
-    constructor(...args) {
+    declare _seconds: number;
+
+    constructor(...args: []) {
         super(...args);
     }
 
-    initialize() {
+    initialize(): void;
+    initialize(...args: any[]): void;
+    initialize(): void {
         super.initialize();
-        /** @type {number} */
+
         this._seconds = 0;
         this.createBitmap();
         this.update();
     }
 
-    /**
-     * @param {import("pixi.js").DestroyOptions} [options]
-     * @returns {void}
-     */
-    destroy(options) {
+    destroy(options?: import("pixi.js").DestroyOptions): void {
         this.bitmap.destroy();
         super.destroy(options);
     }
 
-    /** @returns {void} */
-    createBitmap() {
+    createBitmap(): void {
         this.bitmap = new Bitmap(96, 48);
         this.bitmap.fontFace = this.fontFace();
         this.bitmap.fontSize = this.fontSize();
         this.bitmap.outlineColor = ColorManager.outlineColor();
     }
 
-    /** @returns {string} */
-    fontFace() {
+    fontFace(): string {
         return $gameSystem.numberFontFace();
     }
 
-    /** @returns {number} */
-    fontSize() {
+    fontSize(): number {
         return $gameSystem.mainFontSize() + 8;
     }
 
-    /** @returns {void} */
-    update() {
+    update(): void {
         super.update();
         this.updateBitmap();
         this.updatePosition();
         this.updateVisibility();
     }
 
-    /** @returns {void} */
-    updateBitmap() {
+    updateBitmap(): void {
         if (this._seconds !== $gameTimer.seconds()) {
             this._seconds = $gameTimer.seconds();
             this.redraw();
         }
     }
 
-    /** @returns {void} */
-    redraw() {
+    redraw(): void {
         const text = this.timerText();
         const width = this.bitmap.width;
         const height = this.bitmap.height;
@@ -3604,21 +3354,18 @@ class Sprite_Timer extends Sprite {
         this.bitmap.drawText(text, 0, 0, width, height, "center");
     }
 
-    /** @returns {string} */
-    timerText() {
+    timerText(): string {
         const min = Math.floor(this._seconds / 60) % 60;
         const sec = this._seconds % 60;
         return min.padZero(2) + ":" + sec.padZero(2);
     }
 
-    /** @returns {void} */
-    updatePosition() {
+    updatePosition(): void {
         this.x = (Graphics.width - this.bitmap.width) / 2;
         this.y = 0;
     }
 
-    /** @returns {void} */
-    updateVisibility() {
+    updateVisibility(): void {
         this.visible = $gameTimer.isWorking();
     }
 }
@@ -3627,31 +3374,29 @@ class Sprite_Timer extends Sprite {
  * The sprite for displaying the destination place of the touch input.
  */
 class Sprite_Destination extends Sprite {
-    /** @param {[]} args */
-    constructor(...args) {
+    declare _frameCount: number;
+
+    constructor(...args: []) {
         super(...args);
     }
 
-    initialize() {
+    initialize(): void;
+    initialize(...args: any[]): void;
+    initialize(): void {
         super.initialize();
         this.createBitmap();
-        /** @type {number} */
+
         this._frameCount = 0;
     }
 
-    /**
-     * @param {import("pixi.js").DestroyOptions} [options]
-     * @returns {void}
-     */
-    destroy(options) {
+    destroy(options?: import("pixi.js").DestroyOptions): void {
         if (this.bitmap) {
             this.bitmap.destroy();
         }
         super.destroy(options);
     }
 
-    /** @returns {void} */
-    update() {
+    update(): void {
         super.update();
         if ($gameTemp.isDestinationValid()) {
             this.updatePosition();
@@ -3663,8 +3408,7 @@ class Sprite_Destination extends Sprite {
         }
     }
 
-    /** @returns {void} */
-    createBitmap() {
+    createBitmap(): void {
         const tileWidth = $gameMap.tileWidth();
         const tileHeight = $gameMap.tileHeight();
         this.bitmap = new Bitmap(tileWidth, tileHeight);
@@ -3674,18 +3418,16 @@ class Sprite_Destination extends Sprite {
         this.blendMode = 1;
     }
 
-    /** @returns {void} */
-    updatePosition() {
+    updatePosition(): void {
         const tileWidth = $gameMap.tileWidth();
         const tileHeight = $gameMap.tileHeight();
         const x = $gameTemp.destinationX();
         const y = $gameTemp.destinationY();
-        this.x = ($gameMap.adjustX(x) + 0.5) * tileWidth;
-        this.y = ($gameMap.adjustY(y) + 0.5) * tileHeight;
+        this.x = ($gameMap.adjustX(x!) + 0.5) * tileWidth;
+        this.y = ($gameMap.adjustY(y!) + 0.5) * tileHeight;
     }
 
-    /** @returns {void} */
-    updateAnimation() {
+    updateAnimation(): void {
         this._frameCount++;
         this._frameCount %= 20;
         this.opacity = (20 - this._frameCount) * 6;
@@ -3698,50 +3440,54 @@ class Sprite_Destination extends Sprite {
  * The superclass of Spriteset_Map and Spriteset_Battle.
  */
 class Spriteset_Base extends Sprite {
-    /** @param {[]} args */
-    constructor(...args) {
+    declare _effectsContainer: import("pixi.js").Container;
+
+    declare _animationSprites: (Sprite_Animation | Sprite_AnimationMV)[];
+    declare _baseSprite: Sprite;
+    declare _blackScreen: ScreenSprite;
+    declare _baseColorFilter: ColorFilter;
+    declare _pictureContainer: Sprite;
+    declare _timerSprite: Sprite_Timer;
+    declare _overallColorFilter: ColorFilter;
+
+    constructor(..._extra: any[]);
+    constructor(...args: []) {
         super(...args);
     }
 
-    initialize() {
+    initialize(): void;
+    initialize(...args: any[]): void;
+    initialize(): void {
         super.initialize();
         this.setFrame(0, 0, Graphics.width, Graphics.height);
         this.loadSystemImages();
         this.createLowerLayer();
         this.createUpperLayer();
-        /** @type {(Sprite_Animation | Sprite_AnimationMV)[]} */
+
         this._animationSprites = [];
     }
 
-    /**
-     * @param {import("pixi.js").DestroyOptions} [options]
-     * @returns {void}
-     */
-    destroy(options) {
+    destroy(options?: import("pixi.js").DestroyOptions): void {
         this.removeAllAnimations();
         super.destroy(options);
     }
 
-    /** @returns {void} */
-    loadSystemImages() {
+    loadSystemImages(): void {
         //
     }
 
-    /** @returns {void} */
-    createLowerLayer() {
+    createLowerLayer(): void {
         this.createBaseSprite();
         this.createBaseFilters();
     }
 
-    /** @returns {void} */
-    createUpperLayer() {
+    createUpperLayer(): void {
         this.createPictures();
         this.createTimer();
         this.createOverallFilters();
     }
 
-    /** @returns {void} */
-    update() {
+    update(): void {
         super.update();
         this.updateBaseFilters();
         this.updateOverallFilters();
@@ -3749,8 +3495,7 @@ class Spriteset_Base extends Sprite {
         this.updateAnimations();
     }
 
-    /** @returns {void} */
-    createBaseSprite() {
+    createBaseSprite(): void {
         this._baseSprite = new Sprite();
         this._blackScreen = new ScreenSprite();
         this._blackScreen.opacity = 255;
@@ -3758,55 +3503,52 @@ class Spriteset_Base extends Sprite {
         this._baseSprite.addChild(this._blackScreen);
     }
 
-    /** @returns {void} */
-    createBaseFilters() {
+    createBaseFilters(): void {
         this._baseColorFilter = new ColorFilter();
         this._baseSprite.filters = [this._baseColorFilter];
     }
 
-    /** @returns {void} */
-    createPictures() {
+    createPictures(): void {
         const rect = this.pictureContainerRect();
         this._pictureContainer = new Sprite();
-        this._pictureContainer.setFrame(rect.x, rect.y, rect.width, rect.height);
+        this._pictureContainer.setFrame(
+            rect.x,
+            rect.y,
+            rect.width,
+            rect.height,
+        );
         for (let i = 1; i <= $gameScreen.maxPictures(); i++) {
             this._pictureContainer.addChild(new Sprite_Picture(i));
         }
         this.addChild(this._pictureContainer);
     }
 
-    /** @returns {Rectangle} */
-    pictureContainerRect() {
+    pictureContainerRect(): Rectangle {
         return new PIXI.Rectangle(0, 0, Graphics.width, Graphics.height);
     }
 
-    /** @returns {void} */
-    createTimer() {
+    createTimer(): void {
         this._timerSprite = new Sprite_Timer();
         this.addChild(this._timerSprite);
     }
 
-    /** @returns {void} */
-    createOverallFilters() {
+    createOverallFilters(): void {
         this._overallColorFilter = new ColorFilter();
         this.filters = [this._overallColorFilter];
     }
 
-    /** @returns {void} */
-    updateBaseFilters() {
+    updateBaseFilters(): void {
         const filter = this._baseColorFilter;
         filter.setColorTone($gameScreen.tone());
     }
 
-    /** @returns {void} */
-    updateOverallFilters() {
+    updateOverallFilters(): void {
         const filter = this._overallColorFilter;
         filter.setBlendColor($gameScreen.flashColor());
         filter.setBrightness($gameScreen.brightness());
     }
 
-    /** @returns {void} */
-    updatePosition() {
+    updatePosition(): void {
         const screen = $gameScreen;
         const scale = screen.zoomScale();
         this.scale.x = scale;
@@ -3816,16 +3558,11 @@ class Spriteset_Base extends Sprite {
         this.x += Math.round(screen.shake());
     }
 
-    /**
-     * @param {any} target
-     * @returns {Sprite | null | undefined}
-     */
-    findTargetSprite(/*target*/) {
+    findTargetSprite(target: any): Sprite | null | undefined {
         return null;
     }
 
-    /** @returns {void} */
-    updateAnimations() {
+    updateAnimations(): void {
         for (const sprite of this._animationSprites) {
             if (!sprite.isPlaying()) {
                 this.removeAnimation(sprite);
@@ -3834,8 +3571,7 @@ class Spriteset_Base extends Sprite {
         this.processAnimationRequests();
     }
 
-    /** @returns {void} */
-    processAnimationRequests() {
+    processAnimationRequests(): void {
         for (;;) {
             const request = $gameTemp.retrieveAnimation();
             if (request) {
@@ -3846,37 +3582,27 @@ class Spriteset_Base extends Sprite {
         }
     }
 
-    /**
-     * @param {RMMZ.AnimationRequest} request
-     * @returns {void}
-     */
-    createAnimation(request) {
+    createAnimation(request: RMMZ.AnimationRequest): void {
         const animation = $dataAnimations[request.animationId];
         const targets = request.targets;
         const mirror = request.mirror;
         let delay = this.animationBaseDelay();
         const nextDelay = this.animationNextDelay();
-        if (this.isAnimationForEach(animation)) {
+        if (this.isAnimationForEach(animation!)) {
             for (const target of targets) {
-                this.createAnimationSprite([target], animation, mirror, delay);
+                this.createAnimationSprite([target], animation!, mirror, delay);
                 delay += nextDelay;
             }
         } else {
-            this.createAnimationSprite(targets, animation, mirror, delay);
+            this.createAnimationSprite(targets, animation!, mirror, delay);
         }
     }
 
     // prettier-ignore
-    /**
-     * @param {RMMZ.AnimationTarget[]} targets
-     * @param {RMMZ.DataAnimation | RMMZ.DataAnimationMV} animation
-     * @param {boolean} mirror
-     * @param {number} delay
-     * @returns {void}
-     */
+
     createAnimationSprite(
-        targets, animation, mirror, delay
-    ) {
+        targets: RMMZ.AnimationTarget[], animation: RMMZ.DataAnimation | RMMZ.DataAnimationMV, mirror: boolean, delay: number
+    ): void {
         const mv = this.isMVAnimation(animation);
         const sprite = new (mv ? Sprite_AnimationMV : Sprite_Animation)();
         const targetSprites = this.makeTargetSprites(targets);
@@ -3886,24 +3612,18 @@ class Spriteset_Base extends Sprite {
             mirror = !mirror;
         }
         sprite.targetObjects = targets;
-        sprite.setup(targetSprites, animation, mirror, delay, previous);
+        sprite.setup(targetSprites, (animation as RMMZ.DataAnimation & RMMZ.DataAnimationMV), mirror, delay, previous);
         this._effectsContainer.addChild(sprite);
         this._animationSprites.push(sprite);
     }
 
-    /**
-     * @param {RMMZ.DataAnimation | RMMZ.DataAnimationMV} animation
-     * @returns {animation is RMMZ.DataAnimationMV}
-     */
-    isMVAnimation(animation) {
-        return !!animation.frames;
+    isMVAnimation(
+        animation: RMMZ.DataAnimation | RMMZ.DataAnimationMV,
+    ): animation is RMMZ.DataAnimationMV {
+        return !!(animation as RMMZ.DataAnimationMV).frames;
     }
 
-    /**
-     * @param {RMMZ.AnimationTarget[]} targets
-     * @returns {Sprite[]}
-     */
-    makeTargetSprites(targets) {
+    makeTargetSprites(targets: RMMZ.AnimationTarget[]): Sprite[] {
         const targetSprites = [];
         for (const target of targets) {
             const targetSprite = this.findTargetSprite(target);
@@ -3914,43 +3634,34 @@ class Spriteset_Base extends Sprite {
         return targetSprites;
     }
 
-    /** @returns {Sprite_Animation | Sprite_AnimationMV} */
-    lastAnimationSprite() {
+    lastAnimationSprite(): Sprite_Animation | Sprite_AnimationMV {
         return this._animationSprites[this._animationSprites.length - 1];
     }
 
-    /**
-     * @param {RMMZ.DataAnimation | RMMZ.DataAnimationMV} animation
-     * @returns {boolean}
-     */
-    isAnimationForEach(animation) {
+    isAnimationForEach(
+        animation: RMMZ.DataAnimation | RMMZ.DataAnimationMV,
+    ): boolean {
         const mv = this.isMVAnimation(animation);
         return mv ? animation.position !== 3 : animation.displayType === 0;
     }
 
-    /** @returns {number} */
-    animationBaseDelay() {
+    animationBaseDelay(): number {
         return 8;
     }
 
-    /** @returns {number} */
-    animationNextDelay() {
+    animationNextDelay(): number {
         return 12;
     }
 
-    /**
-     * @param {RMMZ.AnimationTarget & { isActor?: () => boolean; }} target
-     * @returns {boolean}
-     */
-    animationShouldMirror(target) {
-        return target && target.isActor && target.isActor();
+    animationShouldMirror(
+        target: RMMZ.AnimationTarget & {
+            isActor?: () => boolean;
+        },
+    ): boolean {
+        return (target && target.isActor && target.isActor())!;
     }
 
-    /**
-     * @param {Sprite_Animation | Sprite_AnimationMV} sprite
-     * @returns {void}
-     */
-    removeAnimation(sprite) {
+    removeAnimation(sprite: Sprite_Animation | Sprite_AnimationMV): void {
         this._animationSprites.remove(sprite);
         this._effectsContainer.removeChild(sprite);
         for (const target of sprite.targetObjects) {
@@ -3961,15 +3672,13 @@ class Spriteset_Base extends Sprite {
         sprite.destroy();
     }
 
-    /** @returns {void} */
-    removeAllAnimations() {
+    removeAllAnimations(): void {
         for (const sprite of this._animationSprites.clone()) {
             this.removeAnimation(sprite);
         }
     }
 
-    /** @returns {boolean} */
-    isAnimationPlaying() {
+    isAnimationPlaying(): boolean {
         return this._animationSprites.length > 0;
     }
 }
@@ -3978,34 +3687,41 @@ class Spriteset_Base extends Sprite {
  * The set of sprites on the map screen.
  */
 class Spriteset_Map extends Spriteset_Base {
-    constructor(...args) {
+    declare _balloonSprites: Sprite_Balloon[];
+    declare _parallax: TilingSprite;
+    declare _effectsContainer: Tilemap;
+    declare _tilemap: Tilemap;
+    declare _tileset: any;
+    declare _characterSprites: any[];
+    declare _shadowSprite: Sprite;
+    declare _destinationSprite: Sprite_Destination;
+    declare _weather: Weather;
+    declare _parallaxName: string;
+
+    constructor(...args: any[]) {
         super(...args);
     }
 
-    initialize() {
+    initialize(): void;
+    initialize(...args: any[]): void;
+    initialize(): void {
         super.initialize();
-        /** @type {Sprite_Balloon[]} */
+
         this._balloonSprites = [];
     }
 
-    /**
-     * @param {import("pixi.js").DestroyOptions} [options]
-     * @returns {void}
-     */
-    destroy(options) {
+    destroy(options?: import("pixi.js").DestroyOptions): void {
         this.removeAllBalloons();
         super.destroy(options);
     }
 
-    /** @returns {void} */
-    loadSystemImages() {
+    loadSystemImages(): void {
         super.loadSystemImages();
         ImageManager.loadSystem("Balloon");
         ImageManager.loadSystem("Shadow1");
     }
 
-    /** @returns {void} */
-    createLowerLayer() {
+    createLowerLayer(): void {
         super.createLowerLayer();
         this.createParallax();
         this.createTilemap();
@@ -4015,8 +3731,7 @@ class Spriteset_Map extends Spriteset_Base {
         this.createWeather();
     }
 
-    /** @returns {void} */
-    update() {
+    update(): void {
         super.update();
         this.updateTileset();
         this.updateParallax();
@@ -4027,8 +3742,7 @@ class Spriteset_Map extends Spriteset_Base {
         this.updateBalloons();
     }
 
-    /** @returns {void} */
-    hideCharacters() {
+    hideCharacters(): void {
         for (const sprite of this._characterSprites) {
             if (!sprite.isTile() && !sprite.isObjectCharacter()) {
                 sprite.hide();
@@ -4036,15 +3750,13 @@ class Spriteset_Map extends Spriteset_Base {
         }
     }
 
-    /** @returns {void} */
-    createParallax() {
+    createParallax(): void {
         this._parallax = new TilingSprite();
         this._parallax.move(0, 0, Graphics.width, Graphics.height);
         this._baseSprite.addChild(this._parallax);
     }
 
-    /** @returns {void} */
-    createTilemap() {
+    createTilemap(): void {
         const tilemap = new Tilemap();
         tilemap.tileWidth = $gameMap.tileWidth();
         tilemap.tileHeight = $gameMap.tileHeight();
@@ -4057,8 +3769,7 @@ class Spriteset_Map extends Spriteset_Base {
         this.loadTileset();
     }
 
-    /** @returns {void} */
-    loadTileset() {
+    loadTileset(): void {
         this._tileset = $gameMap.tileset();
         if (this._tileset) {
             const bitmaps = [];
@@ -4071,8 +3782,7 @@ class Spriteset_Map extends Spriteset_Base {
         }
     }
 
-    /** @returns {void} */
-    createCharacters() {
+    createCharacters(): void {
         this._characterSprites = [];
         for (const event of $gameMap.events()) {
             this._characterSprites.push(new Sprite_Character(event));
@@ -4089,8 +3799,7 @@ class Spriteset_Map extends Spriteset_Base {
         }
     }
 
-    /** @returns {void} */
-    createShadow() {
+    createShadow(): void {
         this._shadowSprite = new Sprite();
         this._shadowSprite.bitmap = ImageManager.loadSystem("Shadow1");
         this._shadowSprite.anchor.x = 0.5;
@@ -4099,31 +3808,29 @@ class Spriteset_Map extends Spriteset_Base {
         this._tilemap.addChild(this._shadowSprite);
     }
 
-    /** @returns {void} */
-    createDestination() {
+    createDestination(): void {
         this._destinationSprite = new Sprite_Destination();
         this._destinationSprite.z = 9;
         this._tilemap.addChild(this._destinationSprite);
     }
 
-    /** @returns {void} */
-    createWeather() {
+    createWeather(): void {
         this._weather = new Weather();
         this.addChild(this._weather);
     }
 
-    /** @returns {void} */
-    updateTileset() {
+    updateTileset(): void {
         if (this._tileset !== $gameMap.tileset()) {
             this.loadTileset();
         }
     }
 
-    /** @returns {void} */
-    updateParallax() {
+    updateParallax(): void {
         if (this._parallaxName !== $gameMap.parallaxName()) {
             this._parallaxName = $gameMap.parallaxName();
-            this._parallax.bitmap = ImageManager.loadParallax(this._parallaxName);
+            this._parallax.bitmap = ImageManager.loadParallax(
+                this._parallaxName,
+            );
         }
         if (this._parallax.bitmap) {
             const bitmap = this._parallax.bitmap;
@@ -4132,30 +3839,26 @@ class Spriteset_Map extends Spriteset_Base {
         }
     }
 
-    /** @returns {void} */
-    updateTilemap() {
+    updateTilemap(): void {
         this._tilemap.origin.x = $gameMap.displayX() * $gameMap.tileWidth();
         this._tilemap.origin.y = $gameMap.displayY() * $gameMap.tileHeight();
     }
 
-    /** @returns {void} */
-    updateShadow() {
+    updateShadow(): void {
         const airship = $gameMap.airship();
         this._shadowSprite.x = airship.shadowX();
         this._shadowSprite.y = airship.shadowY();
         this._shadowSprite.opacity = airship.shadowOpacity();
     }
 
-    /** @returns {void} */
-    updateWeather() {
+    updateWeather(): void {
         this._weather.type = $gameScreen.weatherType();
         this._weather.power = $gameScreen.weatherPower();
         this._weather.origin.x = $gameMap.displayX() * $gameMap.tileWidth();
         this._weather.origin.y = $gameMap.displayY() * $gameMap.tileHeight();
     }
 
-    /** @returns {void} */
-    updateBalloons() {
+    updateBalloons(): void {
         for (const sprite of this._balloonSprites) {
             if (!sprite.isPlaying()) {
                 this.removeBalloon(sprite);
@@ -4164,8 +3867,7 @@ class Spriteset_Map extends Spriteset_Base {
         this.processBalloonRequests();
     }
 
-    /** @returns {void} */
-    processBalloonRequests() {
+    processBalloonRequests(): void {
         for (;;) {
             const request = $gameTemp.retrieveBalloon();
             if (request) {
@@ -4176,26 +3878,18 @@ class Spriteset_Map extends Spriteset_Base {
         }
     }
 
-    /**
-     * @param {RMMZ.BalloonRequest} request
-     * @returns {void}
-     */
-    createBalloon(request) {
+    createBalloon(request: RMMZ.BalloonRequest): void {
         const targetSprite = this.findTargetSprite(request.target);
         if (targetSprite) {
             const sprite = new Sprite_Balloon();
             sprite.targetObject = request.target;
-            sprite.setup(targetSprite, request.balloonId);
+            sprite.setup(targetSprite!, request.balloonId);
             this._effectsContainer.addChild(sprite);
             this._balloonSprites.push(sprite);
         }
     }
 
-    /**
-     * @param {Sprite_Balloon} sprite
-     * @returns {void}
-     */
-    removeBalloon(sprite) {
+    removeBalloon(sprite: Sprite_Balloon): void {
         this._balloonSprites.remove(sprite);
         this._effectsContainer.removeChild(sprite);
         if (sprite.targetObject.endBalloon) {
@@ -4204,23 +3898,19 @@ class Spriteset_Map extends Spriteset_Base {
         sprite.destroy();
     }
 
-    /** @returns {void} */
-    removeAllBalloons() {
+    removeAllBalloons(): void {
         for (const sprite of this._balloonSprites.clone()) {
             this.removeBalloon(sprite);
         }
     }
 
-    /**
-     * @param {Game_Character} target
-     * @returns {Sprite_Character | undefined}
-     */
-    findTargetSprite(target) {
-        return this._characterSprites.find(sprite => sprite.checkCharacter(target));
+    findTargetSprite(target: Game_Character): Sprite_Character | undefined {
+        return this._characterSprites.find((sprite) =>
+            sprite.checkCharacter(target),
+        );
     }
 
-    /** @returns {number} */
-    animationBaseDelay() {
+    animationBaseDelay(): number {
         return 0;
     }
 }
@@ -4229,18 +3919,29 @@ class Spriteset_Map extends Spriteset_Base {
  * The set of sprites on the battle screen.
  */
 class Spriteset_Battle extends Spriteset_Base {
-    constructor(...args) {
+    declare _battlebackLocated: boolean;
+    declare _backgroundFilter: import("pixi.js").BlurFilter;
+    declare _backgroundSprite: Sprite;
+    declare _back1Sprite: Sprite_Battleback;
+    declare _back2Sprite: Sprite_Battleback;
+    declare _battleField: Sprite;
+    declare _effectsContainer: Sprite;
+    declare _enemySprites: Sprite_Enemy[];
+    declare _actorSprites: any[];
+
+    constructor(...args: any[]) {
         super(...args);
     }
 
-    initialize() {
+    initialize(): void;
+    initialize(...args: any[]): void;
+    initialize(): void {
         super.initialize();
-        /** @type {boolean} */
+
         this._battlebackLocated = false;
     }
 
-    /** @returns {void} */
-    loadSystemImages() {
+    loadSystemImages(): void {
         super.loadSystemImages();
         ImageManager.loadSystem("Shadow2");
         ImageManager.loadSystem("Weapons1");
@@ -4248,8 +3949,7 @@ class Spriteset_Battle extends Spriteset_Base {
         ImageManager.loadSystem("Weapons3");
     }
 
-    /** @returns {void} */
-    createLowerLayer() {
+    createLowerLayer(): void {
         super.createLowerLayer();
         this.createBackground();
         this.createBattleback();
@@ -4258,25 +3958,22 @@ class Spriteset_Battle extends Spriteset_Base {
         this.createActors();
     }
 
-    /** @returns {void} */
-    createBackground() {
+    createBackground(): void {
         this._backgroundFilter = new PIXI.BlurFilter();
         this._backgroundSprite = new Sprite();
-        this._backgroundSprite.bitmap = SceneManager.backgroundBitmap();
+        this._backgroundSprite.bitmap = SceneManager.backgroundBitmap()!;
         this._backgroundSprite.filters = [this._backgroundFilter];
         this._baseSprite.addChild(this._backgroundSprite);
     }
 
-    /** @returns {void} */
-    createBattleback() {
+    createBattleback(): void {
         this._back1Sprite = new Sprite_Battleback(0);
         this._back2Sprite = new Sprite_Battleback(1);
         this._baseSprite.addChild(this._back1Sprite);
         this._baseSprite.addChild(this._back2Sprite);
     }
 
-    /** @returns {void} */
-    createBattleField() {
+    createBattleField(): void {
         const width = Graphics.boxWidth;
         const height = Graphics.boxHeight;
         const x = (Graphics.width - width) / 2;
@@ -4289,21 +3986,18 @@ class Spriteset_Battle extends Spriteset_Base {
         this._effectsContainer = this._battleField;
     }
 
-    /** @returns {number} */
-    battleFieldOffsetY() {
+    battleFieldOffsetY(): number {
         return 24;
     }
 
-    /** @returns {void} */
-    update() {
+    update(): void {
         super.update();
         this.updateActors();
         this.updateBattleback();
         this.updateAnimations();
     }
 
-    /** @returns {void} */
-    updateBattleback() {
+    updateBattleback(): void {
         if (!this._battlebackLocated) {
             this._back1Sprite.adjustPosition();
             this._back2Sprite.adjustPosition();
@@ -4311,8 +4005,7 @@ class Spriteset_Battle extends Spriteset_Base {
         }
     }
 
-    /** @returns {void} */
-    createEnemies() {
+    createEnemies(): void {
         const enemies = $gameTroop.members();
         const sprites = [];
         for (const enemy of enemies) {
@@ -4325,12 +4018,7 @@ class Spriteset_Battle extends Spriteset_Base {
         this._enemySprites = sprites;
     }
 
-    /**
-     * @param {Sprite_Enemy} a
-     * @param {Sprite_Enemy} b
-     * @returns {number}
-     */
-    compareEnemySprite(a, b) {
+    compareEnemySprite(a: Sprite_Enemy, b: Sprite_Enemy): number {
         if (a.y !== b.y) {
             return a.y - b.y;
         } else {
@@ -4338,8 +4026,7 @@ class Spriteset_Battle extends Spriteset_Base {
         }
     }
 
-    /** @returns {void} */
-    createActors() {
+    createActors(): void {
         this._actorSprites = [];
         if ($gameSystem.isSideView()) {
             for (let i = 0; i < $gameParty.maxBattleMembers(); i++) {
@@ -4350,66 +4037,32 @@ class Spriteset_Battle extends Spriteset_Base {
         }
     }
 
-    /** @returns {void} */
-    updateActors() {
+    updateActors(): void {
         const members = $gameParty.battleMembers();
         for (let i = 0; i < this._actorSprites.length; i++) {
             this._actorSprites[i].setBattler(members[i]);
         }
     }
 
-    /**
-     * @param {RMMZ.ActionTarget} target
-     * @returns {Sprite | undefined}
-     */
-    findTargetSprite(target) {
-        return this.battlerSprites().find(sprite => sprite.checkBattler(target));
+    findTargetSprite(target: RMMZ.ActionTarget): Sprite | undefined {
+        return this.battlerSprites().find((sprite) =>
+            sprite.checkBattler(target),
+        );
     }
 
-    /** @returns {(Sprite_Actor | Sprite_Enemy)[]} */
-    battlerSprites() {
+    battlerSprites(): (Sprite_Actor | Sprite_Enemy)[] {
         return this._enemySprites.concat(this._actorSprites);
     }
 
-    /** @returns {boolean} */
-    isEffecting() {
-        return this.battlerSprites().some(sprite => sprite.isEffecting());
+    isEffecting(): boolean {
+        return this.battlerSprites().some((sprite) => sprite.isEffecting());
     }
 
-    /** @returns {boolean} */
-    isAnyoneMoving() {
-        return this.battlerSprites().some(sprite => sprite.isMoving());
+    isAnyoneMoving(): boolean {
+        return this.battlerSprites().some((sprite) => sprite.isMoving());
     }
 
-    /** @returns {boolean} */
-    isBusy() {
+    isBusy(): boolean {
         return this.isAnimationPlaying() || this.isAnyoneMoving();
     }
 }
-
-// Class declarations are lexical bindings, while plugins and JsonEx resolve
-// constructors through the global object, so expose them as global properties.
-Object.assign(globalThis, {
-    Sprite_Clickable,
-    Sprite_Button,
-    Sprite_Character,
-    Sprite_Battler,
-    Sprite_Actor,
-    Sprite_Enemy,
-    Sprite_Animation,
-    Sprite_AnimationMV,
-    Sprite_Battleback,
-    Sprite_Damage,
-    Sprite_Gauge,
-    Sprite_Name,
-    Sprite_StateIcon,
-    Sprite_StateOverlay,
-    Sprite_Weapon,
-    Sprite_Balloon,
-    Sprite_Picture,
-    Sprite_Timer,
-    Sprite_Destination,
-    Spriteset_Base,
-    Spriteset_Map,
-    Spriteset_Battle,
-});

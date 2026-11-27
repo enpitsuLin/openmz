@@ -4,11 +4,9 @@
   "description": "RPG Maker MZ engine with ES6 class sources and a prototype-based runtime.",
   "main": "index.js",
   "scripts": {
-    "build": "node scripts/build.mjs",
-    "build:release": "node scripts/build-release.mjs",
-    "build:types": "node scripts/build-dts.mjs",
-    "check:types": "node scripts/build-dts.mjs --check",
-    "serve:manifest": "node scripts/serve-manifest.mjs",
+    "build": "node scripts/build.ts",
+    "build:release": "node scripts/build-release.ts",
+    "serve:manifest": "node scripts/serve-manifest.ts",
     "typecheck": "tsc --noEmit",
     "test": "vitest run",
     "test:unit": "vitest run --project unit",
@@ -18,10 +16,13 @@
   "author": "enpitsulin <enpitsulin@gmail.com>",
   "license": "MIT",
   "packageManager": "pnpm@12.23.0",
+  "engines": {
+    "node": ">=24"
+  },
   "type": "module",
   "devDependencies": {
     "@ast-grep/napi": "^0.51.3",
-    "@types/node": "^15.14.9",
+    "@types/node": "^24.19.4",
     "@types/nw.js": "^0.13.21",
     "@vitest/browser-playwright": "^5.1.1",
     "pixi.js": "8.23.0",

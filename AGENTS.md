@@ -1,27 +1,29 @@
 # OpenMZ
 
-RPG Maker MZ 核心引擎：源码使用 ES6+ class 与 PixiJS 8；正式运行时构建为原型式脚本，保留其余现代语法，以兼容既有 RMMZ 插件和工程数据。
+RPG Maker MZ 核心引擎：使用 TypeScript class 与 PixiJS 8 维护，构建为原型式 JavaScript，兼容既有插件和工程数据。
 
 ## 目录
 
-- `src/`：完整示例工程与 class 源码。核心在 `src/js/{main,rmmz_*}.js`，仍按经典全局脚本顺序加载，不使用 ES import/export。
-- `src/js/libs/`：示例工程的开发依赖。正式 PixiJS 由构建脚本从 npm 包重新打包，不直接复制此处的 PixiJS。
-- `types/`：全部 `.d.ts`。`env.d.ts` 与 `rmmz_data.d.ts` 手工维护；其他引擎声明由 JSDoc 生成，不手改。
-- `scripts/transform-classes.mjs`：ast-grep 转换类与原地构造，恢复四个 Pixi 边界类的 initialize 路径。
-- `scripts/build.mjs`：Rolldown 打包 PixiJS 和更新器，ast-grep 转换类，生成 `dist/runtime/` 与 `dist/plugins/`。
-- `scripts/build-release.mjs`：仅从正式构建产物生成 `dist/release/`。
-- `shared/engine-release.js`：发布清单、版本及运行时格式协议。
-- `plugins/OpenMzUpdater.js`：更新器的 ESM 源码入口；`plugins/updater/` 存放检查安装核心与标题界面。只能将构建产物放入游戏。
-- `tests/unit/`：Vitest Node.js 单元测试。
-- `tests/plugin-compat/`：Vitest Browser + Playwright Chromium，对照原版和正式产物。
-- `vendor/js/`：原版 MZ 参考，勿修改。`vendor/lib-entries/pixi.js` 为第三方打包入口。
+- `src/`：唯一的引擎维护源码，根目录包含 `main.ts`、六个 `rmmz_*.ts`、数据库协议 `data.d.ts` 和外部环境声明 `environment.d.ts`。
+- `src/lib/pixi.js`：PixiJS 的 npm 打包入口；不保留预打包的开发副本。
+- `scripts/emit-engine.ts`：只擦除 TypeScript 类型，并恢复浏览器运行时的类名、嵌套类及方法名。
+- `scripts/transform-classes.ts`：ast-grep 转换类与原地构造，恢复四个 Pixi 边界类的 initialize 路径。
+- `scripts/build.ts`：打包 PixiJS 和更新器，生成 `dist/runtime/` 与 `dist/plugins/`。
+- `scripts/build-release.ts`：仅从正式构建产物生成 `dist/release/`。
+- `shared/engine-release.ts`：发布清单、版本、运行时格式与压缩包条目的公共协议。
+- `plugins/OpenMzUpdater.ts`：更新器的 ESM 入口；`plugins/updater/` 存放安装核心与标题界面。游戏只安装构建后的 `OpenMzUpdater.js`。
+- `tests/unit/`：Vitest Node.js 测试，使用 TypeScript。
+- `tests/plugin-compat/`：Vitest Browser + Playwright Chromium，对照原版和正式产物；`fixtures/` 存放示例工程资源、HTML 和 JavaScript 插件样本，素材沿用原有忽略规则。
+- `vendor/js/`：原版 MZ 参考，勿修改。
+- `vendor/libs/`：正式运行时需要复制的第三方浏览器库与 WASM。
 
 ## 命令
 
-- `pnpm build`：构建原型式引擎、PixiJS 8、其他依赖及更新器。
+使用 Node.js 24+ 与 pnpm。Node.js 直接执行工具的 `.ts` 入口。
+
+- `pnpm build`：构建引擎、PixiJS 8、其他依赖及更新器。
 - `pnpm build:release`：构建并打包发布产物。
-- `pnpm build:types` / `pnpm check:types`：生成或检查源码声明同步。
-- `pnpm typecheck`：使用唯一 `tsconfig.json` 执行 `tsc --noEmit`。
+- `pnpm typecheck`：使用唯一 `tsconfig.json`，严格检查全部维护源码与测试。
 - `pnpm test`：执行两个 Vitest 项目。
 - `pnpm test:unit`：只执行 Node.js 项目。
 - `pnpm test:plugin-compat`：只执行 Chromium 插件兼容性项目，需要本地监听端口。
@@ -29,12 +31,12 @@ RPG Maker MZ 核心引擎：源码使用 ES6+ class 与 PixiJS 8；正式运行�
 
 ## 开发约定
 
-1. 核心源码维持经典全局脚本；构建工具、共享协议和更新器源码使用 ESM。
-2. 核心类、方法或字段签名变化时同步 JSDoc，并执行 `build:types`、`typecheck`。
-3. 数据类型与工具类型放在 `RMMZ` 命名空间；类型层的引擎 `Window`、`StorageManager` 分别暴露为 `RMMZ.Window`、`RMMZ.StorageManager`。
-4. JSDoc 引用 PixiJS 类型使用 `import("pixi.js").Type`，不使用值空间的 `PIXI.Type`。
-5. 源码中的 `Graphics.initialize`、`Graphics._createPixiApp`、`SceneManager.run/initialize/initGraphics` 为 async，构建保留原生异步语法。
-6. legacy 插件兼容性以 `dist/runtime/` 为准。构建时让 `Sprite`、`TilingSprite`、`Window`、`Stage` 的 initialize 在现有 this 上执行 Pixi 父构造；普通 new 也必须只初始化一次。
-7. `main.js` 按源码直接输出，保留原版已有的 `class Main`。仅将 `rmmz_*.js`、PixiJS 和更新器的类转换为平铺的函数与原型定义，不为单个类创建 IIFE 或注入严格模式。类表达式使用唯一内部绑定，保留其名称与自身引用；Rolldown 命名空间外壳保留，strict 设为 false。保留 async/await、箭头函数、可选链等现代语法，不进行 ES5 降级。TypeScript 仅用于类型检查与声明生成。
-8. 更新清单为 schemaVersion 3，格式为 prototype。版本记录在 js/openmz.json；更新器不得安装 class 源码或改写工程插件配置。
-9. 不手改 dist，不维护第二份原型式源码。新增引擎语法时扩展转换与相应单元测试，并检查真实插件场景。
+1. 引擎 `.ts` 维持经典全局脚本，不引入 ES import/export；`src/lib/pixi.js`、工具、共享协议和更新器使用 ESM。
+2. 类型直接维护在 `.ts` 签名中；JSDoc 保留用途说明。不要生成或维护第二份引擎声明，也不要恢复声明同步脚本。
+3. 经 `initialize` 初始化的实例字段使用 `declare`，避免派生类字段在父构造之后重置状态。只使用可擦除的 TypeScript 语法，不使用 enum、参数属性或需要生成运行时代码的 namespace。
+4. 数据类型在 `RMMZ` 命名空间。外部环境声明只连接宿主与第三方库。PixiJS 类型使用 `import("pixi.js").Type`。
+5. 源码中的 `RmmzWindow`、`RmmzStorageManager` 在构建时恢复为 `Window`、`StorageManager`，类型别名仍可使用 `RMMZ.Window`、`RMMZ.StorageManager`。`GraphicsFPSCounter`、`TilemapLayer`、`TilemapCombinedLayer` 恢复为原有嵌套类。`Sprite_Name.actorName()` 和 `Window_NameEdit.inputName()` 恢复为 `name()`；其他类的 `actorName()` 保持原样。
+6. 插件兼容性以 `dist/runtime/` 为准。构建时让 `Sprite`、`TilingSprite`、`Window`、`Stage` 的 initialize 在现有 this 上执行 Pixi 父构造；普通 new 也必须只初始化一次。
+7. `main.ts` 只擦除类型，产物保留 `class Main`。其余引擎、PixiJS 和更新器的类转换为平铺的函数与原型定义，不为单个类创建 IIFE 或注入严格模式。Rolldown 命名空间外壳保留，strict 设为 false。保留原生 async/await、箭头函数、可选链、解构与迭代，不做 ES5 降级。
+8. 更新清单为 schemaVersion 3，格式为 prototype。版本记录在 js/openmz.json；更新器不得安装 TypeScript 源码或改写工程插件配置。
+9. 不手改 dist，不维护第二份原型式源码。新增引擎语法时扩展转换与相关单元测试，并检查真实插件场景。

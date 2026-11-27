@@ -3,48 +3,43 @@
 /**
  * This section contains some methods that will be added to the standard
  * Javascript objects.
- *
- * @namespace JsExtensions
  */
 
 /**
  * Makes a shallow copy of the array.
- *
  * @memberof JsExtensions
- * @returns {array} A shallow copy of the array.
+ * @returns A shallow copy of the array.
  */
-Array.prototype.clone = function() {
-    return this.slice(0);
+Array.prototype.clone = function <T extends unknown[]>(this: T): T {
+    return this.slice(0) as T;
 };
 
 Object.defineProperty(Array.prototype, "clone", {
-    enumerable: false
+    enumerable: false,
 });
 
 /**
  * Checks whether the array contains a given element.
- *
  * @memberof JsExtensions
- * @param {any} element - The element to search for.
- * @returns {boolean} True if the array contains a given element.
+ * @param element - The element to search for.
+ * @returns True if the array contains a given element.
  * @deprecated includes() should be used instead.
  */
-Array.prototype.contains = function(element) {
+Array.prototype.contains = function (element: any): boolean {
     return this.includes(element);
 };
 
 Object.defineProperty(Array.prototype, "contains", {
-    enumerable: false
+    enumerable: false,
 });
 
 /**
  * Checks whether the two arrays are the same.
- *
  * @memberof JsExtensions
- * @param {array} array - The array to compare to.
- * @returns {boolean} True if the two arrays are the same.
+ * @param array - The array to compare to.
+ * @returns True if the two arrays are the same.
  */
-Array.prototype.equals = function(array) {
+Array.prototype.equals = function (array: any[]): boolean {
     if (!array || this.length !== array.length) {
         return false;
     }
@@ -61,17 +56,16 @@ Array.prototype.equals = function(array) {
 };
 
 Object.defineProperty(Array.prototype, "equals", {
-    enumerable: false
+    enumerable: false,
 });
 
 /**
  * Removes a given element from the array (in place).
- *
  * @memberof JsExtensions
- * @param {any} element - The element to remove.
- * @returns {array} The array after remove.
+ * @param element - The element to remove.
+ * @returns The array after remove.
  */
-Array.prototype.remove = function(element) {
+Array.prototype.remove = function (element: any): any[] {
     for (;;) {
         const index = this.indexOf(element);
         if (index >= 0) {
@@ -83,123 +77,120 @@ Array.prototype.remove = function(element) {
 };
 
 Object.defineProperty(Array.prototype, "remove", {
-    enumerable: false
+    enumerable: false,
 });
 
 /**
  * Generates a random integer in the range (0, max-1).
- *
  * @memberof JsExtensions
- * @param {number} max - The upper boundary (excluded).
- * @returns {number} A random integer.
+ * @param max - The upper boundary (excluded).
+ * @returns A random integer.
  */
-Math.randomInt = function(max) {
+Math.randomInt = function (max: number): number {
     return Math.floor(max * Math.random());
 };
 
 /**
  * Returns a number whose value is limited to the given range.
- *
  * @memberof JsExtensions
- * @param {number} min - The lower boundary.
- * @param {number} max - The upper boundary.
- * @returns {number} A number in the range (min, max).
+ * @param min - The lower boundary.
+ * @param max - The upper boundary.
+ * @returns A number in the range (min, max).
  */
-Number.prototype.clamp = function(min, max) {
+Number.prototype.clamp = function (
+    this: number,
+    min: number,
+    max: number,
+): number {
     return Math.min(Math.max(this, min), max);
 };
 
 /**
  * Returns a modulo value which is always positive.
- *
  * @memberof JsExtensions
- * @param {number} n - The divisor.
- * @returns {number} A modulo value.
+ * @param n - The divisor.
+ * @returns A modulo value.
  */
-Number.prototype.mod = function(n) {
+Number.prototype.mod = function (this: number, n: number): number {
     return ((this % n) + n) % n;
 };
 
 /**
  * Makes a number string with leading zeros.
- *
  * @memberof JsExtensions
- * @param {number} length - The length of the output string.
- * @returns {string} A string with leading zeros.
+ * @param length - The length of the output string.
+ * @returns A string with leading zeros.
  */
-Number.prototype.padZero = function(length) {
+Number.prototype.padZero = function (length: number): string {
     return String(this).padZero(length);
 };
 
 /**
  * Checks whether the string contains a given string.
- *
  * @memberof JsExtensions
- * @param {string} string - The string to search for.
- * @returns {boolean} True if the string contains a given string.
+ * @param string - The string to search for.
+ * @returns True if the string contains a given string.
  * @deprecated includes() should be used instead.
  */
-String.prototype.contains = function(string) {
+String.prototype.contains = function (string: string): boolean {
     return this.includes(string);
 };
 
 /**
  * Replaces %1, %2 and so on in the string to the arguments.
- *
  * @memberof JsExtensions
- * @param {...any} args The objects to format.
- * @returns {string} A formatted string.
+ * @param args The objects to format.
+ * @returns A formatted string.
  */
-String.prototype.format = function(...args) {
+String.prototype.format = function (...args: any[]): string {
     return this.replace(/%([0-9]+)/g, (s, n) => args[Number(n) - 1]);
 };
 
 /**
  * Makes a number string with leading zeros.
- *
  * @memberof JsExtensions
- * @param {number} length - The length of the output string.
- * @returns {string} A string with leading zeros.
+ * @param length - The length of the output string.
+ * @returns A string with leading zeros.
  */
-String.prototype.padZero = function(length) {
+String.prototype.padZero = function (length: number): string {
     return this.padStart(length, "0");
 };
 
 /**
  * The static class that defines utility methods.
- *
- * @namespace
  */
 class Utils {
+    declare static _audioElement: HTMLAudioElement;
+    declare static _videoElement: HTMLVideoElement;
+
+    declare static _hasEncryptedImages: boolean;
+    declare static _hasEncryptedAudio: boolean;
+    declare static _encryptionKey: string;
+
     constructor() {
         throw new Error("This is a static class");
     }
 
     /**
-     * The name of the RPG Maker. "MZ" in the current version.
-     *
-     * @type {string}
+     * The engine name.
      * @constant
      */
-    static RPGMAKER_NAME = "MZ";
+    static RPGMAKER_NAME: string = "OPENMZ";
 
     /**
-     * The version of the RPG Maker.
-     *
-     * @type {string}
+     * The engine version.
      * @constant
      */
-    static RPGMAKER_VERSION = "1.10.0";
+    static RPGMAKER_VERSION: string = "2.0.0";
 
     /**
-     * Checks whether the current RPG Maker version is greater than or equal to
-     * the given version.
-     *
-     * @param {string} version - The "x.x.x" format string to compare.
-     * @returns {boolean} True if the current version is greater than or equal
-     * to the given version.
-     */
-    static checkRMVersion(version) {
+ * Checks whether the current RPG Maker version is greater than or equal to
+ * the given version.
+ * @param version - The "x.x.x" format string to compare.
+ * @returns True if the current version is greater than or equal
+to the given version.
+ */
+    static checkRMVersion(version: string): boolean {
         const array1 = this.RPGMAKER_VERSION.split(".");
         const array2 = String(version).split(".");
         for (let i = 0; i < array1.length; i++) {
@@ -216,11 +207,10 @@ class Utils {
 
     /**
      * Checks whether the option is in the query string.
-     *
-     * @param {string} name - The option name.
-     * @returns {boolean} True if the option is in the query string.
+     * @param name - The option name.
+     * @returns True if the option is in the query string.
      */
-    static isOptionValid(name) {
+    static isOptionValid(name: string): boolean {
         const args = location.search.slice(1);
         if (args.split("&").includes(name)) {
             return true;
@@ -233,29 +223,26 @@ class Utils {
 
     /**
      * Checks whether the platform is NW.js.
-     *
-     * @returns {boolean} True if the platform is NW.js.
+     * @returns True if the platform is NW.js.
      */
-    static isNwjs() {
+    static isNwjs(): boolean {
         return typeof require === "function" && typeof process === "object";
     }
 
     /**
      * Checks whether the platform is a mobile device.
-     *
-     * @returns {boolean} True if the platform is a mobile device.
+     * @returns True if the platform is a mobile device.
      */
-    static isMobileDevice() {
+    static isMobileDevice(): boolean {
         const r = /Android|webOS|iPhone|iPad|iPod|BlackBerry|Opera Mini/i;
         return !!navigator.userAgent.match(r);
     }
 
     /**
      * Checks whether the browser is Mobile Safari.
-     *
-     * @returns {boolean} True if the browser is Mobile Safari.
+     * @returns True if the browser is Mobile Safari.
      */
-    static isMobileSafari() {
+    static isMobileSafari(): boolean {
         const agent = navigator.userAgent;
         return !!(
             agent.match(/iPhone|iPad|iPod/) &&
@@ -266,29 +253,26 @@ class Utils {
 
     /**
      * Checks whether the browser is Android Chrome.
-     *
-     * @returns {boolean} True if the browser is Android Chrome.
+     * @returns True if the browser is Android Chrome.
      */
-    static isAndroidChrome() {
+    static isAndroidChrome(): boolean {
         const agent = navigator.userAgent;
         return !!(agent.match(/Android/) && agent.match(/Chrome/));
     }
 
     /**
      * Checks whether the browser is accessing local files.
-     *
-     * @returns {boolean} True if the browser is accessing local files.
+     * @returns True if the browser is accessing local files.
      */
-    static isLocal() {
+    static isLocal(): boolean {
         return window.location.href.startsWith("file:");
     }
 
     /**
      * Checks whether the browser supports WebGL.
-     *
-     * @returns {boolean} True if the browser supports WebGL.
+     * @returns True if the browser supports WebGL.
      */
-    static canUseWebGL() {
+    static canUseWebGL(): boolean {
         try {
             const canvas = document.createElement("canvas");
             return !!canvas.getContext("webgl");
@@ -299,28 +283,25 @@ class Utils {
 
     /**
      * Checks whether the browser supports Web Audio API.
-     *
-     * @returns {boolean} True if the browser supports Web Audio API.
+     * @returns True if the browser supports Web Audio API.
      */
-    static canUseWebAudioAPI() {
+    static canUseWebAudioAPI(): boolean {
         return !!(window.AudioContext || window.webkitAudioContext);
     }
 
     /**
      * Checks whether the browser supports CSS Font Loading.
-     *
-     * @returns {boolean} True if the browser supports CSS Font Loading.
+     * @returns True if the browser supports CSS Font Loading.
      */
-    static canUseCssFontLoading() {
+    static canUseCssFontLoading(): boolean {
         return !!(document.fonts && document.fonts.ready);
     }
 
     /**
      * Checks whether the browser supports IndexedDB.
-     *
-     * @returns {boolean} True if the browser supports IndexedDB.
+     * @returns True if the browser supports IndexedDB.
      */
-    static canUseIndexedDB() {
+    static canUseIndexedDB(): boolean {
         return !!(
             window.indexedDB ||
             window.mozIndexedDB ||
@@ -330,10 +311,9 @@ class Utils {
 
     /**
      * Checks whether the browser can play ogg files.
-     *
-     * @returns {boolean} True if the browser can play ogg files.
+     * @returns True if the browser can play ogg files.
      */
-    static canPlayOgg() {
+    static canPlayOgg(): boolean {
         if (!Utils._audioElement) {
             Utils._audioElement = document.createElement("audio");
         }
@@ -345,10 +325,9 @@ class Utils {
 
     /**
      * Checks whether the browser can play webm files.
-     *
-     * @returns {boolean} True if the browser can play webm files.
+     * @returns True if the browser can play webm files.
      */
-    static canPlayWebm() {
+    static canPlayWebm(): boolean {
         if (!Utils._videoElement) {
             Utils._videoElement = document.createElement("video");
         }
@@ -360,62 +339,62 @@ class Utils {
 
     /**
      * Encodes a URI component without escaping slash characters.
-     *
-     * @param {string} str - The input string.
-     * @returns {string} Encoded string.
+     * @param str - The input string.
+     * @returns Encoded string.
      */
-    static encodeURI(str) {
+    static encodeURI(str: string): string {
         return encodeURIComponent(str).replace(/%2F/g, "/");
     }
 
     /**
      * Gets the filename that does not include subfolders.
-     *
-     * @param {string} filename - The filename with subfolders.
-     * @returns {string} The filename without subfolders.
+     * @param filename - The filename with subfolders.
+     * @returns The filename without subfolders.
      */
-    static extractFileName(filename) {
-        return filename.split("/").pop();
+    static extractFileName(filename: string): string {
+        return filename.split("/").pop()!;
     }
 
     /**
      * Escapes special characters for HTML.
-     *
-     * @param {string} str - The input string.
-     * @returns {string} Escaped string.
+     * @param str - The input string.
+     * @returns Escaped string.
      */
-    static escapeHtml(str) {
+    static escapeHtml(str: string): string {
         const entityMap = {
             "&": "&amp;",
             "<": "&lt;",
             ">": "&gt;",
             '"': "&quot;",
             "'": "&#39;",
-            "/": "&#x2F;"
+            "/": "&#x2F;",
         };
-        return String(str).replace(/[&<>"'/]/g, s => entityMap[s]);
+        return String(str).replace(
+            /[&<>"'/]/g,
+            (s) => entityMap[s as keyof typeof entityMap],
+        );
     }
 
     /**
      * Checks whether the string contains any Arabic characters.
-     *
-     * @param {string} str
-     * @returns {boolean} True if the string contains any Arabic characters.
+     * @returns True if the string contains any Arabic characters.
      */
-    static containsArabic(str) {
+    static containsArabic(str: string): boolean {
         const regExp = /[\u0600-\u06FF\u0750-\u077F\u08A0-\u08FF]/;
         return regExp.test(str);
     }
 
     /**
      * Sets information related to encryption.
-     *
-     * @param {boolean} hasImages - Whether the image files are encrypted.
-     * @param {boolean} hasAudio - Whether the audio files are encrypted.
-     * @param {string} key - The encryption key.
-     * @returns {void}
+     * @param hasImages - Whether the image files are encrypted.
+     * @param hasAudio - Whether the audio files are encrypted.
+     * @param key - The encryption key.
      */
-    static setEncryptionInfo(hasImages, hasAudio, key) {
+    static setEncryptionInfo(
+        hasImages: boolean,
+        hasAudio: boolean,
+        key: string,
+    ): void {
         // [Note] This function is implemented for module independence.
         this._hasEncryptedImages = hasImages;
         this._hasEncryptedAudio = hasAudio;
@@ -424,31 +403,28 @@ class Utils {
 
     /**
      * Checks whether the image files in the game are encrypted.
-     *
-     * @returns {boolean} True if the image files are encrypted.
+     * @returns True if the image files are encrypted.
      */
-    static hasEncryptedImages() {
+    static hasEncryptedImages(): boolean {
         return this._hasEncryptedImages;
     }
 
     /**
      * Checks whether the audio files in the game are encrypted.
-     *
-     * @returns {boolean} True if the audio files are encrypted.
+     * @returns True if the audio files are encrypted.
      */
-    static hasEncryptedAudio() {
+    static hasEncryptedAudio(): boolean {
         return this._hasEncryptedAudio;
     }
 
     /**
      * Decrypts encrypted data.
-     *
-     * @param {ArrayBuffer} source - The data to be decrypted.
-     * @returns {ArrayBuffer} The decrypted data.
+     * @param source - The data to be decrypted.
+     * @returns The decrypted data.
      */
-    static decryptArrayBuffer(source) {
+    static decryptArrayBuffer(source: ArrayBuffer): ArrayBuffer {
         const header = new Uint8Array(source, 0, 16);
-        const headerHex = Array.from(header, x => x.toString(16)).join(",");
+        const headerHex = Array.from(header, (x) => x.toString(16)).join(",");
         if (headerHex !== "52,50,47,4d,56,0,0,0,0,3,1,0,0,0,0,0") {
             throw new Error("Decryption error");
         }
@@ -456,7 +432,7 @@ class Utils {
         const view = new DataView(body);
         const key = this._encryptionKey.match(/.{2}/g);
         for (let i = 0; i < 16; i++) {
-            view.setUint8(i, view.getUint8(i) ^ parseInt(key[i], 16));
+            view.setUint8(i, view.getUint8(i) ^ parseInt(key![i], 16));
         }
         return body;
     }
@@ -464,20 +440,42 @@ class Utils {
 
 /**
  * The static class that carries out graphics processing.
- *
- * @namespace
  */
 class Graphics {
+    declare _width: number;
+    declare _height: number;
+    declare _defaultScale: number;
+
+    declare static _width: number;
+    declare static _height: number;
+    declare static _defaultScale: number;
+    declare static _realScale: number;
+    declare static _errorPrinter: HTMLDivElement | null;
+    declare static _tickHandler: ((deltaTime: number) => void) | null;
+    declare static _canvas: HTMLCanvasElement | null;
+    declare static _fpsCounter: Graphics.FPSCounter | null;
+    declare static _loadingSpinner: HTMLDivElement | null;
+    declare static _stretchEnabled: boolean;
+    declare static _app:
+        | import("pixi.js").Application<
+              import("pixi.js").WebGLRenderer<HTMLCanvasElement>
+          >
+        | null;
+    declare static _effekseer: effekseer.EffekseerContext | null;
+    declare static _wasLoading: boolean;
+    declare static frameCount: number;
+    declare static boxWidth: number;
+    declare static boxHeight: number;
+    declare static FPSCounter: typeof GraphicsFPSCounter;
+
     constructor() {
         throw new Error("This is a static class");
     }
 
     /**
      * Initializes the graphics system.
-     *
-     * @returns {Promise<boolean>}
      */
-    static async initialize() {
+    static async initialize(): Promise<void> {
         this._width = 0;
         this._height = 0;
         this._defaultScale = 1;
@@ -494,24 +492,18 @@ class Graphics {
 
         /**
          * The total frame count of the game screen.
-         *
-         * @type number
          * @name Graphics.frameCount
          */
         this.frameCount = 0;
 
         /**
          * The width of the window display area.
-         *
-         * @type number
          * @name Graphics.boxWidth
          */
         this.boxWidth = this._width;
 
         /**
          * The height of the window display area.
-         *
-         * @type number
          * @name Graphics.boxHeight
          */
         this.boxHeight = this._height;
@@ -526,40 +518,34 @@ class Graphics {
 
     /**
      * The PIXI.Application object.
-     *
      * @name Graphics.app
-     * @type {import("pixi.js").Application}
      */
-    static get app() {
-        return this._app;
+    static get app(): import("pixi.js").Application<
+        import("pixi.js").WebGLRenderer<HTMLCanvasElement>
+    > {
+        return this._app!;
     }
 
     /**
      * The context object of Effekseer.
-     *
      * @name Graphics.effekseer
-     * @type {effekseer.EffekseerContext}
      */
-    static get effekseer() {
-        return this._effekseer;
+    static get effekseer(): effekseer.EffekseerContext {
+        return this._effekseer!;
     }
 
     /**
      * Register a handler for tick events.
-     *
-     * @param {(deltaTime: number) => void} handler - The listener function to be added for updates.
-     * @returns {void}
+     * @param handler - The listener function to be added for updates.
      */
-    static setTickHandler(handler) {
+    static setTickHandler(handler: (deltaTime: number) => void): void {
         this._tickHandler = handler;
     }
 
     /**
      * Starts the game loop.
-     *
-     * @returns {void}
      */
-    static startGameLoop() {
+    static startGameLoop(): void {
         if (this._app) {
             this._app.start();
         }
@@ -567,10 +553,8 @@ class Graphics {
 
     /**
      * Stops the game loop.
-     *
-     * @returns {void}
      */
-    static stopGameLoop() {
+    static stopGameLoop(): void {
         if (this._app) {
             this._app.stop();
         }
@@ -578,35 +562,30 @@ class Graphics {
 
     /**
      * Sets the stage to be rendered.
-     *
-     * @param {Stage | null} stage - The stage object to be rendered.
-     * @returns {void}
+     * @param stage - The stage object to be rendered.
      */
-    static setStage(stage) {
+    static setStage(stage: Stage | null): void {
         if (this._app) {
-            this._app.stage = stage;
+            this._app.stage = stage!;
         }
     }
 
     /**
      * Shows the loading spinner.
-     *
-     * @returns {void}
      */
-    static startLoading() {
+    static startLoading(): void {
         if (!document.getElementById("loadingSpinner")) {
-            document.body.appendChild(this._loadingSpinner);
+            document.body.appendChild(this._loadingSpinner!);
         }
     }
 
     /**
      * Erases the loading spinner.
-     *
-     * @returns {boolean} True if the loading spinner was active.
+     * @returns True if the loading spinner was active.
      */
-    static endLoading() {
+    static endLoading(): boolean {
         if (document.getElementById("loadingSpinner")) {
-            document.body.removeChild(this._loadingSpinner);
+            document.body.removeChild(this._loadingSpinner!);
             return true;
         } else {
             return false;
@@ -615,48 +594,50 @@ class Graphics {
 
     /**
      * Displays the error text to the screen.
-     *
-     * @param {string} name - The name of the error.
-     * @param {string} message - The message of the error.
-     * @param {Error | ErrorEvent} [error] - The error object.
-     * @returns {void}
+     * @param name - The name of the error.
+     * @param message - The message of the error.
+     * @param error - The error object.
      */
-    static printError(name, message, error = null) {
+    static printError(
+        name: string,
+        message: string,
+        error: unknown = null,
+    ): void {
         if (!this._errorPrinter) {
             this._createErrorPrinter();
         }
-        this._errorPrinter.innerHTML = this._makeErrorHtml(name, message, error);
+        this._errorPrinter!.innerHTML = this._makeErrorHtml(
+            name,
+            message,
+            error,
+        );
         this._wasLoading = this.endLoading();
         this._applyCanvasFilter();
     }
 
     /**
-     * Displays a button to try to reload resources.
-     *
-     * @param {() => void} retry - The callback function to be called when the button
-     *   is pressed.
-     * @returns {void}
-     */
-    static showRetryButton(retry) {
+ * Displays a button to try to reload resources.
+ * @param retry - The callback function to be called when the button
+is pressed.
+ */
+    static showRetryButton(retry: () => void): void {
         const button = document.createElement("button");
         button.id = "retryButton";
         button.innerHTML = "Retry";
         // [Note] stopPropagation() is required for iOS Safari.
-        button.ontouchstart = e => e.stopPropagation();
+        button.ontouchstart = (e) => e.stopPropagation();
         button.onclick = () => {
             Graphics.eraseError();
             retry();
         };
-        this._errorPrinter.appendChild(button);
+        this._errorPrinter!.appendChild(button);
         button.focus();
     }
 
     /**
      * Erases the loading error text.
-     *
-     * @returns {void}
      */
-    static eraseError() {
+    static eraseError(): void {
         if (this._errorPrinter) {
             this._errorPrinter.innerHTML = this._makeErrorHtml();
             if (this._wasLoading) {
@@ -669,11 +650,10 @@ class Graphics {
     /**
      * Converts an x coordinate on the page to the corresponding
      * x coordinate on the canvas area.
-     *
-     * @param {number} x - The x coordinate on the page to be converted.
-     * @returns {number} The x coordinate on the canvas area.
+     * @param x - The x coordinate on the page to be converted.
+     * @returns The x coordinate on the canvas area.
      */
-    static pageToCanvasX(x) {
+    static pageToCanvasX(x: number): number {
         if (this._canvas) {
             const left = this._canvas.offsetLeft;
             return Math.round((x - left) / this._realScale);
@@ -685,11 +665,10 @@ class Graphics {
     /**
      * Converts a y coordinate on the page to the corresponding
      * y coordinate on the canvas area.
-     *
-     * @param {number} y - The y coordinate on the page to be converted.
-     * @returns {number} The y coordinate on the canvas area.
+     * @param y - The y coordinate on the page to be converted.
+     * @returns The y coordinate on the canvas area.
      */
-    static pageToCanvasY(y) {
+    static pageToCanvasY(y: number): number {
         if (this._canvas) {
             const top = this._canvas.offsetTop;
             return Math.round((y - top) / this._realScale);
@@ -700,58 +679,49 @@ class Graphics {
 
     /**
      * Checks whether the specified point is inside the game canvas area.
-     *
-     * @param {number} x - The x coordinate on the canvas area.
-     * @param {number} y - The y coordinate on the canvas area.
-     * @returns {boolean} True if the specified point is inside the game canvas area.
+     * @param x - The x coordinate on the canvas area.
+     * @param y - The y coordinate on the canvas area.
+     * @returns True if the specified point is inside the game canvas area.
      */
-    static isInsideCanvas(x, y) {
+    static isInsideCanvas(x: number, y: number): boolean {
         return x >= 0 && x < this._width && y >= 0 && y < this._height;
     }
 
     /**
      * Shows the game screen.
-     *
-     * @returns {void}
      */
-    static showScreen() {
-        this._canvas.style.opacity = 1;
+    static showScreen(): void {
+        this._canvas!.style.opacity = String(1);
     }
 
     /**
      * Hides the game screen.
-     *
-     * @returns {void}
      */
-    static hideScreen() {
-        this._canvas.style.opacity = 0;
+    static hideScreen(): void {
+        this._canvas!.style.opacity = String(0);
     }
 
     /**
      * Changes the size of the game screen.
-     *
-     * @param {number} width - The width of the game screen.
-     * @param {number} height - The height of the game screen.
-     * @returns {void}
+     * @param width - The width of the game screen.
+     * @param height - The height of the game screen.
      */
-    static resize(width, height) {
+    static resize(width: number, height: number): void {
         this._width = width;
         this._height = height;
-        this._app.renderer.resize(width, height);
+        this._app!.renderer.resize(width, height);
         this._updateAllElements();
     }
 
     /**
      * The width of the game screen.
-     *
      * @name Graphics.width
-     * @type {number}
      */
-    static get width() {
+    static get width(): number {
         return this._width;
     }
-    /** @param {number} value */
-    static set width(value) {
+
+    static set width(value: number) {
         if (this._width !== value) {
             this._width = value;
             this._updateAllElements();
@@ -760,15 +730,13 @@ class Graphics {
 
     /**
      * The height of the game screen.
-     *
      * @name Graphics.height
-     * @type {number}
      */
-    static get height() {
+    static get height(): number {
         return this._height;
     }
-    /** @param {number} value */
-    static set height(value) {
+
+    static set height(value: number) {
         if (this._height !== value) {
             this._height = value;
             this._updateAllElements();
@@ -777,59 +745,49 @@ class Graphics {
 
     /**
      * The default zoom scale of the game screen.
-     *
      * @name Graphics.defaultScale
-     * @type {number}
      */
-    static get defaultScale() {
+    static get defaultScale(): number {
         return this._defaultScale;
     }
-    /** @param {number} value */
-    static set defaultScale(value) {
+
+    static set defaultScale(value: number) {
         if (this._defaultScale !== value) {
             this._defaultScale = value;
             this._updateAllElements();
         }
     }
 
-    /** @returns {void} */
-    static _createAllElements() {
+    static _createAllElements(): void {
         this._createErrorPrinter();
         this._createCanvas();
         this._createLoadingSpinner();
         this._createFPSCounter();
     }
 
-    /** @returns {void} */
-    static _updateAllElements() {
+    static _updateAllElements(): void {
         this._updateRealScale();
         this._updateErrorPrinter();
         this._updateCanvas();
         this._updateVideo();
     }
 
-    /**
-     * @param {import("pixi.js").Ticker} ticker
-     * @returns {void}
-     */
-    static _onTick(ticker) {
-        this._fpsCounter.startTick();
+    static _onTick(ticker: import("pixi.js").Ticker): void {
+        this._fpsCounter!.startTick();
         if (this._tickHandler) {
             this._tickHandler(ticker.deltaTime);
         }
         if (this._canRender()) {
-            this._app.render();
+            this._app!.render();
         }
-        this._fpsCounter.endTick();
+        this._fpsCounter!.endTick();
     }
 
-    /** @returns {boolean} */
-    static _canRender() {
-        return !!this._app.stage;
+    static _canRender(): boolean {
+        return !!this._app!.stage;
     }
 
-    /** @returns {void} */
-    static _updateRealScale() {
+    static _updateRealScale(): void {
         if (this._stretchEnabled && this._width > 0 && this._height > 0) {
             const h = this._stretchWidth() / this._width;
             const v = this._stretchHeight() / this._height;
@@ -840,8 +798,7 @@ class Graphics {
         }
     }
 
-    /** @returns {number} */
-    static _stretchWidth() {
+    static _stretchWidth(): number {
         if (Utils.isMobileDevice()) {
             return document.documentElement.clientWidth;
         } else {
@@ -849,8 +806,7 @@ class Graphics {
         }
     }
 
-    /** @returns {number} */
-    static _stretchHeight() {
+    static _stretchHeight(): number {
         if (Utils.isMobileDevice()) {
             // [Note] Mobile browsers often have special operations at the top and
             //   bottom of the screen.
@@ -861,12 +817,12 @@ class Graphics {
         }
     }
 
-    /**
-     * @param {string} [name]
-     * @param {string} [message]
-     * @returns {string}
-     */
-    static _makeErrorHtml(name, message /*, error*/) {
+    static _makeErrorHtml(
+        name?: string,
+        message?: string,
+        ..._extra: any[]
+    ): string;
+    static _makeErrorHtml(name?: string, message?: string /*, error*/): string {
         const nameDiv = document.createElement("div");
         const messageDiv = document.createElement("div");
         nameDiv.id = "errorName";
@@ -876,52 +832,45 @@ class Graphics {
         return nameDiv.outerHTML + messageDiv.outerHTML;
     }
 
-    /** @returns {boolean} */
-    static _defaultStretchMode() {
+    static _defaultStretchMode(): boolean {
         return Utils.isNwjs() || Utils.isMobileDevice();
     }
 
-    /** @returns {void} */
-    static _createErrorPrinter() {
+    static _createErrorPrinter(): void {
         this._errorPrinter = document.createElement("div");
         this._errorPrinter.id = "errorPrinter";
         this._errorPrinter.innerHTML = this._makeErrorHtml();
         document.body.appendChild(this._errorPrinter);
     }
 
-    /** @returns {void} */
-    static _updateErrorPrinter() {
+    static _updateErrorPrinter(): void {
         const width = this._width * 0.8 * this._realScale;
         const height = 100 * this._realScale;
-        this._errorPrinter.style.width = width + "px";
-        this._errorPrinter.style.height = height + "px";
+        this._errorPrinter!.style.width = width + "px";
+        this._errorPrinter!.style.height = height + "px";
     }
 
-    /** @returns {void} */
-    static _createCanvas() {
+    static _createCanvas(): void {
         this._canvas = document.createElement("canvas");
         this._canvas.id = "gameCanvas";
         this._updateCanvas();
         document.body.appendChild(this._canvas);
     }
 
-    /** @returns {void} */
-    static _updateCanvas() {
-        this._canvas.width = this._width;
-        this._canvas.height = this._height;
-        this._canvas.style.zIndex = 1;
-        this._centerElement(this._canvas);
+    static _updateCanvas(): void {
+        this._canvas!.width = this._width;
+        this._canvas!.height = this._height;
+        this._canvas!.style.zIndex = String(1);
+        this._centerElement(this._canvas!);
     }
 
-    /** @returns {void} */
-    static _updateVideo() {
+    static _updateVideo(): void {
         const width = this._width * this._realScale;
         const height = this._height * this._realScale;
         Video.resize(width, height);
     }
 
-    /** @returns {void} */
-    static _createLoadingSpinner() {
+    static _createLoadingSpinner(): void {
         const loadingSpinner = document.createElement("div");
         const loadingSpinnerImage = document.createElement("div");
         loadingSpinner.id = "loadingSpinner";
@@ -930,71 +879,58 @@ class Graphics {
         this._loadingSpinner = loadingSpinner;
     }
 
-    /** @returns {void} */
-    static _createFPSCounter() {
+    static _createFPSCounter(): void {
         this._fpsCounter = new Graphics.FPSCounter();
     }
 
-    /**
-     * @param {HTMLCanvasElement} element
-     * @returns {void}
-     */
-    static _centerElement(element) {
+    static _centerElement(element: HTMLCanvasElement): void {
         const width = element.width * this._realScale;
         const height = element.height * this._realScale;
         element.style.position = "absolute";
         element.style.margin = "auto";
-        element.style.top = 0;
-        element.style.left = 0;
-        element.style.right = 0;
-        element.style.bottom = 0;
+        element.style.top = String(0);
+        element.style.left = String(0);
+        element.style.right = String(0);
+        element.style.bottom = String(0);
         element.style.width = width + "px";
         element.style.height = height + "px";
     }
 
-    /** @returns {void} */
-    static _disableContextMenu() {
+    static _disableContextMenu(): void {
         const elements = document.body.getElementsByTagName("*");
         const oncontextmenu = () => false;
         for (const element of elements) {
-            element.oncontextmenu = oncontextmenu;
+            (element as Element & GlobalEventHandlers).oncontextmenu =
+                oncontextmenu;
         }
     }
 
-    /** @returns {void} */
-    static _applyCanvasFilter() {
+    static _applyCanvasFilter(): void {
         if (this._canvas) {
-            this._canvas.style.opacity = 0.5;
+            this._canvas.style.opacity = String(0.5);
             this._canvas.style.filter = "blur(8px)";
             this._canvas.style.webkitFilter = "blur(8px)";
         }
     }
 
-    /** @returns {void} */
-    static _clearCanvasFilter() {
+    static _clearCanvasFilter(): void {
         if (this._canvas) {
-            this._canvas.style.opacity = 1;
+            this._canvas.style.opacity = String(1);
             this._canvas.style.filter = "";
             this._canvas.style.webkitFilter = "";
         }
     }
 
-    /** @returns {void} */
-    static _setupEventHandlers() {
+    static _setupEventHandlers(): void {
         window.addEventListener("resize", this._onWindowResize.bind(this));
         document.addEventListener("keydown", this._onKeyDown.bind(this));
     }
 
-    /** @returns {void} */
-    static _onWindowResize() {
+    static _onWindowResize(): void {
         this._updateAllElements();
     }
 
-    /**
-     * @param {KeyboardEvent} event
-     * @returns {void}
-     */
-    static _onKeyDown(event) {
+    static _onKeyDown(event: KeyboardEvent): void {
         if (!event.ctrlKey && !event.altKey) {
             switch (event.keyCode) {
                 case 113: // F2
@@ -1013,19 +949,16 @@ class Graphics {
         }
     }
 
-    /** @returns {void} */
-    static _switchFPSCounter() {
-        this._fpsCounter.switchMode();
+    static _switchFPSCounter(): void {
+        this._fpsCounter!.switchMode();
     }
 
-    /** @returns {void} */
-    static _switchStretchMode() {
+    static _switchStretchMode(): void {
         this._stretchEnabled = !this._stretchEnabled;
         this._updateAllElements();
     }
 
-    /** @returns {void} */
-    static _switchFullScreen() {
+    static _switchFullScreen(): void {
         if (this._isFullScreen()) {
             this._cancelFullScreen();
         } else {
@@ -1033,29 +966,27 @@ class Graphics {
         }
     }
 
-    /** @returns {boolean} */
-    static _isFullScreen() {
-        return (
-            document.fullScreenElement ||
+    static _isFullScreen(): boolean {
+        return (document.fullScreenElement ||
             document.mozFullScreen ||
-            document.webkitFullscreenElement
-        );
+            document.webkitFullscreenElement) as boolean;
     }
 
-    /** @returns {void} */
-    static _requestFullScreen() {
+    static _requestFullScreen(): void {
         const element = document.body;
         if (element.requestFullScreen) {
             element.requestFullScreen();
         } else if (element.mozRequestFullScreen) {
             element.mozRequestFullScreen();
         } else if (element.webkitRequestFullScreen) {
-            element.webkitRequestFullScreen(Element.ALLOW_KEYBOARD_INPUT);
+            element.webkitRequestFullScreen(
+                (Element as typeof Element & { ALLOW_KEYBOARD_INPUT: number })
+                    .ALLOW_KEYBOARD_INPUT,
+            );
         }
     }
 
-    /** @returns {void} */
-    static _cancelFullScreen() {
+    static _cancelFullScreen(): void {
         if (document.cancelFullScreen) {
             document.cancelFullScreen();
         } else if (document.mozCancelFullScreen) {
@@ -1065,22 +996,22 @@ class Graphics {
         }
     }
 
-    /** @returns {Promise<void>} */
-    static async _createPixiApp() {
-        const app = new PIXI.Application();
+    static async _createPixiApp(): Promise<void> {
+        const app = new PIXI.Application<
+            import("pixi.js").WebGLRenderer<HTMLCanvasElement>
+        >();
         await app.init({
-            canvas: this._canvas,
+            canvas: this._canvas!,
             preference: "webgl",
             autoStart: false,
-            gcMaxUnusedTime: 10000
+            gcMaxUnusedTime: 10000,
         });
         app.ticker.remove(app.render, app);
         app.ticker.add(this._onTick, this);
         this._app = app;
     }
 
-    /** @returns {void} */
-    static _createEffekseerContext() {
+    static _createEffekseerContext(): void {
         if (this._app && window.effekseer) {
             this._effekseer = effekseer.createContext();
             if (this._effekseer) {
@@ -1095,12 +1026,25 @@ class Graphics {
  * This is based on Darsain's FPSMeter which is under the MIT license.
  * The original can be found at https://github.com/Darsain/fpsmeter.
  */
-Graphics.FPSCounter = class FPSCounter {
-    constructor(...args) {
+class GraphicsFPSCounter {
+    declare _tickCount: number;
+    declare _frameTime: number;
+    declare _frameStart: number;
+    declare _lastLoop: number;
+    declare _showFps: boolean;
+    declare fps: number;
+    declare duration: number;
+    declare _boxDiv: HTMLDivElement;
+    declare _labelDiv: HTMLDivElement;
+    declare _numberDiv: HTMLDivElement;
+
+    constructor(...args: any[]) {
         this.initialize(...args);
     }
 
-    initialize() {
+    initialize(): void;
+    initialize(...args: any[]): void;
+    initialize(): void {
         this._tickCount = 0;
         this._frameTime = 100;
         this._frameStart = 0;
@@ -1112,11 +1056,11 @@ Graphics.FPSCounter = class FPSCounter {
         this._update();
     }
 
-    startTick() {
+    startTick(): void {
         this._frameStart = performance.now();
     }
 
-    endTick() {
+    endTick(): void {
         const time = performance.now();
         const thisFrameTime = time - this._lastLoop;
         this._frameTime += (thisFrameTime - this._frameTime) / 12;
@@ -1128,7 +1072,7 @@ Graphics.FPSCounter = class FPSCounter {
         }
     }
 
-    switchMode() {
+    switchMode(): void {
         if (this._boxDiv.style.display === "none") {
             this._boxDiv.style.display = "block";
             this._showFps = true;
@@ -1140,7 +1084,7 @@ Graphics.FPSCounter = class FPSCounter {
         this._update();
     }
 
-    _createElements() {
+    _createElements(): void {
         this._boxDiv = document.createElement("div");
         this._labelDiv = document.createElement("div");
         this._numberDiv = document.createElement("div");
@@ -1153,152 +1097,127 @@ Graphics.FPSCounter = class FPSCounter {
         document.body.appendChild(this._boxDiv);
     }
 
-    _update() {
+    _update(): void {
         const count = this._showFps ? this.fps : this.duration;
         this._labelDiv.textContent = this._showFps ? "FPS" : "ms";
         this._numberDiv.textContent = count.toFixed(0);
     }
-};
+}
+Graphics.FPSCounter = GraphicsFPSCounter;
 
 /**
  * The point class.
- *
- * @class
- * @extends PIXI.Point
- * @param {number} x - The x coordinate.
- * @param {number} y - The y coordinate.
+ * @param x - The x coordinate.
+ * @param y - The y coordinate.
  */
 class Point extends PIXI.Point {
-    /**
-     * @param {number} [x]
-     * @param {number} [y]
-     */
-    constructor(x, y) {
+    constructor(x?: number, y?: number) {
         super(x, y);
     }
 }
 
 /**
  * The rectangle class.
- *
- * @class
- * @extends PIXI.Rectangle
- * @param {number} x - The x coordinate for the upper-left corner.
- * @param {number} y - The y coordinate for the upper-left corner.
- * @param {number} width - The width of the rectangle.
- * @param {number} height - The height of the rectangle.
+ * @param x - The x coordinate for the upper-left corner.
+ * @param y - The y coordinate for the upper-left corner.
+ * @param width - The width of the rectangle.
+ * @param height - The height of the rectangle.
  */
 class Rectangle extends PIXI.Rectangle {
-    /**
-     * @param {number} [x]
-     * @param {number} [y]
-     * @param {number} [width]
-     * @param {number} [height]
-     */
-    constructor(x, y, width, height) {
+    constructor(x?: number, y?: number, width?: number, height?: number) {
         super(x, y, width, height);
     }
 }
 
 /**
  * The basic object that represents an image.
- *
- * @class
- * @param {number} width - The width of the bitmap.
- * @param {number} height - The height of the bitmap.
+ * @param width - The width of the bitmap.
+ * @param height - The height of the bitmap.
  */
 class Bitmap {
-    /** @param {[width?: number, height?: number]} args */
-    constructor(...args) {
+    declare _canvas: HTMLCanvasElement | null;
+    declare _context: CanvasRenderingContext2D | null;
+    declare _textureSource: import("pixi.js").ImageSource | null;
+    declare _image: HTMLImageElement | null;
+    declare _url: string;
+    declare _paintOpacity: number;
+    declare _smooth: boolean;
+    declare _loadListeners: Array<(bitmap: Bitmap) => void>;
+    declare _loadingState: string;
+    declare fontFace: string;
+    declare fontSize: number;
+    declare fontBold: boolean;
+    declare fontItalic: boolean;
+    declare textColor: string;
+    declare outlineColor: string;
+    declare outlineWidth: number;
+
+    constructor(...args: [width?: number, height?: number]) {
         this.initialize(...args);
     }
 
-    /**
-     * @param {number} [width]
-     * @param {number} [height]
-     */
-    initialize(width, height) {
-        /** @type {HTMLCanvasElement | null} */
+    initialize(width?: number, height?: number): void;
+    initialize(...args: any[]): void;
+    initialize(width?: number, height?: number): void {
         this._canvas = null;
-        /** @type {CanvasRenderingContext2D | null} */
         this._context = null;
         this._textureSource = null;
-        /** @type {HTMLImageElement | null} */
         this._image = null;
-        /** @type {string} */
         this._url = "";
-        /** @type {number} */
         this._paintOpacity = 255;
-        /** @type {boolean} */
         this._smooth = true;
-        /** @type {Array<(bitmap: Bitmap) => void>} */
         this._loadListeners = [];
 
         // "none", "loading", "loaded", or "error"
-        /** @type {string} */
+
         this._loadingState = "none";
 
-        if (width > 0 && height > 0) {
-            this._createCanvas(width, height);
+        if (width! > 0 && height! > 0) {
+            this._createCanvas(width!, height!);
         }
 
         /**
          * The face name of the font.
-         *
-         * @type {string}
          */
         this.fontFace = "sans-serif";
 
         /**
          * The size of the font in pixels.
-         *
-         * @type {number}
          */
         this.fontSize = 16;
 
         /**
          * Whether the font is bold.
-         *
-         * @type {boolean}
          */
         this.fontBold = false;
 
         /**
          * Whether the font is italic.
-         *
-         * @type {boolean}
          */
         this.fontItalic = false;
 
         /**
          * The color of the text in CSS format.
-         *
-         * @type {string}
          */
         this.textColor = "#ffffff";
 
         /**
          * The color of the outline of the text in CSS format.
-         *
-         * @type {string}
          */
         this.outlineColor = "rgba(0, 0, 0, 0.5)";
 
         /**
          * The width of the outline of the text.
-         *
-         * @type {number}
          */
         this.outlineWidth = 3;
     }
 
     /**
      * Loads a image file.
-     *
-     * @param {string} url - The image url of the texture.
-     * @returns {Bitmap} The new bitmap object.
+     * @param url - The image url of the texture.
+     * @returns The new bitmap object.
      */
-    static load(url) {
+    static load(url: string): Bitmap {
         const bitmap = Object.create(Bitmap.prototype);
         bitmap.initialize();
         bitmap._url = url;
@@ -1308,11 +1227,10 @@ class Bitmap {
 
     /**
      * Takes a snapshot of the game screen.
-     *
-     * @param {Stage} stage - The stage object.
-     * @returns {Bitmap} The new bitmap object.
+     * @param stage - The stage object.
+     * @returns The new bitmap object.
      */
-    static snap(stage) {
+    static snap(stage: Stage): Bitmap {
         const width = Graphics.width;
         const height = Graphics.height;
         const bitmap = new Bitmap(width, height);
@@ -1321,7 +1239,7 @@ class Bitmap {
             const renderer = Graphics.app.renderer;
             renderer.render({ container: stage, target: renderTexture });
             const canvas = renderer.extract.canvas(renderTexture);
-            bitmap.context.drawImage(canvas, 0, 0);
+            bitmap.context.drawImage(canvas as CanvasImageSource, 0, 0);
             canvas.width = 0;
             canvas.height = 0;
         }
@@ -1332,117 +1250,97 @@ class Bitmap {
 
     /**
      * Checks whether the bitmap is ready to render.
-     *
-     * @returns {boolean} True if the bitmap is ready to render.
+     * @returns True if the bitmap is ready to render.
      */
-    isReady() {
+    isReady(): boolean {
         return this._loadingState === "loaded" || this._loadingState === "none";
     }
 
     /**
      * Checks whether a loading error has occurred.
-     *
-     * @returns {boolean} True if a loading error has occurred.
+     * @returns True if a loading error has occurred.
      */
-    isError() {
+    isError(): boolean {
         return this._loadingState === "error";
     }
 
     /**
      * The url of the image file.
-     *
      * @name Bitmap#url
-     * @type {string}
      */
-    get url() {
+    get url(): string {
         return this._url;
     }
 
     /**
      * The PixiJS texture source that holds the bitmap image.
-     *
-     * @type {import("pixi.js").TextureSource}
      * @name Bitmap#textureSource
      */
-    get textureSource() {
-        return this._textureSource;
+    get textureSource(): import("pixi.js").TextureSource {
+        return this._textureSource!;
     }
 
     /**
      * The bitmap image.
-     *
      * @name Bitmap#image
-     * @type {HTMLImageElement | null}
      */
-    get image() {
+    get image(): HTMLImageElement | null {
         return this._image;
     }
 
     /**
      * The bitmap canvas.
-     *
      * @name Bitmap#canvas
-     * @type {HTMLCanvasElement}
      */
-    get canvas() {
+    get canvas(): HTMLCanvasElement {
         this._ensureCanvas();
-        return this._canvas;
+        return this._canvas!;
     }
 
     /**
      * The 2d context of the bitmap canvas.
-     *
      * @name Bitmap#context
-     * @type {CanvasRenderingContext2D}
      */
-    get context() {
+    get context(): CanvasRenderingContext2D {
         this._ensureCanvas();
-        return this._context;
+        return this._context!;
     }
 
     /**
      * The width of the bitmap.
-     *
      * @name Bitmap#width
-     * @type {number}
      */
-    get width() {
+    get width(): number {
         const image = this._canvas || this._image;
         return image ? image.width : 0;
     }
 
     /**
      * The height of the bitmap.
-     *
      * @name Bitmap#height
-     * @type {number}
      */
-    get height() {
+    get height(): number {
         const image = this._canvas || this._image;
         return image ? image.height : 0;
     }
 
     /**
      * The rectangle of the bitmap.
-     *
      * @name Bitmap#rect
-     * @type {Rectangle}
      */
-    get rect() {
+    get rect(): Rectangle {
         return new PIXI.Rectangle(0, 0, this.width, this.height);
     }
 
     /**
      * Whether the smooth scaling is applied.
-     *
      * @name Bitmap#smooth
-     * @type {boolean}
      */
-    get smooth() {
+    get smooth(): boolean {
         return this._smooth;
     }
-    /** @param {boolean} value */
-    set smooth(value) {
+
+    set smooth(value: boolean) {
         if (this._smooth !== value) {
             this._smooth = value;
             this._updateScaleMode();
@@ -1451,15 +1349,13 @@ class Bitmap {
 
     /**
      * The opacity of the drawing object in the range (0, 255).
-     *
      * @name Bitmap#paintOpacity
-     * @type {number}
      */
-    get paintOpacity() {
+    get paintOpacity(): number {
         return this._paintOpacity;
     }
-    /** @param {number} value */
-    set paintOpacity(value) {
+
+    set paintOpacity(value: number) {
         if (this._paintOpacity !== value) {
             this._paintOpacity = value;
             this.context.globalAlpha = this._paintOpacity / 255;
@@ -1468,10 +1364,8 @@ class Bitmap {
 
     /**
      * Destroys the bitmap.
-     *
-     * @returns {void}
      */
-    destroy() {
+    destroy(): void {
         if (this._textureSource) {
             this._textureSource.destroy();
             this._textureSource = null;
@@ -1481,40 +1375,46 @@ class Bitmap {
 
     /**
      * Resizes the bitmap.
-     *
-     * @param {number} width - The new width of the bitmap.
-     * @param {number} height - The new height of the bitmap.
-     * @returns {void}
+     * @param width - The new width of the bitmap.
+     * @param height - The new height of the bitmap.
      */
-    resize(width, height) {
+    resize(width: number, height: number): void {
         width = Math.max(width || 0, 1);
         height = Math.max(height || 0, 1);
         this._ensureCanvas();
-        this._textureSource.resize(width, height);
+        this._textureSource!.resize(width, height);
     }
 
     /**
      * Performs a block transfer.
-     *
-     * @param {Bitmap} source - The bitmap to draw.
-     * @param {number} sx - The x coordinate in the source.
-     * @param {number} sy - The y coordinate in the source.
-     * @param {number} sw - The width of the source image.
-     * @param {number} sh - The height of the source image.
-     * @param {number} dx - The x coordinate in the destination.
-     * @param {number} dy - The y coordinate in the destination.
-     * @param {number} [dw] The width to draw the image in the destination.
-     * @param {number} [dh] The height to draw the image in the destination.
-     * @returns {void}
+     * @param source - The bitmap to draw.
+     * @param sx - The x coordinate in the source.
+     * @param sy - The y coordinate in the source.
+     * @param sw - The width of the source image.
+     * @param sh - The height of the source image.
+     * @param dx - The x coordinate in the destination.
+     * @param dy - The y coordinate in the destination.
+     * @param dw The width to draw the image in the destination.
+     * @param dh The height to draw the image in the destination.
      */
-    blt(source, sx, sy, sw, sh, dx, dy, dw, dh) {
+    blt(
+        source: Bitmap,
+        sx: number,
+        sy: number,
+        sw: number,
+        sh: number,
+        dx: number,
+        dy: number,
+        dw?: number,
+        dh?: number,
+    ): void {
         dw = dw || sw;
         dh = dh || sh;
         try {
             const image = source._canvas || source._image;
             this.context.globalCompositeOperation = "source-over";
-            this.context.drawImage(image, sx, sy, sw, sh, dx, dy, dw, dh);
-            this._textureSource.update();
+            this.context.drawImage(image!, sx, sy, sw, sh, dx, dy, dw, dh);
+            this._textureSource!.update();
         } catch (e) {
             //
         }
@@ -1522,12 +1422,11 @@ class Bitmap {
 
     /**
      * Returns pixel color at the specified point.
-     *
-     * @param {number} x - The x coordinate of the pixel in the bitmap.
-     * @param {number} y - The y coordinate of the pixel in the bitmap.
-     * @returns {string} The pixel color (hex format).
+     * @param x - The x coordinate of the pixel in the bitmap.
+     * @param y - The y coordinate of the pixel in the bitmap.
+     * @returns The pixel color (hex format).
      */
-    getPixel(x, y) {
+    getPixel(x: number, y: number): string {
         const data = this.context.getImageData(x, y, 1, 1).data;
         let result = "#";
         for (let i = 0; i < 3; i++) {
@@ -1538,103 +1437,102 @@ class Bitmap {
 
     /**
      * Returns alpha pixel value at the specified point.
-     *
-     * @param {number} x - The x coordinate of the pixel in the bitmap.
-     * @param {number} y - The y coordinate of the pixel in the bitmap.
-     * @returns {number} The alpha value.
+     * @param x - The x coordinate of the pixel in the bitmap.
+     * @param y - The y coordinate of the pixel in the bitmap.
+     * @returns The alpha value.
      */
-    getAlphaPixel(x, y) {
+    getAlphaPixel(x: number, y: number): number {
         const data = this.context.getImageData(x, y, 1, 1).data;
         return data[3];
     }
 
     /**
      * Clears the specified rectangle.
-     *
-     * @param {number} x - The x coordinate for the upper-left corner.
-     * @param {number} y - The y coordinate for the upper-left corner.
-     * @param {number} width - The width of the rectangle to clear.
-     * @param {number} height - The height of the rectangle to clear.
-     * @returns {void}
+     * @param x - The x coordinate for the upper-left corner.
+     * @param y - The y coordinate for the upper-left corner.
+     * @param width - The width of the rectangle to clear.
+     * @param height - The height of the rectangle to clear.
      */
-    clearRect(x, y, width, height) {
+    clearRect(x: number, y: number, width: number, height: number): void {
         this.context.clearRect(x, y, width, height);
-        this._textureSource.update();
+        this._textureSource!.update();
     }
 
     /**
      * Clears the entire bitmap.
-     *
-     * @returns {void}
      */
-    clear() {
+    clear(): void {
         this.clearRect(0, 0, this.width, this.height);
     }
 
     /**
      * Fills the specified rectangle.
-     *
-     * @param {number} x - The x coordinate for the upper-left corner.
-     * @param {number} y - The y coordinate for the upper-left corner.
-     * @param {number} width - The width of the rectangle to fill.
-     * @param {number} height - The height of the rectangle to fill.
-     * @param {string} color - The color of the rectangle in CSS format.
-     * @returns {void}
+     * @param x - The x coordinate for the upper-left corner.
+     * @param y - The y coordinate for the upper-left corner.
+     * @param width - The width of the rectangle to fill.
+     * @param height - The height of the rectangle to fill.
+     * @param color - The color of the rectangle in CSS format.
      */
-    fillRect(x, y, width, height, color) {
+    fillRect(
+        x: number,
+        y: number,
+        width: number,
+        height: number,
+        color: string,
+    ): void {
         const context = this.context;
         context.save();
         context.fillStyle = color;
         context.fillRect(x, y, width, height);
         context.restore();
-        this._textureSource.update();
+        this._textureSource!.update();
     }
 
     /**
      * Fills the entire bitmap.
-     *
-     * @param {string} color - The color of the rectangle in CSS format.
-     * @returns {void}
+     * @param color - The color of the rectangle in CSS format.
      */
-    fillAll(color) {
+    fillAll(color: string): void {
         this.fillRect(0, 0, this.width, this.height, color);
     }
 
     /**
      * Draws the specified rectangular frame.
-     *
-     * @param {number} x - The x coordinate for the upper-left corner.
-     * @param {number} y - The y coordinate for the upper-left corner.
-     * @param {number} width - The width of the rectangle to fill.
-     * @param {number} height - The height of the rectangle to fill.
-     * @param {string} color - The color of the rectangle in CSS format.
-     * @returns {void}
+     * @param x - The x coordinate for the upper-left corner.
+     * @param y - The y coordinate for the upper-left corner.
+     * @param width - The width of the rectangle to fill.
+     * @param height - The height of the rectangle to fill.
+     * @param color - The color of the rectangle in CSS format.
      */
-    strokeRect(x, y, width, height, color) {
+    strokeRect(
+        x: number,
+        y: number,
+        width: number,
+        height: number,
+        color: string,
+    ): void {
         const context = this.context;
         context.save();
         context.strokeStyle = color;
         context.strokeRect(x, y, width, height);
         context.restore();
-        this._textureSource.update();
+        this._textureSource!.update();
     }
 
     // prettier-ignore
     /**
      * Draws the rectangle with a gradation.
-     *
-     * @param {number} x - The x coordinate for the upper-left corner.
-     * @param {number} y - The y coordinate for the upper-left corner.
-     * @param {number} width - The width of the rectangle to fill.
-     * @param {number} height - The height of the rectangle to fill.
-     * @param {string} color1 - The gradient starting color.
-     * @param {string} color2 - The gradient ending color.
-     * @param {boolean} [vertical] - Whether the gradient should be draw as vertical or not.
-     * @returns {void}
+     * @param x - The x coordinate for the upper-left corner.
+     * @param y - The y coordinate for the upper-left corner.
+     * @param width - The width of the rectangle to fill.
+     * @param height - The height of the rectangle to fill.
+     * @param color1 - The gradient starting color.
+     * @param color2 - The gradient ending color.
+     * @param vertical - Whether the gradient should be draw as vertical or not.
      */
     gradientFillRect(
-        x, y, width, height, color1, color2, vertical
-    ) {
+        x: number, y: number, width: number, height: number, color1: string, color2: string, vertical?: boolean
+    ): void {
         const context = this.context;
         const x1 = vertical ? x : x + width;
         const y1 = vertical ? y + height : y;
@@ -1645,19 +1543,17 @@ class Bitmap {
         context.fillStyle = grad;
         context.fillRect(x, y, width, height);
         context.restore();
-        this._textureSource.update();
+        this._textureSource!.update();
     }
 
     /**
      * Draws a bitmap in the shape of a circle.
-     *
-     * @param {number} x - The x coordinate based on the circle center.
-     * @param {number} y - The y coordinate based on the circle center.
-     * @param {number} radius - The radius of the circle.
-     * @param {string} color - The color of the circle in CSS format.
-     * @returns {void}
+     * @param x - The x coordinate based on the circle center.
+     * @param y - The y coordinate based on the circle center.
+     * @param radius - The radius of the circle.
+     * @param color - The color of the circle in CSS format.
      */
-    drawCircle(x, y, radius, color) {
+    drawCircle(x: number, y: number, radius: number, color: string): void {
         const context = this.context;
         context.save();
         context.fillStyle = color;
@@ -1665,23 +1561,29 @@ class Bitmap {
         context.arc(x, y, radius, 0, Math.PI * 2, false);
         context.fill();
         context.restore();
-        this._textureSource.update();
+        this._textureSource!.update();
     }
 
     /**
      * Draws the outline text to the bitmap.
-     *
-     * @param {string} text - The text that will be drawn.
-     * @param {number} x - The x coordinate for the left of the text.
-     * @param {number} y - The y coordinate for the top of the text.
-     * @param {number} maxWidth - The maximum allowed width of the text.
-     * @param {number} lineHeight - The height of the text line.
-     * @param {CanvasTextAlign} [align] - The alignment of the text.
-     * @returns {void}
+     * @param text - The text that will be drawn.
+     * @param x - The x coordinate for the left of the text.
+     * @param y - The y coordinate for the top of the text.
+     * @param maxWidth - The maximum allowed width of the text.
+     * @param lineHeight - The height of the text line.
+     * @param align - The alignment of the text.
      */
-    drawText(text, x, y, maxWidth, lineHeight, align) {
+    drawText(
+        text: string | number,
+        x: number,
+        y: number,
+        maxWidth: number | undefined,
+        lineHeight: number,
+        align?: CanvasTextAlign,
+    ): void {
         // [Note] Different browser makes different rendering with
         //   textBaseline == 'top'. So we use 'alphabetic' here.
+        text = String(text);
         const context = this.context;
         const alpha = context.globalAlpha;
         maxWidth = maxWidth || 0xffffffff;
@@ -1695,23 +1597,22 @@ class Bitmap {
         }
         context.save();
         context.font = this._makeFontNameText();
-        context.textAlign = align;
+        context.textAlign = align!;
         context.textBaseline = "alphabetic";
         context.globalAlpha = 1;
         this._drawTextOutline(text, tx, ty, maxWidth);
         context.globalAlpha = alpha;
         this._drawTextBody(text, tx, ty, maxWidth);
         context.restore();
-        this._textureSource.update();
+        this._textureSource!.update();
     }
 
     /**
      * Returns the width of the specified text.
-     *
-     * @param {string} text - The text to be measured.
-     * @returns {number} The width of the text in pixels.
+     * @param text - The text to be measured.
+     * @returns The width of the text in pixels.
      */
-    measureTextWidth(text) {
+    measureTextWidth(text: string): number {
         const context = this.context;
         context.save();
         context.font = this._makeFontNameText();
@@ -1722,11 +1623,9 @@ class Bitmap {
 
     /**
      * Adds a callback function that will be called when the bitmap is loaded.
-     *
-     * @param {(bitmap: Bitmap) => void} listner - The callback function.
-     * @returns {void}
+     * @param listner - The callback function.
      */
-    addLoadListener(listner) {
+    addLoadListener(listner: (bitmap: Bitmap) => void): void {
         if (!this.isReady()) {
             this._loadListeners.push(listner);
         } else {
@@ -1736,28 +1635,23 @@ class Bitmap {
 
     /**
      * Tries to load the image again.
-     *
-     * @returns {void}
      */
-    retry() {
+    retry(): void {
         this._startLoading();
     }
 
-    /** @returns {string} */
-    _makeFontNameText() {
+    _makeFontNameText(): string {
         const italic = this.fontItalic ? "Italic " : "";
         const bold = this.fontBold ? "Bold " : "";
         return italic + bold + this.fontSize + "px " + this.fontFace;
     }
 
-    /**
-     * @param {string} text
-     * @param {number} tx
-     * @param {number} ty
-     * @param {number} maxWidth
-     * @returns {void}
-     */
-    _drawTextOutline(text, tx, ty, maxWidth) {
+    _drawTextOutline(
+        text: string,
+        tx: number,
+        ty: number,
+        maxWidth: number,
+    ): void {
         const context = this.context;
         context.strokeStyle = this.outlineColor;
         context.lineWidth = this.outlineWidth;
@@ -1765,25 +1659,18 @@ class Bitmap {
         context.strokeText(text, tx, ty, maxWidth);
     }
 
-    /**
-     * @param {string} text
-     * @param {number} tx
-     * @param {number} ty
-     * @param {number} maxWidth
-     * @returns {void}
-     */
-    _drawTextBody(text, tx, ty, maxWidth) {
+    _drawTextBody(
+        text: string,
+        tx: number,
+        ty: number,
+        maxWidth: number,
+    ): void {
         const context = this.context;
         context.fillStyle = this.textColor;
         context.fillText(text, tx, ty, maxWidth);
     }
 
-    /**
-     * @param {number} width
-     * @param {number} height
-     * @returns {void}
-     */
-    _createCanvas(width, height) {
+    _createCanvas(width: number, height: number): void {
         this._canvas = document.createElement("canvas");
         this._context = this._canvas.getContext("2d");
         this._canvas.width = width;
@@ -1791,20 +1678,18 @@ class Bitmap {
         this._createTextureSource(this._canvas);
     }
 
-    /** @returns {void} */
-    _ensureCanvas() {
+    _ensureCanvas(): void {
         if (!this._canvas) {
             if (this._image) {
                 this._createCanvas(this._image.width, this._image.height);
-                this._context.drawImage(this._image, 0, 0);
+                this._context!.drawImage(this._image, 0, 0);
             } else {
                 this._createCanvas(0, 0);
             }
         }
     }
 
-    /** @returns {void} */
-    _destroyCanvas() {
+    _destroyCanvas(): void {
         if (this._canvas) {
             this._canvas.width = 0;
             this._canvas.height = 0;
@@ -1812,25 +1697,20 @@ class Bitmap {
         }
     }
 
-    /**
-     * @param {HTMLCanvasElement | HTMLImageElement} resource
-     * @returns {void}
-     */
-    _createTextureSource(resource) {
-        const Source = resource === this._canvas ? PIXI.CanvasSource : PIXI.ImageSource;
+    _createTextureSource(resource: HTMLCanvasElement | HTMLImageElement): void {
+        const Source =
+            resource === this._canvas ? PIXI.CanvasSource : PIXI.ImageSource;
         this._textureSource = new Source({ resource, resolution: 1 });
         this._updateScaleMode();
     }
 
-    /** @returns {void} */
-    _updateScaleMode() {
+    _updateScaleMode(): void {
         if (this._textureSource) {
             this._textureSource.scaleMode = this._smooth ? "linear" : "nearest";
         }
     }
 
-    /** @returns {void} */
-    _startLoading() {
+    _startLoading(): void {
         this._image = new Image();
         this._image.onload = this._onLoad.bind(this);
         this._image.onerror = this._onError.bind(this);
@@ -1847,8 +1727,7 @@ class Bitmap {
         }
     }
 
-    /** @returns {void} */
-    _startDecrypting() {
+    _startDecrypting(): void {
         const xhr = new XMLHttpRequest();
         xhr.open("GET", this._url + "_");
         xhr.responseType = "arraybuffer";
@@ -1857,99 +1736,93 @@ class Bitmap {
         xhr.send();
     }
 
-    /**
-     * @param {XMLHttpRequest} xhr
-     * @returns {void}
-     */
-    _onXhrLoad(xhr) {
+    _onXhrLoad(xhr: XMLHttpRequest): void {
         if (xhr.status < 400) {
             const arrayBuffer = Utils.decryptArrayBuffer(xhr.response);
             const blob = new Blob([arrayBuffer]);
-            this._image.src = URL.createObjectURL(blob);
+            this._image!.src = URL.createObjectURL(blob);
         } else {
             this._onError();
         }
     }
 
-    /** @returns {void} */
-    _onLoad() {
+    _onLoad(): void {
         if (Utils.hasEncryptedImages()) {
-            URL.revokeObjectURL(this._image.src);
+            URL.revokeObjectURL(this._image!.src);
         }
         this._loadingState = "loaded";
-        this._createTextureSource(this._image);
+        this._createTextureSource(this._image!);
         this._callLoadListeners();
     }
 
-    /** @returns {void} */
-    _callLoadListeners() {
+    _callLoadListeners(): void {
         while (this._loadListeners.length > 0) {
             const listener = this._loadListeners.shift();
-            listener(this);
+            listener!(this);
         }
     }
 
-    /** @returns {void} */
-    _onError() {
+    _onError(): void {
         this._loadingState = "error";
     }
 }
 
 /**
  * The basic object that is rendered to the game screen.
- *
- * @class
- * @extends PIXI.Sprite
- * @param {Bitmap} bitmap - The image for the sprite.
+ * @param bitmap - The image for the sprite.
  */
 class Sprite extends PIXI.Sprite {
-    /** @param {[bitmap?: Bitmap]} args */
-    constructor(...args) {
-        super(new PIXI.Texture({
-            source: PIXI.Texture.EMPTY.source,
-            frame: new PIXI.Rectangle(),
-            dynamic: true
-        }));
+    declare children: RMMZ.UpdateableChild[];
+    declare z: number;
+
+    declare spriteId: number;
+    declare _bitmap: Bitmap;
+    declare _frame: Rectangle;
+    declare _hue: number;
+    declare _blendColor: RMMZ.Color;
+    declare _colorTone: RMMZ.Color;
+    declare _colorFilter: ColorFilter | null;
+    declare _hidden: boolean;
+    declare _refreshFrame: boolean;
+
+    constructor(...args: unknown[]) {
+        super(
+            new PIXI.Texture({
+                source: PIXI.Texture.EMPTY.source,
+                frame: new PIXI.Rectangle(),
+                dynamic: true,
+            }),
+        );
         // Engine sprites can have overlays and other child sprites.
         this.allowChildren = true;
         this.initialize(...args);
     }
 
-    /** @param {Bitmap} [bitmap] */
-    initialize(bitmap) {
-        /** @type {number} */
+    initialize(bitmap?: Bitmap): void;
+    initialize(...args: any[]): void;
+    initialize(bitmap?: Bitmap): void {
         this.spriteId = Sprite._counter++;
-        /** @type {Bitmap} */
-        this._bitmap = bitmap;
-        /** @type {Rectangle} */
+        this._bitmap = bitmap!;
         this._frame = new PIXI.Rectangle();
-        /** @type {number} */
         this._hue = 0;
-        /** @type {RMMZ.Color} */
         this._blendColor = [0, 0, 0, 0];
-        /** @type {RMMZ.Color} */
         this._colorTone = [0, 0, 0, 0];
-        /** @type {ColorFilter | null} */
         this._colorFilter = null;
-        /** @type {boolean} */
         this._hidden = false;
         this._onBitmapChange();
     }
 
-    /** @type {number} */
-    static _counter = 0;
+    static _counter: number = 0;
 
     /**
      * The image for the sprite.
-     *
      * @name Sprite#bitmap
-     * @type {Bitmap}
      */
-    get bitmap() {
+    get bitmap(): Bitmap {
         return this._bitmap;
     }
-    /** @param {Bitmap} value */
-    set bitmap(value) {
+
+    set bitmap(value: Bitmap) {
         if (this._bitmap !== value) {
             this._bitmap = value;
             this._onBitmapChange();
@@ -1958,86 +1831,77 @@ class Sprite extends PIXI.Sprite {
 
     /**
      * The width of the sprite without the scale.
-     *
      * @name Sprite#width
-     * @type {number}
      */
-    get width() {
+    get width(): number {
         return this._frame.width;
     }
-    /** @param {number} value */
-    set width(value) {
+
+    set width(value: number) {
         this._frame.width = value;
         this._refresh();
     }
 
     /**
      * The height of the sprite without the scale.
-     *
      * @name Sprite#height
-     * @type {number}
      */
-    get height() {
+    get height(): number {
         return this._frame.height;
     }
-    /** @param {number} value */
-    set height(value) {
+
+    set height(value: number) {
         this._frame.height = value;
         this._refresh();
     }
 
     /**
      * The opacity of the sprite (0 to 255).
-     *
      * @name Sprite#opacity
-     * @type {number}
      */
-    get opacity() {
+    get opacity(): number {
         return this.alpha * 255;
     }
-    /** @param {number} value */
-    set opacity(value) {
+
+    set opacity(value: number) {
         this.alpha = value.clamp(0, 255) / 255;
     }
 
     /**
      * The blend mode to be applied to the sprite.
-     *
      * @name Sprite#blendMode
-     * @type {import("pixi.js").BLEND_MODES}
      */
-    get blendMode() {
+    get blendMode(): import("pixi.js").BLEND_MODES {
         return this._colorFilter?.blendMode ?? super.blendMode;
     }
 
-    /** @param {RMMZ.BlendMode} value */
-    set blendMode(value) {
-        const mode = typeof value === "number" ? Sprite._blendModes[value] ?? "normal" : value;
+    set blendMode(value: RMMZ.BlendMode) {
+        const mode =
+            typeof value === "number"
+                ? (Sprite._blendModes[value] ?? "normal")
+                : value;
         if (this._colorFilter) {
-            this._colorFilter.blendMode = mode;
+            this._colorFilter.blendMode = mode as import("pixi.js").BLEND_MODES;
         } else {
-            super.blendMode = mode;
+            super.blendMode = mode as import("pixi.js").BLEND_MODES;
         }
     }
 
-    static _blendModes = ["normal", "add", "multiply", "screen"];
+    static _blendModes: string[] = ["normal", "add", "multiply", "screen"];
 
     /**
      * Destroys the sprite.
-     *
-     * @returns {void}
      */
-    destroy() {
+    destroy(..._extra: any[]): void;
+    destroy(): void {
         const options = { children: true, texture: true };
         super.destroy(options);
     }
 
     /**
      * Updates the sprite for each frame.
-     *
-     * @returns {void}
      */
-    update() {
+    update(): void {
         for (const child of this.children) {
             if (child.update) {
                 child.update();
@@ -2047,55 +1911,45 @@ class Sprite extends PIXI.Sprite {
 
     /**
      * Makes the sprite "hidden".
-     *
-     * @returns {void}
      */
-    hide() {
+    hide(): void {
         this._hidden = true;
         this.updateVisibility();
     }
 
     /**
      * Releases the "hidden" state of the sprite.
-     *
-     * @returns {void}
      */
-    show() {
+    show(): void {
         this._hidden = false;
         this.updateVisibility();
     }
 
     /**
      * Reflects the "hidden" state of the sprite to the visible state.
-     *
-     * @returns {void}
      */
-    updateVisibility() {
+    updateVisibility(): void {
         this.visible = !this._hidden;
     }
 
     /**
      * Sets the x and y at once.
-     *
-     * @param {number} x - The x coordinate of the sprite.
-     * @param {number} y - The y coordinate of the sprite.
-     * @returns {void}
+     * @param x - The x coordinate of the sprite.
+     * @param y - The y coordinate of the sprite.
      */
-    move(x, y) {
+    move(x: number, y: number): void {
         this.x = x;
         this.y = y;
     }
 
     /**
      * Sets the rectagle of the bitmap that the sprite displays.
-     *
-     * @param {number} x - The x coordinate of the frame.
-     * @param {number} y - The y coordinate of the frame.
-     * @param {number} width - The width of the frame.
-     * @param {number} height - The height of the frame.
-     * @returns {void}
+     * @param x - The x coordinate of the frame.
+     * @param y - The y coordinate of the frame.
+     * @param width - The width of the frame.
+     * @param height - The height of the frame.
      */
-    setFrame(x, y, width, height) {
+    setFrame(x: number, y: number, width: number, height: number): void {
         this._refreshFrame = false;
         const frame = this._frame;
         if (
@@ -2114,11 +1968,9 @@ class Sprite extends PIXI.Sprite {
 
     /**
      * Sets the hue rotation value.
-     *
-     * @param {number} hue - The hue value (-360, 360).
-     * @returns {void}
+     * @param hue - The hue value (-360, 360).
      */
-    setHue(hue) {
+    setHue(hue: number): void {
         if (this._hue !== Number(hue)) {
             this._hue = Number(hue);
             this._updateColorFilter();
@@ -2127,20 +1979,17 @@ class Sprite extends PIXI.Sprite {
 
     /**
      * Gets the blend color for the sprite.
-     *
-     * @returns {[ number, number, number, number ]} The blend color [r, g, b, a].
+     * @returns The blend color [r, g, b, a].
      */
-    getBlendColor() {
+    getBlendColor(): [number, number, number, number] {
         return this._blendColor.clone();
     }
 
     /**
      * Sets the blend color for the sprite.
-     *
-     * @param {RMMZ.Color} color - The blend color [r, g, b, a].
-     * @returns {void}
+     * @param color - The blend color [r, g, b, a].
      */
-    setBlendColor(color) {
+    setBlendColor(color: RMMZ.Color): void {
         if (!(color instanceof Array)) {
             throw new Error("Argument must be an array");
         }
@@ -2152,20 +2001,17 @@ class Sprite extends PIXI.Sprite {
 
     /**
      * Gets the color tone for the sprite.
-     *
-     * @returns {[ number, number, number, number ]} The color tone [r, g, b, gray].
+     * @returns The color tone [r, g, b, gray].
      */
-    getColorTone() {
+    getColorTone(): [number, number, number, number] {
         return this._colorTone.clone();
     }
 
     /**
      * Sets the color tone for the sprite.
-     *
-     * @param {RMMZ.Color} tone - The color tone [r, g, b, gray].
-     * @returns {void}
+     * @param tone - The color tone [r, g, b, gray].
      */
-    setColorTone(tone) {
+    setColorTone(tone: RMMZ.Color): void {
         if (!(tone instanceof Array)) {
             throw new Error("Argument must be an array");
         }
@@ -2175,8 +2021,7 @@ class Sprite extends PIXI.Sprite {
         }
     }
 
-    /** @returns {void} */
-    _onBitmapChange() {
+    _onBitmapChange(): void {
         if (this._bitmap) {
             this._refreshFrame = true;
             this._bitmap.addLoadListener(this._onBitmapLoad.bind(this));
@@ -2186,11 +2031,7 @@ class Sprite extends PIXI.Sprite {
         }
     }
 
-    /**
-     * @param {Bitmap} bitmapLoaded
-     * @returns {void}
-     */
-    _onBitmapLoad(bitmapLoaded) {
+    _onBitmapLoad(bitmapLoaded: Bitmap): void {
         if (bitmapLoaded === this._bitmap) {
             if (this._refreshFrame && this._bitmap) {
                 this._refreshFrame = false;
@@ -2201,8 +2042,7 @@ class Sprite extends PIXI.Sprite {
         }
     }
 
-    /** @returns {void} */
-    _refresh() {
+    _refresh(): void {
         const texture = this.texture;
         const frameX = Math.floor(this._frame.x);
         const frameY = Math.floor(this._frame.y);
@@ -2213,11 +2053,22 @@ class Sprite extends PIXI.Sprite {
         const textureSourceH = textureSource ? textureSource.height : 0;
         const realX = frameX.clamp(0, textureSourceW);
         const realY = frameY.clamp(0, textureSourceH);
-        const realW = (frameW - realX + frameX).clamp(0, textureSourceW - realX);
-        const realH = (frameH - realY + frameY).clamp(0, textureSourceH - realY);
+        const realW = (frameW - realX + frameX).clamp(
+            0,
+            textureSourceW - realX,
+        );
+        const realH = (frameH - realY + frameY).clamp(
+            0,
+            textureSourceH - realY,
+        );
         this.pivot.x = frameX - realX;
         this.pivot.y = frameY - realY;
-        texture.frame.copyFrom({ x: realX, y: realY, width: realW, height: realH });
+        texture.frame.copyFrom({
+            x: realX,
+            y: realY,
+            width: realW,
+            height: realH,
+        } as import("pixi.js").Rectangle);
         const source = textureSource ?? PIXI.Texture.EMPTY.source;
         if (texture.source !== source) {
             texture.source = source;
@@ -2225,22 +2076,20 @@ class Sprite extends PIXI.Sprite {
         texture.update();
     }
 
-    /** @returns {void} */
-    _createColorFilter() {
+    _createColorFilter(): void {
         this._colorFilter = new ColorFilter();
         this._colorFilter.blendMode = super.blendMode;
         super.blendMode = "normal";
         this.filters = [...(this.filters ?? []), this._colorFilter];
     }
 
-    /** @returns {void} */
-    _updateColorFilter() {
+    _updateColorFilter(): void {
         if (!this._colorFilter) {
             this._createColorFilter();
         }
-        this._colorFilter.setHue(this._hue);
-        this._colorFilter.setBlendColor(this._blendColor);
-        this._colorFilter.setColorTone(this._colorTone);
+        this._colorFilter!.setHue(this._hue);
+        this._colorFilter!.setBlendColor(this._blendColor);
+        this._colorFilter!.setColorTone(this._colorTone);
     }
 }
 
@@ -2257,75 +2106,78 @@ class Sprite extends PIXI.Sprite {
  * - 7: Balloon
  * - 8: Animation
  * - 9: Destination
- *
- * @class
- * @extends PIXI.Container
  */
 class Tilemap extends PIXI.Container {
+    declare children: RMMZ.UpdateableChild[];
+    declare _width: number;
+    declare _height: number;
+    declare _margin: number;
+    declare _mapWidth: number;
+    declare _mapHeight: number;
+    declare _mapData: number[] | null;
+    declare _bitmaps: Bitmap[];
+    declare tileWidth: number;
+    declare tileHeight: number;
+    declare flags: any[];
+    declare animationCount: number;
+    declare horizontalWrap: boolean;
+    declare verticalWrap: boolean;
+    declare animationFrame: number;
+    declare _needsBitmapsUpdate: boolean;
+    declare _needsRepaint: boolean;
+    declare _lastAnimationFrame: number;
+    declare _lastStartX: any;
+    declare _lastStartY: any;
+    declare _tileAtlases: any[];
+    declare _tileShader: import("pixi.js").Shader;
+    declare _lowerLayer: Tilemap.CombinedLayer;
+    declare _upperLayer: Tilemap.CombinedLayer;
+    declare static Layer: typeof TilemapLayer;
+    declare static CombinedLayer: typeof TilemapCombinedLayer;
+
     constructor() {
         super();
 
-        /** @type {number} */
         this._width = Graphics.width;
-        /** @type {number} */
         this._height = Graphics.height;
-        /** @type {number} */
         this._margin = 20;
-        /** @type {number} */
         this._mapWidth = 0;
-        /** @type {number} */
         this._mapHeight = 0;
-        /** @type {number[] | null} */
         this._mapData = null;
-        /** @type {Bitmap[]} */
         this._bitmaps = [];
 
         /**
          * The width of each tile.
-         *
-         * @type {number}
          */
         this.tileWidth = 48;
 
         /**
          * The height of each tile.
-         *
-         * @type {number}
          */
         this.tileHeight = 48;
 
         /**
          * The origin point of the tilemap for scrolling.
-         *
-         * @type {import("pixi.js").Point}
          */
         this.origin = new PIXI.Point();
 
         /**
          * The tileset flags.
-         *
-         * @type {any[]}
          */
         this.flags = [];
 
         /**
          * The animation count for autotiles.
-         *
-         * @type {number}
          */
         this.animationCount = 0;
 
         /**
          * Whether the tilemap loops horizontal.
-         *
-         * @type {boolean}
          */
         this.horizontalWrap = false;
 
         /**
          * Whether the tilemap loops vertical.
-         *
-         * @type {boolean}
          */
         this.verticalWrap = false;
 
@@ -2336,38 +2188,32 @@ class Tilemap extends PIXI.Container {
 
     /**
      * The width of the tilemap.
-     *
      * @name Tilemap#width
-     * @type {number}
      */
-    get width() {
+    get width(): number {
         return this._width;
     }
-    /** @param {number} value */
-    set width(value) {
+
+    set width(value: number) {
         this._width = value;
     }
 
     /**
      * The height of the tilemap.
-     *
      * @name Tilemap#height
-     * @type {number}
      */
-    get height() {
+    get height(): number {
         return this._height;
     }
-    /** @param {number} value */
-    set height(value) {
+
+    set height(value: number) {
         this._height = value;
     }
 
     /**
      * Destroys the tilemap.
-     *
-     * @returns {void}
      */
-    destroy() {
+    destroy(): void {
         super.destroy({ children: true });
         this._tileShader.destroy();
         for (const atlas of this._tileAtlases) {
@@ -2377,13 +2223,11 @@ class Tilemap extends PIXI.Container {
 
     /**
      * Sets the tilemap data.
-     *
-     * @param {number} width - The width of the map in number of tiles.
-     * @param {number} height - The height of the map in number of tiles.
-     * @param {number[]} data - The one dimensional array for the map data.
-     * @returns {void}
+     * @param width - The width of the map in number of tiles.
+     * @param height - The height of the map in number of tiles.
+     * @param data - The one dimensional array for the map data.
      */
-    setData(width, height, data) {
+    setData(width: number, height: number, data: number[]): void {
         this._mapWidth = width;
         this._mapHeight = height;
         this._mapData = data;
@@ -2391,10 +2235,9 @@ class Tilemap extends PIXI.Container {
 
     /**
      * Checks whether the tileset is ready to render.
-     *
-     * @returns {boolean} True if the tilemap is ready.
+     * @returns True if the tilemap is ready.
      */
-    isReady() {
+    isReady(): boolean {
         for (const bitmap of this._bitmaps) {
             if (bitmap && !bitmap.isReady()) {
                 return false;
@@ -2405,10 +2248,8 @@ class Tilemap extends PIXI.Container {
 
     /**
      * Updates the tilemap for each frame.
-     *
-     * @returns {void}
      */
-    update() {
+    update(): void {
         this.animationCount++;
         this.animationFrame = Math.floor(this.animationCount / 30);
         for (const child of this.children) {
@@ -2424,11 +2265,9 @@ class Tilemap extends PIXI.Container {
      * We wait for the images to finish loading. Creating textures
      * from bitmaps that are not yet loaded here brings some maintenance
      * difficulties. For example, PIXI overwrites img.onload internally.
-     *
-     * @param {Bitmap[]} bitmaps - The array of the tileset bitmaps.
-     * @returns {void}
+     * @param bitmaps - The array of the tileset bitmaps.
      */
-    setBitmaps(bitmaps) {
+    setBitmaps(bitmaps: Bitmap[]): void {
         this._bitmaps = bitmaps;
         const listener = this._updateBitmaps.bind(this);
         for (const bitmap of this._bitmaps) {
@@ -2442,15 +2281,12 @@ class Tilemap extends PIXI.Container {
 
     /**
      * Forces to repaint the entire tilemap.
-     *
-     * @returns {void}
      */
-    refresh() {
+    refresh(): void {
         this._needsRepaint = true;
     }
 
-    /** @returns {void} */
-    _updateLayers() {
+    _updateLayers(): void {
         const ox = Math.ceil(this.origin.x);
         const oy = Math.ceil(this.origin.y);
         const startX = Math.floor((ox - this._margin) / this.tileWidth);
@@ -2474,8 +2310,7 @@ class Tilemap extends PIXI.Container {
         this._sortChildren();
     }
 
-    /** @returns {void} */
-    _createLayers() {
+    _createLayers(): void {
         this._tileAtlases = [];
         this._tileShader = Tilemap.createShader();
         this._lowerLayer = new Tilemap.CombinedLayer(this._tileShader);
@@ -2487,8 +2322,7 @@ class Tilemap extends PIXI.Container {
         this._needsRepaint = true;
     }
 
-    /** @returns {void} */
-    _updateBitmaps() {
+    _updateBitmaps(): void {
         if (this._needsBitmapsUpdate && this.isReady()) {
             this._updateAtlasTextures();
             this._needsBitmapsUpdate = false;
@@ -2496,8 +2330,7 @@ class Tilemap extends PIXI.Container {
         }
     }
 
-    /** @returns {void} */
-    _updateAtlasTextures() {
+    _updateAtlasTextures(): void {
         // Four tilesheets share each atlas. The shader binds at most three atlases.
         for (let i = 0; i < 3; i++) {
             const bitmaps = this._bitmaps.slice(i * 4, i * 4 + 4);
@@ -2507,7 +2340,7 @@ class Tilemap extends PIXI.Container {
                 this._tileAtlases[i] = new PIXI.CanvasSource({
                     resource: canvas,
                     resolution: 1,
-                    scaleMode: "nearest"
+                    scaleMode: "nearest",
                 });
             }
             const source = this._tileAtlases[i];
@@ -2519,8 +2352,17 @@ class Tilemap extends PIXI.Container {
                 if (image?.width && image.height) {
                     const width = Math.min(image.width, 1024);
                     const height = Math.min(image.height, 1024);
-                    context.drawImage(image, 0, 0, width, height,
-                        1024 * (j % 2), 1024 * (j >> 1), width, height);
+                    context.drawImage(
+                        image,
+                        0,
+                        0,
+                        width,
+                        height,
+                        1024 * (j % 2),
+                        1024 * (j >> 1),
+                        width,
+                        height,
+                    );
                 }
             }
             source.update();
@@ -2528,12 +2370,7 @@ class Tilemap extends PIXI.Container {
         }
     }
 
-    /**
-     * @param {number} startX
-     * @param {number} startY
-     * @returns {void}
-     */
-    _addAllSpots(startX, startY) {
+    _addAllSpots(startX: number, startY: number): void {
         this._lowerLayer.clear();
         this._upperLayer.clear();
         const widthWithMatgin = this.width + this._margin * 2;
@@ -2547,14 +2384,7 @@ class Tilemap extends PIXI.Container {
         }
     }
 
-    /**
-     * @param {number} startX
-     * @param {number} startY
-     * @param {number} x
-     * @param {number} y
-     * @returns {void}
-     */
-    _addSpot(startX, startY, x, y) {
+    _addSpot(startX: number, startY: number, x: number, y: number): void {
         const mx = startX + x;
         const my = startY + y;
         const dx = x * this.tileWidth;
@@ -2583,13 +2413,7 @@ class Tilemap extends PIXI.Container {
         }
     }
 
-    /**
-     * @param {RMMZ.TileID} tileId
-     * @param {number} dx
-     * @param {number} dy
-     * @returns {void}
-     */
-    _addSpotTile(tileId, dx, dy) {
+    _addSpotTile(tileId: RMMZ.TileID, dx: number, dy: number): void {
         if (this._isHigherTile(tileId)) {
             this._addTile(this._upperLayer, tileId, dx, dy);
         } else {
@@ -2597,14 +2421,12 @@ class Tilemap extends PIXI.Container {
         }
     }
 
-    /**
-     * @param {Tilemap.CombinedLayer} layer
-     * @param {RMMZ.TileID} tileId
-     * @param {number} dx
-     * @param {number} dy
-     * @returns {void}
-     */
-    _addTile(layer, tileId, dx, dy) {
+    _addTile(
+        layer: TilemapCombinedLayer,
+        tileId: RMMZ.TileID,
+        dx: number,
+        dy: number,
+    ): void {
         if (Tilemap.isVisibleTile(tileId)) {
             if (Tilemap.isAutotile(tileId)) {
                 this._addAutotile(layer, tileId, dx, dy);
@@ -2614,14 +2436,12 @@ class Tilemap extends PIXI.Container {
         }
     }
 
-    /**
-     * @param {Tilemap.CombinedLayer} layer
-     * @param {RMMZ.TileID} tileId
-     * @param {number} dx
-     * @param {number} dy
-     * @returns {void}
-     */
-    _addNormalTile(layer, tileId, dx, dy) {
+    _addNormalTile(
+        layer: TilemapCombinedLayer,
+        tileId: RMMZ.TileID,
+        dx: number,
+        dy: number,
+    ): void {
         let setNumber = 0;
 
         if (Tilemap.isTileA5(tileId)) {
@@ -2638,14 +2458,12 @@ class Tilemap extends PIXI.Container {
         layer.addRect(setNumber, sx, sy, dx, dy, w, h);
     }
 
-    /**
-     * @param {Tilemap.CombinedLayer} layer
-     * @param {RMMZ.TileID} tileId
-     * @param {number} dx
-     * @param {number} dy
-     * @returns {void}
-     */
-    _addAutotile(layer, tileId, dx, dy) {
+    _addAutotile(
+        layer: TilemapCombinedLayer,
+        tileId: RMMZ.TileID,
+        dx: number,
+        dy: number,
+    ): void {
         const kind = Tilemap.getAutotileKind(tileId);
         const shape = Tilemap.getAutotileShape(tileId);
         const tx = kind % 8;
@@ -2654,7 +2472,7 @@ class Tilemap extends PIXI.Container {
         let bx = 0;
         let by = 0;
         let autotileTable = Tilemap.FLOOR_AUTOTILE_TABLE;
-        let isTable = false;
+        let isTable: number | boolean = false;
 
         if (Tilemap.isTileA1(tileId)) {
             const waterSurfaceIndex = [0, 1, 2, 1][this.animationFrame % 4];
@@ -2717,21 +2535,27 @@ class Tilemap extends PIXI.Container {
                 const sx2 = (bx * 2 + qsx2) * w1;
                 const sy2 = (by * 2 + qsy2) * h1;
                 layer.addRect(setNumber, sx2, sy2, dx1, dy1, w1, h1);
-                layer.addRect(setNumber, sx1, sy1, dx1, dy1 + h1 / 2, w1, h1 / 2);
+                layer.addRect(
+                    setNumber,
+                    sx1,
+                    sy1,
+                    dx1,
+                    dy1 + h1 / 2,
+                    w1,
+                    h1 / 2,
+                );
             } else {
                 layer.addRect(setNumber, sx1, sy1, dx1, dy1, w1, h1);
             }
         }
     }
 
-    /**
-     * @param {Tilemap.CombinedLayer} layer
-     * @param {RMMZ.TileID} tileId
-     * @param {number} dx
-     * @param {number} dy
-     * @returns {void}
-     */
-    _addTableEdge(layer, tileId, dx, dy) {
+    _addTableEdge(
+        layer: TilemapCombinedLayer,
+        tileId: RMMZ.TileID,
+        dx: number,
+        dy: number,
+    ): void {
         if (Tilemap.isTileA2(tileId)) {
             const autotileTable = Tilemap.FLOOR_AUTOTILE_TABLE;
             const kind = Tilemap.getAutotileKind(tileId);
@@ -2756,14 +2580,12 @@ class Tilemap extends PIXI.Container {
         }
     }
 
-    /**
-     * @param {Tilemap.CombinedLayer} layer
-     * @param {number} shadowBits
-     * @param {number} dx
-     * @param {number} dy
-     * @returns {void}
-     */
-    _addShadow(layer, shadowBits, dx, dy) {
+    _addShadow(
+        layer: TilemapCombinedLayer,
+        shadowBits: number,
+        dx: number,
+        dy: number,
+    ): void {
         if (shadowBits & 0x0f) {
             const w1 = this.tileWidth / 2;
             const h1 = this.tileHeight / 2;
@@ -2777,13 +2599,7 @@ class Tilemap extends PIXI.Container {
         }
     }
 
-    /**
-     * @param {number} x
-     * @param {number} y
-     * @param {number} z
-     * @returns {number}
-     */
-    _readMapData(x, y, z) {
+    _readMapData(x: number, y: number, z: number): number {
         if (this._mapData) {
             const width = this._mapWidth;
             const height = this._mapHeight;
@@ -2803,41 +2619,36 @@ class Tilemap extends PIXI.Container {
         }
     }
 
-    /**
-     * @param {RMMZ.TileID} tileId
-     * @returns {boolean}
-     */
-    _isHigherTile(tileId) {
+    _isHigherTile(tileId: RMMZ.TileID): number {
         return this.flags[tileId] & 0x10;
     }
 
-    /**
-     * @param {RMMZ.TileID} tileId
-     * @returns {boolean}
-     */
-    _isTableTile(tileId) {
+    _isTableTile(tileId: RMMZ.TileID): number | boolean {
         return Tilemap.isTileA2(tileId) && this.flags[tileId] & 0x80;
     }
 
-    /** @returns {boolean} */
-    _isOverpassPosition(/*mx, my*/) {
+    _isOverpassPosition(..._extra: any[]): boolean;
+    _isOverpassPosition(/*mx, my*/): boolean {
         return false;
     }
 
-    /** @returns {void} */
-    _sortChildren() {
-        const sorted = this.children.slice().sort(this._compareChildOrder);
+    _sortChildren(): void {
+        const sorted = this.children
+            .slice()
+            .sort(
+                this._compareChildOrder as
+                    | ((
+                          a: import("pixi.js").ContainerChild,
+                          b: import("pixi.js").ContainerChild,
+                      ) => number)
+                    | undefined,
+            );
         for (let i = 0; i < sorted.length; i++) {
             sorted[i].zIndex = i;
         }
     }
 
-    /**
-     * @param {Sprite} a
-     * @param {Sprite} b
-     * @returns {number}
-     */
-    _compareChildOrder(a, b) {
+    _compareChildOrder(a: RMMZ.TilemapChild, b: RMMZ.TilemapChild): number {
         if (a.z !== b.z) {
             return a.z - b.z;
         } else if (a.y !== b.y) {
@@ -2848,125 +2659,77 @@ class Tilemap extends PIXI.Container {
     }
 
     // Tile type checkers
-    static TILE_ID_B = 0;
+    static readonly TILE_ID_B = 0;
 
-    static TILE_ID_C = 256;
+    static readonly TILE_ID_C = 256;
 
-    static TILE_ID_D = 512;
+    static readonly TILE_ID_D = 512;
 
-    static TILE_ID_E = 768;
+    static readonly TILE_ID_E = 768;
 
-    static TILE_ID_A5 = 1536;
+    static readonly TILE_ID_A5 = 1536;
 
-    static TILE_ID_A1 = 2048;
+    static readonly TILE_ID_A1 = 2048;
 
-    static TILE_ID_A2 = 2816;
+    static readonly TILE_ID_A2 = 2816;
 
-    static TILE_ID_A3 = 4352;
+    static readonly TILE_ID_A3 = 4352;
 
-    static TILE_ID_A4 = 5888;
+    static readonly TILE_ID_A4 = 5888;
 
-    static TILE_ID_MAX = 8192;
+    static readonly TILE_ID_MAX = 8192;
 
-    /**
-     * @param {RMMZ.TileID} tileId
-     * @returns {boolean}
-     */
-    static isVisibleTile(tileId) {
+    static isVisibleTile(tileId: RMMZ.TileID): boolean {
         return tileId > 0 && tileId < this.TILE_ID_MAX;
     }
 
-    /**
-     * @param {RMMZ.TileID} tileId
-     * @returns {boolean}
-     */
-    static isAutotile(tileId) {
+    static isAutotile(tileId: RMMZ.TileID): boolean {
         return tileId >= this.TILE_ID_A1;
     }
 
-    /**
-     * @param {RMMZ.TileID} tileId
-     * @returns {number}
-     */
-    static getAutotileKind(tileId) {
+    static getAutotileKind(tileId: RMMZ.TileID): number {
         return Math.floor((tileId - this.TILE_ID_A1) / 48);
     }
 
-    /**
-     * @param {RMMZ.TileID} tileId
-     * @returns {number}
-     */
-    static getAutotileShape(tileId) {
+    static getAutotileShape(tileId: RMMZ.TileID): number {
         return (tileId - this.TILE_ID_A1) % 48;
     }
 
-    /**
-     * @param {number} kind
-     * @param {number} shape
-     * @returns {number}
-     */
-    static makeAutotileId(kind, shape) {
+    static makeAutotileId(kind: number, shape: number): number {
         return this.TILE_ID_A1 + kind * 48 + shape;
     }
 
-    /**
-     * @param {number} tileID1
-     * @param {number} tileID2
-     * @returns {boolean}
-     */
-    static isSameKindTile(tileID1, tileID2) {
+    static isSameKindTile(tileID1: number, tileID2: number): boolean {
         if (this.isAutotile(tileID1) && this.isAutotile(tileID2)) {
-            return this.getAutotileKind(tileID1) === this.getAutotileKind(tileID2);
+            return (
+                this.getAutotileKind(tileID1) === this.getAutotileKind(tileID2)
+            );
         } else {
             return tileID1 === tileID2;
         }
     }
 
-    /**
-     * @param {RMMZ.TileID} tileId
-     * @returns {boolean}
-     */
-    static isTileA1(tileId) {
+    static isTileA1(tileId: RMMZ.TileID): boolean {
         return tileId >= this.TILE_ID_A1 && tileId < this.TILE_ID_A2;
     }
 
-    /**
-     * @param {RMMZ.TileID} tileId
-     * @returns {boolean}
-     */
-    static isTileA2(tileId) {
+    static isTileA2(tileId: RMMZ.TileID): boolean {
         return tileId >= this.TILE_ID_A2 && tileId < this.TILE_ID_A3;
     }
 
-    /**
-     * @param {RMMZ.TileID} tileId
-     * @returns {boolean}
-     */
-    static isTileA3(tileId) {
+    static isTileA3(tileId: RMMZ.TileID): boolean {
         return tileId >= this.TILE_ID_A3 && tileId < this.TILE_ID_A4;
     }
 
-    /**
-     * @param {RMMZ.TileID} tileId
-     * @returns {boolean}
-     */
-    static isTileA4(tileId) {
+    static isTileA4(tileId: RMMZ.TileID): boolean {
         return tileId >= this.TILE_ID_A4 && tileId < this.TILE_ID_MAX;
     }
 
-    /**
-     * @param {RMMZ.TileID} tileId
-     * @returns {boolean}
-     */
-    static isTileA5(tileId) {
+    static isTileA5(tileId: RMMZ.TileID): boolean {
         return tileId >= this.TILE_ID_A5 && tileId < this.TILE_ID_A1;
     }
 
-    /**
-     * @param {RMMZ.TileID} tileId
-     * @returns {boolean}
-     */
-    static isWaterTile(tileId) {
+    static isWaterTile(tileId: RMMZ.TileID): boolean {
         if (this.isTileA1(tileId)) {
             return !(
                 tileId >= this.TILE_ID_A1 + 96 && tileId < this.TILE_ID_A1 + 192
@@ -2976,11 +2739,7 @@ class Tilemap extends PIXI.Container {
         }
     }
 
-    /**
-     * @param {RMMZ.TileID} tileId
-     * @returns {boolean}
-     */
-    static isWaterfallTile(tileId) {
+    static isWaterfallTile(tileId: RMMZ.TileID): boolean {
         if (tileId >= this.TILE_ID_A1 + 192 && tileId < this.TILE_ID_A2) {
             return this.getAutotileKind(tileId) % 2 === 1;
         } else {
@@ -2988,64 +2747,38 @@ class Tilemap extends PIXI.Container {
         }
     }
 
-    /**
-     * @param {RMMZ.TileID} tileId
-     * @returns {boolean}
-     */
-    static isGroundTile(tileId) {
+    static isGroundTile(tileId: RMMZ.TileID): boolean {
         return (
-            this.isTileA1(tileId) || this.isTileA2(tileId) || this.isTileA5(tileId)
+            this.isTileA1(tileId) ||
+            this.isTileA2(tileId) ||
+            this.isTileA5(tileId)
         );
     }
 
-    /**
-     * @param {RMMZ.TileID} tileId
-     * @returns {boolean}
-     */
-    static isShadowingTile(tileId) {
+    static isShadowingTile(tileId: RMMZ.TileID): boolean {
         return this.isTileA3(tileId) || this.isTileA4(tileId);
     }
 
-    /**
-     * @param {RMMZ.TileID} tileId
-     * @returns {boolean}
-     */
-    static isRoofTile(tileId) {
+    static isRoofTile(tileId: RMMZ.TileID): boolean {
         return this.isTileA3(tileId) && this.getAutotileKind(tileId) % 16 < 8;
     }
 
-    /**
-     * @param {RMMZ.TileID} tileId
-     * @returns {boolean}
-     */
-    static isWallTopTile(tileId) {
+    static isWallTopTile(tileId: RMMZ.TileID): boolean {
         return this.isTileA4(tileId) && this.getAutotileKind(tileId) % 16 < 8;
     }
 
-    /**
-     * @param {RMMZ.TileID} tileId
-     * @returns {boolean}
-     */
-    static isWallSideTile(tileId) {
+    static isWallSideTile(tileId: RMMZ.TileID): boolean {
         return (
             (this.isTileA3(tileId) || this.isTileA4(tileId)) &&
             this.getAutotileKind(tileId) % 16 >= 8
         );
     }
 
-    /**
-     * @param {RMMZ.TileID} tileId
-     * @returns {boolean}
-     */
-    static isWallTile(tileId) {
+    static isWallTile(tileId: RMMZ.TileID): boolean {
         return this.isWallTopTile(tileId) || this.isWallSideTile(tileId);
     }
 
-    /**
-     * @param {RMMZ.TileID} tileId
-     * @returns {boolean}
-     */
-    static isFloorTypeAutotile(tileId) {
+    static isFloorTypeAutotile(tileId: RMMZ.TileID): boolean {
         return (
             (this.isTileA1(tileId) && !this.isWaterfallTile(tileId)) ||
             this.isTileA2(tileId) ||
@@ -3053,26 +2786,18 @@ class Tilemap extends PIXI.Container {
         );
     }
 
-    /**
-     * @param {RMMZ.TileID} tileId
-     * @returns {boolean}
-     */
-    static isWallTypeAutotile(tileId) {
+    static isWallTypeAutotile(tileId: RMMZ.TileID): boolean {
         return this.isRoofTile(tileId) || this.isWallSideTile(tileId);
     }
 
-    /**
-     * @param {RMMZ.TileID} tileId
-     * @returns {boolean}
-     */
-    static isWaterfallTypeAutotile(tileId) {
+    static isWaterfallTypeAutotile(tileId: RMMZ.TileID): boolean {
         return this.isWaterfallTile(tileId);
     }
 
     // Autotile shape number to coordinates of tileset images
     // prettier-ignore
-    /** @type {number[][][]} */
-    static FLOOR_AUTOTILE_TABLE = [
+
+    static FLOOR_AUTOTILE_TABLE: number[][][] = [
         [[2, 4], [1, 4], [2, 3], [1, 3]],
         [[2, 0], [1, 4], [2, 3], [1, 3]],
         [[2, 4], [3, 0], [2, 3], [1, 3]],
@@ -3124,8 +2849,8 @@ class Tilemap extends PIXI.Container {
     ];
 
     // prettier-ignore
-    /** @type {number[][][]} */
-    static WALL_AUTOTILE_TABLE = [
+
+    static WALL_AUTOTILE_TABLE: number[][][] = [
         [[2, 2], [1, 2], [2, 1], [1, 1]],
         [[0, 2], [1, 2], [0, 1], [1, 1]],
         [[2, 0], [1, 0], [2, 1], [1, 1]],
@@ -3145,95 +2870,155 @@ class Tilemap extends PIXI.Container {
     ];
 
     // prettier-ignore
-    /** @type {number[][][]} */
-    static WATERFALL_AUTOTILE_TABLE = [
+
+    static WATERFALL_AUTOTILE_TABLE: number[][][] = [
         [[2, 0], [1, 0], [2, 1], [1, 1]],
         [[0, 0], [1, 0], [0, 1], [1, 1]],
         [[2, 0], [3, 0], [2, 1], [3, 1]],
         [[0, 0], [3, 0], [0, 1], [3, 1]]
     ];
+    static createShader() {
+        const vertex = `
+        in float aTextureId;
+        in vec4 aFrame;
+        in vec2 aSource;
+        in vec2 aPosition;
+        uniform mat3 uProjectionMatrix;
+        uniform mat3 uWorldTransformMatrix;
+        uniform mat3 uTransformMatrix;
+        out vec4 vFrame;
+        out vec2 vTextureCoord;
+        out float vTextureId;
+
+        void main() {
+            mat3 transform = uProjectionMatrix * uWorldTransformMatrix * uTransformMatrix;
+            gl_Position = vec4((transform * vec3(aPosition, 1.0)).xy, 0.0, 1.0);
+            vFrame = aFrame;
+            vTextureCoord = aSource;
+            vTextureId = aTextureId;
+        }
+    `;
+        const fragment = `
+        in vec4 vFrame;
+        in vec2 vTextureCoord;
+        in float vTextureId;
+        uniform sampler2D uSampler0;
+        uniform sampler2D uSampler1;
+        uniform sampler2D uSampler2;
+        uniform vec4 uColor;
+        uniform vec4 uWorldColorAlpha;
+        out vec4 finalColor;
+
+        void main() {
+            vec2 uv = clamp(vTextureCoord, vFrame.xy, vFrame.zw) / 2048.0;
+            vec4 color;
+            if (vTextureId < 0.0) {
+                color = vec4(0.0, 0.0, 0.0, 0.5);
+            } else if (vTextureId < 0.5) {
+                color = texture(uSampler0, uv);
+            } else if (vTextureId < 1.5) {
+                color = texture(uSampler1, uv);
+            } else {
+                color = texture(uSampler2, uv);
+            }
+            finalColor = color * uColor * uWorldColorAlpha;
+        }
+    `;
+        const source = PIXI.Texture.EMPTY.source;
+        return PIXI.Shader.from({
+            gl: { vertex, fragment },
+            resources: {
+                uSampler0: source,
+                uSampler1: source,
+                uSampler2: source,
+            },
+        });
+    }
 }
 
 // Internal classes
 
-Tilemap.Layer = class Layer extends PIXI.Mesh {
-    /** @param {import("pixi.js").Shader} shader */
-    constructor(shader) {
+class TilemapLayer extends PIXI.Mesh<
+    import("pixi.js").Geometry,
+    import("pixi.js").Shader
+> {
+    declare _elements: Array<
+        [number, number, number, number, number, number, number]
+    >;
+    declare _indexArray: Uint16Array;
+    declare _vertexArray: Float32Array;
+    declare _needsVertexUpdate: boolean;
+
+    constructor(shader: import("pixi.js").Shader) {
         const vertices = new PIXI.Buffer({
             data: new Float32Array(0),
             usage: PIXI.BufferUsage.VERTEX | PIXI.BufferUsage.COPY_DST,
-            shrinkToFit: false
+            shrinkToFit: false,
         });
         const indices = new PIXI.Buffer({
             data: new Uint16Array(0),
             usage: PIXI.BufferUsage.INDEX | PIXI.BufferUsage.COPY_DST,
-            shrinkToFit: false
+            shrinkToFit: false,
         });
-        const attribute = (format, offset) => ({
+        const attribute = (
+            format: import("pixi.js").VertexFormat,
+            offset: number,
+        ) => ({
             buffer: vertices,
             format,
             stride: 9 * Float32Array.BYTES_PER_ELEMENT,
-            offset: offset * Float32Array.BYTES_PER_ELEMENT
+            offset: offset * Float32Array.BYTES_PER_ELEMENT,
         });
         const geometry = new PIXI.Geometry({
             attributes: {
                 aTextureId: attribute("float32", 0),
                 aFrame: attribute("float32x4", 1),
                 aSource: attribute("float32x2", 5),
-                aPosition: attribute("float32x2", 7)
+                aPosition: attribute("float32x2", 7),
             },
-            indexBuffer: indices
+            indexBuffer: indices,
         });
         super({ geometry, shader });
-        /** @type {Array<[ number, number, number, number, number, number, number ]>} */
+
         this._elements = [];
-        /** @type {Float32Array} */
         this._indexArray = new Uint16Array(0);
-        /** @type {Float32Array} */
         this._vertexArray = new Float32Array(0);
-        /** @type {boolean} */
         this._needsVertexUpdate = false;
         this.onRender = this._updateGeometry;
     }
 
     // Four vertices per tile must fit in the 16-bit index buffer.
-    static MAX_SIZE = 16000;
+    static readonly MAX_SIZE = 16000;
 
-    /** @returns {void} */
-    destroy() {
+    destroy(): void {
         const geometry = this.geometry;
         super.destroy();
         geometry.destroy(true);
     }
 
-    /** @returns {void} */
-    clear() {
+    clear(): void {
         this._elements.length = 0;
         this._needsVertexUpdate = true;
     }
 
-    /** @returns {number} */
-    size() {
+    size(): number {
         return this._elements.length;
     }
 
-    /**
-     * @param {number} setNumber
-     * @param {number} sx
-     * @param {number} sy
-     * @param {number} dx
-     * @param {number} dy
-     * @param {number} w
-     * @param {number} h
-     * @returns {void}
-     */
-    addRect(setNumber, sx, sy, dx, dy, w, h) {
+    addRect(
+        setNumber: number,
+        sx: number,
+        sy: number,
+        dx: number,
+        dy: number,
+        w: number,
+        h: number,
+    ): void {
         this._elements.push([setNumber, sx, sy, dx, dy, w, h]);
         this._needsVertexUpdate = true;
     }
 
-    /** @returns {void} */
-    _updateGeometry() {
+    _updateGeometry(): void {
         if (this._needsVertexUpdate) {
             this._updateIndexBuffer();
             this._updateVertexBuffer();
@@ -3242,8 +3027,7 @@ Tilemap.Layer = class Layer extends PIXI.Mesh {
         this.renderable = this._elements.length > 0;
     }
 
-    /** @returns {void} */
-    _updateIndexBuffer() {
+    _updateIndexBuffer(): void {
         const count = this._elements.length;
         const indexCount = count * 6;
         if (this._indexArray.length < indexCount) {
@@ -3267,8 +3051,7 @@ Tilemap.Layer = class Layer extends PIXI.Mesh {
         }
     }
 
-    /** @returns {void} */
-    _updateVertexBuffer() {
+    _updateVertexBuffer(): void {
         const numElements = this._elements.length;
         const required = numElements * 4 * 9;
         if (this._vertexArray.length < required) {
@@ -3328,45 +3111,38 @@ Tilemap.Layer = class Layer extends PIXI.Mesh {
             vertexArray[index++] = dx;
             vertexArray[index++] = dy + h;
         }
-        this.geometry.getBuffer("aPosition").setDataWithSize(vertexArray, required, true);
+        this.geometry
+            .getBuffer("aPosition")
+            .setDataWithSize(vertexArray, required, true);
     }
-};
+}
+Tilemap.Layer = TilemapLayer;
 
-Tilemap.CombinedLayer = class CombinedLayer extends PIXI.Container {
-    /** @param {import("pixi.js").Shader} shader */
-    constructor(shader) {
+class TilemapCombinedLayer extends PIXI.Container {
+    declare z: number;
+    declare children: TilemapLayer[];
+
+    constructor(shader: import("pixi.js").Shader) {
         super();
         for (let i = 0; i < 2; i++) {
             this.addChild(new Tilemap.Layer(shader));
         }
     }
 
-    /** @returns {void} */
-    clear() {
+    clear(): void {
         for (const child of this.children) {
             child.clear();
         }
     }
 
-    /** @returns {number} */
-    size() {
+    size(): number {
         return this.children.reduce((r, child) => r + child.size(), 0);
     }
 
-    /**
-     * @param {number} setNumber
-     * @param {number} sx
-     * @param {number} sy
-     * @param {number} dx
-     * @param {number} dy
-     * @param {number} w
-     * @param {number} h
-     * @returns {void}
-     */
     // prettier-ignore
     addRect(
-        setNumber, sx, sy, dx, dy, w, h
-    ) {
+        setNumber: number, sx: number, sy: number, dx: number, dy: number, w: number, h: number
+    ): void {
         for (const child of this.children) {
             if (child.size() < Tilemap.Layer.MAX_SIZE) {
                 child.addRect(setNumber, sx, sy, dx, dy, w, h);
@@ -3374,97 +3150,40 @@ Tilemap.CombinedLayer = class CombinedLayer extends PIXI.Container {
             }
         }
     }
-
-};
-
-Tilemap.createShader = function() {
-    const vertex = `
-        in float aTextureId;
-        in vec4 aFrame;
-        in vec2 aSource;
-        in vec2 aPosition;
-        uniform mat3 uProjectionMatrix;
-        uniform mat3 uWorldTransformMatrix;
-        uniform mat3 uTransformMatrix;
-        out vec4 vFrame;
-        out vec2 vTextureCoord;
-        out float vTextureId;
-
-        void main() {
-            mat3 transform = uProjectionMatrix * uWorldTransformMatrix * uTransformMatrix;
-            gl_Position = vec4((transform * vec3(aPosition, 1.0)).xy, 0.0, 1.0);
-            vFrame = aFrame;
-            vTextureCoord = aSource;
-            vTextureId = aTextureId;
-        }
-    `;
-    const fragment = `
-        in vec4 vFrame;
-        in vec2 vTextureCoord;
-        in float vTextureId;
-        uniform sampler2D uSampler0;
-        uniform sampler2D uSampler1;
-        uniform sampler2D uSampler2;
-        uniform vec4 uColor;
-        uniform vec4 uWorldColorAlpha;
-        out vec4 finalColor;
-
-        void main() {
-            vec2 uv = clamp(vTextureCoord, vFrame.xy, vFrame.zw) / 2048.0;
-            vec4 color;
-            if (vTextureId < 0.0) {
-                color = vec4(0.0, 0.0, 0.0, 0.5);
-            } else if (vTextureId < 0.5) {
-                color = texture(uSampler0, uv);
-            } else if (vTextureId < 1.5) {
-                color = texture(uSampler1, uv);
-            } else {
-                color = texture(uSampler2, uv);
-            }
-            finalColor = color * uColor * uWorldColorAlpha;
-        }
-    `;
-    const source = PIXI.Texture.EMPTY.source;
-    return PIXI.Shader.from({
-        gl: { vertex, fragment },
-        resources: { uSampler0: source, uSampler1: source, uSampler2: source }
-    });
-};
+}
+Tilemap.CombinedLayer = TilemapCombinedLayer;
 
 /**
  * The sprite object for a tiling image.
- *
- * @class
- * @extends PIXI.TilingSprite
- * @param {Bitmap} bitmap - The image for the tiling sprite.
+ * @param bitmap - The image for the tiling sprite.
  */
 class TilingSprite extends PIXI.TilingSprite {
-    /** @param {[bitmap?: Bitmap]} args */
-    constructor(...args) {
+    declare children: RMMZ.UpdateableChild[];
+    declare _bitmap: Bitmap;
+    declare _frame: Rectangle;
+
+    constructor(...args: unknown[]) {
         super({
             texture: new PIXI.Texture({
                 source: PIXI.Texture.EMPTY.source,
                 frame: new PIXI.Rectangle(0, 0, 1, 1),
-                dynamic: true
-            })
+                dynamic: true,
+            }),
         });
         this.onRender = this._updateTilePosition;
         this.initialize(...args);
     }
 
-    /** @param {Bitmap} [bitmap] */
-    initialize(bitmap) {
-        /** @type {Bitmap} */
-        this._bitmap = bitmap;
+    initialize(bitmap?: Bitmap): void;
+    initialize(...args: any[]): void;
+    initialize(bitmap?: Bitmap): void {
+        this._bitmap = bitmap!;
         this.width = 0;
         this.height = 0;
-        /** @type {Rectangle} */
         this._frame = new PIXI.Rectangle();
 
         /**
          * The origin point of the tiling sprite for scrolling.
-         *
-         * @type {import("pixi.js").Point}
          */
         this.origin = new PIXI.Point();
 
@@ -3473,15 +3192,13 @@ class TilingSprite extends PIXI.TilingSprite {
 
     /**
      * The image for the tiling sprite.
-     *
      * @name TilingSprite#bitmap
-     * @type {Bitmap}
      */
-    get bitmap() {
+    get bitmap(): Bitmap {
         return this._bitmap;
     }
-    /** @param {Bitmap} value */
-    set bitmap(value) {
+
+    set bitmap(value: Bitmap) {
         if (this._bitmap !== value) {
             this._bitmap = value;
             this._onBitmapChange();
@@ -3490,34 +3207,28 @@ class TilingSprite extends PIXI.TilingSprite {
 
     /**
      * The opacity of the tiling sprite (0 to 255).
-     *
      * @name TilingSprite#opacity
-     * @type {number}
      */
-    get opacity() {
+    get opacity(): number {
         return this.alpha * 255;
     }
-    /** @param {number} value */
-    set opacity(value) {
+
+    set opacity(value: number) {
         this.alpha = value.clamp(0, 255) / 255;
     }
 
     /**
      * Destroys the tiling sprite.
-     *
-     * @returns {void}
      */
-    destroy() {
+    destroy(): void {
         const options = { children: true, texture: true };
         super.destroy(options);
     }
 
     /**
      * Updates the tiling sprite for each frame.
-     *
-     * @returns {void}
      */
-    update() {
+    update(): void {
         for (const child of this.children) {
             if (child.update) {
                 child.update();
@@ -3527,14 +3238,12 @@ class TilingSprite extends PIXI.TilingSprite {
 
     /**
      * Sets the x, y, width, and height all at once.
-     *
-     * @param {number} x - The x coordinate of the tiling sprite.
-     * @param {number} y - The y coordinate of the tiling sprite.
-     * @param {number} width - The width of the tiling sprite.
-     * @param {number} height - The height of the tiling sprite.
-     * @returns {void}
+     * @param x - The x coordinate of the tiling sprite.
+     * @param y - The y coordinate of the tiling sprite.
+     * @param width - The width of the tiling sprite.
+     * @param height - The height of the tiling sprite.
      */
-    move(x, y, width, height) {
+    move(x: number, y: number, width: number, height: number): void {
         this.x = x || 0;
         this.y = y || 0;
         this.width = width || 0;
@@ -3543,14 +3252,12 @@ class TilingSprite extends PIXI.TilingSprite {
 
     /**
      * Specifies the region of the image that the tiling sprite will use.
-     *
-     * @param {number} x - The x coordinate of the frame.
-     * @param {number} y - The y coordinate of the frame.
-     * @param {number} width - The width of the frame.
-     * @param {number} height - The height of the frame.
-     * @returns {void}
+     * @param x - The x coordinate of the frame.
+     * @param y - The y coordinate of the frame.
+     * @param width - The width of the frame.
+     * @param height - The height of the frame.
      */
-    setFrame(x, y, width, height) {
+    setFrame(x: number, y: number, width: number, height: number): void {
         this._frame.x = x;
         this._frame.y = y;
         this._frame.width = width;
@@ -3558,16 +3265,14 @@ class TilingSprite extends PIXI.TilingSprite {
         this._refresh();
     }
 
-    /** @returns {void} */
-    _updateTilePosition() {
+    _updateTilePosition(): void {
         this.tilePosition.x = Math.round(-this.origin.x);
         this.tilePosition.y = Math.round(-this.origin.y);
     }
 
-    /** @returns {void} */
-    _onBitmapChange() {
+    _onBitmapChange(): void {
         if (this._bitmap) {
-            this._bitmap.addLoadListener(bitmap => {
+            this._bitmap.addLoadListener((bitmap) => {
                 if (this._bitmap === bitmap) {
                     this._refresh();
                 }
@@ -3576,8 +3281,7 @@ class TilingSprite extends PIXI.TilingSprite {
         this._refresh();
     }
 
-    /** @returns {void} */
-    _refresh() {
+    _refresh(): void {
         const texture = this.texture;
         const source = this._bitmap?.textureSource;
         if (source) {
@@ -3596,82 +3300,70 @@ class TilingSprite extends PIXI.TilingSprite {
         }
         texture.update();
     }
-
 }
 
 /**
  * The sprite which covers the entire game screen.
- *
- * @class
- * @extends PIXI.Container
  */
 class ScreenSprite extends PIXI.Container {
+    declare _graphics: import("pixi.js").Graphics;
+    declare _red: number;
+    declare _green: number;
+    declare _blue: number;
+
     constructor() {
         super();
-        /** @type {import("pixi.js").Graphics} */
+
         this._graphics = new PIXI.Graphics();
         this.addChild(this._graphics);
         this.opacity = 0;
-        /** @type {number} */
         this._red = -1;
-        /** @type {number} */
         this._green = -1;
-        /** @type {number} */
         this._blue = -1;
         this.setBlack();
     }
 
     /**
      * The opacity of the sprite (0 to 255).
-     *
      * @name ScreenSprite#opacity
-     * @type {number}
      */
-    get opacity() {
+    get opacity(): number {
         return this.alpha * 255;
     }
-    /** @param {number} value */
-    set opacity(value) {
+
+    set opacity(value: number) {
         this.alpha = value.clamp(0, 255) / 255;
     }
 
     /**
      * Destroys the screen sprite.
-     *
-     * @returns {void}
      */
-    destroy() {
+    destroy(): void {
         const options = { children: true, texture: true };
         super.destroy(options);
     }
 
     /**
      * Sets black to the color of the screen sprite.
-     *
-     * @returns {void}
      */
-    setBlack() {
+    setBlack(): void {
         this.setColor(0, 0, 0);
     }
 
     /**
      * Sets white to the color of the screen sprite.
-     *
-     * @returns {void}
      */
-    setWhite() {
+    setWhite(): void {
         this.setColor(255, 255, 255);
     }
 
     /**
      * Sets the color of the screen sprite by values.
-     *
-     * @param {number} r - The red value in the range (0, 255).
-     * @param {number} g - The green value in the range (0, 255).
-     * @param {number} b - The blue value in the range (0, 255).
-     * @returns {void}
+     * @param r - The red value in the range (0, 255).
+     * @param g - The green value in the range (0, 255).
+     * @param b - The blue value in the range (0, 255).
      */
-    setColor(r, g, b) {
+    setColor(r: number, g: number, b: number): void {
         if (this._red !== r || this._green !== g || this._blue !== b) {
             r = Math.round(r || 0).clamp(0, 255);
             g = Math.round(g || 0).clamp(0, 255);
@@ -3680,7 +3372,9 @@ class ScreenSprite extends PIXI.Container {
             this._green = g;
             this._blue = b;
             const graphics = this._graphics;
-            graphics.clear().rect(-50000, -50000, 100000, 100000)
+            graphics
+                .clear()
+                .rect(-50000, -50000, 100000, 100000)
                 .fill((r << 16) | (g << 8) | b);
         }
     }
@@ -3688,125 +3382,117 @@ class ScreenSprite extends PIXI.Container {
 
 /**
  * The window in the game.
- *
- * @class
- * @extends PIXI.Container
  */
-class Window extends PIXI.Container {
-    /** @param {[]} args */
-    constructor(...args) {
+class RmmzWindow extends PIXI.Container {
+    declare children: RMMZ.UpdateableChild[];
+    declare _windowLayerMask: import("pixi.js").Graphics | undefined;
+
+    declare _isWindow: boolean;
+    declare _windowskin: Bitmap;
+    declare _width: number;
+    declare _height: number;
+    declare _cursorRect: Rectangle;
+    declare _openness: number;
+    declare _animationCount: number;
+    declare _padding: number;
+    declare _margin: number;
+    declare _colorTone: RMMZ.Color;
+    declare _innerChildren: import("pixi.js").ContainerChild[];
+    declare _container: import("pixi.js").Container;
+    declare _backSprite: Sprite;
+    declare _frameSprite: Sprite;
+    declare _contentsBackSprite: Sprite;
+    declare _cursorSprite: Sprite;
+    declare _contentsSprite: Sprite;
+    declare _downArrowSprite: Sprite;
+    declare _upArrowSprite: Sprite;
+    declare _pauseSignSprite: Sprite;
+    declare active: boolean;
+    declare frameVisible: boolean;
+    declare cursorVisible: boolean;
+    declare downArrowVisible: boolean;
+    declare upArrowVisible: boolean;
+    declare pause: boolean;
+    declare _clientArea: Sprite;
+
+    constructor(..._extra: any[]);
+    constructor(...args: []) {
         super();
         this.initialize(...args);
     }
 
-    initialize() {
+    initialize(..._args: any[]): void;
+    initialize(...args: any[]): void;
+    initialize(..._args: any[]): void {
         this.onRender = this._updateWindowParts;
-        /** @type {boolean} */
         this._isWindow = true;
-        /** @type {Bitmap} */
-        this._windowskin = null;
-        /** @type {number} */
+        this._windowskin = null!;
         this._width = 0;
-        /** @type {number} */
         this._height = 0;
-        /** @type {Rectangle} */
         this._cursorRect = new PIXI.Rectangle();
-        /** @type {number} */
         this._openness = 255;
-        /** @type {number} */
         this._animationCount = 0;
-
-        /** @type {number} */
         this._padding = 12;
-        /** @type {number} */
         this._margin = 4;
-        /** @type {RMMZ.Color} */
         this._colorTone = [0, 0, 0, 0];
-        /** @type {import("pixi.js").ContainerChild[]} */
         this._innerChildren = [];
-
-        /** @type {import("pixi.js").Container} */
-        this._container = null;
-        /** @type {Sprite} */
-        this._backSprite = null;
-        /** @type {Sprite} */
-        this._frameSprite = null;
-        /** @type {Sprite} */
-        this._contentsBackSprite = null;
-        /** @type {Sprite} */
-        this._cursorSprite = null;
-        /** @type {Sprite} */
-        this._contentsSprite = null;
-        /** @type {Sprite} */
-        this._downArrowSprite = null;
-        /** @type {Sprite} */
-        this._upArrowSprite = null;
-        /** @type {Sprite} */
-        this._pauseSignSprite = null;
+        this._container = null!;
+        this._backSprite = null!;
+        this._frameSprite = null!;
+        this._contentsBackSprite = null!;
+        this._cursorSprite = null!;
+        this._contentsSprite = null!;
+        this._downArrowSprite = null!;
+        this._upArrowSprite = null!;
+        this._pauseSignSprite = null!;
 
         this._createAllParts();
 
         /**
          * The origin point of the window for scrolling.
-         *
-         * @type {import("pixi.js").Point}
          */
         this.origin = new PIXI.Point();
 
         /**
          * The active state for the window.
-         *
-         * @type {boolean}
          */
         this.active = true;
 
         /**
          * The visibility of the frame.
-         *
-         * @type {boolean}
          */
         this.frameVisible = true;
 
         /**
          * The visibility of the cursor.
-         *
-         * @type {boolean}
          */
         this.cursorVisible = true;
 
         /**
          * The visibility of the down scroll arrow.
-         *
-         * @type {boolean}
          */
         this.downArrowVisible = false;
 
         /**
          * The visibility of the up scroll arrow.
-         *
-         * @type {boolean}
          */
         this.upArrowVisible = false;
 
         /**
          * The visibility of the pause sign.
-         *
-         * @type {boolean}
          */
         this.pause = false;
     }
 
     /**
      * The image used as a window skin.
-     *
      * @name Window#windowskin
-     * @type {Bitmap}
      */
-    get windowskin() {
+    get windowskin(): Bitmap {
         return this._windowskin;
     }
-    /** @param {Bitmap} value */
-    set windowskin(value) {
+
+    set windowskin(value: Bitmap) {
         if (this._windowskin !== value) {
             this._windowskin = value;
             this._windowskin.addLoadListener(this._onWindowskinLoad.bind(this));
@@ -3815,145 +3501,125 @@ class Window extends PIXI.Container {
 
     /**
      * The bitmap used for the window contents.
-     *
      * @name Window#contents
-     * @type {Bitmap}
      */
-    get contents() {
+    get contents(): Bitmap {
         return this._contentsSprite.bitmap;
     }
-    /** @param {Bitmap} value */
-    set contents(value) {
+
+    set contents(value: Bitmap) {
         this._contentsSprite.bitmap = value;
     }
 
     /**
      * The bitmap used for the window contents background.
-     *
      * @name Window#contentsBack
-     * @type {Bitmap}
      */
-    get contentsBack() {
+    get contentsBack(): Bitmap {
         return this._contentsBackSprite.bitmap;
     }
-    /** @param {Bitmap} value */
-    set contentsBack(value) {
+
+    set contentsBack(value: Bitmap) {
         this._contentsBackSprite.bitmap = value;
     }
 
     /**
      * The width of the window in pixels.
-     *
      * @name Window#width
-     * @type {number}
      */
-    get width() {
+    get width(): number {
         return this._width;
     }
-    /** @param {number} value */
-    set width(value) {
+
+    set width(value: number) {
         this._width = value;
         this._refreshAllParts();
     }
 
     /**
      * The height of the window in pixels.
-     *
      * @name Window#height
-     * @type {number}
      */
-    get height() {
+    get height(): number {
         return this._height;
     }
-    /** @param {number} value */
-    set height(value) {
+
+    set height(value: number) {
         this._height = value;
         this._refreshAllParts();
     }
 
     /**
      * The size of the padding between the frame and contents.
-     *
      * @name Window#padding
-     * @type {number}
      */
-    get padding() {
+    get padding(): number {
         return this._padding;
     }
-    /** @param {number} value */
-    set padding(value) {
+
+    set padding(value: number) {
         this._padding = value;
         this._refreshAllParts();
     }
 
     /**
      * The size of the margin for the window background.
-     *
      * @name Window#margin
-     * @type {number}
      */
-    get margin() {
+    get margin(): number {
         return this._margin;
     }
-    /** @param {number} value */
-    set margin(value) {
+
+    set margin(value: number) {
         this._margin = value;
         this._refreshAllParts();
     }
 
     /**
      * The opacity of the window without contents (0 to 255).
-     *
      * @name Window#opacity
-     * @type {number}
      */
-    get opacity() {
+    get opacity(): number {
         return this._container.alpha * 255;
     }
-    /** @param {number} value */
-    set opacity(value) {
+
+    set opacity(value: number) {
         this._container.alpha = value.clamp(0, 255) / 255;
     }
 
     /**
      * The opacity of the window background (0 to 255).
-     *
      * @name Window#backOpacity
-     * @type {number}
      */
-    get backOpacity() {
+    get backOpacity(): number {
         return this._backSprite.alpha * 255;
     }
-    /** @param {number} value */
-    set backOpacity(value) {
+
+    set backOpacity(value: number) {
         this._backSprite.alpha = value.clamp(0, 255) / 255;
     }
 
     /**
      * The opacity of the window contents (0 to 255).
-     *
      * @name Window#contentsOpacity
-     * @type {number}
      */
-    get contentsOpacity() {
+    get contentsOpacity(): number {
         return this._contentsSprite.alpha * 255;
     }
-    /** @param {number} value */
-    set contentsOpacity(value) {
+
+    set contentsOpacity(value: number) {
         this._contentsSprite.alpha = value.clamp(0, 255) / 255;
     }
 
     /**
      * The openness of the window (0 to 255).
-     *
      * @name Window#openness
-     * @type {number}
      */
-    get openness() {
+    get openness(): number {
         return this._openness;
     }
-    /** @param {number} value */
-    set openness(value) {
+
+    set openness(value: number) {
         if (this._openness !== value) {
             this._openness = value.clamp(0, 255);
             this._container.scale.y = this._openness / 255;
@@ -3963,55 +3629,46 @@ class Window extends PIXI.Container {
 
     /**
      * The width of the content area in pixels.
-     *
      * @name Window#innerWidth
-     * @type {number}
      */
-    get innerWidth() {
+    get innerWidth(): number {
         return Math.max(0, this._width - this._padding * 2);
     }
 
     /**
      * The height of the content area in pixels.
-     *
      * @name Window#innerHeight
-     * @type {number}
      */
-    get innerHeight() {
+    get innerHeight(): number {
         return Math.max(0, this._height - this._padding * 2);
     }
 
     /**
      * The rectangle of the content area.
-     *
      * @name Window#innerRect
-     * @type {Rectangle}
      */
-    get innerRect() {
+    get innerRect(): Rectangle {
         return new PIXI.Rectangle(
             this._padding,
             this._padding,
             this.innerWidth,
-            this.innerHeight
+            this.innerHeight,
         );
     }
 
     /**
      * Destroys the window.
-     *
-     * @returns {void}
      */
-    destroy() {
+    destroy(..._extra: any[]): void;
+    destroy(): void {
         const options = { children: true, texture: true };
         super.destroy(options);
     }
 
     /**
      * Updates the window for each frame.
-     *
-     * @returns {void}
      */
-    update() {
+    update(): void {
         if (this.active) {
             this._animationCount++;
         }
@@ -4024,14 +3681,12 @@ class Window extends PIXI.Container {
 
     /**
      * Sets the x, y, width, and height all at once.
-     *
-     * @param {number} x - The x coordinate of the window.
-     * @param {number} y - The y coordinate of the window.
-     * @param {number} width - The width of the window.
-     * @param {number} height - The height of the window.
-     * @returns {void}
+     * @param x - The x coordinate of the window.
+     * @param y - The y coordinate of the window.
+     * @param width - The width of the window.
+     * @param height - The height of the window.
      */
-    move(x, y, width, height) {
+    move(x: number, y: number, width: number, height: number): void {
         this.x = x || 0;
         this.y = y || 0;
         if (this._width !== width || this._height !== height) {
@@ -4043,32 +3698,28 @@ class Window extends PIXI.Container {
 
     /**
      * Checks whether the window is completely open (openness == 255).
-     *
-     * @returns {boolean} True if the window is open.
+     * @returns True if the window is open.
      */
-    isOpen() {
+    isOpen(): boolean {
         return this._openness >= 255;
     }
 
     /**
      * Checks whether the window is completely closed (openness == 0).
-     *
-     * @returns {boolean} True if the window is closed.
+     * @returns True if the window is closed.
      */
-    isClosed() {
+    isClosed(): boolean {
         return this._openness <= 0;
     }
 
     /**
      * Sets the position of the command cursor.
-     *
-     * @param {number} x - The x coordinate of the cursor.
-     * @param {number} y - The y coordinate of the cursor.
-     * @param {number} width - The width of the cursor.
-     * @param {number} height - The height of the cursor.
-     * @returns {void}
+     * @param x - The x coordinate of the cursor.
+     * @param y - The y coordinate of the cursor.
+     * @param width - The width of the cursor.
+     * @param height - The height of the cursor.
      */
-    setCursorRect(x, y, width, height) {
+    setCursorRect(x: number, y: number, width: number, height: number): void {
         const cw = Math.floor(width || 0);
         const ch = Math.floor(height || 0);
         this._cursorRect.x = Math.floor(x || 0);
@@ -4082,24 +3733,20 @@ class Window extends PIXI.Container {
 
     /**
      * Moves the cursor position by the given amount.
-     *
-     * @param {number} x - The amount of horizontal movement.
-     * @param {number} y - The amount of vertical movement.
-     * @returns {void}
+     * @param x - The amount of horizontal movement.
+     * @param y - The amount of vertical movement.
      */
-    moveCursorBy(x, y) {
+    moveCursorBy(x: number, y: number): void {
         this._cursorRect.x += x;
         this._cursorRect.y += y;
     }
 
     /**
      * Moves the inner children by the given amount.
-     *
-     * @param {number} x - The amount of horizontal movement.
-     * @param {number} y - The amount of vertical movement.
-     * @returns {void}
+     * @param x - The amount of horizontal movement.
+     * @param y - The amount of vertical movement.
      */
-    moveInnerChildrenBy(x, y) {
+    moveInnerChildrenBy(x: number, y: number): void {
         for (const child of this._innerChildren) {
             child.x += x;
             child.y += y;
@@ -4108,13 +3755,11 @@ class Window extends PIXI.Container {
 
     /**
      * Changes the color of the background.
-     *
-     * @param {number} r - The red value in the range (-255, 255).
-     * @param {number} g - The green value in the range (-255, 255).
-     * @param {number} b - The blue value in the range (-255, 255).
-     * @returns {void}
+     * @param r - The red value in the range (-255, 255).
+     * @param g - The green value in the range (-255, 255).
+     * @param b - The blue value in the range (-255, 255).
      */
-    setTone(r, g, b) {
+    setTone(r: number, g: number, b: number): void {
         const tone = this._colorTone;
         if (r !== tone[0] || g !== tone[1] || b !== tone[2]) {
             this._colorTone = [r, g, b, 0];
@@ -4124,28 +3769,29 @@ class Window extends PIXI.Container {
 
     /**
      * Adds a child between the background and contents.
-     *
-     * @param {import("pixi.js").ContainerChild} child - The child to add.
-     * @returns {import("pixi.js").ContainerChild} The child that was added.
+     * @param child - The child to add.
+     * @returns The child that was added.
      */
-    addChildToBack(child) {
+    addChildToBack(
+        child: import("pixi.js").ContainerChild,
+    ): import("pixi.js").ContainerChild {
         const containerIndex = this.children.indexOf(this._container);
         return this.addChildAt(child, containerIndex + 1);
     }
 
     /**
      * Adds a child to the client area.
-     *
-     * @param {import("pixi.js").ContainerChild} child - The child to add.
-     * @returns {import("pixi.js").ContainerChild} The child that was added.
+     * @param child - The child to add.
+     * @returns The child that was added.
      */
-    addInnerChild(child) {
+    addInnerChild(
+        child: import("pixi.js").ContainerChild,
+    ): import("pixi.js").ContainerChild {
         this._innerChildren.push(child);
         return this._clientArea.addChild(child);
     }
 
-    /** @returns {void} */
-    _updateWindowParts() {
+    _updateWindowParts(): void {
         this._updateClientArea();
         this._updateFrame();
         this._updateContentsBack();
@@ -4156,14 +3802,17 @@ class Window extends PIXI.Container {
         this._updateFilterArea();
     }
 
-    /** @returns {import("pixi.js").Rectangle} */
-    openBounds() {
-        const height = this.height * this.openness / 255;
-        return new PIXI.Rectangle(this.x, this.y + (this.height - height) / 2, this.width, height);
+    openBounds(): import("pixi.js").Rectangle {
+        const height = (this.height * this.openness) / 255;
+        return new PIXI.Rectangle(
+            this.x,
+            this.y + (this.height - height) / 2,
+            this.width,
+            height,
+        );
     }
 
-    /** @returns {void} */
-    _createAllParts() {
+    _createAllParts(): void {
         this._createContainer();
         this._createBackSprite();
         this._createFrameSprite();
@@ -4175,21 +3824,18 @@ class Window extends PIXI.Container {
         this._createPauseSignSprites();
     }
 
-    /** @returns {void} */
-    _createContainer() {
+    _createContainer(): void {
         this._container = new PIXI.Container();
         this.addChild(this._container);
     }
 
-    /** @returns {void} */
-    _createBackSprite() {
+    _createBackSprite(): void {
         this._backSprite = new Sprite();
         this._backSprite.addChild(new TilingSprite());
         this._container.addChild(this._backSprite);
     }
 
-    /** @returns {void} */
-    _createFrameSprite() {
+    _createFrameSprite(): void {
         this._frameSprite = new Sprite();
         for (let i = 0; i < 8; i++) {
             this._frameSprite.addChild(new Sprite());
@@ -4197,8 +3843,7 @@ class Window extends PIXI.Container {
         this._container.addChild(this._frameSprite);
     }
 
-    /** @returns {void} */
-    _createClientArea() {
+    _createClientArea(): void {
         this._clientArea = new Sprite();
         this._clientArea.filters = [new PIXI.AlphaFilter()];
         this._clientArea.filterArea = new PIXI.Rectangle();
@@ -4206,14 +3851,12 @@ class Window extends PIXI.Container {
         this.addChild(this._clientArea);
     }
 
-    /** @returns {void} */
-    _createContentsBackSprite() {
+    _createContentsBackSprite(): void {
         this._contentsBackSprite = new Sprite();
         this._clientArea.addChild(this._contentsBackSprite);
     }
 
-    /** @returns {void} */
-    _createCursorSprite() {
+    _createCursorSprite(): void {
         this._cursorSprite = new Sprite();
         for (let i = 0; i < 9; i++) {
             this._cursorSprite.addChild(new Sprite());
@@ -4221,33 +3864,28 @@ class Window extends PIXI.Container {
         this._clientArea.addChild(this._cursorSprite);
     }
 
-    /** @returns {void} */
-    _createContentsSprite() {
+    _createContentsSprite(): void {
         this._contentsSprite = new Sprite();
         this._clientArea.addChild(this._contentsSprite);
     }
 
-    /** @returns {void} */
-    _createArrowSprites() {
+    _createArrowSprites(): void {
         this._downArrowSprite = new Sprite();
         this.addChild(this._downArrowSprite);
         this._upArrowSprite = new Sprite();
         this.addChild(this._upArrowSprite);
     }
 
-    /** @returns {void} */
-    _createPauseSignSprites() {
+    _createPauseSignSprites(): void {
         this._pauseSignSprite = new Sprite();
         this.addChild(this._pauseSignSprite);
     }
 
-    /** @returns {void} */
-    _onWindowskinLoad() {
+    _onWindowskinLoad(): void {
         this._refreshAllParts();
     }
 
-    /** @returns {void} */
-    _refreshAllParts() {
+    _refreshAllParts(): void {
         this._refreshBack();
         this._refreshFrame();
         this._refreshCursor();
@@ -4255,13 +3893,12 @@ class Window extends PIXI.Container {
         this._refreshPauseSign();
     }
 
-    /** @returns {void} */
-    _refreshBack() {
+    _refreshBack(): void {
         const m = this._margin;
         const w = Math.max(0, this._width - m * 2);
         const h = Math.max(0, this._height - m * 2);
         const sprite = this._backSprite;
-        const tilingSprite = sprite.children[0];
+        const tilingSprite = sprite.children[0] as TilingSprite;
         // [Note] We use 95 instead of 96 here to avoid blurring edges.
         sprite.bitmap = this._windowskin;
         sprite.setFrame(0, 0, 95, 95);
@@ -4276,36 +3913,42 @@ class Window extends PIXI.Container {
         sprite.setColorTone(this._colorTone);
     }
 
-    /** @returns {void} */
-    _refreshFrame() {
+    _refreshFrame(): void {
         const drect = { x: 0, y: 0, width: this._width, height: this._height };
         const srect = { x: 96, y: 0, width: 96, height: 96 };
         const m = 24;
-        for (const child of this._frameSprite.children) {
+        for (const child of this._frameSprite.children as Sprite[]) {
             child.bitmap = this._windowskin;
         }
-        this._setRectPartsGeometry(this._frameSprite, srect, drect, m);
+        this._setRectPartsGeometry(
+            this._frameSprite,
+            srect as Rectangle,
+            drect,
+            m,
+        );
     }
 
-    /** @returns {void} */
-    _refreshCursor() {
+    _refreshCursor(): void {
         const drect = this._cursorRect.clone();
         const srect = { x: 96, y: 96, width: 48, height: 48 };
         const m = 4;
-        for (const child of this._cursorSprite.children) {
+        for (const child of this._cursorSprite.children as Sprite[]) {
             child.bitmap = this._windowskin;
         }
-        this._setRectPartsGeometry(this._cursorSprite, srect, drect, m);
+        this._setRectPartsGeometry(
+            this._cursorSprite,
+            srect as Rectangle,
+            drect,
+            m,
+        );
     }
 
-    /**
-     * @param {Sprite} sprite
-     * @param {Rectangle} srect
-     * @param {Rectangle} drect
-     * @param {number} m
-     * @returns {void}
-     */
-    _setRectPartsGeometry(sprite, srect, drect, m) {
+    _setRectPartsGeometry(
+        sprite: Sprite,
+        srect: Pick<Rectangle, "x" | "y" | "width" | "height">,
+        drect: Pick<Rectangle, "x" | "y" | "width" | "height">,
+        m: number,
+    ): void {
         const sx = srect.x;
         const sy = srect.y;
         const sw = srect.width;
@@ -4318,7 +3961,7 @@ class Window extends PIXI.Container {
         const smh = sh - m * 2;
         const dmw = dw - m * 2;
         const dmh = dh - m * 2;
-        const children = sprite.children;
+        const children = sprite.children as Sprite[];
         sprite.setFrame(0, 0, dw, dh);
         sprite.move(dx, dy);
         // corner
@@ -4355,8 +3998,7 @@ class Window extends PIXI.Container {
         }
     }
 
-    /** @returns {void} */
-    _refreshArrows() {
+    _refreshArrows(): void {
         const w = this._width;
         const h = this._height;
         const p = 24;
@@ -4375,8 +4017,7 @@ class Window extends PIXI.Container {
         this._upArrowSprite.move(w / 2, q);
     }
 
-    /** @returns {void} */
-    _refreshPauseSign() {
+    _refreshPauseSign(): void {
         const sx = 144;
         const sy = 96;
         const p = 24;
@@ -4388,8 +4029,7 @@ class Window extends PIXI.Container {
         this._pauseSignSprite.alpha = 0;
     }
 
-    /** @returns {void} */
-    _updateClientArea() {
+    _updateClientArea(): void {
         const pad = this._padding;
         this._clientArea.move(pad, pad);
         this._clientArea.x = pad - this.origin.x;
@@ -4401,29 +4041,30 @@ class Window extends PIXI.Container {
         }
     }
 
-    /** @returns {void} */
-    _updateFrame() {
+    _updateFrame(): void {
         this._frameSprite.visible = this.frameVisible;
     }
 
-    /** @returns {void} */
-    _updateContentsBack() {
+    _updateContentsBack(): void {
         const bitmap = this._contentsBackSprite.bitmap;
         if (bitmap) {
-            this._contentsBackSprite.setFrame(0, 0, bitmap.width, bitmap.height);
+            this._contentsBackSprite.setFrame(
+                0,
+                0,
+                bitmap.width,
+                bitmap.height,
+            );
         }
     }
 
-    /** @returns {void} */
-    _updateCursor() {
+    _updateCursor(): void {
         this._cursorSprite.alpha = this._makeCursorAlpha();
         this._cursorSprite.visible = this.isOpen() && this.cursorVisible;
         this._cursorSprite.x = this._cursorRect.x;
         this._cursorSprite.y = this._cursorRect.y;
     }
 
-    /** @returns {number} */
-    _makeCursorAlpha() {
+    _makeCursorAlpha(): number {
         const blinkCount = this._animationCount % 40;
         const baseAlpha = this.contentsOpacity / 255;
         if (this.active) {
@@ -4436,22 +4077,19 @@ class Window extends PIXI.Container {
         return baseAlpha;
     }
 
-    /** @returns {void} */
-    _updateContents() {
+    _updateContents(): void {
         const bitmap = this._contentsSprite.bitmap;
         if (bitmap) {
             this._contentsSprite.setFrame(0, 0, bitmap.width, bitmap.height);
         }
     }
 
-    /** @returns {void} */
-    _updateArrows() {
+    _updateArrows(): void {
         this._downArrowSprite.visible = this.isOpen() && this.downArrowVisible;
         this._upArrowSprite.visible = this.isOpen() && this.upArrowVisible;
     }
 
-    /** @returns {void} */
-    _updatePauseSign() {
+    _updatePauseSign(): void {
         const sprite = this._pauseSignSprite;
         const x = Math.floor(this._animationCount / 16) % 2;
         const y = Math.floor(this._animationCount / 16 / 2) % 2;
@@ -4467,33 +4105,34 @@ class Window extends PIXI.Container {
         sprite.visible = this.isOpen();
     }
 
-    /** @returns {void} */
-    _updateFilterArea() {
+    _updateFilterArea(): void {
         const filterArea = this._clientArea.filterArea;
-        filterArea.x = this.origin.x;
-        filterArea.y = this.origin.y;
-        filterArea.width = this.innerWidth;
-        filterArea.height = this.innerHeight;
+        filterArea!.x = this.origin.x;
+        filterArea!.y = this.origin.y;
+        filterArea!.width = this.innerWidth;
+        filterArea!.height = this.innerHeight;
     }
 }
 
 /**
  * The layer which contains game windows.
- *
- * @class
- * @extends PIXI.Container
  */
 class WindowLayer extends PIXI.Container {
+    declare children: RmmzWindow[];
+
+    declare _windowLayout: any[];
+
     constructor() {
         super();
         this._windowLayout = [];
         this.onRender = this._updateWindowMasks;
     }
 
-    /** @param {RMMZ.Window} window */
-    addWindow(window) {
+    addWindow(window: RmmzWindow): RmmzWindow {
         if (window._isWindow) {
-            const overlayIndex = this.children.findIndex(child => !child._isWindow);
+            const overlayIndex = this.children.findIndex(
+                (child) => !child._isWindow,
+            );
             if (overlayIndex >= 0) {
                 return this.addChildAt(window, overlayIndex);
             }
@@ -4503,10 +4142,8 @@ class WindowLayer extends PIXI.Container {
 
     /**
      * Updates the window layer for each frame.
-     *
-     * @returns {void}
      */
-    update() {
+    update(): void {
         for (const child of this.children) {
             if (child.update) {
                 child.update();
@@ -4514,29 +4151,45 @@ class WindowLayer extends PIXI.Container {
         }
     }
 
-    /** @returns {void} */
-    _updateWindowMasks() {
-        const layout = this.children.filter(child => child._isWindow).map(window => ({
-            window,
-            bounds: window.visible && window.openness > 0 ? window.openBounds() : null
-        }));
+    _updateWindowMasks(): void {
+        const layout = this.children
+            .filter((child) => child._isWindow)
+            .map((window) => ({
+                window,
+                bounds:
+                    window.visible && window.openness > 0
+                        ? window.openBounds()
+                        : null,
+            }));
         const previous = this._windowLayout;
-        if (layout.length === previous.length && layout.every(({ window, bounds }, i) => {
-            const last = previous[i];
-            return window === last.window &&
-                bounds?.x === last.bounds?.x && bounds?.y === last.bounds?.y &&
-                bounds?.width === last.bounds?.width && bounds?.height === last.bounds?.height;
-        })) {
+        if (
+            layout.length === previous.length &&
+            layout.every(({ window, bounds }, i) => {
+                const last = previous[i];
+                return (
+                    window === last.window &&
+                    bounds?.x === last.bounds?.x &&
+                    bounds?.y === last.bounds?.y &&
+                    bounds?.width === last.bounds?.width &&
+                    bounds?.height === last.bounds?.height
+                );
+            })
+        ) {
             return;
         }
         this._windowLayout = layout;
         const occluders = [];
         for (let i = layout.length - 1; i >= 0; i--) {
             const { window, bounds } = layout[i];
-            const overlaps = bounds && occluders.filter(rect => rect.intersects(bounds));
+            const overlaps =
+                bounds &&
+                occluders.filter((rect: Rectangle) => rect.intersects(bounds));
             if (overlaps?.length) {
-                this._applyWindowMask(window, bounds, overlaps);
-            } else if (window._windowLayerMask && window.mask === window._windowLayerMask) {
+                this._applyWindowMask(window, bounds!, overlaps);
+            } else if (
+                window._windowLayerMask &&
+                window.mask === window._windowLayerMask
+            ) {
                 window._windowLayerMask.clear();
                 window.mask = null;
             }
@@ -4544,12 +4197,11 @@ class WindowLayer extends PIXI.Container {
         }
     }
 
-    /**
-     * @param {RMMZ.Window} window
-     * @param {import("pixi.js").Rectangle} bounds
-     * @param {import("pixi.js").Rectangle[]} occluders
-     */
-    _applyWindowMask(window, bounds, occluders) {
+    _applyWindowMask(
+        window: RmmzWindow,
+        bounds: import("pixi.js").Rectangle,
+        occluders: import("pixi.js").Rectangle[],
+    ): void {
         if (!window._windowLayerMask) {
             window._windowLayerMask = window.addChild(new PIXI.Graphics());
         }
@@ -4557,20 +4209,25 @@ class WindowLayer extends PIXI.Container {
         // Keep lower windows out of transparent parts of higher windows.
         let regions = [bounds];
         for (const occluder of occluders) {
-            regions = regions.flatMap(region => WindowLayer.subtractRect(region, occluder));
+            regions = regions.flatMap((region) =>
+                WindowLayer.subtractRect(region, occluder),
+            );
         }
         for (const rect of regions) {
-            mask.rect(rect.x - window.x, rect.y - window.y, rect.width, rect.height).fill(0xffffff);
+            mask.rect(
+                rect.x - window.x,
+                rect.y - window.y,
+                rect.width,
+                rect.height,
+            ).fill(0xffffff);
         }
         window.mask = mask;
     }
 
-    /**
-     * @param {import("pixi.js").Rectangle} rect
-     * @param {import("pixi.js").Rectangle} occluder
-     * @returns {import("pixi.js").Rectangle[]}
-     */
-    static subtractRect(rect, occluder) {
+    static subtractRect(
+        rect: import("pixi.js").Rectangle,
+        occluder: import("pixi.js").Rectangle,
+    ): import("pixi.js").Rectangle[] {
         if (!rect.intersects(occluder)) return [rect];
         const left = Math.max(occluder.left, rect.left);
         const right = Math.min(occluder.right, rect.right);
@@ -4578,29 +4235,44 @@ class WindowLayer extends PIXI.Container {
         const bottom = Math.min(occluder.bottom, rect.bottom);
         return [
             new PIXI.Rectangle(rect.left, rect.top, rect.width, top - rect.top),
-            new PIXI.Rectangle(rect.left, bottom, rect.width, rect.bottom - bottom),
+            new PIXI.Rectangle(
+                rect.left,
+                bottom,
+                rect.width,
+                rect.bottom - bottom,
+            ),
             new PIXI.Rectangle(rect.left, top, left - rect.left, bottom - top),
-            new PIXI.Rectangle(right, top, rect.right - right, bottom - top)
-        ].filter(part => part.width > 0 && part.height > 0);
+            new PIXI.Rectangle(right, top, rect.right - right, bottom - top),
+        ].filter((part) => part.width > 0 && part.height > 0);
     }
-
 }
 
 /**
  * The weather effect which displays rain, storm, or snow.
- *
- * @class
- * @extends PIXI.Container
  */
 class Weather extends PIXI.Container {
+    declare viewport: import("pixi.js").Rectangle;
+
+    declare _width: number;
+    declare _height: number;
+    declare _sprites: Array<
+        Sprite & {
+            ax: number;
+            ay: number;
+        }
+    >;
+    declare type: string;
+    declare power: number;
+    declare _rainBitmap: Bitmap;
+    declare _stormBitmap: Bitmap;
+    declare _snowBitmap: Bitmap;
+    declare _dimmerSprite: ScreenSprite;
+
     constructor() {
         super();
 
-        /** @type {number} */
         this._width = Graphics.width;
-        /** @type {number} */
         this._height = Graphics.height;
-        /** @type {Array<Sprite & { ax: number; ay: number; }>} */
         this._sprites = [];
 
         this._createBitmaps();
@@ -4608,32 +4280,24 @@ class Weather extends PIXI.Container {
 
         /**
          * The type of the weather in ["none", "rain", "storm", "snow"].
-         *
-         * @type {string}
          */
         this.type = "none";
 
         /**
          * The power of the weather in the range (0, 9).
-         *
-         * @type {number}
          */
         this.power = 0;
 
         /**
          * The origin point of the weather for scrolling.
-         *
-         * @type {import("pixi.js").Point}
          */
         this.origin = new PIXI.Point();
     }
 
     /**
      * Destroys the weather.
-     *
-     * @returns {void}
      */
-    destroy() {
+    destroy(): void {
         const options = { children: true, texture: true };
         super.destroy(options);
         this._rainBitmap.destroy();
@@ -4643,16 +4307,13 @@ class Weather extends PIXI.Container {
 
     /**
      * Updates the weather for each frame.
-     *
-     * @returns {void}
      */
-    update() {
+    update(): void {
         this._updateDimmer();
         this._updateAllSprites();
     }
 
-    /** @returns {void} */
-    _createBitmaps() {
+    _createBitmaps(): void {
         this._rainBitmap = new Bitmap(1, 60);
         this._rainBitmap.fillAll("white");
         this._stormBitmap = new Bitmap(2, 100);
@@ -4661,20 +4322,17 @@ class Weather extends PIXI.Container {
         this._snowBitmap.drawCircle(4, 4, 4, "white");
     }
 
-    /** @returns {void} */
-    _createDimmer() {
+    _createDimmer(): void {
         this._dimmerSprite = new ScreenSprite();
         this._dimmerSprite.setColor(80, 80, 80);
         this.addChild(this._dimmerSprite);
     }
 
-    /** @returns {void} */
-    _updateDimmer() {
+    _updateDimmer(): void {
         this._dimmerSprite.opacity = Math.floor(this.power * 6);
     }
 
-    /** @returns {void} */
-    _updateAllSprites() {
+    _updateAllSprites(): void {
         const maxSprites = Math.floor(this.power * 10);
         while (this._sprites.length < maxSprites) {
             this._addSprite();
@@ -4689,24 +4347,23 @@ class Weather extends PIXI.Container {
         }
     }
 
-    /** @returns {void} */
-    _addSprite() {
-        const sprite = new Sprite(this.viewport);
+    _addSprite(): void {
+        const sprite = new Sprite() as Weather["_sprites"][number];
         sprite.opacity = 0;
         this._sprites.push(sprite);
         this.addChild(sprite);
     }
 
-    /** @returns {void} */
-    _removeSprite() {
-        this.removeChild(this._sprites.pop());
+    _removeSprite(): void {
+        this.removeChild(this._sprites.pop()!);
     }
 
-    /**
-     * @param {Sprite & { ax: number; ay: number; }} sprite
-     * @returns {void}
-     */
-    _updateSprite(sprite) {
+    _updateSprite(
+        sprite: Sprite & {
+            ax: number;
+            ay: number;
+        },
+    ): void {
         switch (this.type) {
             case "rain":
                 this._updateRainSprite(sprite);
@@ -4723,11 +4380,12 @@ class Weather extends PIXI.Container {
         }
     }
 
-    /**
-     * @param {Sprite & { ax: number; ay: number; }} sprite
-     * @returns {void}
-     */
-    _updateRainSprite(sprite) {
+    _updateRainSprite(
+        sprite: Sprite & {
+            ax: number;
+            ay: number;
+        },
+    ): void {
         sprite.bitmap = this._rainBitmap;
         sprite.rotation = Math.PI / 16;
         sprite.ax -= 6 * Math.sin(sprite.rotation);
@@ -4735,11 +4393,12 @@ class Weather extends PIXI.Container {
         sprite.opacity -= 6;
     }
 
-    /**
-     * @param {Sprite & { ax: number; ay: number; }} sprite
-     * @returns {void}
-     */
-    _updateStormSprite(sprite) {
+    _updateStormSprite(
+        sprite: Sprite & {
+            ax: number;
+            ay: number;
+        },
+    ): void {
         sprite.bitmap = this._stormBitmap;
         sprite.rotation = Math.PI / 8;
         sprite.ax -= 8 * Math.sin(sprite.rotation);
@@ -4747,11 +4406,12 @@ class Weather extends PIXI.Container {
         sprite.opacity -= 8;
     }
 
-    /**
-     * @param {Sprite & { ax: number; ay: number; }} sprite
-     * @returns {void}
-     */
-    _updateSnowSprite(sprite) {
+    _updateSnowSprite(
+        sprite: Sprite & {
+            ax: number;
+            ay: number;
+        },
+    ): void {
         sprite.bitmap = this._snowBitmap;
         sprite.rotation = Math.PI / 16;
         sprite.ax -= 3 * Math.sin(sprite.rotation);
@@ -4759,11 +4419,12 @@ class Weather extends PIXI.Container {
         sprite.opacity -= 3;
     }
 
-    /**
-     * @param {Sprite & { ax: number; ay: number; }} sprite
-     * @returns {void}
-     */
-    _rebornSprite(sprite) {
+    _rebornSprite(
+        sprite: Sprite & {
+            ax: number;
+            ay: number;
+        },
+    ): void {
         sprite.ax = Math.randomInt(Graphics.width + 100) - 100 + this.origin.x;
         sprite.ay = Math.randomInt(Graphics.height + 200) - 200 + this.origin.y;
         sprite.opacity = 160 + Math.randomInt(60);
@@ -4772,46 +4433,41 @@ class Weather extends PIXI.Container {
 
 /**
  * The color filter for WebGL.
- *
- * @class
- * @extends PIXI.Filter
  */
 class ColorFilter extends PIXI.Filter {
+    declare uniforms: any;
+
     constructor() {
         super({
             glProgram: PIXI.GlProgram.from({
                 vertex: PIXI.defaultFilterVert,
-                fragment: ColorFilter._fragmentSrc()
+                fragment: ColorFilter._fragmentSrc(),
             }),
             resources: {
                 colorUniforms: {
                     hue: { value: 0, type: "f32" },
                     colorTone: { value: [0, 0, 0, 0], type: "vec4<f32>" },
                     blendColor: { value: [0, 0, 0, 0], type: "vec4<f32>" },
-                    brightness: { value: 255, type: "f32" }
-                }
-            }
+                    brightness: { value: 255, type: "f32" },
+                },
+            },
         });
         this.uniforms = this.resources.colorUniforms.uniforms;
     }
 
     /**
      * Sets the hue rotation value.
-     *
-     * @param {number} hue - The hue value (-360, 360).
-     * @returns {void}
+     * @param hue - The hue value (-360, 360).
      */
-    setHue(hue) {
+    setHue(hue: number): void {
         this.uniforms.hue = Number(hue);
     }
 
     /**
      * Sets the color tone.
-     *
-     * @param {RMMZ.Color} tone - The color tone [r, g, b, gray].
-     * @returns {void}
+     * @param tone - The color tone [r, g, b, gray].
      */
-    setColorTone(tone) {
+    setColorTone(tone: RMMZ.Color): void {
         if (!(tone instanceof Array)) {
             throw new Error("Argument must be an array");
         }
@@ -4820,11 +4476,9 @@ class ColorFilter extends PIXI.Filter {
 
     /**
      * Sets the blend color.
-     *
-     * @param {RMMZ.Color} color - The blend color [r, g, b, a].
-     * @returns {void}
+     * @param color - The blend color [r, g, b, a].
      */
-    setBlendColor(color) {
+    setBlendColor(color: RMMZ.Color): void {
         if (!(color instanceof Array)) {
             throw new Error("Argument must be an array");
         }
@@ -4833,16 +4487,13 @@ class ColorFilter extends PIXI.Filter {
 
     /**
      * Sets the brightness.
-     *
-     * @param {number} brightness - The brightness (0 to 255).
-     * @returns {void}
+     * @param brightness - The brightness (0 to 255).
      */
-    setBrightness(brightness) {
+    setBrightness(brightness: number): void {
         this.uniforms.brightness = Number(brightness);
     }
 
-    /** @returns {string} */
-    static _fragmentSrc() {
+    static _fragmentSrc(): string {
         const src =
             "in vec2 vTextureCoord;" +
             "out vec4 finalColor;" +
@@ -4933,26 +4584,23 @@ class ColorFilter extends PIXI.Filter {
 
 /**
  * The root object of the display tree.
- *
- * @class
- * @extends PIXI.Container
  */
 class Stage extends PIXI.Container {
-    /** @param {[]} args */
-    constructor(...args) {
+    declare children: RMMZ.UpdateableChild[];
+    constructor(...args: []) {
         super();
         this.initialize(...args);
     }
 
     // Scene_Base delegates to this hook during initialization.
-    initialize() {}
+    initialize(): void;
+    initialize(...args: any[]): void;
+    initialize(): void {}
 
     /**
      * Destroys the stage.
-     *
-     * @returns {void}
      */
-    destroy() {
+    destroy(): void {
         const options = { children: true, texture: true };
         super.destroy(options);
     }
@@ -4960,30 +4608,63 @@ class Stage extends PIXI.Container {
 
 /**
  * The audio object of Web Audio API.
- *
- * @class
- * @param {string} url - The url of the audio file.
+ * @param url - The url of the audio file.
  */
 class WebAudio {
-    /** @param {[url: string]} args */
-    constructor(...args) {
+    declare name: string;
+    declare frameCount: number;
+
+    declare static _masterGainNode: GainNode | null;
+
+    declare static _context: AudioContext | null;
+    declare static _masterVolume: number;
+
+    declare _url: string;
+    declare _data: any;
+    declare _fetchedSize: number;
+    declare _fetchedData: any[];
+    declare _buffers: any[];
+    declare _sourceNodes: any[];
+    declare _gainNode: GainNode | null;
+    declare _pannerNode: PannerNode | null;
+    declare _totalTime: number;
+    declare _sampleRate: number;
+    declare _loop: boolean;
+    declare _loopStart: number;
+    declare _loopLength: number;
+    declare _loopStartTime: number;
+    declare _loopLengthTime: number;
+    declare _startTime: number;
+    declare _volume: number;
+    declare _pitch: any;
+    declare _pan: number;
+    declare _endTimer: number | null;
+    declare _loadListeners: any[];
+    declare _stopListeners: any[];
+    declare _lastUpdateTime: number;
+    declare _isLoaded: boolean;
+    declare _isError: boolean;
+    declare _isPlaying: boolean;
+    declare _decoder: VorbisDecoder | null;
+
+    constructor(...args: [url: string]) {
         this.initialize(...args);
     }
 
-    /** @param {string} url */
-    initialize(url) {
+    initialize(url: string): void;
+    initialize(...args: any[]): void;
+    initialize(url: string): void {
         this.clear();
-        /** @type {string} */
+
         this._url = url;
         this._startLoading();
     }
 
     /**
      * Initializes the audio system.
-     *
-     * @returns {boolean} True if the audio system is available.
+     * @returns True if the audio system is available.
      */
-    static initialize() {
+    static initialize(): boolean {
         this._context = null;
         this._masterGainNode = null;
         this._masterVolume = 1;
@@ -4995,32 +4676,28 @@ class WebAudio {
 
     /**
      * Sets the master volume for all audio.
-     *
-     * @param {number} value - The master volume (0 to 1).
-     * @returns {void}
+     * @param value - The master volume (0 to 1).
      */
-    static setMasterVolume(value) {
+    static setMasterVolume(value: number): void {
         this._masterVolume = value;
         this._resetVolume();
     }
 
-    /** @returns {void} */
-    static _createContext() {
+    static _createContext(): void {
         try {
-            const AudioContext = window.AudioContext || window.webkitAudioContext;
+            const AudioContext =
+                window.AudioContext || window.webkitAudioContext;
             this._context = new AudioContext();
         } catch (e) {
             this._context = null;
         }
     }
 
-    /** @returns {number} */
-    static _currentTime() {
+    static _currentTime(): number {
         return this._context ? this._context.currentTime : 0;
     }
 
-    /** @returns {void} */
-    static _createMasterGainNode() {
+    static _createMasterGainNode(): void {
         const context = this._context;
         if (context) {
             this._masterGainNode = context.createGain();
@@ -5029,8 +4706,7 @@ class WebAudio {
         }
     }
 
-    /** @returns {void} */
-    static _setupEventHandlers() {
+    static _setupEventHandlers(): void {
         const onUserGesture = this._onUserGesture.bind(this);
         const onVisibilityChange = this._onVisibilityChange.bind(this);
         document.addEventListener("keydown", onUserGesture);
@@ -5039,16 +4715,14 @@ class WebAudio {
         document.addEventListener("visibilitychange", onVisibilityChange);
     }
 
-    /** @returns {void} */
-    static _onUserGesture() {
+    static _onUserGesture(): void {
         const context = this._context;
         if (context && context.state === "suspended") {
             context.resume();
         }
     }
 
-    /** @returns {void} */
-    static _onVisibilityChange() {
+    static _onVisibilityChange(): void {
         if (document.visibilityState === "hidden") {
             this._onHide();
         } else {
@@ -5056,27 +4730,23 @@ class WebAudio {
         }
     }
 
-    /** @returns {void} */
-    static _onHide() {
+    static _onHide(): void {
         if (this._shouldMuteOnHide()) {
             this._fadeOut(1);
         }
     }
 
-    /** @returns {void} */
-    static _onShow() {
+    static _onShow(): void {
         if (this._shouldMuteOnHide()) {
             this._fadeIn(1);
         }
     }
 
-    /** @returns {boolean} */
-    static _shouldMuteOnHide() {
+    static _shouldMuteOnHide(): boolean {
         return Utils.isMobileDevice() && !window.navigator.standalone;
     }
 
-    /** @returns {void} */
-    static _resetVolume() {
+    static _resetVolume(): void {
         if (this._masterGainNode) {
             const gain = this._masterGainNode.gain;
             const volume = this._masterVolume;
@@ -5085,11 +4755,7 @@ class WebAudio {
         }
     }
 
-    /**
-     * @param {number} duration
-     * @returns {void}
-     */
-    static _fadeIn(duration) {
+    static _fadeIn(duration: number): void {
         if (this._masterGainNode) {
             const gain = this._masterGainNode.gain;
             const volume = this._masterVolume;
@@ -5099,11 +4765,7 @@ class WebAudio {
         }
     }
 
-    /**
-     * @param {number} duration
-     * @returns {void}
-     */
-    static _fadeOut(duration) {
+    static _fadeOut(duration: number): void {
         if (this._masterGainNode) {
             const gain = this._masterGainNode.gain;
             const volume = this._masterVolume;
@@ -5115,10 +4777,8 @@ class WebAudio {
 
     /**
      * Clears the audio data.
-     *
-     * @returns {void}
      */
-    clear() {
+    clear(): void {
         this.stop();
         this._data = null;
         this._fetchedSize = 0;
@@ -5129,7 +4789,7 @@ class WebAudio {
         this._pannerNode = null;
         this._totalTime = 0;
         this._sampleRate = 0;
-        this._loop = 0;
+        this._loop = false;
         this._loopStart = 0;
         this._loopLength = 0;
         this._loopStartTime = 0;
@@ -5150,45 +4810,39 @@ class WebAudio {
 
     /**
      * The url of the audio file.
-     *
      * @name WebAudio#url
-     * @type {string}
      */
-    get url() {
+    get url(): string {
         return this._url;
     }
 
     /**
      * The volume of the audio.
-     *
      * @name WebAudio#volume
-     * @type {number}
      */
-    get volume() {
+    get volume(): number {
         return this._volume;
     }
-    /** @param {number} value */
-    set volume(value) {
+
+    set volume(value: number) {
         this._volume = value;
         if (this._gainNode) {
             this._gainNode.gain.setValueAtTime(
                 this._volume,
-                WebAudio._currentTime()
+                WebAudio._currentTime(),
             );
         }
     }
 
     /**
      * The pitch of the audio.
-     *
      * @name WebAudio#pitch
-     * @type {number}
      */
-    get pitch() {
+    get pitch(): number {
         return this._pitch;
     }
-    /** @param {number} value */
-    set pitch(value) {
+
+    set pitch(value: number) {
         if (this._pitch !== value) {
             this._pitch = value;
             if (this.isPlaying()) {
@@ -5199,54 +4853,47 @@ class WebAudio {
 
     /**
      * The pan of the audio.
-     *
      * @name WebAudio#pan
-     * @type {number}
      */
-    get pan() {
+    get pan(): number {
         return this._pan;
     }
-    /** @param {number} value */
-    set pan(value) {
+
+    set pan(value: number) {
         this._pan = value;
         this._updatePanner();
     }
 
     /**
      * Checks whether the audio data is ready to play.
-     *
-     * @returns {boolean} True if the audio data is ready to play.
+     * @returns True if the audio data is ready to play.
      */
-    isReady() {
+    isReady(): boolean {
         return this._buffers && this._buffers.length > 0;
     }
 
     /**
      * Checks whether a loading error has occurred.
-     *
-     * @returns {boolean} True if a loading error has occurred.
+     * @returns True if a loading error has occurred.
      */
-    isError() {
+    isError(): boolean {
         return this._isError;
     }
 
     /**
      * Checks whether the audio is playing.
-     *
-     * @returns {boolean} True if the audio is playing.
+     * @returns True if the audio is playing.
      */
-    isPlaying() {
+    isPlaying(): boolean {
         return this._isPlaying;
     }
 
     /**
      * Plays the audio.
-     *
-     * @param {boolean} loop - Whether the audio data play in a loop.
-     * @param {number} [offset] - The start position to play in seconds.
-     * @returns {void}
+     * @param loop - Whether the audio data play in a loop.
+     * @param offset - The start position to play in seconds.
      */
-    play(loop, offset) {
+    play(loop: boolean, offset?: number): void {
         this._loop = loop;
         if (this.isReady()) {
             offset = offset || 0;
@@ -5259,10 +4906,8 @@ class WebAudio {
 
     /**
      * Stops the audio.
-     *
-     * @returns {void}
      */
-    stop() {
+    stop(): void {
         this._isPlaying = false;
         this._removeEndTimer();
         this._removeNodes();
@@ -5277,27 +4922,26 @@ class WebAudio {
 
     /**
      * Destroys the audio.
-     *
-     * @returns {void}
      */
-    destroy() {
+    destroy(): void {
         this._destroyDecoder();
         this.clear();
     }
 
     /**
      * Performs the audio fade-in.
-     *
-     * @param {number} duration - Fade-in time in seconds.
-     * @returns {void}
+     * @param duration - Fade-in time in seconds.
      */
-    fadeIn(duration) {
+    fadeIn(duration: number): void {
         if (this.isReady()) {
             if (this._gainNode) {
                 const gain = this._gainNode.gain;
                 const currentTime = WebAudio._currentTime();
                 gain.setValueAtTime(0, currentTime);
-                gain.linearRampToValueAtTime(this._volume, currentTime + duration);
+                gain.linearRampToValueAtTime(
+                    this._volume,
+                    currentTime + duration,
+                );
             }
         } else {
             this.addLoadListener(() => this.fadeIn(duration));
@@ -5306,11 +4950,9 @@ class WebAudio {
 
     /**
      * Performs the audio fade-out.
-     *
-     * @param {number} duration - Fade-out time in seconds.
-     * @returns {void}
+     * @param duration - Fade-out time in seconds.
      */
-    fadeOut(duration) {
+    fadeOut(duration: number): void {
         if (this._gainNode) {
             const gain = this._gainNode.gain;
             const currentTime = WebAudio._currentTime();
@@ -5323,10 +4965,8 @@ class WebAudio {
 
     /**
      * Gets the seek position of the audio.
-     *
-     * @returns {number}
      */
-    seek() {
+    seek(): number {
         if (WebAudio._context) {
             let pos = (WebAudio._currentTime() - this._startTime) * this._pitch;
             if (this._loopLengthTime > 0) {
@@ -5342,38 +4982,31 @@ class WebAudio {
 
     /**
      * Adds a callback function that will be called when the audio data is loaded.
-     *
-     * @param {() => void} listner - The callback function.
-     * @returns {void}
+     * @param listner - The callback function.
      */
-    addLoadListener(listner) {
+    addLoadListener(listner: () => void): void {
         this._loadListeners.push(listner);
     }
 
     /**
      * Adds a callback function that will be called when the playback is stopped.
-     *
-     * @param {() => void} listner - The callback function.
-     * @returns {void}
+     * @param listner - The callback function.
      */
-    addStopListener(listner) {
+    addStopListener(listner: () => void): void {
         this._stopListeners.push(listner);
     }
 
     /**
      * Tries to load the audio again.
-     *
-     * @returns {void}
      */
-    retry() {
+    retry(): void {
         this._startLoading();
         if (this._isPlaying) {
             this.play(this._loop, 0);
         }
     }
 
-    /** @returns {void} */
-    _startLoading() {
+    _startLoading(): void {
         if (WebAudio._context) {
             const url = this._realUrl();
             if (Utils.isLocal()) {
@@ -5392,38 +5025,30 @@ class WebAudio {
         }
     }
 
-    /** @returns {boolean} */
-    _shouldUseDecoder() {
+    _shouldUseDecoder(): boolean {
         return !Utils.canPlayOgg() && typeof VorbisDecoder === "function";
     }
 
-    /** @returns {void} */
-    _createDecoder() {
+    _createDecoder(): void {
         this._decoder = new VorbisDecoder(
             WebAudio._context,
             this._onDecode.bind(this),
-            this._onError.bind(this)
+            this._onError.bind(this),
         );
     }
 
-    /** @returns {void} */
-    _destroyDecoder() {
+    _destroyDecoder(): void {
         if (this._decoder) {
             this._decoder.destroy();
             this._decoder = null;
         }
     }
 
-    /** @returns {string} */
-    _realUrl() {
+    _realUrl(): string {
         return this._url + (Utils.hasEncryptedAudio() ? "_" : "");
     }
 
-    /**
-     * @param {string} url
-     * @returns {void}
-     */
-    _startXhrLoading(url) {
+    _startXhrLoading(url: string): void {
         const xhr = new XMLHttpRequest();
         xhr.open("GET", url);
         xhr.responseType = "arraybuffer";
@@ -5432,22 +5057,14 @@ class WebAudio {
         xhr.send();
     }
 
-    /**
-     * @param {string} url
-     * @returns {void}
-     */
-    _startFetching(url) {
-        const options = { credentials: "same-origin" };
+    _startFetching(url: string): void {
+        const options: RequestInit = { credentials: "same-origin" };
         fetch(url, options)
-            .then(response => this._onFetch(response))
+            .then((response) => this._onFetch(response))
             .catch(() => this._onError());
     }
 
-    /**
-     * @param {XMLHttpRequest} xhr
-     * @returns {void}
-     */
-    _onXhrLoad(xhr) {
+    _onXhrLoad(xhr: XMLHttpRequest): void {
         if (xhr.status < 400) {
             this._data = new Uint8Array(xhr.response);
             this._isLoaded = true;
@@ -5457,14 +5074,14 @@ class WebAudio {
         }
     }
 
-    /**
-     * @param {Response} response
-     * @returns {void}
-     */
-    _onFetch(response) {
+    _onFetch(response: Response): void {
         if (response.ok) {
-            const reader = response.body.getReader();
-            const readChunk = ({ done, value }) => {
+            const reader = response.body!.getReader();
+            const readChunk = ({
+                done,
+                value,
+            }: ReadableStreamReadResult<Uint8Array<ArrayBuffer>>):
+                Promise<number> | number => {
                 if (done) {
                     this._isLoaded = true;
                     if (this._fetchedSize > 0) {
@@ -5487,8 +5104,7 @@ class WebAudio {
         }
     }
 
-    /** @returns {void} */
-    _onError() {
+    _onError(): void {
         if (this._sourceNodes.length > 0) {
             this._stopSourceNode();
         }
@@ -5496,18 +5112,13 @@ class WebAudio {
         this._isError = true;
     }
 
-    /**
-     * @param {Uint8Array} value
-     * @returns {void}
-     */
-    _onFetchProcess(value) {
+    _onFetchProcess(value: Uint8Array): void {
         this._fetchedSize += value.length;
         this._fetchedData.push(value);
         this._updateBufferOnFetch();
     }
 
-    /** @returns {void} */
-    _updateBufferOnFetch() {
+    _updateBufferOnFetch(): void {
         const currentTime = WebAudio._currentTime();
         const deltaTime = currentTime - this._lastUpdateTime;
         const currentData = this._data;
@@ -5519,8 +5130,7 @@ class WebAudio {
         }
     }
 
-    /** @returns {void} */
-    _concatenateFetchedData() {
+    _concatenateFetchedData(): void {
         const currentData = this._data;
         const currentSize = currentData ? currentData.length : 0;
         const newData = new Uint8Array(currentSize + this._fetchedSize);
@@ -5538,15 +5148,13 @@ class WebAudio {
         this._fetchedSize = 0;
     }
 
-    /** @returns {void} */
-    _updateBuffer() {
+    _updateBuffer(): void {
         const arrayBuffer = this._readableBuffer();
-        this._readLoopComments(arrayBuffer);
-        this._decodeAudioData(arrayBuffer);
+        this._readLoopComments(arrayBuffer as ArrayBuffer);
+        this._decodeAudioData(arrayBuffer as ArrayBuffer);
     }
 
-    /** @returns {ArrayBufferLike} */
-    _readableBuffer() {
+    _readableBuffer(): ArrayBufferLike {
         if (Utils.hasEncryptedAudio()) {
             return Utils.decryptArrayBuffer(this._data.buffer);
         } else {
@@ -5554,11 +5162,7 @@ class WebAudio {
         }
     }
 
-    /**
-     * @param {ArrayBuffer} arrayBuffer
-     * @returns {void}
-     */
-    _decodeAudioData(arrayBuffer) {
+    _decodeAudioData(arrayBuffer: ArrayBuffer): void {
         if (this._shouldUseDecoder()) {
             if (this._decoder) {
                 this._decoder.send(arrayBuffer, this._isLoaded);
@@ -5566,18 +5170,13 @@ class WebAudio {
         } else {
             // [Note] Make a temporary copy of arrayBuffer because
             //   decodeAudioData() detaches it.
-            WebAudio._context
-                .decodeAudioData(arrayBuffer.slice())
-                .then(buffer => this._onDecode(buffer))
+            WebAudio._context!.decodeAudioData(arrayBuffer.slice())
+                .then((buffer) => this._onDecode(buffer))
                 .catch(() => this._onError());
         }
     }
 
-    /**
-     * @param {AudioBuffer} buffer
-     * @returns {void}
-     */
-    _onDecode(buffer) {
+    _onDecode(buffer: AudioBuffer): void {
         if (!this._shouldUseDecoder()) {
             this._buffers = [];
             this._totalTime = 0;
@@ -5597,8 +5196,7 @@ class WebAudio {
         this._onLoad();
     }
 
-    /** @returns {void} */
-    _refreshSourceNode() {
+    _refreshSourceNode(): void {
         if (this._shouldUseDecoder()) {
             const index = this._buffers.length - 1;
             this._createSourceNode(index);
@@ -5618,11 +5216,7 @@ class WebAudio {
         }
     }
 
-    /**
-     * @param {number} offset
-     * @returns {void}
-     */
-    _startPlaying(offset) {
+    _startPlaying(offset: number): void {
         if (this._loopLengthTime > 0) {
             while (offset >= this._loopStartTime + this._loopLengthTime) {
                 offset -= this._loopLengthTime;
@@ -5638,18 +5232,13 @@ class WebAudio {
         this._createEndTimer();
     }
 
-    /** @returns {void} */
-    _startAllSourceNodes() {
+    _startAllSourceNodes(): void {
         for (let i = 0; i < this._sourceNodes.length; i++) {
             this._startSourceNode(i);
         }
     }
 
-    /**
-     * @param {number} index
-     * @returns {void}
-     */
-    _startSourceNode(index) {
+    _startSourceNode(index: number): void {
         const sourceNode = this._sourceNodes[index];
         const seekPos = this.seek();
         const currentTime = WebAudio._currentTime();
@@ -5704,8 +5293,7 @@ class WebAudio {
         chunkStart += sourceNode.buffer.duration;
     }
 
-    /** @returns {void} */
-    _stopSourceNode() {
+    _stopSourceNode(): void {
         for (const sourceNode of this._sourceNodes) {
             try {
                 sourceNode.onended = null;
@@ -5716,47 +5304,39 @@ class WebAudio {
         }
     }
 
-    /** @returns {void} */
-    _createPannerNode() {
-        this._pannerNode = WebAudio._context.createPanner();
+    _createPannerNode(): void {
+        this._pannerNode = WebAudio._context!.createPanner();
         this._pannerNode.panningModel = "equalpower";
-        this._pannerNode.connect(WebAudio._masterGainNode);
+        this._pannerNode.connect(WebAudio._masterGainNode!);
         this._updatePanner();
     }
 
-    /** @returns {void} */
-    _createGainNode() {
+    _createGainNode(): void {
         const currentTime = WebAudio._currentTime();
-        this._gainNode = WebAudio._context.createGain();
+        this._gainNode = WebAudio._context!.createGain();
         this._gainNode.gain.setValueAtTime(this._volume, currentTime);
-        this._gainNode.connect(this._pannerNode);
+        this._gainNode.connect(this._pannerNode!);
     }
 
-    /** @returns {void} */
-    _createAllSourceNodes() {
+    _createAllSourceNodes(): void {
         for (let i = 0; i < this._buffers.length; i++) {
             this._createSourceNode(i);
         }
     }
 
-    /**
-     * @param {number} index
-     * @returns {void}
-     */
-    _createSourceNode(index) {
-        const sourceNode = WebAudio._context.createBufferSource();
+    _createSourceNode(index: number): void {
+        const sourceNode = WebAudio._context!.createBufferSource();
         const currentTime = WebAudio._currentTime();
         sourceNode.buffer = this._buffers[index];
         sourceNode.loop = this._loop && this._isLoaded;
         sourceNode.loopStart = this._loopStartTime;
         sourceNode.loopEnd = this._loopStartTime + this._loopLengthTime;
         sourceNode.playbackRate.setValueAtTime(this._pitch, currentTime);
-        sourceNode.connect(this._gainNode);
+        sourceNode.connect(this._gainNode!);
         this._sourceNodes[index] = sourceNode;
     }
 
-    /** @returns {void} */
-    _removeNodes() {
+    _removeNodes(): void {
         if (this._sourceNodes && this._sourceNodes.length > 0) {
             this._stopSourceNode();
             this._sourceNodes = [];
@@ -5765,25 +5345,25 @@ class WebAudio {
         }
     }
 
-    /** @returns {void} */
-    _createEndTimer() {
+    _createEndTimer(): void {
         if (this._sourceNodes.length > 0 && !this._loop) {
             const endTime = this._startTime + this._totalTime / this._pitch;
             const delay = endTime - WebAudio._currentTime();
-            this._endTimer = setTimeout(this.stop.bind(this), delay * 1000);
+            this._endTimer = window.setTimeout(
+                this.stop.bind(this),
+                delay * 1000,
+            );
         }
     }
 
-    /** @returns {void} */
-    _removeEndTimer() {
+    _removeEndTimer(): void {
         if (this._endTimer) {
             clearTimeout(this._endTimer);
             this._endTimer = null;
         }
     }
 
-    /** @returns {void} */
-    _updatePanner() {
+    _updatePanner(): void {
         if (this._pannerNode) {
             const x = this._pan;
             const z = 1 - Math.abs(x);
@@ -5791,19 +5371,14 @@ class WebAudio {
         }
     }
 
-    /** @returns {void} */
-    _onLoad() {
+    _onLoad(): void {
         while (this._loadListeners.length > 0) {
             const listner = this._loadListeners.shift();
             listner();
         }
     }
 
-    /**
-     * @param {ArrayBuffer} arrayBuffer
-     * @returns {void}
-     */
-    _readLoopComments(arrayBuffer) {
+    _readLoopComments(arrayBuffer: ArrayBuffer): void {
         const view = new DataView(arrayBuffer);
         let index = 0;
         while (index < view.byteLength - 30) {
@@ -5820,10 +5395,10 @@ class WebAudio {
             while (segments.length > 0) {
                 let packetSize = 0;
                 while (segments[0] === 255) {
-                    packetSize += segments.shift();
+                    packetSize += segments.shift()!;
                 }
                 if (segments.length > 0) {
-                    packetSize += segments.shift();
+                    packetSize += segments.shift()!;
                 }
                 packets.push(packetSize);
             }
@@ -5846,13 +5421,7 @@ class WebAudio {
         }
     }
 
-    /**
-     * @param {DataView} view
-     * @param {number} index
-     * @param {number} size
-     * @returns {void}
-     */
-    _readMetaData(view, index, size) {
+    _readMetaData(view: DataView, index: number, size: number): void {
         for (let i = index; i < index + size - 10; i++) {
             if (this._readFourCharacters(view, i) === "LOOP") {
                 let text = "";
@@ -5881,12 +5450,7 @@ class WebAudio {
         }
     }
 
-    /**
-     * @param {DataView} view
-     * @param {number} index
-     * @returns {string}
-     */
-    _readFourCharacters(view, index) {
+    _readFourCharacters(view: DataView, index: number): string {
         let string = "";
         if (index <= view.byteLength - 4) {
             for (let i = 0; i < 4; i++) {
@@ -5899,22 +5463,22 @@ class WebAudio {
 
 /**
  * The static class that handles video playback.
- *
- * @namespace
  */
 class Video {
+    declare static _element: HTMLVideoElement | null;
+    declare static _loading: boolean;
+    declare static _volume: number;
+
     constructor() {
         throw new Error("This is a static class");
     }
 
     /**
      * Initializes the video system.
-     *
-     * @param {number} width - The width of the video.
-     * @param {number} height - The height of the video.
-     * @returns {void}
+     * @param width - The width of the video.
+     * @param height - The height of the video.
      */
-    static initialize(width, height) {
+    static initialize(width: number, height: number): void {
         this._element = null;
         this._loading = false;
         this._volume = 1;
@@ -5925,12 +5489,10 @@ class Video {
 
     /**
      * Changes the display size of the video.
-     *
-     * @param {number} width - The width of the video.
-     * @param {number} height - The height of the video.
-     * @returns {void}
+     * @param width - The width of the video.
+     * @param height - The height of the video.
      */
-    static resize(width, height) {
+    static resize(width: number, height: number): void {
         if (this._element) {
             this._element.style.width = width + "px";
             this._element.style.height = height + "px";
@@ -5939,154 +5501,140 @@ class Video {
 
     /**
      * Starts playback of a video.
-     *
-     * @param {string} src - The url of the video.
-     * @returns {void}
+     * @param src - The url of the video.
      */
-    static play(src) {
-        this._element.src = src;
-        this._element.onloadeddata = this._onLoad.bind(this);
-        this._element.onerror = this._onError.bind(this);
-        this._element.onended = this._onEnd.bind(this);
-        this._element.load();
+    static play(src: string): void {
+        this._element!.src = src;
+        this._element!.onloadeddata = this._onLoad.bind(this);
+        this._element!.onerror = this._onError.bind(this);
+        this._element!.onended = this._onEnd.bind(this);
+        this._element!.load();
         this._loading = true;
     }
 
     /**
      * Checks whether the video is playing.
-     *
-     * @returns {boolean} True if the video is playing.
+     * @returns True if the video is playing.
      */
-    static isPlaying() {
+    static isPlaying(): boolean {
         return this._loading || this._isVisible();
     }
 
     /**
      * Sets the volume for videos.
-     *
-     * @param {number} volume - The volume for videos (0 to 1).
-     * @returns {void}
+     * @param volume - The volume for videos (0 to 1).
      */
-    static setVolume(volume) {
+    static setVolume(volume: number): void {
         this._volume = volume;
         if (this._element) {
             this._element.volume = this._volume;
         }
     }
 
-    /** @returns {void} */
-    static _createElement() {
+    static _createElement(): void {
         this._element = document.createElement("video");
         this._element.id = "gameVideo";
         this._element.style.position = "absolute";
         this._element.style.margin = "auto";
-        this._element.style.top = 0;
-        this._element.style.left = 0;
-        this._element.style.right = 0;
-        this._element.style.bottom = 0;
-        this._element.style.opacity = 0;
-        this._element.style.zIndex = 2;
+        this._element.style.top = String(0);
+        this._element.style.left = String(0);
+        this._element.style.right = String(0);
+        this._element.style.bottom = String(0);
+        this._element.style.opacity = String(0);
+        this._element.style.zIndex = String(2);
         this._element.setAttribute("playsinline", "");
         this._element.oncontextmenu = () => false;
         document.body.appendChild(this._element);
     }
 
-    /** @returns {void} */
-    static _onLoad() {
-        this._element.volume = this._volume;
-        this._element.play();
+    static _onLoad(): void {
+        this._element!.volume = this._volume;
+        this._element!.play();
         this._updateVisibility(true);
         this._loading = false;
     }
 
-    /** @returns {void} */
-    static _onError() {
+    static _onError(): void {
         this._updateVisibility(false);
         const retry = () => {
-            this._element.load();
+            this._element!.load();
         };
-        throw ["LoadError", this._element.src, retry];
+        throw ["LoadError", this._element!.src, retry];
     }
 
-    /** @returns {void} */
-    static _onEnd() {
+    static _onEnd(): void {
         this._updateVisibility(false);
     }
 
-    /**
-     * @param {boolean} videoVisible
-     * @returns {void}
-     */
-    static _updateVisibility(videoVisible) {
+    static _updateVisibility(videoVisible: boolean): void {
         if (videoVisible) {
             Graphics.hideScreen();
         } else {
             Graphics.showScreen();
         }
-        this._element.style.opacity = videoVisible ? 1 : 0;
+        this._element!.style.opacity = String(videoVisible ? 1 : 0);
     }
 
-    /** @returns {boolean} */
-    static _isVisible() {
-        return this._element.style.opacity > 0;
+    static _isVisible(): boolean {
+        return Number(this._element!.style.opacity) > 0;
     }
 
-    /** @returns {void} */
-    static _setupEventHandlers() {
+    static _setupEventHandlers(): void {
         const onUserGesture = this._onUserGesture.bind(this);
         document.addEventListener("keydown", onUserGesture);
         document.addEventListener("mousedown", onUserGesture);
         document.addEventListener("touchend", onUserGesture);
     }
 
-    /** @returns {void} */
-    static _onUserGesture() {
-        if (!this._element.src && this._element.paused) {
-            this._element.play().catch(() => 0);
+    static _onUserGesture(): void {
+        if (!this._element!.src && this._element!.paused) {
+            this._element!.play().catch(() => 0);
         }
     }
 }
 
 /**
  * The static class that handles input data from the keyboard and gamepads.
- *
- * @namespace
  */
 class Input {
+    declare static _currentState: Record<string, boolean>;
+    declare static _previousState: Record<string, boolean>;
+    declare static _gamepadStates: boolean[][];
+
+    declare static _latestButton: string | null;
+    declare static _pressedTime: number;
+    declare static _dir4: number;
+    declare static _dir8: number;
+    declare static _preferredAxis: string;
+    declare static _date: number;
+    declare static _virtualButton: string | null;
+
     constructor() {
         throw new Error("This is a static class");
     }
 
     /**
      * Initializes the input system.
-     *
-     * @returns {void}
      */
-    static initialize() {
+    static initialize(): void {
         this.clear();
         this._setupEventHandlers();
     }
 
     /**
      * The wait time of the key repeat in frames.
-     *
-     * @type {number}
      */
-    static keyRepeatWait = 24;
+    static keyRepeatWait: number = 24;
 
     /**
      * The interval of the key repeat in frames.
-     *
-     * @type {number}
      */
-    static keyRepeatInterval = 6;
+    static keyRepeatInterval: number = 6;
 
     /**
      * A hash table to convert from a virtual key code to a mapped key name.
-     *
-     * @type {{ readonly 9: "tab"; readonly 13: "ok"; readonly 16: "shift"; readonly 17: "control"; readonly 18: "control"; readonly 27: "escape"; readonly 32: "ok"; readonly 33: "pageup"; readonly 34: "pagedown"; readonly 37: "left"; readonly 38: "up"; readonly 39: "right"; readonly 40: "down"; readonly 45: "escape"; readonly 81: "pageup"; readonly 87: "pagedown"; readonly 88: "escape"; readonly 90: "ok"; readonly 96: "escape"; readonly 98: "down"; readonly 100: "left"; readonly 102: "right"; readonly 104: "up"; readonly 120: "debug"; }}
      */
-    static keyMapper = {
+    static keyMapper: Record<number, string> = {
         9: "tab", // tab
         13: "ok", // enter
         16: "shift", // shift
@@ -6110,15 +5658,13 @@ class Input {
         100: "left", // numpad 4
         102: "right", // numpad 6
         104: "up", // numpad 8
-        120: "debug" // F9
+        120: "debug", // F9
     };
 
     /**
      * A hash table to convert from a gamepad button to a mapped key name.
-     *
-     * @type {{ readonly 0: "ok"; readonly 1: "cancel"; readonly 2: "shift"; readonly 3: "menu"; readonly 4: "pageup"; readonly 5: "pagedown"; readonly 12: "up"; readonly 13: "down"; readonly 14: "left"; readonly 15: "right"; }}
      */
-    static gamepadMapper = {
+    static gamepadMapper: Record<number, string> = {
         0: "ok", // A
         1: "cancel", // B
         2: "shift", // X
@@ -6128,15 +5674,13 @@ class Input {
         12: "up", // D-pad up
         13: "down", // D-pad down
         14: "left", // D-pad left
-        15: "right" // D-pad right
+        15: "right", // D-pad right
     };
 
     /**
      * Clears all the input data.
-     *
-     * @returns {void}
      */
-    static clear() {
+    static clear(): void {
         this._currentState = {};
         this._previousState = {};
         this._gamepadStates = [];
@@ -6151,12 +5695,10 @@ class Input {
 
     /**
      * Updates the input data.
-     *
-     * @returns {void}
      */
-    static update() {
+    static update(): void {
         this._pollGamepads();
-        if (this._currentState[this._latestButton]) {
+        if (this._currentState[this._latestButton!]) {
             this._pressedTime++;
         } else {
             this._latestButton = null;
@@ -6179,11 +5721,10 @@ class Input {
 
     /**
      * Checks whether a key is currently pressed down.
-     *
-     * @param {string} keyName - The mapped name of the key.
-     * @returns {boolean} True if the key is pressed.
+     * @param keyName - The mapped name of the key.
+     * @returns True if the key is pressed.
      */
-    static isPressed(keyName) {
+    static isPressed(keyName: string): boolean {
         if (this._isEscapeCompatible(keyName) && this.isPressed("escape")) {
             return true;
         } else {
@@ -6193,11 +5734,10 @@ class Input {
 
     /**
      * Checks whether a key is just pressed.
-     *
-     * @param {string} keyName - The mapped name of the key.
-     * @returns {boolean} True if the key is triggered.
+     * @param keyName - The mapped name of the key.
+     * @returns True if the key is triggered.
      */
-    static isTriggered(keyName) {
+    static isTriggered(keyName: string): boolean {
         if (this._isEscapeCompatible(keyName) && this.isTriggered("escape")) {
             return true;
         } else {
@@ -6207,11 +5747,10 @@ class Input {
 
     /**
      * Checks whether a key is just pressed or a key repeat occurred.
-     *
-     * @param {string} keyName - The mapped name of the key.
-     * @returns {boolean} True if the key is repeated.
+     * @param keyName - The mapped name of the key.
+     * @returns True if the key is repeated.
      */
-    static isRepeated(keyName) {
+    static isRepeated(keyName: string): boolean {
         if (this._isEscapeCompatible(keyName) && this.isRepeated("escape")) {
             return true;
         } else {
@@ -6226,11 +5765,10 @@ class Input {
 
     /**
      * Checks whether a key is kept depressed.
-     *
-     * @param {string} keyName - The mapped name of the key.
-     * @returns {boolean} True if the key is long-pressed.
+     * @param keyName - The mapped name of the key.
+     * @returns True if the key is long-pressed.
      */
-    static isLongPressed(keyName) {
+    static isLongPressed(keyName: string): boolean {
         if (this._isEscapeCompatible(keyName) && this.isLongPressed("escape")) {
             return true;
         } else {
@@ -6243,54 +5781,39 @@ class Input {
 
     /**
      * The four direction value as a number of the numpad, or 0 for neutral.
-     *
      * @name Input.dir4
-     * @type {RMMZ.Direction}
      */
-    static get dir4() {
-        return this._dir4;
+    static get dir4(): RMMZ.Direction {
+        return this._dir4 as RMMZ.Direction;
     }
 
     /**
      * The eight direction value as a number of the numpad, or 0 for neutral.
-     *
      * @name Input.dir8
-     * @type {RMMZ.Direction}
      */
-    static get dir8() {
-        return this._dir8;
+    static get dir8(): RMMZ.Direction {
+        return this._dir8 as RMMZ.Direction;
     }
 
     /**
      * The time of the last input in milliseconds.
-     *
-     * @type {number}
      * @name Input.date
      */
-    static get date() {
+    static get date(): number {
         return this._date;
     }
 
-    /**
-     * @param {string} buttonName
-     * @returns {void}
-     */
-    static virtualClick(buttonName) {
+    static virtualClick(buttonName: string): void {
         this._virtualButton = buttonName;
     }
 
-    /** @returns {void} */
-    static _setupEventHandlers() {
+    static _setupEventHandlers(): void {
         document.addEventListener("keydown", this._onKeyDown.bind(this));
         document.addEventListener("keyup", this._onKeyUp.bind(this));
         window.addEventListener("blur", this._onLostFocus.bind(this));
     }
 
-    /**
-     * @param {KeyboardEvent} event
-     * @returns {void}
-     */
-    static _onKeyDown(event) {
+    static _onKeyDown(event: KeyboardEvent): void {
         if (this._shouldPreventDefault(event.keyCode)) {
             event.preventDefault();
         }
@@ -6304,11 +5827,7 @@ class Input {
         }
     }
 
-    /**
-     * @param {number} keyCode
-     * @returns {boolean}
-     */
-    static _shouldPreventDefault(keyCode) {
+    static _shouldPreventDefault(keyCode: number): boolean {
         switch (keyCode) {
             case 8: // backspace
             case 9: // tab
@@ -6323,24 +5842,18 @@ class Input {
         return false;
     }
 
-    /**
-     * @param {KeyboardEvent} event
-     * @returns {void}
-     */
-    static _onKeyUp(event) {
+    static _onKeyUp(event: KeyboardEvent): void {
         const buttonName = this.keyMapper[event.keyCode];
         if (buttonName) {
             this._currentState[buttonName] = false;
         }
     }
 
-    /** @returns {void} */
-    static _onLostFocus() {
+    static _onLostFocus(): void {
         this.clear();
     }
 
-    /** @returns {void} */
-    static _pollGamepads() {
+    static _pollGamepads(): void {
         if (navigator.getGamepads) {
             const gamepads = navigator.getGamepads();
             if (gamepads) {
@@ -6353,11 +5866,7 @@ class Input {
         }
     }
 
-    /**
-     * @param {Gamepad} gamepad
-     * @returns {void}
-     */
-    static _updateGamepadState(gamepad) {
+    static _updateGamepadState(gamepad: Gamepad): void {
         const lastState = this._gamepadStates[gamepad.index] || [];
         const newState = [];
         const buttons = gamepad.buttons;
@@ -6391,8 +5900,7 @@ class Input {
         this._gamepadStates[gamepad.index] = newState;
     }
 
-    /** @returns {void} */
-    static _updateDirection() {
+    static _updateDirection(): void {
         let x = this._signX();
         let y = this._signY();
         this._dir8 = this._makeNumpadDirection(x, y);
@@ -6410,26 +5918,19 @@ class Input {
         this._dir4 = this._makeNumpadDirection(x, y);
     }
 
-    /** @returns {number} */
-    static _signX() {
+    static _signX(): number {
         const left = this.isPressed("left") ? 1 : 0;
         const right = this.isPressed("right") ? 1 : 0;
         return right - left;
     }
 
-    /** @returns {number} */
-    static _signY() {
+    static _signY(): number {
         const up = this.isPressed("up") ? 1 : 0;
         const down = this.isPressed("down") ? 1 : 0;
         return down - up;
     }
 
-    /**
-     * @param {number} x
-     * @param {number} y
-     * @returns {number}
-     */
-    static _makeNumpadDirection(x, y) {
+    static _makeNumpadDirection(x: number, y: number): number {
         if (x === 0 && y === 0) {
             return 0;
         } else {
@@ -6437,62 +5938,75 @@ class Input {
         }
     }
 
-    /**
-     * @param {string} keyName
-     * @returns {boolean}
-     */
-    static _isEscapeCompatible(keyName) {
+    static _isEscapeCompatible(keyName: string): boolean {
         return keyName === "cancel" || keyName === "menu";
     }
 }
 
 /**
  * The static class that handles input data from the mouse and touchscreen.
- *
- * @namespace
  */
 class TouchInput {
+    declare static _mousePressed: boolean;
+    declare static _screenPressed: boolean;
+    declare static _pressedTime: number;
+    declare static _clicked: boolean;
+    declare static _newState: {
+        triggered: boolean;
+        cancelled: boolean;
+        moved: boolean;
+        hovered: boolean;
+        released: boolean;
+        wheelX: number;
+        wheelY: number;
+    };
+    declare static _currentState: {
+        triggered: boolean;
+        cancelled: boolean;
+        moved: boolean;
+        hovered: boolean;
+        released: boolean;
+        wheelX: number;
+        wheelY: number;
+    };
+    declare static _x: number;
+    declare static _y: number;
+    declare static _triggerX: number;
+    declare static _triggerY: number;
+    declare static _moved: boolean;
+    declare static _date: number;
+
     constructor() {
         throw new Error("This is a static class");
     }
 
     /**
      * Initializes the touch system.
-     *
-     * @returns {void}
      */
-    static initialize() {
+    static initialize(): void {
         this.clear();
         this._setupEventHandlers();
     }
 
     /**
      * The wait time of the pseudo key repeat in frames.
-     *
-     * @type {number}
      */
-    static keyRepeatWait = 24;
+    static keyRepeatWait: number = 24;
 
     /**
      * The interval of the pseudo key repeat in frames.
-     *
-     * @type {number}
      */
-    static keyRepeatInterval = 6;
+    static keyRepeatInterval: number = 6;
 
     /**
      * The threshold number of pixels to treat as moved.
-     *
-     * @type {number}
      */
-    static moveThreshold = 10;
+    static moveThreshold: number = 10;
 
     /**
      * Clears all the touch data.
-     *
-     * @returns {void}
      */
-    static clear() {
+    static clear(): void {
         this._mousePressed = false;
         this._screenPressed = false;
         this._pressedTime = 0;
@@ -6509,10 +6023,8 @@ class TouchInput {
 
     /**
      * Updates the touch data.
-     *
-     * @returns {void}
      */
-    static update() {
+    static update(): void {
         this._currentState = this._newState;
         this._newState = this._createNewState();
         this._clicked = this._currentState.released && !this._moved;
@@ -6524,38 +6036,34 @@ class TouchInput {
     /**
      * Checks whether the mouse button or touchscreen has been pressed and
      * released at the same position.
-     *
-     * @returns {boolean} True if the mouse button or touchscreen is clicked.
+     * @returns True if the mouse button or touchscreen is clicked.
      */
-    static isClicked() {
+    static isClicked(): boolean {
         return this._clicked;
     }
 
     /**
      * Checks whether the mouse button or touchscreen is currently pressed down.
-     *
-     * @returns {boolean} True if the mouse button or touchscreen is pressed.
+     * @returns True if the mouse button or touchscreen is pressed.
      */
-    static isPressed() {
+    static isPressed(): boolean {
         return this._mousePressed || this._screenPressed;
     }
 
     /**
      * Checks whether the left mouse button or touchscreen is just pressed.
-     *
-     * @returns {boolean} True if the mouse button or touchscreen is triggered.
+     * @returns True if the mouse button or touchscreen is triggered.
      */
-    static isTriggered() {
+    static isTriggered(): boolean {
         return this._currentState.triggered;
     }
 
     /**
      * Checks whether the left mouse button or touchscreen is just pressed
      * or a pseudo key repeat occurred.
-     *
-     * @returns {boolean} True if the mouse button or touchscreen is repeated.
+     * @returns True if the mouse button or touchscreen is repeated.
      */
-    static isRepeated() {
+    static isRepeated(): boolean {
         return (
             this.isPressed() &&
             (this._currentState.triggered ||
@@ -6566,101 +6074,93 @@ class TouchInput {
 
     /**
      * Checks whether the left mouse button or touchscreen is kept depressed.
-     *
-     * @returns {boolean} True if the left mouse button or touchscreen is long-pressed.
+     * @returns True if the left mouse button or touchscreen is long-pressed.
      */
-    static isLongPressed() {
+    static isLongPressed(): boolean {
         return this.isPressed() && this._pressedTime >= this.keyRepeatWait;
     }
 
     /**
      * Checks whether the right mouse button is just pressed.
-     *
-     * @returns {boolean} True if the right mouse button is just pressed.
+     * @returns True if the right mouse button is just pressed.
      */
-    static isCancelled() {
+    static isCancelled(): boolean {
         return this._currentState.cancelled;
     }
 
     /**
      * Checks whether the mouse or a finger on the touchscreen is moved.
-     *
-     * @returns {boolean} True if the mouse or a finger on the touchscreen is moved.
+     * @returns True if the mouse or a finger on the touchscreen is moved.
      */
-    static isMoved() {
+    static isMoved(): boolean {
         return this._currentState.moved;
     }
 
     /**
      * Checks whether the mouse is moved without pressing a button.
-     *
-     * @returns {boolean} True if the mouse is hovered.
+     * @returns True if the mouse is hovered.
      */
-    static isHovered() {
+    static isHovered(): boolean {
         return this._currentState.hovered;
     }
 
     /**
      * Checks whether the left mouse button or touchscreen is released.
-     *
-     * @returns {boolean} True if the mouse button or touchscreen is released.
+     * @returns True if the mouse button or touchscreen is released.
      */
-    static isReleased() {
+    static isReleased(): boolean {
         return this._currentState.released;
     }
 
     /**
      * The horizontal scroll amount.
-     *
      * @name TouchInput.wheelX
-     * @type {number}
      */
-    static get wheelX() {
+    static get wheelX(): number {
         return this._currentState.wheelX;
     }
 
     /**
      * The vertical scroll amount.
-     *
      * @name TouchInput.wheelY
-     * @type {number}
      */
-    static get wheelY() {
+    static get wheelY(): number {
         return this._currentState.wheelY;
     }
 
     /**
      * The x coordinate on the canvas area of the latest touch event.
-     *
      * @name TouchInput.x
-     * @type {number}
      */
-    static get x() {
+    static get x(): number {
         return this._x;
     }
 
     /**
      * The y coordinate on the canvas area of the latest touch event.
-     *
      * @name TouchInput.y
-     * @type {number}
      */
-    static get y() {
+    static get y(): number {
         return this._y;
     }
 
     /**
      * The time of the last input in milliseconds.
-     *
      * @name TouchInput.date
-     * @type {number}
      */
-    static get date() {
+    static get date(): number {
         return this._date;
     }
 
-    /** @returns {{ triggered: boolean; cancelled: boolean; moved: boolean; hovered: boolean; released: boolean; wheelX: number; wheelY: number; }} */
-    static _createNewState() {
+    static _createNewState(): {
+        triggered: boolean;
+        cancelled: boolean;
+        moved: boolean;
+        hovered: boolean;
+        released: boolean;
+        wheelX: number;
+        wheelY: number;
+    } {
         return {
             triggered: false,
             cancelled: false,
@@ -6668,29 +6168,35 @@ class TouchInput {
             hovered: false,
             released: false,
             wheelX: 0,
-            wheelY: 0
+            wheelY: 0,
         };
     }
 
-    /** @returns {void} */
-    static _setupEventHandlers() {
+    static _setupEventHandlers(): void {
         const pf = { passive: false };
         document.addEventListener("mousedown", this._onMouseDown.bind(this));
         document.addEventListener("mousemove", this._onMouseMove.bind(this));
         document.addEventListener("mouseup", this._onMouseUp.bind(this));
         document.addEventListener("wheel", this._onWheel.bind(this), pf);
-        document.addEventListener("touchstart", this._onTouchStart.bind(this), pf);
-        document.addEventListener("touchmove", this._onTouchMove.bind(this), pf);
+        document.addEventListener(
+            "touchstart",
+            this._onTouchStart.bind(this),
+            pf,
+        );
+        document.addEventListener(
+            "touchmove",
+            this._onTouchMove.bind(this),
+            pf,
+        );
         document.addEventListener("touchend", this._onTouchEnd.bind(this));
-        document.addEventListener("touchcancel", this._onTouchCancel.bind(this));
+        document.addEventListener(
+            "touchcancel",
+            this._onTouchCancel.bind(this),
+        );
         window.addEventListener("blur", this._onLostFocus.bind(this));
     }
 
-    /**
-     * @param {MouseEvent} event
-     * @returns {void}
-     */
-    static _onMouseDown(event) {
+    static _onMouseDown(event: MouseEvent): void {
         if (event.button === 0) {
             this._onLeftButtonDown(event);
         } else if (event.button === 1) {
@@ -6700,11 +6206,7 @@ class TouchInput {
         }
     }
 
-    /**
-     * @param {MouseEvent} event
-     * @returns {void}
-     */
-    static _onLeftButtonDown(event) {
+    static _onLeftButtonDown(event: MouseEvent): void {
         const x = Graphics.pageToCanvasX(event.pageX);
         const y = Graphics.pageToCanvasY(event.pageY);
         if (Graphics.isInsideCanvas(x, y)) {
@@ -6714,16 +6216,12 @@ class TouchInput {
         }
     }
 
-    /** @returns {void} */
-    static _onMiddleButtonDown(/*event*/) {
+    static _onMiddleButtonDown(..._extra: any[]): void;
+    static _onMiddleButtonDown(/*event*/): void {
         //
     }
 
-    /**
-     * @param {MouseEvent} event
-     * @returns {void}
-     */
-    static _onRightButtonDown(event) {
+    static _onRightButtonDown(event: MouseEvent): void {
         const x = Graphics.pageToCanvasX(event.pageX);
         const y = Graphics.pageToCanvasY(event.pageY);
         if (Graphics.isInsideCanvas(x, y)) {
@@ -6731,11 +6229,7 @@ class TouchInput {
         }
     }
 
-    /**
-     * @param {MouseEvent} event
-     * @returns {void}
-     */
-    static _onMouseMove(event) {
+    static _onMouseMove(event: MouseEvent): void {
         const x = Graphics.pageToCanvasX(event.pageX);
         const y = Graphics.pageToCanvasY(event.pageY);
         if (this._mousePressed) {
@@ -6745,11 +6239,7 @@ class TouchInput {
         }
     }
 
-    /**
-     * @param {MouseEvent} event
-     * @returns {void}
-     */
-    static _onMouseUp(event) {
+    static _onMouseUp(event: MouseEvent): void {
         if (event.button === 0) {
             const x = Graphics.pageToCanvasX(event.pageX);
             const y = Graphics.pageToCanvasY(event.pageY);
@@ -6758,21 +6248,13 @@ class TouchInput {
         }
     }
 
-    /**
-     * @param {WheelEvent} event
-     * @returns {void}
-     */
-    static _onWheel(event) {
+    static _onWheel(event: WheelEvent): void {
         this._newState.wheelX += event.deltaX;
         this._newState.wheelY += event.deltaY;
         event.preventDefault();
     }
 
-    /**
-     * @param {TouchEvent} event
-     * @returns {void}
-     */
-    static _onTouchStart(event) {
+    static _onTouchStart(event: TouchEvent): void {
         for (const touch of event.changedTouches) {
             const x = Graphics.pageToCanvasX(touch.pageX);
             const y = Graphics.pageToCanvasY(touch.pageY);
@@ -6792,11 +6274,7 @@ class TouchInput {
         }
     }
 
-    /**
-     * @param {TouchEvent} event
-     * @returns {void}
-     */
-    static _onTouchMove(event) {
+    static _onTouchMove(event: TouchEvent): void {
         for (const touch of event.changedTouches) {
             const x = Graphics.pageToCanvasX(touch.pageX);
             const y = Graphics.pageToCanvasY(touch.pageY);
@@ -6804,11 +6282,7 @@ class TouchInput {
         }
     }
 
-    /**
-     * @param {TouchEvent} event
-     * @returns {void}
-     */
-    static _onTouchEnd(event) {
+    static _onTouchEnd(event: TouchEvent): void {
         for (const touch of event.changedTouches) {
             const x = Graphics.pageToCanvasX(touch.pageX);
             const y = Graphics.pageToCanvasY(touch.pageY);
@@ -6817,22 +6291,15 @@ class TouchInput {
         }
     }
 
-    /** @returns {void} */
-    static _onTouchCancel(/*event*/) {
+    static _onTouchCancel(/*event*/): void {
         this._screenPressed = false;
     }
 
-    /** @returns {void} */
-    static _onLostFocus() {
+    static _onLostFocus(): void {
         this.clear();
     }
 
-    /**
-     * @param {number} x
-     * @param {number} y
-     * @returns {void}
-     */
-    static _onTrigger(x, y) {
+    static _onTrigger(x: number, y: number): void {
         this._newState.triggered = true;
         this._x = x;
         this._y = y;
@@ -6842,23 +6309,13 @@ class TouchInput {
         this._date = Date.now();
     }
 
-    /**
-     * @param {number} x
-     * @param {number} y
-     * @returns {void}
-     */
-    static _onCancel(x, y) {
+    static _onCancel(x: number, y: number): void {
         this._newState.cancelled = true;
         this._x = x;
         this._y = y;
     }
 
-    /**
-     * @param {number} x
-     * @param {number} y
-     * @returns {void}
-     */
-    static _onMove(x, y) {
+    static _onMove(x: number, y: number): void {
         const dx = Math.abs(x - this._triggerX);
         const dy = Math.abs(y - this._triggerY);
         if (dx > this.moveThreshold || dy > this.moveThreshold) {
@@ -6871,23 +6328,13 @@ class TouchInput {
         }
     }
 
-    /**
-     * @param {number} x
-     * @param {number} y
-     * @returns {void}
-     */
-    static _onHover(x, y) {
+    static _onHover(x: number, y: number): void {
         this._newState.hovered = true;
         this._x = x;
         this._y = y;
     }
 
-    /**
-     * @param {number} x
-     * @param {number} y
-     * @returns {void}
-     */
-    static _onRelease(x, y) {
+    static _onRelease(x: number, y: number): void {
         this._newState.released = true;
         this._x = x;
         this._y = y;
@@ -6896,8 +6343,6 @@ class TouchInput {
 
 /**
  * The static class that handles JSON with object information.
- *
- * @namespace
  */
 class JsonEx {
     constructor() {
@@ -6906,39 +6351,34 @@ class JsonEx {
 
     /**
      * The maximum depth of objects.
-     *
      * @default 100
-     * @type {number}
      */
-    static maxDepth = 100;
+    static maxDepth: number = 100;
 
     /**
      * Converts an object to a JSON string with object information.
-     *
-     * @param {any} object - The object to be converted.
-     * @returns {string} The JSON string.
+     * @param object - The object to be converted.
+     * @returns The JSON string.
      */
-    static stringify(object) {
+    static stringify(object: any): string {
         return JSON.stringify(this._encode(object, 0));
     }
 
     /**
      * Parses a JSON string and reconstructs the corresponding object.
-     *
-     * @param {string} json - The JSON string.
-     * @returns {any} The reconstructed object.
+     * @param json - The JSON string.
+     * @returns The reconstructed object.
      */
-    static parse(json) {
+    static parse(json: string): any {
         return this._decode(JSON.parse(json));
     }
 
     /**
      * Makes a deep copy of the specified object.
-     *
-     * @param {any} object - The object to be copied.
-     * @returns {any} The copied object.
+     * @param object - The object to be copied.
+     * @returns The copied object.
      */
-    static makeDeepCopy(object) {
+    static makeDeepCopy(object: any): any {
         return this.parse(this.stringify(object));
     }
 
@@ -6946,12 +6386,8 @@ class JsonEx {
      * Encodes constructor names for serialization. Circular references
      * are unsupported because handling them in MV was too complicated
      * and expensive.
-     *
-     * @param {any} value
-     * @param {number} depth
-     * @returns {any}
      */
-    static _encode(value, depth) {
+    static _encode(value: any, depth: number): any {
         if (depth >= this.maxDepth) {
             throw new Error("Object too deep");
         }
@@ -6968,15 +6404,13 @@ class JsonEx {
         return value;
     }
 
-    /**
-     * @param {any} value
-     * @returns {any}
-     */
-    static _decode(value) {
+    static _decode(value: any): any {
         const type = Object.prototype.toString.call(value);
         if (type === "[object Object]" || type === "[object Array]") {
             if (value["@"]) {
-                const constructor = window[value["@"]];
+                const constructor = (
+                    window as unknown as Record<string, { prototype: object }>
+                )[value["@"]];
                 if (constructor) {
                     Object.setPrototypeOf(value, constructor.prototype);
                 }
@@ -6988,27 +6422,3 @@ class JsonEx {
         return value;
     }
 }
-
-// Class declarations are lexical bindings, while plugins and JsonEx resolve
-// constructors through the global object, so expose them as global properties.
-Object.assign(globalThis, {
-    Utils,
-    Graphics,
-    Point,
-    Rectangle,
-    Bitmap,
-    Sprite,
-    Tilemap,
-    TilingSprite,
-    ScreenSprite,
-    Window,
-    WindowLayer,
-    Weather,
-    ColorFilter,
-    Stage,
-    WebAudio,
-    Video,
-    Input,
-    TouchInput,
-    JsonEx,
-});

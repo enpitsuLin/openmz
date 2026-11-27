@@ -4,40 +4,43 @@
  * The superclass of all scenes within the game.
  */
 class Scene_Base extends Stage {
-    /** @param {[]} args */
-    constructor(...args) {
+    declare _started: boolean;
+    declare _active: boolean;
+    declare _fadeSign: number;
+    declare _fadeDuration: number;
+    declare _fadeWhite: number | boolean;
+    declare _fadeOpacity: number;
+    declare _windowLayer: WindowLayer;
+    declare _colorFilter: ColorFilter;
+
+    constructor(..._extra: any[]);
+    constructor(...args: []) {
         super(...args);
     }
 
-    initialize() {
+    initialize(): void;
+    initialize(...args: any[]): void;
+    initialize(): void {
         super.initialize();
-        /** @type {boolean} */
+
         this._started = false;
-        /** @type {boolean} */
         this._active = false;
-        /** @type {number} */
         this._fadeSign = 0;
-        /** @type {number} */
         this._fadeDuration = 0;
-        /** @type {number | boolean} */
         this._fadeWhite = 0;
-        /** @type {number} */
         this._fadeOpacity = 0;
         this.createColorFilter();
     }
 
-    /** @returns {void} */
-    create() {
+    create(): void {
         //
     }
 
-    /** @returns {boolean} */
-    isActive() {
+    isActive(): boolean {
         return this._active;
     }
 
-    /** @returns {boolean} */
-    isReady() {
+    isReady(): boolean {
         return (
             ImageManager.isReady() &&
             EffectManager.isReady() &&
@@ -45,102 +48,77 @@ class Scene_Base extends Stage {
         );
     }
 
-    /** @returns {void} */
-    start() {
+    start(): void {
         this._started = true;
         this._active = true;
     }
 
-    /** @returns {void} */
-    update() {
+    update(): void {
         this.updateFade();
         this.updateColorFilter();
         this.updateChildren();
         AudioManager.checkErrors();
     }
 
-    /** @returns {void} */
-    stop() {
+    stop(): void {
         this._active = false;
     }
 
-    /** @returns {boolean} */
-    isStarted() {
+    isStarted(): boolean {
         return this._started;
     }
 
-    /** @returns {boolean} */
-    isBusy() {
+    isBusy(): boolean {
         return this.isFading();
     }
 
-    /** @returns {boolean} */
-    isFading() {
+    isFading(): boolean {
         return this._fadeDuration > 0;
     }
 
-    /** @returns {void} */
-    terminate() {
+    terminate(): void {
         //
     }
 
-    /** @returns {void} */
-    createWindowLayer() {
+    createWindowLayer(): void {
         this._windowLayer = new WindowLayer();
         this._windowLayer.x = (Graphics.width - Graphics.boxWidth) / 2;
         this._windowLayer.y = (Graphics.height - Graphics.boxHeight) / 2;
         this.addChild(this._windowLayer);
     }
 
-    /**
-     * @param {import("pixi.js").Container} window
-     * @returns {void}
-     */
-    addWindow(window) {
-        this._windowLayer.addWindow(window);
+    addWindow(window: import("pixi.js").Container): void {
+        this._windowLayer.addWindow(window as RmmzWindow);
     }
 
-    /**
-     * @param {number} duration
-     * @param {number | boolean} [white]
-     * @returns {void}
-     */
-    startFadeIn(duration, white) {
+    startFadeIn(duration: number, white?: number | boolean): void {
         this._fadeSign = 1;
         this._fadeDuration = duration || 30;
-        this._fadeWhite = white;
+        this._fadeWhite = white!;
         this._fadeOpacity = 255;
         this.updateColorFilter();
     }
 
-    /**
-     * @param {number} duration
-     * @param {number | boolean} [white]
-     * @returns {void}
-     */
-    startFadeOut(duration, white) {
+    startFadeOut(duration: number, white?: number | boolean): void {
         this._fadeSign = -1;
         this._fadeDuration = duration || 30;
-        this._fadeWhite = white;
+        this._fadeWhite = white!;
         this._fadeOpacity = 0;
         this.updateColorFilter();
     }
 
-    /** @returns {void} */
-    createColorFilter() {
+    createColorFilter(): void {
         this._colorFilter = new ColorFilter();
         this.filters = [this._colorFilter];
     }
 
-    /** @returns {void} */
-    updateColorFilter() {
+    updateColorFilter(): void {
         const c = this._fadeWhite ? 255 : 0;
         const blendColor = [c, c, c, this._fadeOpacity];
-        this._colorFilter.setBlendColor(blendColor);
+        this._colorFilter.setBlendColor(blendColor as RMMZ.Color);
     }
 
-    /** @returns {void} */
-    updateFade() {
+    updateFade(): void {
         if (this._fadeDuration > 0) {
             const d = this._fadeDuration;
             if (this._fadeSign > 0) {
@@ -152,8 +130,7 @@ class Scene_Base extends Stage {
         }
     }
 
-    /** @returns {void} */
-    updateChildren() {
+    updateChildren(): void {
         for (const child of this.children) {
             if (child.update) {
                 child.update();
@@ -161,20 +138,17 @@ class Scene_Base extends Stage {
         }
     }
 
-    /** @returns {void} */
-    popScene() {
+    popScene(): void {
         SceneManager.pop();
     }
 
-    /** @returns {void} */
-    checkGameover() {
+    checkGameover(): void {
         if ($gameParty.isAllDead()) {
             SceneManager.goto(Scene_Gameover);
         }
     }
 
-    /** @returns {void} */
-    fadeOutAll() {
+    fadeOutAll(): void {
         const time = this.slowFadeSpeed() / 60;
         AudioManager.fadeOutBgm(time);
         AudioManager.fadeOutBgs(time);
@@ -182,21 +156,15 @@ class Scene_Base extends Stage {
         this.startFadeOut(this.slowFadeSpeed());
     }
 
-    /** @returns {number} */
-    fadeSpeed() {
+    fadeSpeed(): number {
         return 24;
     }
 
-    /** @returns {number} */
-    slowFadeSpeed() {
+    slowFadeSpeed(): number {
         return this.fadeSpeed() * 2;
     }
 
-    /**
-     * @param {Sprite} sprite
-     * @returns {void}
-     */
-    scaleSprite(sprite) {
+    scaleSprite(sprite: Sprite): void {
         const ratioX = Graphics.width / sprite.bitmap.width;
         const ratioY = Graphics.height / sprite.bitmap.height;
         const scale = Math.max(ratioX, ratioY, 1.0);
@@ -204,39 +172,30 @@ class Scene_Base extends Stage {
         sprite.scale.y = scale;
     }
 
-    /**
-     * @param {Sprite} sprite
-     * @returns {void}
-     */
-    centerSprite(sprite) {
+    centerSprite(sprite: Sprite): void {
         sprite.x = Graphics.width / 2;
         sprite.y = Graphics.height / 2;
         sprite.anchor.x = 0.5;
         sprite.anchor.y = 0.5;
     }
 
-    /** @returns {boolean} */
-    isBottomHelpMode() {
+    isBottomHelpMode(): boolean {
         return true;
     }
 
-    /** @returns {boolean} */
-    isBottomButtonMode() {
+    isBottomButtonMode(): boolean {
         return false;
     }
 
-    /** @returns {boolean} */
-    isRightInputMode() {
+    isRightInputMode(): boolean {
         return true;
     }
 
-    /** @returns {number} */
-    mainCommandWidth() {
+    mainCommandWidth(): number {
         return 240;
     }
 
-    /** @returns {number} */
-    buttonAreaTop() {
+    buttonAreaTop(): number {
         if (this.isBottomButtonMode()) {
             return Graphics.boxHeight - this.buttonAreaHeight();
         } else {
@@ -244,28 +203,20 @@ class Scene_Base extends Stage {
         }
     }
 
-    /** @returns {number} */
-    buttonAreaBottom() {
+    buttonAreaBottom(): number {
         return this.buttonAreaTop() + this.buttonAreaHeight();
     }
 
-    /** @returns {number} */
-    buttonAreaHeight() {
+    buttonAreaHeight(): number {
         return 52;
     }
 
-    /** @returns {number} */
-    buttonY() {
+    buttonY(): number {
         const offsetY = Math.floor((this.buttonAreaHeight() - 48) / 2);
         return this.buttonAreaTop() + offsetY;
     }
 
-    /**
-     * @param {number} numLines
-     * @param {boolean} selectable
-     * @returns {number}
-     */
-    calcWindowHeight(numLines, selectable) {
+    calcWindowHeight(numLines: number, selectable: boolean): number {
         if (selectable) {
             return Window_Selectable.prototype.fittingHeight(numLines);
         } else {
@@ -273,15 +224,13 @@ class Scene_Base extends Stage {
         }
     }
 
-    /** @returns {void} */
-    requestAutosave() {
+    requestAutosave(): void {
         if (this.isAutosaveEnabled()) {
             this.executeAutosave();
         }
     }
 
-    /** @returns {boolean} */
-    isAutosaveEnabled() {
+    isAutosaveEnabled(): boolean {
         return (
             !DataManager.isBattleTest() &&
             !DataManager.isEventTest() &&
@@ -290,21 +239,18 @@ class Scene_Base extends Stage {
         );
     }
 
-    /** @returns {void} */
-    executeAutosave() {
+    executeAutosave(): void {
         $gameSystem.onBeforeSave();
         DataManager.saveGame(0)
             .then(() => this.onAutosaveSuccess())
             .catch(() => this.onAutosaveFailure());
     }
 
-    /** @returns {void} */
-    onAutosaveSuccess() {
+    onAutosaveSuccess(): void {
         //
     }
 
-    /** @returns {void} */
-    onAutosaveFailure() {
+    onAutosaveFailure(): void {
         //
     }
 }
@@ -313,29 +259,31 @@ class Scene_Base extends Stage {
  * The scene class for initializing the entire game.
  */
 class Scene_Boot extends Scene_Base {
-    constructor(...args) {
+    declare _databaseLoaded: boolean;
+
+    constructor(...args: any[]) {
         super(...args);
     }
 
-    initialize() {
+    initialize(): void;
+    initialize(...args: any[]): void;
+    initialize(): void {
         super.initialize();
-        /** @type {boolean} */
+
         this._databaseLoaded = false;
     }
 
-    /** @returns {void} */
-    create() {
+    create(): void {
         super.create();
         DataManager.loadDatabase();
-        StorageManager.updateForageKeys();
+        RmmzStorageManager.updateForageKeys();
     }
 
-    /** @returns {boolean} */
-    isReady() {
+    isReady(): boolean {
         if (!this._databaseLoaded) {
             if (
                 DataManager.isDatabaseLoaded() &&
-                StorageManager.forageKeysUpdated()
+                RmmzStorageManager.forageKeysUpdated()
             ) {
                 this._databaseLoaded = true;
                 this.onDatabaseLoaded();
@@ -345,48 +293,41 @@ class Scene_Boot extends Scene_Base {
         return super.isReady() && this.isPlayerDataLoaded();
     }
 
-    /** @returns {void} */
-    onDatabaseLoaded() {
+    onDatabaseLoaded(): void {
         this.setEncryptionInfo();
         this.loadSystemImages();
         this.loadPlayerData();
         this.loadGameFonts();
     }
 
-    /** @returns {void} */
-    setEncryptionInfo() {
+    setEncryptionInfo(): void {
         const hasImages = $dataSystem.hasEncryptedImages;
         const hasAudio = $dataSystem.hasEncryptedAudio;
         const key = $dataSystem.encryptionKey;
-        Utils.setEncryptionInfo(hasImages, hasAudio, key);
+        Utils.setEncryptionInfo(hasImages!, hasAudio!, key!);
     }
 
-    /** @returns {void} */
-    loadSystemImages() {
+    loadSystemImages(): void {
         ColorManager.loadWindowskin();
         ImageManager.loadSystem("IconSet");
     }
 
-    /** @returns {void} */
-    loadPlayerData() {
+    loadPlayerData(): void {
         DataManager.loadGlobalInfo();
         ConfigManager.load();
     }
 
-    /** @returns {void} */
-    loadGameFonts() {
+    loadGameFonts(): void {
         const advanced = $dataSystem.advanced;
         FontManager.load("rmmz-mainfont", advanced.mainFontFilename);
         FontManager.load("rmmz-numberfont", advanced.numberFontFilename);
     }
 
-    /** @returns {boolean} */
-    isPlayerDataLoaded() {
+    isPlayerDataLoaded(): boolean {
         return DataManager.isGlobalInfoLoaded() && ConfigManager.isLoaded();
     }
 
-    /** @returns {void} */
-    start() {
+    start(): void {
         super.start();
         SoundManager.preloadImportantSounds();
         if (DataManager.isBattleTest()) {
@@ -406,16 +347,14 @@ class Scene_Boot extends Scene_Base {
         this.updateDocumentTitle();
     }
 
-    /** @returns {void} */
-    startNormalGame() {
+    startNormalGame(): void {
         this.checkPlayerLocation();
         DataManager.setupNewGame();
         Window_TitleCommand.initCommandPosition();
         SceneManager.goto(Scene_Splash);
     }
 
-    /** @returns {void} */
-    resizeScreen() {
+    resizeScreen(): void {
         const screenWidth = $dataSystem.advanced.screenWidth;
         const screenHeight = $dataSystem.advanced.screenHeight;
         Graphics.resize(screenWidth, screenHeight);
@@ -424,8 +363,7 @@ class Scene_Boot extends Scene_Base {
         this.adjustWindow();
     }
 
-    /** @returns {void} */
-    adjustBoxSize() {
+    adjustBoxSize(): void {
         const uiAreaWidth = $dataSystem.advanced.uiAreaWidth;
         const uiAreaHeight = $dataSystem.advanced.uiAreaHeight;
         const boxMargin = 4;
@@ -433,8 +371,7 @@ class Scene_Boot extends Scene_Base {
         Graphics.boxHeight = uiAreaHeight - boxMargin * 2;
     }
 
-    /** @returns {void} */
-    adjustWindow() {
+    adjustWindow(): void {
         if (Utils.isNwjs()) {
             const scale = this.screenScale();
             const xDelta = Graphics.width * scale - window.innerWidth;
@@ -444,22 +381,19 @@ class Scene_Boot extends Scene_Base {
         }
     }
 
-    /** @returns {number} */
-    screenScale() {
+    screenScale(): number {
         if ("screenScale" in $dataSystem.advanced) {
-            return $dataSystem.advanced.screenScale;
+            return $dataSystem.advanced.screenScale!;
         } else {
             return 1;
         }
     }
 
-    /** @returns {void} */
-    updateDocumentTitle() {
+    updateDocumentTitle(): void {
         document.title = $dataSystem.gameTitle;
     }
 
-    /** @returns {void} */
-    checkPlayerLocation() {
+    checkPlayerLocation(): void {
         if ($dataSystem.startMapId === 0) {
             throw new Error("Player's starting position is not set");
         }
@@ -470,26 +404,28 @@ class Scene_Boot extends Scene_Base {
  * The scene class of the splash screen.
  */
 class Scene_Splash extends Scene_Base {
-    constructor(...args) {
+    declare _backSprite: Sprite;
+    declare _waitCount: number;
+
+    constructor(...args: any[]) {
         super(...args);
     }
 
-    /** @returns {void} */
-    initialize() {
+    initialize(): void;
+    initialize(...args: any[]): void;
+    initialize(): void {
         super.initialize();
         this.initWaitCount();
     }
 
-    /** @returns {void} */
-    create() {
+    create(): void {
         super.create();
         if (this.isEnabled()) {
             this.createBackground();
         }
     }
 
-    /** @returns {void} */
-    start() {
+    start(): void {
         super.start();
         if (this.isEnabled()) {
             this.adjustBackground();
@@ -497,8 +433,7 @@ class Scene_Splash extends Scene_Base {
         }
     }
 
-    /** @returns {void} */
-    update() {
+    update(): void {
         super.update();
         if (this.isActive()) {
             if (!this.updateWaitCount()) {
@@ -508,34 +443,29 @@ class Scene_Splash extends Scene_Base {
         }
     }
 
-    /** @returns {void} */
-    stop() {
+    stop(): void {
         super.stop();
         if (this.isEnabled()) {
             this.startFadeOut(this.fadeSpeed());
         }
     }
 
-    /** @returns {void} */
-    createBackground() {
+    createBackground(): void {
         this._backSprite = new Sprite();
         this._backSprite.bitmap = ImageManager.loadSystem("Splash");
         this.addChild(this._backSprite);
     }
 
-    /** @returns {void} */
-    adjustBackground() {
+    adjustBackground(): void {
         this.scaleSprite(this._backSprite);
         this.centerSprite(this._backSprite);
     }
 
-    /** @returns {boolean} */
-    isEnabled() {
+    isEnabled(): boolean {
         return $dataSystem.optSplashScreen;
     }
 
-    /** @returns {void} */
-    initWaitCount() {
+    initWaitCount(): void {
         if (this.isEnabled()) {
             this._waitCount = 120;
         } else {
@@ -543,8 +473,7 @@ class Scene_Splash extends Scene_Base {
         }
     }
 
-    /** @returns {boolean} */
-    updateWaitCount() {
+    updateWaitCount(): boolean {
         if (this._waitCount > 0) {
             this._waitCount--;
             return true;
@@ -552,15 +481,13 @@ class Scene_Splash extends Scene_Base {
         return false;
     }
 
-    /** @returns {void} */
-    checkSkip() {
+    checkSkip(): void {
         if (Input.isTriggered("ok") || TouchInput.isTriggered()) {
             this._waitCount = 0;
         }
     }
 
-    /** @returns {void} */
-    gotoTitle() {
+    gotoTitle(): void {
         SceneManager.goto(Scene_Title);
     }
 }
@@ -569,16 +496,22 @@ class Scene_Splash extends Scene_Base {
  * The scene class of the title screen.
  */
 class Scene_Title extends Scene_Base {
-    constructor(...args) {
+    declare _backSprite1: Sprite;
+    declare _backSprite2: Sprite;
+    declare _gameTitleSprite: Sprite;
+    declare _commandWindow: Window_TitleCommand;
+
+    constructor(...args: any[]) {
         super(...args);
     }
 
-    initialize() {
+    initialize(): void;
+    initialize(...args: any[]): void;
+    initialize(): void {
         super.initialize();
     }
 
-    /** @returns {void} */
-    create() {
+    create(): void {
         super.create();
         this.createBackground();
         this.createForeground();
@@ -586,8 +519,7 @@ class Scene_Title extends Scene_Base {
         this.createCommandWindow();
     }
 
-    /** @returns {void} */
-    start() {
+    start(): void {
         super.start();
         SceneManager.clearStack();
         this.adjustBackground();
@@ -595,24 +527,18 @@ class Scene_Title extends Scene_Base {
         this.startFadeIn(this.fadeSpeed(), false);
     }
 
-    /** @returns {void} */
-    update() {
+    update(): void {
         if (!this.isBusy()) {
             this._commandWindow.open();
         }
         super.update();
     }
 
-    /** @returns {boolean} */
-    isBusy() {
-        return (
-            this._commandWindow.isClosing() ||
-            super.isBusy()
-        );
+    isBusy(): boolean {
+        return this._commandWindow.isClosing() || super.isBusy();
     }
 
-    /** @returns {void} */
-    terminate() {
+    terminate(): void {
         super.terminate();
         SceneManager.snapForBackground();
         if (this._gameTitleSprite) {
@@ -620,22 +546,20 @@ class Scene_Title extends Scene_Base {
         }
     }
 
-    /** @returns {void} */
-    createBackground() {
+    createBackground(): void {
         this._backSprite1 = new Sprite(
-            ImageManager.loadTitle1($dataSystem.title1Name)
+            ImageManager.loadTitle1($dataSystem.title1Name),
         );
         this._backSprite2 = new Sprite(
-            ImageManager.loadTitle2($dataSystem.title2Name)
+            ImageManager.loadTitle2($dataSystem.title2Name),
         );
         this.addChild(this._backSprite1);
         this.addChild(this._backSprite2);
     }
 
-    /** @returns {void} */
-    createForeground() {
+    createForeground(): void {
         this._gameTitleSprite = new Sprite(
-            new Bitmap(Graphics.width, Graphics.height)
+            new Bitmap(Graphics.width, Graphics.height),
         );
         this.addChild(this._gameTitleSprite);
         if ($dataSystem.optDrawTitle) {
@@ -643,8 +567,7 @@ class Scene_Title extends Scene_Base {
         }
     }
 
-    /** @returns {void} */
-    drawGameTitle() {
+    drawGameTitle(): void {
         const x = 20;
         const y = Graphics.height / 4;
         const maxWidth = Graphics.width - x * 2;
@@ -657,28 +580,34 @@ class Scene_Title extends Scene_Base {
         bitmap.drawText(text, x, y, maxWidth, 48, "center");
     }
 
-    /** @returns {void} */
-    adjustBackground() {
+    adjustBackground(): void {
         this.scaleSprite(this._backSprite1);
         this.scaleSprite(this._backSprite2);
         this.centerSprite(this._backSprite1);
         this.centerSprite(this._backSprite2);
     }
 
-    /** @returns {void} */
-    createCommandWindow() {
+    createCommandWindow(): void {
         const background = $dataSystem.titleCommandWindow.background;
         const rect = this.commandWindowRect();
         this._commandWindow = new Window_TitleCommand(rect);
         this._commandWindow.setBackgroundType(background);
-        this._commandWindow.setHandler("newGame", this.commandNewGame.bind(this));
-        this._commandWindow.setHandler("continue", this.commandContinue.bind(this));
-        this._commandWindow.setHandler("options", this.commandOptions.bind(this));
+        this._commandWindow.setHandler(
+            "newGame",
+            this.commandNewGame.bind(this),
+        );
+        this._commandWindow.setHandler(
+            "continue",
+            this.commandContinue.bind(this),
+        );
+        this._commandWindow.setHandler(
+            "options",
+            this.commandOptions.bind(this),
+        );
         this.addWindow(this._commandWindow);
     }
 
-    /** @returns {Rectangle} */
-    commandWindowRect() {
+    commandWindowRect(): Rectangle {
         const offsetX = $dataSystem.titleCommandWindow.offsetX;
         const offsetY = $dataSystem.titleCommandWindow.offsetY;
         const ww = this.mainCommandWidth();
@@ -688,28 +617,24 @@ class Scene_Title extends Scene_Base {
         return new PIXI.Rectangle(wx, wy, ww, wh);
     }
 
-    /** @returns {void} */
-    commandNewGame() {
+    commandNewGame(): void {
         DataManager.setupNewGame();
         this._commandWindow.close();
         this.fadeOutAll();
         SceneManager.goto(Scene_Map);
     }
 
-    /** @returns {void} */
-    commandContinue() {
+    commandContinue(): void {
         this._commandWindow.close();
         SceneManager.push(Scene_Load);
     }
 
-    /** @returns {void} */
-    commandOptions() {
+    commandOptions(): void {
         this._commandWindow.close();
         SceneManager.push(Scene_Options);
     }
 
-    /** @returns {void} */
-    playTitleMusic() {
+    playTitleMusic(): void {
         AudioManager.playBgm($dataSystem.titleBgm);
         AudioManager.stopBgs();
         AudioManager.stopMe();
@@ -720,21 +645,29 @@ class Scene_Title extends Scene_Base {
  * The superclass of Scene_Map and Scene_Battle.
  */
 class Scene_Message extends Scene_Base {
-    constructor(...args) {
+    declare _messageWindow: Window_Message;
+    declare _scrollTextWindow: Window_ScrollText;
+    declare _goldWindow: Window_Gold;
+    declare _nameBoxWindow: Window_NameBox;
+    declare _choiceListWindow: Window_ChoiceList;
+    declare _numberInputWindow: Window_NumberInput;
+    declare _eventItemWindow: Window_EventItem;
+
+    constructor(...args: any[]) {
         super(...args);
     }
 
-    initialize() {
+    initialize(): void;
+    initialize(...args: any[]): void;
+    initialize(): void {
         super.initialize();
     }
 
-    /** @returns {boolean} */
-    isMessageWindowClosing() {
+    isMessageWindowClosing(): boolean {
         return this._messageWindow.isClosing();
     }
 
-    /** @returns {void} */
-    createAllWindows() {
+    createAllWindows(): void {
         this.createMessageWindow();
         this.createScrollTextWindow();
         this.createGoldWindow();
@@ -745,15 +678,13 @@ class Scene_Message extends Scene_Base {
         this.associateWindows();
     }
 
-    /** @returns {void} */
-    createMessageWindow() {
+    createMessageWindow(): void {
         const rect = this.messageWindowRect();
         this._messageWindow = new Window_Message(rect);
         this.addWindow(this._messageWindow);
     }
 
-    /** @returns {Rectangle} */
-    messageWindowRect() {
+    messageWindowRect(): Rectangle {
         const ww = Graphics.boxWidth;
         const wh = this.calcWindowHeight(4, false) + 8;
         const wx = (Graphics.boxWidth - ww) / 2;
@@ -761,15 +692,13 @@ class Scene_Message extends Scene_Base {
         return new PIXI.Rectangle(wx, wy, ww, wh);
     }
 
-    /** @returns {void} */
-    createScrollTextWindow() {
+    createScrollTextWindow(): void {
         const rect = this.scrollTextWindowRect();
         this._scrollTextWindow = new Window_ScrollText(rect);
         this.addWindow(this._scrollTextWindow);
     }
 
-    /** @returns {Rectangle} */
-    scrollTextWindowRect() {
+    scrollTextWindowRect(): Rectangle {
         const wx = 0;
         const wy = 0;
         const ww = Graphics.boxWidth;
@@ -777,16 +706,14 @@ class Scene_Message extends Scene_Base {
         return new PIXI.Rectangle(wx, wy, ww, wh);
     }
 
-    /** @returns {void} */
-    createGoldWindow() {
+    createGoldWindow(): void {
         const rect = this.goldWindowRect();
         this._goldWindow = new Window_Gold(rect);
         this._goldWindow.openness = 0;
         this.addWindow(this._goldWindow);
     }
 
-    /** @returns {Rectangle} */
-    goldWindowRect() {
+    goldWindowRect(): Rectangle {
         const ww = this.mainCommandWidth();
         const wh = this.calcWindowHeight(1, true);
         const wx = Graphics.boxWidth - ww;
@@ -794,33 +721,28 @@ class Scene_Message extends Scene_Base {
         return new PIXI.Rectangle(wx, wy, ww, wh);
     }
 
-    /** @returns {void} */
-    createNameBoxWindow() {
+    createNameBoxWindow(): void {
         this._nameBoxWindow = new Window_NameBox();
         this.addWindow(this._nameBoxWindow);
     }
 
-    /** @returns {void} */
-    createChoiceListWindow() {
+    createChoiceListWindow(): void {
         this._choiceListWindow = new Window_ChoiceList();
         this.addWindow(this._choiceListWindow);
     }
 
-    /** @returns {void} */
-    createNumberInputWindow() {
+    createNumberInputWindow(): void {
         this._numberInputWindow = new Window_NumberInput();
         this.addWindow(this._numberInputWindow);
     }
 
-    /** @returns {void} */
-    createEventItemWindow() {
+    createEventItemWindow(): void {
         const rect = this.eventItemWindowRect();
         this._eventItemWindow = new Window_EventItem(rect);
         this.addWindow(this._eventItemWindow);
     }
 
-    /** @returns {Rectangle} */
-    eventItemWindowRect() {
+    eventItemWindowRect(): Rectangle {
         const wx = 0;
         const wy = 0;
         const ww = Graphics.boxWidth;
@@ -828,8 +750,7 @@ class Scene_Message extends Scene_Base {
         return new PIXI.Rectangle(wx, wy, ww, wh);
     }
 
-    /** @returns {void} */
-    associateWindows() {
+    associateWindows(): void {
         const messageWindow = this._messageWindow;
         messageWindow.setGoldWindow(this._goldWindow);
         messageWindow.setNameBoxWindow(this._nameBoxWindow);
@@ -842,8 +763,7 @@ class Scene_Message extends Scene_Base {
         this._eventItemWindow.setMessageWindow(messageWindow);
     }
 
-    /** @returns {void} */
-    cancelMessageWait() {
+    cancelMessageWait(): void {
         this._messageWindow.cancelWait();
     }
 }
@@ -852,26 +772,35 @@ class Scene_Message extends Scene_Base {
  * The scene class of the map screen.
  */
 class Scene_Map extends Scene_Message {
-    constructor(...args) {
+    declare _waitCount: number;
+    declare _encounterEffectDuration: number;
+    declare _mapLoaded: boolean;
+    declare _touchCount: number;
+    declare _menuEnabled: boolean;
+    declare _transfer: boolean;
+    declare _lastMapWasNull: boolean;
+    declare menuCalling: boolean;
+    declare _spriteset: Spriteset_Map;
+    declare _mapNameWindow: Window_MapName;
+    declare _menuButton: Sprite_Button;
+
+    constructor(...args: any[]) {
         super(...args);
     }
 
-    initialize() {
+    initialize(): void;
+    initialize(...args: any[]): void;
+    initialize(): void {
         super.initialize();
-        /** @type {number} */
+
         this._waitCount = 0;
-        /** @type {number} */
         this._encounterEffectDuration = 0;
-        /** @type {boolean} */
         this._mapLoaded = false;
-        /** @type {number} */
         this._touchCount = 0;
-        /** @type {boolean} */
         this._menuEnabled = false;
     }
 
-    /** @returns {void} */
-    create() {
+    create(): void {
         super.create();
         this._transfer = $gamePlayer.isTransferring();
         this._lastMapWasNull = !$dataMap;
@@ -883,8 +812,7 @@ class Scene_Map extends Scene_Message {
         }
     }
 
-    /** @returns {boolean} */
-    isReady() {
+    isReady(): boolean {
         if (!this._mapLoaded && DataManager.isMapLoaded()) {
             this.onMapLoaded();
             this._mapLoaded = true;
@@ -892,22 +820,19 @@ class Scene_Map extends Scene_Message {
         return this._mapLoaded && super.isReady();
     }
 
-    /** @returns {void} */
-    onMapLoaded() {
+    onMapLoaded(): void {
         if (this._transfer) {
             $gamePlayer.performTransfer();
         }
         this.createDisplayObjects();
     }
 
-    /** @returns {void} */
-    onTransfer() {
+    onTransfer(): void {
         ImageManager.clear();
         EffectManager.clear();
     }
 
-    /** @returns {void} */
-    start() {
+    start(): void {
         super.start();
         SceneManager.clearStack();
         if (this._transfer) {
@@ -919,8 +844,7 @@ class Scene_Map extends Scene_Message {
         this.menuCalling = false;
     }
 
-    /** @returns {void} */
-    onTransferEnd() {
+    onTransferEnd(): void {
         this._mapNameWindow.open();
         $gameMap.autoplay();
         if (this.shouldAutosave()) {
@@ -928,13 +852,11 @@ class Scene_Map extends Scene_Message {
         }
     }
 
-    /** @returns {boolean} */
-    shouldAutosave() {
+    shouldAutosave(): boolean {
         return !this._lastMapWasNull;
     }
 
-    /** @returns {void} */
-    update() {
+    update(): void {
         super.update();
         this.updateDestination();
         this.updateMenuButton();
@@ -948,8 +870,7 @@ class Scene_Map extends Scene_Message {
         this.updateWaitCount();
     }
 
-    /** @returns {void} */
-    updateMainMultiply() {
+    updateMainMultiply(): void {
         if (this.isFastForward()) {
             this.cancelMessageWait();
             this.updateMain();
@@ -957,21 +878,18 @@ class Scene_Map extends Scene_Message {
         this.updateMain();
     }
 
-    /** @returns {void} */
-    updateMain() {
+    updateMain(): void {
         $gameMap.update(this.isActive());
         $gamePlayer.update(this.isPlayerActive());
         $gameTimer.update(this.isActive());
         $gameScreen.update();
     }
 
-    /** @returns {boolean} */
-    isPlayerActive() {
+    isPlayerActive(): boolean {
         return this.isActive() && !this.isFading();
     }
 
-    /** @returns {boolean} */
-    isFastForward() {
+    isFastForward(): boolean {
         return (
             $gameMap.isEventRunning() &&
             !SceneManager.isSceneChanging() &&
@@ -979,8 +897,7 @@ class Scene_Map extends Scene_Message {
         );
     }
 
-    /** @returns {void} */
-    stop() {
+    stop(): void {
         super.stop();
         $gamePlayer.straighten();
         this._mapNameWindow.close();
@@ -993,8 +910,7 @@ class Scene_Map extends Scene_Message {
         }
     }
 
-    /** @returns {boolean} */
-    isBusy() {
+    isBusy(): boolean {
         return (
             this.isMessageWindowClosing() ||
             this._waitCount > 0 ||
@@ -1003,8 +919,7 @@ class Scene_Map extends Scene_Message {
         );
     }
 
-    /** @returns {void} */
-    terminate() {
+    terminate(): void {
         super.terminate();
         if (!SceneManager.isNextScene(Scene_Battle)) {
             this._spriteset.update();
@@ -1015,24 +930,21 @@ class Scene_Map extends Scene_Message {
         $gameScreen.clearZoom();
     }
 
-    /** @returns {boolean} */
-    needsFadeIn() {
+    needsFadeIn(): boolean {
         return (
             SceneManager.isPreviousScene(Scene_Battle) ||
             SceneManager.isPreviousScene(Scene_Load)
         );
     }
 
-    /** @returns {boolean | null} */
-    needsSlowFadeOut() {
+    needsSlowFadeOut(): boolean | null {
         return (
             SceneManager.isNextScene(Scene_Title) ||
             SceneManager.isNextScene(Scene_Gameover)
         );
     }
 
-    /** @returns {boolean} */
-    updateWaitCount() {
+    updateWaitCount(): boolean {
         if (this._waitCount > 0) {
             this._waitCount--;
             return true;
@@ -1040,8 +952,7 @@ class Scene_Map extends Scene_Message {
         return false;
     }
 
-    /** @returns {void} */
-    updateDestination() {
+    updateDestination(): void {
         if (this.isMapTouchOk()) {
             this.processMapTouch();
         } else {
@@ -1050,8 +961,7 @@ class Scene_Map extends Scene_Message {
         }
     }
 
-    /** @returns {void} */
-    updateMenuButton() {
+    updateMenuButton(): void {
         if (this._menuButton) {
             const menuEnabled = this.isMenuEnabled();
             if (menuEnabled === this._menuEnabled) {
@@ -1062,33 +972,28 @@ class Scene_Map extends Scene_Message {
         }
     }
 
-    /** @returns {void} */
-    hideMenuButton() {
+    hideMenuButton(): void {
         if (this._menuButton) {
             this._menuButton.visible = false;
             this._menuEnabled = false;
         }
     }
 
-    /** @returns {void} */
-    updateMapNameWindow() {
+    updateMapNameWindow(): void {
         if ($gameMessage.isBusy()) {
             this._mapNameWindow.close();
         }
     }
 
-    /** @returns {boolean} */
-    isMenuEnabled() {
+    isMenuEnabled(): boolean {
         return $gameSystem.isMenuEnabled() && !$gameMap.isEventRunning();
     }
 
-    /** @returns {boolean} */
-    isMapTouchOk() {
+    isMapTouchOk(): boolean {
         return this.isActive() && $gamePlayer.canMove();
     }
 
-    /** @returns {void} */
-    processMapTouch() {
+    processMapTouch(): void {
         if (TouchInput.isTriggered() || this._touchCount > 0) {
             if (TouchInput.isPressed() && !this.isAnyButtonPressed()) {
                 if (this._touchCount === 0 || this._touchCount >= 15) {
@@ -1101,25 +1006,21 @@ class Scene_Map extends Scene_Message {
         }
     }
 
-    /** @returns {boolean} */
-    isAnyButtonPressed() {
+    isAnyButtonPressed(): boolean {
         return this._menuButton && this._menuButton.isPressed();
     }
 
-    /** @returns {void} */
-    onMapTouch() {
+    onMapTouch(): void {
         const x = $gameMap.canvasToMapX(TouchInput.x);
         const y = $gameMap.canvasToMapY(TouchInput.y);
         $gameTemp.setDestination(x, y);
     }
 
-    /** @returns {boolean} */
-    isSceneChangeOk() {
+    isSceneChangeOk(): boolean {
         return this.isActive() && !$gameMessage.isBusy();
     }
 
-    /** @returns {void} */
-    updateScene() {
+    updateScene(): void {
         this.checkGameover();
         if (!SceneManager.isSceneChanging()) {
             this.updateTransferPlayer();
@@ -1135,36 +1036,31 @@ class Scene_Map extends Scene_Message {
         }
     }
 
-    /** @returns {void} */
-    createDisplayObjects() {
+    createDisplayObjects(): void {
         this.createSpriteset();
         this.createWindowLayer();
         this.createAllWindows();
         this.createButtons();
     }
 
-    /** @returns {void} */
-    createSpriteset() {
+    createSpriteset(): void {
         this._spriteset = new Spriteset_Map();
         this.addChild(this._spriteset);
         this._spriteset.update();
     }
 
-    /** @returns {void} */
-    createAllWindows() {
+    createAllWindows(): void {
         this.createMapNameWindow();
         super.createAllWindows();
     }
 
-    /** @returns {void} */
-    createMapNameWindow() {
+    createMapNameWindow(): void {
         const rect = this.mapNameWindowRect();
         this._mapNameWindow = new Window_MapName(rect);
         this.addWindow(this._mapNameWindow);
     }
 
-    /** @returns {Rectangle} */
-    mapNameWindowRect() {
+    mapNameWindowRect(): Rectangle {
         const wx = 0;
         const wy = 0;
         const ww = 360;
@@ -1172,15 +1068,13 @@ class Scene_Map extends Scene_Message {
         return new PIXI.Rectangle(wx, wy, ww, wh);
     }
 
-    /** @returns {void} */
-    createButtons() {
+    createButtons(): void {
         if (ConfigManager.touchUI) {
             this.createMenuButton();
         }
     }
 
-    /** @returns {void} */
-    createMenuButton() {
+    createMenuButton(): void {
         this._menuButton = new Sprite_Button("menu");
         this._menuButton.x = Graphics.boxWidth - this._menuButton.width - 4;
         this._menuButton.y = this.buttonY();
@@ -1188,22 +1082,19 @@ class Scene_Map extends Scene_Message {
         this.addWindow(this._menuButton);
     }
 
-    /** @returns {void} */
-    updateTransferPlayer() {
+    updateTransferPlayer(): void {
         if ($gamePlayer.isTransferring()) {
             SceneManager.goto(Scene_Map);
         }
     }
 
-    /** @returns {void} */
-    updateEncounter() {
+    updateEncounter(): void {
         if ($gamePlayer.executeEncounter()) {
             SceneManager.push(Scene_Battle);
         }
     }
 
-    /** @returns {void} */
-    updateCallMenu() {
+    updateCallMenu(): void {
         if (this.isMenuEnabled()) {
             if (this.isMenuCalled()) {
                 this.menuCalling = true;
@@ -1216,13 +1107,11 @@ class Scene_Map extends Scene_Message {
         }
     }
 
-    /** @returns {boolean} */
-    isMenuCalled() {
+    isMenuCalled(): boolean {
         return Input.isTriggered("menu") || TouchInput.isCancelled();
     }
 
-    /** @returns {void} */
-    callMenu() {
+    callMenu(): void {
         SoundManager.playOk();
         SceneManager.push(Scene_Menu);
         Window_MenuCommand.initCommandPosition();
@@ -1231,20 +1120,17 @@ class Scene_Map extends Scene_Message {
         this._waitCount = 2;
     }
 
-    /** @returns {void} */
-    updateCallDebug() {
+    updateCallDebug(): void {
         if (this.isDebugCalled()) {
             SceneManager.push(Scene_Debug);
         }
     }
 
-    /** @returns {boolean} */
-    isDebugCalled() {
+    isDebugCalled(): boolean {
         return Input.isTriggered("debug") && $gameTemp.isPlaytest();
     }
 
-    /** @returns {void} */
-    fadeInForTransfer() {
+    fadeInForTransfer(): void {
         const fadeType = $gamePlayer.fadeType();
         switch (fadeType) {
             case 0:
@@ -1254,8 +1140,7 @@ class Scene_Map extends Scene_Message {
         }
     }
 
-    /** @returns {void} */
-    fadeOutForTransfer() {
+    fadeOutForTransfer(): void {
         const fadeType = $gamePlayer.fadeType();
         switch (fadeType) {
             case 0:
@@ -1265,8 +1150,7 @@ class Scene_Map extends Scene_Message {
         }
     }
 
-    /** @returns {void} */
-    launchBattle() {
+    launchBattle(): void {
         BattleManager.saveBgmAndBgs();
         this.stopAudioOnBattleStart();
         SoundManager.playBattleStart();
@@ -1274,8 +1158,7 @@ class Scene_Map extends Scene_Message {
         this._mapNameWindow.hide();
     }
 
-    /** @returns {void} */
-    stopAudioOnBattleStart() {
+    stopAudioOnBattleStart(): void {
         if (!AudioManager.isCurrentBgm($gameSystem.battleBgm())) {
             AudioManager.stopBgm();
         }
@@ -1284,14 +1167,12 @@ class Scene_Map extends Scene_Message {
         AudioManager.stopSe();
     }
 
-    /** @returns {void} */
-    startEncounterEffect() {
+    startEncounterEffect(): void {
         this._spriteset.hideCharacters();
         this._encounterEffectDuration = this.encounterEffectSpeed();
     }
 
-    /** @returns {void} */
-    updateEncounterEffect() {
+    updateEncounterEffect(): void {
         if (this._encounterEffectDuration > 0) {
             this._encounterEffectDuration--;
             const speed = this.encounterEffectSpeed();
@@ -1316,24 +1197,18 @@ class Scene_Map extends Scene_Message {
         }
     }
 
-    /** @returns {void} */
-    snapForBattleBackground() {
+    snapForBattleBackground(): void {
         this._windowLayer.visible = false;
         SceneManager.snapForBackground();
         this._windowLayer.visible = true;
     }
 
-    /**
-     * @param {number} duration
-     * @returns {void}
-     */
-    startFlashForEncounter(duration) {
+    startFlashForEncounter(duration: number): void {
         const color = [255, 255, 255, 255];
-        $gameScreen.startFlash(color, duration);
+        $gameScreen.startFlash(color as RMMZ.Color, duration);
     }
 
-    /** @returns {number} */
-    encounterEffectSpeed() {
+    encounterEffectSpeed(): number {
         return 60;
     }
 }
@@ -1342,16 +1217,25 @@ class Scene_Map extends Scene_Message {
  * The superclass of all the menu-type scenes.
  */
 class Scene_MenuBase extends Scene_Base {
-    constructor(...args) {
+    declare _actor: Game_Actor;
+    declare _backgroundFilter: import("pixi.js").BlurFilter;
+    declare _backgroundSprite: Sprite;
+    declare _helpWindow: Window_Help;
+    declare _cancelButton: Sprite_Button;
+    declare _pageupButton: Sprite_Button;
+    declare _pagedownButton: Sprite_Button;
+
+    constructor(...args: any[]) {
         super(...args);
     }
 
-    initialize() {
+    initialize(): void;
+    initialize(...args: any[]): void;
+    initialize(): void {
         super.initialize();
     }
 
-    /** @returns {void} */
-    create() {
+    create(): void {
         super.create();
         this.createBackground();
         this.updateActor();
@@ -1359,14 +1243,12 @@ class Scene_MenuBase extends Scene_Base {
         this.createButtons();
     }
 
-    /** @returns {void} */
-    update() {
+    update(): void {
         super.update();
         this.updatePageButtons();
     }
 
-    /** @returns {number} */
-    helpAreaTop() {
+    helpAreaTop(): number {
         if (this.isBottomHelpMode()) {
             return this.mainAreaBottom();
         } else if (this.isBottomButtonMode()) {
@@ -1376,18 +1258,15 @@ class Scene_MenuBase extends Scene_Base {
         }
     }
 
-    /** @returns {number} */
-    helpAreaBottom() {
+    helpAreaBottom(): number {
         return this.helpAreaTop() + this.helpAreaHeight();
     }
 
-    /** @returns {number} */
-    helpAreaHeight() {
+    helpAreaHeight(): number {
         return this.calcWindowHeight(2, false);
     }
 
-    /** @returns {number} */
-    mainAreaTop() {
+    mainAreaTop(): number {
         if (!this.isBottomHelpMode()) {
             return this.helpAreaBottom();
         } else if (this.isBottomButtonMode()) {
@@ -1397,53 +1276,44 @@ class Scene_MenuBase extends Scene_Base {
         }
     }
 
-    /** @returns {number} */
-    mainAreaBottom() {
+    mainAreaBottom(): number {
         return this.mainAreaTop() + this.mainAreaHeight();
     }
 
-    /** @returns {number} */
-    mainAreaHeight() {
-        return Graphics.boxHeight - this.buttonAreaHeight() - this.helpAreaHeight();
+    mainAreaHeight(): number {
+        return (
+            Graphics.boxHeight - this.buttonAreaHeight() - this.helpAreaHeight()
+        );
     }
 
-    /** @returns {Game_Actor} */
-    actor() {
+    actor(): Game_Actor {
         return this._actor;
     }
 
-    /** @returns {void} */
-    updateActor() {
+    updateActor(): void {
         this._actor = $gameParty.menuActor();
     }
 
-    /** @returns {void} */
-    createBackground() {
+    createBackground(): void {
         this._backgroundFilter = new PIXI.BlurFilter();
         this._backgroundSprite = new Sprite();
-        this._backgroundSprite.bitmap = SceneManager.backgroundBitmap();
+        this._backgroundSprite.bitmap = SceneManager.backgroundBitmap()!;
         this._backgroundSprite.filters = [this._backgroundFilter];
         this.addChild(this._backgroundSprite);
         this.setBackgroundOpacity(192);
     }
 
-    /**
-     * @param {number} opacity
-     * @returns {void}
-     */
-    setBackgroundOpacity(opacity) {
+    setBackgroundOpacity(opacity: number): void {
         this._backgroundSprite.opacity = opacity;
     }
 
-    /** @returns {void} */
-    createHelpWindow() {
+    createHelpWindow(): void {
         const rect = this.helpWindowRect();
         this._helpWindow = new Window_Help(rect);
         this.addWindow(this._helpWindow);
     }
 
-    /** @returns {Rectangle} */
-    helpWindowRect() {
+    helpWindowRect(): Rectangle {
         const wx = 0;
         const wy = this.helpAreaTop();
         const ww = Graphics.boxWidth;
@@ -1451,8 +1321,7 @@ class Scene_MenuBase extends Scene_Base {
         return new PIXI.Rectangle(wx, wy, ww, wh);
     }
 
-    /** @returns {void} */
-    createButtons() {
+    createButtons(): void {
         if (ConfigManager.touchUI) {
             if (this.needsCancelButton()) {
                 this.createCancelButton();
@@ -1463,26 +1332,22 @@ class Scene_MenuBase extends Scene_Base {
         }
     }
 
-    /** @returns {boolean} */
-    needsCancelButton() {
+    needsCancelButton(): boolean {
         return true;
     }
 
-    /** @returns {void} */
-    createCancelButton() {
+    createCancelButton(): void {
         this._cancelButton = new Sprite_Button("cancel");
         this._cancelButton.x = Graphics.boxWidth - this._cancelButton.width - 4;
         this._cancelButton.y = this.buttonY();
         this.addWindow(this._cancelButton);
     }
 
-    /** @returns {boolean} */
-    needsPageButtons() {
+    needsPageButtons(): boolean {
         return false;
     }
 
-    /** @returns {void} */
-    createPageButtons() {
+    createPageButtons(): void {
         this._pageupButton = new Sprite_Button("pageup");
         this._pageupButton.x = 4;
         this._pageupButton.y = this.buttonY();
@@ -1496,8 +1361,7 @@ class Scene_MenuBase extends Scene_Base {
         this._pagedownButton.setClickHandler(this.nextActor.bind(this));
     }
 
-    /** @returns {void} */
-    updatePageButtons() {
+    updatePageButtons(): void {
         if (this._pageupButton && this._pagedownButton) {
             const enabled = this.arePageButtonsEnabled();
             this._pageupButton.visible = enabled;
@@ -1505,27 +1369,23 @@ class Scene_MenuBase extends Scene_Base {
         }
     }
 
-    /** @returns {boolean} */
-    arePageButtonsEnabled() {
+    arePageButtonsEnabled(): boolean {
         return true;
     }
 
-    /** @returns {void} */
-    nextActor() {
+    nextActor(): void {
         $gameParty.makeMenuActorNext();
         this.updateActor();
         this.onActorChange();
     }
 
-    /** @returns {void} */
-    previousActor() {
+    previousActor(): void {
         $gameParty.makeMenuActorPrevious();
         this.updateActor();
         this.onActorChange();
     }
 
-    /** @returns {void} */
-    onActorChange() {
+    onActorChange(): void {
         SoundManager.playCursor();
     }
 }
@@ -1534,35 +1394,37 @@ class Scene_MenuBase extends Scene_Base {
  * The scene class of the menu screen.
  */
 class Scene_Menu extends Scene_MenuBase {
-    constructor(...args) {
+    declare _commandWindow: Window_MenuCommand;
+    declare _goldWindow: Window_Gold;
+    declare _statusWindow: Window_MenuStatus;
+
+    constructor(...args: any[]) {
         super(...args);
     }
 
-    initialize() {
+    initialize(): void;
+    initialize(...args: any[]): void;
+    initialize(): void {
         super.initialize();
     }
 
-    /** @returns {number} */
-    helpAreaHeight() {
+    helpAreaHeight(): number {
         return 0;
     }
 
-    /** @returns {void} */
-    create() {
+    create(): void {
         super.create();
         this.createCommandWindow();
         this.createGoldWindow();
         this.createStatusWindow();
     }
 
-    /** @returns {void} */
-    start() {
+    start(): void {
         super.start();
         this._statusWindow.refresh();
     }
 
-    /** @returns {void} */
-    createCommandWindow() {
+    createCommandWindow(): void {
         const rect = this.commandWindowRect();
         const commandWindow = new Window_MenuCommand(rect);
         commandWindow.setHandler("item", this.commandItem.bind(this));
@@ -1578,8 +1440,7 @@ class Scene_Menu extends Scene_MenuBase {
         this._commandWindow = commandWindow;
     }
 
-    /** @returns {Rectangle} */
-    commandWindowRect() {
+    commandWindowRect(): Rectangle {
         const ww = this.mainCommandWidth();
         const wh = this.mainAreaHeight() - this.goldWindowRect().height;
         const wx = this.isRightInputMode() ? Graphics.boxWidth - ww : 0;
@@ -1587,15 +1448,13 @@ class Scene_Menu extends Scene_MenuBase {
         return new PIXI.Rectangle(wx, wy, ww, wh);
     }
 
-    /** @returns {void} */
-    createGoldWindow() {
+    createGoldWindow(): void {
         const rect = this.goldWindowRect();
         this._goldWindow = new Window_Gold(rect);
         this.addWindow(this._goldWindow);
     }
 
-    /** @returns {Rectangle} */
-    goldWindowRect() {
+    goldWindowRect(): Rectangle {
         const ww = this.mainCommandWidth();
         const wh = this.calcWindowHeight(1, true);
         const wx = this.isRightInputMode() ? Graphics.boxWidth - ww : 0;
@@ -1603,15 +1462,13 @@ class Scene_Menu extends Scene_MenuBase {
         return new PIXI.Rectangle(wx, wy, ww, wh);
     }
 
-    /** @returns {void} */
-    createStatusWindow() {
+    createStatusWindow(): void {
         const rect = this.statusWindowRect();
         this._statusWindow = new Window_MenuStatus(rect);
         this.addWindow(this._statusWindow);
     }
 
-    /** @returns {Rectangle} */
-    statusWindowRect() {
+    statusWindowRect(): Rectangle {
         const ww = Graphics.boxWidth - this.mainCommandWidth();
         const wh = this.mainAreaHeight();
         const wx = this.isRightInputMode() ? 0 : Graphics.boxWidth - ww;
@@ -1619,46 +1476,45 @@ class Scene_Menu extends Scene_MenuBase {
         return new PIXI.Rectangle(wx, wy, ww, wh);
     }
 
-    /** @returns {void} */
-    commandItem() {
+    commandItem(): void {
         SceneManager.push(Scene_Item);
     }
 
-    /** @returns {void} */
-    commandPersonal() {
+    commandPersonal(): void {
         this._statusWindow.setFormationMode(false);
         this._statusWindow.selectLast();
         this._statusWindow.activate();
         this._statusWindow.setHandler("ok", this.onPersonalOk.bind(this));
-        this._statusWindow.setHandler("cancel", this.onPersonalCancel.bind(this));
+        this._statusWindow.setHandler(
+            "cancel",
+            this.onPersonalCancel.bind(this),
+        );
     }
 
-    /** @returns {void} */
-    commandFormation() {
+    commandFormation(): void {
         this._statusWindow.setFormationMode(true);
         this._statusWindow.selectLast();
         this._statusWindow.activate();
         this._statusWindow.setHandler("ok", this.onFormationOk.bind(this));
-        this._statusWindow.setHandler("cancel", this.onFormationCancel.bind(this));
+        this._statusWindow.setHandler(
+            "cancel",
+            this.onFormationCancel.bind(this),
+        );
     }
 
-    /** @returns {void} */
-    commandOptions() {
+    commandOptions(): void {
         SceneManager.push(Scene_Options);
     }
 
-    /** @returns {void} */
-    commandSave() {
+    commandSave(): void {
         SceneManager.push(Scene_Save);
     }
 
-    /** @returns {void} */
-    commandGameEnd() {
+    commandGameEnd(): void {
         SceneManager.push(Scene_GameEnd);
     }
 
-    /** @returns {void} */
-    onPersonalOk() {
+    onPersonalOk(): void {
         switch (this._commandWindow.currentSymbol()) {
             case "skill":
                 SceneManager.push(Scene_Skill);
@@ -1672,14 +1528,12 @@ class Scene_Menu extends Scene_MenuBase {
         }
     }
 
-    /** @returns {void} */
-    onPersonalCancel() {
+    onPersonalCancel(): void {
         this._statusWindow.deselect();
         this._commandWindow.activate();
     }
 
-    /** @returns {void} */
-    onFormationOk() {
+    onFormationOk(): void {
         const index = this._statusWindow.index();
         const pendingIndex = this._statusWindow.pendingIndex();
         if (pendingIndex >= 0) {
@@ -1692,8 +1546,7 @@ class Scene_Menu extends Scene_MenuBase {
         this._statusWindow.activate();
     }
 
-    /** @returns {void} */
-    onFormationCancel() {
+    onFormationCancel(): void {
         if (this._statusWindow.pendingIndex() >= 0) {
             this._statusWindow.setPendingIndex(-1);
             this._statusWindow.activate();
@@ -1707,22 +1560,27 @@ class Scene_Menu extends Scene_MenuBase {
 /**
  * The superclass of Scene_Item and Scene_Skill.
  */
-class Scene_ItemBase extends Scene_MenuBase {
-    constructor(...args) {
+abstract class Scene_ItemBase extends Scene_MenuBase {
+    abstract playSeForItem(): void;
+    declare _itemWindow: Window_ItemList | Window_SkillList;
+
+    declare _actorWindow: Window_MenuActor;
+
+    constructor(...args: any[]) {
         super(...args);
     }
 
-    initialize() {
+    initialize(): void;
+    initialize(...args: any[]): void;
+    initialize(): void {
         super.initialize();
     }
 
-    /** @returns {void} */
-    create() {
+    create(): void {
         super.create();
     }
 
-    /** @returns {void} */
-    createActorWindow() {
+    createActorWindow(): void {
         const rect = this.actorWindowRect();
         this._actorWindow = new Window_MenuActor(rect);
         this._actorWindow.setHandler("ok", this.onActorOk.bind(this));
@@ -1730,8 +1588,7 @@ class Scene_ItemBase extends Scene_MenuBase {
         this.addWindow(this._actorWindow);
     }
 
-    /** @returns {Rectangle} */
-    actorWindowRect() {
+    actorWindowRect(): Rectangle {
         const wx = 0;
         const wy = Math.min(this.mainAreaTop(), this.helpAreaTop());
         const ww = Graphics.boxWidth - this.mainCommandWidth();
@@ -1739,23 +1596,19 @@ class Scene_ItemBase extends Scene_MenuBase {
         return new PIXI.Rectangle(wx, wy, ww, wh);
     }
 
-    /** @returns {RMMZ.ActionItem | null} */
-    item() {
-        return this._itemWindow.item();
+    item(): RMMZ.ActionItem | null {
+        return this._itemWindow.item() as RMMZ.ActionItem | null;
     }
 
-    /** @returns {Game_Actor | null | undefined} */
-    user() {
+    user(): Game_Actor | null | undefined {
         return null;
     }
 
-    /** @returns {boolean} */
-    isCursorLeft() {
+    isCursorLeft(): boolean {
         return this._itemWindow.index() % 2 === 0;
     }
 
-    /** @returns {void} */
-    showActorWindow() {
+    showActorWindow(): void {
         if (this.isCursorLeft()) {
             this._actorWindow.x = Graphics.boxWidth - this._actorWindow.width;
         } else {
@@ -1765,19 +1618,16 @@ class Scene_ItemBase extends Scene_MenuBase {
         this._actorWindow.activate();
     }
 
-    /** @returns {void} */
-    hideActorWindow() {
+    hideActorWindow(): void {
         this._actorWindow.hide();
         this._actorWindow.deactivate();
     }
 
-    /** @returns {boolean} */
-    isActorWindowActive() {
+    isActorWindowActive(): boolean {
         return this._actorWindow && this._actorWindow.active;
     }
 
-    /** @returns {void} */
-    onActorOk() {
+    onActorOk(): void {
         if (this.canUse()) {
             this.useItem();
         } else {
@@ -1785,45 +1635,40 @@ class Scene_ItemBase extends Scene_MenuBase {
         }
     }
 
-    /** @returns {void} */
-    onActorCancel() {
+    onActorCancel(): void {
         this.hideActorWindow();
         this.activateItemWindow();
     }
 
-    /** @returns {void} */
-    determineItem() {
-        const action = new Game_Action(this.user());
+    determineItem(): void {
+        const action = new Game_Action(this.user()!);
         const item = this.item();
         action.setItemObject(item);
         if (action.isForFriend()) {
             this.showActorWindow();
-            this._actorWindow.selectForItem(this.item());
+            this._actorWindow.selectForItem(this.item()!);
         } else {
             this.useItem();
             this.activateItemWindow();
         }
     }
 
-    /** @returns {void} */
-    useItem() {
+    useItem(): void {
         this.playSeForItem();
-        this.user().useItem(this.item());
+        this.user()!.useItem(this.item()!);
         this.applyItem();
         this.checkCommonEvent();
         this.checkGameover();
         this._actorWindow.refresh();
     }
 
-    /** @returns {void} */
-    activateItemWindow() {
+    activateItemWindow(): void {
         this._itemWindow.refresh();
         this._itemWindow.activate();
     }
 
-    /** @returns {Game_Actor[]} */
-    itemTargetActors() {
-        const action = new Game_Action(this.user());
+    itemTargetActors(): Game_Actor[] {
+        const action = new Game_Action(this.user()!);
         action.setItemObject(this.item());
         if (!action.isForFriend()) {
             return [];
@@ -1834,22 +1679,21 @@ class Scene_ItemBase extends Scene_MenuBase {
         }
     }
 
-    /** @returns {boolean | null | undefined} */
-    canUse() {
+    canUse(): boolean | null | undefined {
         const user = this.user();
         return user && user.canUse(this.item()) && this.isItemEffectsValid();
     }
 
-    /** @returns {boolean} */
-    isItemEffectsValid() {
-        const action = new Game_Action(this.user());
+    isItemEffectsValid(): boolean {
+        const action = new Game_Action(this.user()!);
         action.setItemObject(this.item());
-        return this.itemTargetActors().some(target => action.testApply(target));
+        return this.itemTargetActors().some((target) =>
+            action.testApply(target),
+        );
     }
 
-    /** @returns {void} */
-    applyItem() {
-        const action = new Game_Action(this.user());
+    applyItem(): void {
+        const action = new Game_Action(this.user()!);
         action.setItemObject(this.item());
         for (const target of this.itemTargetActors()) {
             for (let i = 0; i < action.numRepeats(); i++) {
@@ -1859,8 +1703,7 @@ class Scene_ItemBase extends Scene_MenuBase {
         action.applyGlobal();
     }
 
-    /** @returns {void} */
-    checkCommonEvent() {
+    checkCommonEvent(): void {
         if ($gameTemp.isCommonEventReserved()) {
             SceneManager.goto(Scene_Map);
         }
@@ -1871,16 +1714,20 @@ class Scene_ItemBase extends Scene_MenuBase {
  * The scene class of the item screen.
  */
 class Scene_Item extends Scene_ItemBase {
-    constructor(...args) {
+    declare _categoryWindow: Window_ItemCategory;
+    declare _itemWindow: Window_ItemList;
+
+    constructor(...args: any[]) {
         super(...args);
     }
 
-    initialize() {
+    initialize(): void;
+    initialize(...args: any[]): void;
+    initialize(): void {
         super.initialize();
     }
 
-    /** @returns {void} */
-    create() {
+    create(): void {
         super.create();
         this.createHelpWindow();
         this.createCategoryWindow();
@@ -1888,8 +1735,7 @@ class Scene_Item extends Scene_ItemBase {
         this.createActorWindow();
     }
 
-    /** @returns {void} */
-    createCategoryWindow() {
+    createCategoryWindow(): void {
         const rect = this.categoryWindowRect();
         this._categoryWindow = new Window_ItemCategory(rect);
         this._categoryWindow.setHelpWindow(this._helpWindow);
@@ -1898,8 +1744,7 @@ class Scene_Item extends Scene_ItemBase {
         this.addWindow(this._categoryWindow);
     }
 
-    /** @returns {Rectangle} */
-    categoryWindowRect() {
+    categoryWindowRect(): Rectangle {
         const wx = 0;
         const wy = this.mainAreaTop();
         const ww = Graphics.boxWidth;
@@ -1907,8 +1752,7 @@ class Scene_Item extends Scene_ItemBase {
         return new PIXI.Rectangle(wx, wy, ww, wh);
     }
 
-    /** @returns {void} */
-    createItemWindow() {
+    createItemWindow(): void {
         const rect = this.itemWindowRect();
         this._itemWindow = new Window_ItemList(rect);
         this._itemWindow.setHelpWindow(this._helpWindow);
@@ -1927,8 +1771,7 @@ class Scene_Item extends Scene_ItemBase {
         }
     }
 
-    /** @returns {Rectangle} */
-    itemWindowRect() {
+    itemWindowRect(): Rectangle {
         const wx = 0;
         const wy = this._categoryWindow.y + this._categoryWindow.height;
         const ww = Graphics.boxWidth;
@@ -1936,27 +1779,23 @@ class Scene_Item extends Scene_ItemBase {
         return new PIXI.Rectangle(wx, wy, ww, wh);
     }
 
-    /** @returns {import("..").Game_Actor | undefined} */
-    user() {
+    user(): Game_Actor | undefined {
         const members = $gameParty.movableMembers();
-        const bestPha = Math.max(...members.map(member => member.pha));
-        return members.find(member => member.pha === bestPha);
+        const bestPha = Math.max(...members.map((member) => member.pha));
+        return members.find((member) => member.pha === bestPha);
     }
 
-    /** @returns {void} */
-    onCategoryOk() {
+    onCategoryOk(): void {
         this._itemWindow.activate();
         this._itemWindow.selectLast();
     }
 
-    /** @returns {void} */
-    onItemOk() {
-        $gameParty.setLastItem(this.item());
+    onItemOk(): void {
+        $gameParty.setLastItem(this.item() as RMMZ.DataItem | null);
         this.determineItem();
     }
 
-    /** @returns {void} */
-    onItemCancel() {
+    onItemCancel(): void {
         if (this._categoryWindow.needsSelection()) {
             this._itemWindow.deselect();
             this._categoryWindow.activate();
@@ -1965,13 +1804,11 @@ class Scene_Item extends Scene_ItemBase {
         }
     }
 
-    /** @returns {void} */
-    playSeForItem() {
+    playSeForItem(): void {
         SoundManager.playUseItem();
     }
 
-    /** @returns {void} */
-    useItem() {
+    useItem(): void {
         super.useItem();
         this._itemWindow.redrawCurrentItem();
     }
@@ -1981,16 +1818,22 @@ class Scene_Item extends Scene_ItemBase {
  * The scene class of the skill screen.
  */
 class Scene_Skill extends Scene_ItemBase {
-    constructor(...args) {
+    declare item: () => RMMZ.DataSkill | null;
+    declare _skillTypeWindow: Window_SkillType;
+    declare _statusWindow: Window_SkillStatus;
+    declare _itemWindow: Window_SkillList;
+
+    constructor(...args: any[]) {
         super(...args);
     }
 
-    initialize() {
+    initialize(): void;
+    initialize(...args: any[]): void;
+    initialize(): void {
         super.initialize();
     }
 
-    /** @returns {void} */
-    create() {
+    create(): void {
         super.create();
         this.createHelpWindow();
         this.createSkillTypeWindow();
@@ -1999,26 +1842,26 @@ class Scene_Skill extends Scene_ItemBase {
         this.createActorWindow();
     }
 
-    /** @returns {void} */
-    start() {
+    start(): void {
         super.start();
         this.refreshActor();
     }
 
-    /** @returns {void} */
-    createSkillTypeWindow() {
+    createSkillTypeWindow(): void {
         const rect = this.skillTypeWindowRect();
         this._skillTypeWindow = new Window_SkillType(rect);
         this._skillTypeWindow.setHelpWindow(this._helpWindow);
         this._skillTypeWindow.setHandler("skill", this.commandSkill.bind(this));
         this._skillTypeWindow.setHandler("cancel", this.popScene.bind(this));
         this._skillTypeWindow.setHandler("pagedown", this.nextActor.bind(this));
-        this._skillTypeWindow.setHandler("pageup", this.previousActor.bind(this));
+        this._skillTypeWindow.setHandler(
+            "pageup",
+            this.previousActor.bind(this),
+        );
         this.addWindow(this._skillTypeWindow);
     }
 
-    /** @returns {Rectangle} */
-    skillTypeWindowRect() {
+    skillTypeWindowRect(): Rectangle {
         const ww = this.mainCommandWidth();
         const wh = this.calcWindowHeight(3, true);
         const wx = this.isRightInputMode() ? Graphics.boxWidth - ww : 0;
@@ -2026,15 +1869,13 @@ class Scene_Skill extends Scene_ItemBase {
         return new PIXI.Rectangle(wx, wy, ww, wh);
     }
 
-    /** @returns {void} */
-    createStatusWindow() {
+    createStatusWindow(): void {
         const rect = this.statusWindowRect();
         this._statusWindow = new Window_SkillStatus(rect);
         this.addWindow(this._statusWindow);
     }
 
-    /** @returns {Rectangle} */
-    statusWindowRect() {
+    statusWindowRect(): Rectangle {
         const ww = Graphics.boxWidth - this.mainCommandWidth();
         const wh = this._skillTypeWindow.height;
         const wx = this.isRightInputMode() ? 0 : Graphics.boxWidth - ww;
@@ -2042,8 +1883,7 @@ class Scene_Skill extends Scene_ItemBase {
         return new PIXI.Rectangle(wx, wy, ww, wh);
     }
 
-    /** @returns {void} */
-    createItemWindow() {
+    createItemWindow(): void {
         const rect = this.itemWindowRect();
         this._itemWindow = new Window_SkillList(rect);
         this._itemWindow.setHelpWindow(this._helpWindow);
@@ -2053,8 +1893,7 @@ class Scene_Skill extends Scene_ItemBase {
         this.addWindow(this._itemWindow);
     }
 
-    /** @returns {Rectangle} */
-    itemWindowRect() {
+    itemWindowRect(): Rectangle {
         const wx = 0;
         const wy = this._statusWindow.y + this._statusWindow.height;
         const ww = Graphics.boxWidth;
@@ -2062,61 +1901,51 @@ class Scene_Skill extends Scene_ItemBase {
         return new PIXI.Rectangle(wx, wy, ww, wh);
     }
 
-    /** @returns {boolean} */
-    needsPageButtons() {
+    needsPageButtons(): boolean {
         return true;
     }
 
-    /** @returns {boolean} */
-    arePageButtonsEnabled() {
+    arePageButtonsEnabled(): boolean {
         return !this.isActorWindowActive();
     }
 
-    /** @returns {void} */
-    refreshActor() {
+    refreshActor(): void {
         const actor = this.actor();
         this._skillTypeWindow.setActor(actor);
         this._statusWindow.setActor(actor);
         this._itemWindow.setActor(actor);
     }
 
-    /** @returns {import("..").Game_Actor} */
-    user() {
+    user(): Game_Actor {
         return this.actor();
     }
 
-    /** @returns {void} */
-    commandSkill() {
+    commandSkill(): void {
         this._itemWindow.activate();
         this._itemWindow.selectLast();
     }
 
-    /** @returns {void} */
-    onItemOk() {
-        this.actor().setLastMenuSkill(this.item());
+    onItemOk(): void {
+        this.actor().setLastMenuSkill(this.item()!);
         this.determineItem();
     }
 
-    /** @returns {void} */
-    onItemCancel() {
+    onItemCancel(): void {
         this._itemWindow.deselect();
         this._skillTypeWindow.activate();
     }
 
-    /** @returns {void} */
-    playSeForItem() {
+    playSeForItem(): void {
         SoundManager.playUseSkill();
     }
 
-    /** @returns {void} */
-    useItem() {
+    useItem(): void {
         super.useItem();
         this._statusWindow.refresh();
         this._itemWindow.refresh();
     }
 
-    /** @returns {void} */
-    onActorChange() {
+    onActorChange(): void {
         super.onActorChange();
         this.refreshActor();
         this._itemWindow.deselect();
@@ -2128,16 +1957,22 @@ class Scene_Skill extends Scene_ItemBase {
  * The scene class of the equipment screen.
  */
 class Scene_Equip extends Scene_MenuBase {
-    constructor(...args) {
+    declare _statusWindow: Window_EquipStatus;
+    declare _commandWindow: Window_EquipCommand;
+    declare _slotWindow: Window_EquipSlot;
+    declare _itemWindow: Window_EquipItem;
+
+    constructor(...args: any[]) {
         super(...args);
     }
 
-    initialize() {
+    initialize(): void;
+    initialize(...args: any[]): void;
+    initialize(): void {
         super.initialize();
     }
 
-    /** @returns {void} */
-    create() {
+    create(): void {
         super.create();
         this.createHelpWindow();
         this.createStatusWindow();
@@ -2147,15 +1982,13 @@ class Scene_Equip extends Scene_MenuBase {
         this.refreshActor();
     }
 
-    /** @returns {void} */
-    createStatusWindow() {
+    createStatusWindow(): void {
         const rect = this.statusWindowRect();
         this._statusWindow = new Window_EquipStatus(rect);
         this.addWindow(this._statusWindow);
     }
 
-    /** @returns {Rectangle} */
-    statusWindowRect() {
+    statusWindowRect(): Rectangle {
         const wx = 0;
         const wy = this.mainAreaTop();
         const ww = this.statusWidth();
@@ -2163,13 +1996,15 @@ class Scene_Equip extends Scene_MenuBase {
         return new PIXI.Rectangle(wx, wy, ww, wh);
     }
 
-    /** @returns {void} */
-    createCommandWindow() {
+    createCommandWindow(): void {
         const rect = this.commandWindowRect();
         this._commandWindow = new Window_EquipCommand(rect);
         this._commandWindow.setHelpWindow(this._helpWindow);
         this._commandWindow.setHandler("equip", this.commandEquip.bind(this));
-        this._commandWindow.setHandler("optimize", this.commandOptimize.bind(this));
+        this._commandWindow.setHandler(
+            "optimize",
+            this.commandOptimize.bind(this),
+        );
         this._commandWindow.setHandler("clear", this.commandClear.bind(this));
         this._commandWindow.setHandler("cancel", this.popScene.bind(this));
         this._commandWindow.setHandler("pagedown", this.nextActor.bind(this));
@@ -2177,8 +2012,7 @@ class Scene_Equip extends Scene_MenuBase {
         this.addWindow(this._commandWindow);
     }
 
-    /** @returns {Rectangle} */
-    commandWindowRect() {
+    commandWindowRect(): Rectangle {
         const wx = this.statusWidth();
         const wy = this.mainAreaTop();
         const ww = Graphics.boxWidth - this.statusWidth();
@@ -2186,8 +2020,7 @@ class Scene_Equip extends Scene_MenuBase {
         return new PIXI.Rectangle(wx, wy, ww, wh);
     }
 
-    /** @returns {void} */
-    createSlotWindow() {
+    createSlotWindow(): void {
         const rect = this.slotWindowRect();
         this._slotWindow = new Window_EquipSlot(rect);
         this._slotWindow.setHelpWindow(this._helpWindow);
@@ -2197,8 +2030,7 @@ class Scene_Equip extends Scene_MenuBase {
         this.addWindow(this._slotWindow);
     }
 
-    /** @returns {Rectangle} */
-    slotWindowRect() {
+    slotWindowRect(): Rectangle {
         const commandWindowRect = this.commandWindowRect();
         const wx = this.statusWidth();
         const wy = commandWindowRect.y + commandWindowRect.height;
@@ -2207,8 +2039,7 @@ class Scene_Equip extends Scene_MenuBase {
         return new PIXI.Rectangle(wx, wy, ww, wh);
     }
 
-    /** @returns {void} */
-    createItemWindow() {
+    createItemWindow(): void {
         const rect = this.itemWindowRect();
         this._itemWindow = new Window_EquipItem(rect);
         this._itemWindow.setHelpWindow(this._helpWindow);
@@ -2220,42 +2051,35 @@ class Scene_Equip extends Scene_MenuBase {
         this.addWindow(this._itemWindow);
     }
 
-    /** @returns {Rectangle} */
-    itemWindowRect() {
+    itemWindowRect(): Rectangle {
         return this.slotWindowRect();
     }
 
-    /** @returns {number} */
-    statusWidth() {
+    statusWidth(): number {
         return 312;
     }
 
-    /** @returns {boolean} */
-    needsPageButtons() {
+    needsPageButtons(): boolean {
         return true;
     }
 
-    /** @returns {boolean} */
-    arePageButtonsEnabled() {
+    arePageButtonsEnabled(): boolean {
         return !(this._itemWindow && this._itemWindow.active);
     }
 
-    /** @returns {void} */
-    refreshActor() {
+    refreshActor(): void {
         const actor = this.actor();
         this._statusWindow.setActor(actor);
         this._slotWindow.setActor(actor);
         this._itemWindow.setActor(actor);
     }
 
-    /** @returns {void} */
-    commandEquip() {
+    commandEquip(): void {
         this._slotWindow.activate();
         this._slotWindow.select(0);
     }
 
-    /** @returns {void} */
-    commandOptimize() {
+    commandOptimize(): void {
         SoundManager.playEquip();
         this.actor().optimizeEquipments();
         this._statusWindow.refresh();
@@ -2263,8 +2087,7 @@ class Scene_Equip extends Scene_MenuBase {
         this._commandWindow.activate();
     }
 
-    /** @returns {void} */
-    commandClear() {
+    commandClear(): void {
         SoundManager.playEquip();
         this.actor().clearEquipments();
         this._statusWindow.refresh();
@@ -2272,22 +2095,19 @@ class Scene_Equip extends Scene_MenuBase {
         this._commandWindow.activate();
     }
 
-    /** @returns {void} */
-    onSlotOk() {
+    onSlotOk(): void {
         this._slotWindow.hide();
         this._itemWindow.show();
         this._itemWindow.activate();
         this._itemWindow.forceSelect(0);
     }
 
-    /** @returns {void} */
-    onSlotCancel() {
+    onSlotCancel(): void {
         this._slotWindow.deselect();
         this._commandWindow.activate();
     }
 
-    /** @returns {void} */
-    onItemOk() {
+    onItemOk(): void {
         SoundManager.playEquip();
         this.executeEquipChange();
         this.hideItemWindow();
@@ -2296,21 +2116,18 @@ class Scene_Equip extends Scene_MenuBase {
         this._statusWindow.refresh();
     }
 
-    /** @returns {void} */
-    executeEquipChange() {
+    executeEquipChange(): void {
         const actor = this.actor();
         const slotId = this._slotWindow.index();
         const item = this._itemWindow.item();
-        actor.changeEquip(slotId, item);
+        actor.changeEquip(slotId, item! as RMMZ.DataEquipment | null);
     }
 
-    /** @returns {void} */
-    onItemCancel() {
+    onItemCancel(): void {
         this.hideItemWindow();
     }
 
-    /** @returns {void} */
-    onActorChange() {
+    onActorChange(): void {
         super.onActorChange();
         this.refreshActor();
         this.hideItemWindow();
@@ -2319,8 +2136,7 @@ class Scene_Equip extends Scene_MenuBase {
         this._commandWindow.activate();
     }
 
-    /** @returns {void} */
-    hideItemWindow() {
+    hideItemWindow(): void {
         this._slotWindow.show();
         this._slotWindow.activate();
         this._itemWindow.hide();
@@ -2332,16 +2148,22 @@ class Scene_Equip extends Scene_MenuBase {
  * The scene class of the status screen.
  */
 class Scene_Status extends Scene_MenuBase {
-    constructor(...args) {
+    declare _profileWindow: Window_Help;
+    declare _statusWindow: Window_Status;
+    declare _statusParamsWindow: Window_StatusParams;
+    declare _statusEquipWindow: Window_StatusEquip;
+
+    constructor(...args: any[]) {
         super(...args);
     }
 
-    initialize() {
+    initialize(): void;
+    initialize(...args: any[]): void;
+    initialize(): void {
         super.initialize();
     }
 
-    /** @returns {void} */
-    create() {
+    create(): void {
         super.create();
         this.createProfileWindow();
         this.createStatusWindow();
@@ -2349,20 +2171,17 @@ class Scene_Status extends Scene_MenuBase {
         this.createStatusEquipWindow();
     }
 
-    /** @returns {number} */
-    helpAreaHeight() {
+    helpAreaHeight(): number {
         return 0;
     }
 
-    /** @returns {void} */
-    createProfileWindow() {
+    createProfileWindow(): void {
         const rect = this.profileWindowRect();
         this._profileWindow = new Window_Help(rect);
         this.addWindow(this._profileWindow);
     }
 
-    /** @returns {Rectangle} */
-    profileWindowRect() {
+    profileWindowRect(): Rectangle {
         const ww = Graphics.boxWidth;
         const wh = this.profileHeight();
         const wx = 0;
@@ -2370,8 +2189,7 @@ class Scene_Status extends Scene_MenuBase {
         return new PIXI.Rectangle(wx, wy, ww, wh);
     }
 
-    /** @returns {void} */
-    createStatusWindow() {
+    createStatusWindow(): void {
         const rect = this.statusWindowRect();
         this._statusWindow = new Window_Status(rect);
         this._statusWindow.setHandler("cancel", this.popScene.bind(this));
@@ -2380,8 +2198,7 @@ class Scene_Status extends Scene_MenuBase {
         this.addWindow(this._statusWindow);
     }
 
-    /** @returns {Rectangle} */
-    statusWindowRect() {
+    statusWindowRect(): Rectangle {
         const wx = 0;
         const wy = this.mainAreaTop();
         const ww = Graphics.boxWidth;
@@ -2389,15 +2206,13 @@ class Scene_Status extends Scene_MenuBase {
         return new PIXI.Rectangle(wx, wy, ww, wh);
     }
 
-    /** @returns {void} */
-    createStatusParamsWindow() {
+    createStatusParamsWindow(): void {
         const rect = this.statusParamsWindowRect();
         this._statusParamsWindow = new Window_StatusParams(rect);
         this.addWindow(this._statusParamsWindow);
     }
 
-    /** @returns {Rectangle} */
-    statusParamsWindowRect() {
+    statusParamsWindowRect(): Rectangle {
         const ww = this.statusParamsWidth();
         const wh = this.statusParamsHeight();
         const wx = 0;
@@ -2405,15 +2220,13 @@ class Scene_Status extends Scene_MenuBase {
         return new PIXI.Rectangle(wx, wy, ww, wh);
     }
 
-    /** @returns {void} */
-    createStatusEquipWindow() {
+    createStatusEquipWindow(): void {
         const rect = this.statusEquipWindowRect();
         this._statusEquipWindow = new Window_StatusEquip(rect);
         this.addWindow(this._statusEquipWindow);
     }
 
-    /** @returns {Rectangle} */
-    statusEquipWindowRect() {
+    statusEquipWindowRect(): Rectangle {
         const ww = Graphics.boxWidth - this.statusParamsWidth();
         const wh = this.statusParamsHeight();
         const wx = this.statusParamsWidth();
@@ -2421,34 +2234,28 @@ class Scene_Status extends Scene_MenuBase {
         return new PIXI.Rectangle(wx, wy, ww, wh);
     }
 
-    /** @returns {number} */
-    statusParamsWidth() {
+    statusParamsWidth(): number {
         return 300;
     }
 
-    /** @returns {number} */
-    statusParamsHeight() {
+    statusParamsHeight(): number {
         return this.calcWindowHeight(6, false);
     }
 
-    /** @returns {number} */
-    profileHeight() {
+    profileHeight(): number {
         return this.calcWindowHeight(2, false);
     }
 
-    /** @returns {void} */
-    start() {
+    start(): void {
         super.start();
         this.refreshActor();
     }
 
-    /** @returns {boolean} */
-    needsPageButtons() {
+    needsPageButtons(): boolean {
         return true;
     }
 
-    /** @returns {void} */
-    refreshActor() {
+    refreshActor(): void {
         const actor = this.actor();
         this._profileWindow.setText(actor.profile());
         this._statusWindow.setActor(actor);
@@ -2456,8 +2263,7 @@ class Scene_Status extends Scene_MenuBase {
         this._statusEquipWindow.setActor(actor);
     }
 
-    /** @returns {void} */
-    onActorChange() {
+    onActorChange(): void {
         super.onActorChange();
         this.refreshActor();
         this._statusWindow.activate();
@@ -2468,36 +2274,36 @@ class Scene_Status extends Scene_MenuBase {
  * The scene class of the options screen.
  */
 class Scene_Options extends Scene_MenuBase {
-    constructor(...args) {
+    declare _optionsWindow: Window_Options;
+
+    constructor(...args: any[]) {
         super(...args);
     }
 
-    initialize() {
+    initialize(): void;
+    initialize(...args: any[]): void;
+    initialize(): void {
         super.initialize();
     }
 
-    /** @returns {void} */
-    create() {
+    create(): void {
         super.create();
         this.createOptionsWindow();
     }
 
-    /** @returns {void} */
-    terminate() {
+    terminate(): void {
         super.terminate();
         ConfigManager.save();
     }
 
-    /** @returns {void} */
-    createOptionsWindow() {
+    createOptionsWindow(): void {
         const rect = this.optionsWindowRect();
         this._optionsWindow = new Window_Options(rect);
         this._optionsWindow.setHandler("cancel", this.popScene.bind(this));
         this.addWindow(this._optionsWindow);
     }
 
-    /** @returns {Rectangle} */
-    optionsWindowRect() {
+    optionsWindowRect(): Rectangle {
         const n = Math.min(this.maxCommands(), this.maxVisibleCommands());
         const ww = 400;
         const wh = this.calcWindowHeight(n, true);
@@ -2506,14 +2312,12 @@ class Scene_Options extends Scene_MenuBase {
         return new PIXI.Rectangle(wx, wy, ww, wh);
     }
 
-    /** @returns {number} */
-    maxCommands() {
+    maxCommands(): number {
         // Increase this value when adding option items.
         return 7;
     }
 
-    /** @returns {number} */
-    maxVisibleCommands() {
+    maxVisibleCommands(): number {
         return 12;
     }
 }
@@ -2522,16 +2326,19 @@ class Scene_Options extends Scene_MenuBase {
  * The superclass of Scene_Save and Scene_Load.
  */
 class Scene_File extends Scene_MenuBase {
-    constructor(...args) {
+    declare _listWindow: Window_SavefileList;
+
+    constructor(...args: any[]) {
         super(...args);
     }
 
-    initialize() {
+    initialize(): void;
+    initialize(...args: any[]): void;
+    initialize(): void {
         super.initialize();
     }
 
-    /** @returns {void} */
-    create() {
+    create(): void {
         super.create();
         DataManager.loadAllSavefileImages();
         this.createHelpWindow();
@@ -2539,39 +2346,30 @@ class Scene_File extends Scene_MenuBase {
         this._helpWindow.setText(this.helpWindowText());
     }
 
-    /** @returns {number} */
-    helpAreaHeight() {
+    helpAreaHeight(): number {
         return 0;
     }
 
-    /** @returns {void} */
-    start() {
+    start(): void {
         super.start();
         this._listWindow.refresh();
     }
 
-    /** @returns {number} */
-    savefileId() {
+    savefileId(): number {
         return this._listWindow.savefileId();
     }
 
-    /**
-     * @param {number} savefileId
-     * @returns {boolean}
-     */
-    isSavefileEnabled(savefileId) {
+    isSavefileEnabled(savefileId: number): boolean {
         return this._listWindow.isEnabled(savefileId);
     }
 
-    /** @returns {void} */
-    createHelpWindow() {
+    createHelpWindow(): void {
         const rect = this.helpWindowRect();
         this._helpWindow = new Window_Help(rect);
         this.addWindow(this._helpWindow);
     }
 
-    /** @returns {Rectangle} */
-    helpWindowRect() {
+    helpWindowRect(): Rectangle {
         const wx = 0;
         const wy = this.mainAreaTop();
         const ww = Graphics.boxWidth;
@@ -2579,20 +2377,18 @@ class Scene_File extends Scene_MenuBase {
         return new PIXI.Rectangle(wx, wy, ww, wh);
     }
 
-    /** @returns {void} */
-    createListWindow() {
+    createListWindow(): void {
         const rect = this.listWindowRect();
         this._listWindow = new Window_SavefileList(rect);
         this._listWindow.setHandler("ok", this.onSavefileOk.bind(this));
         this._listWindow.setHandler("cancel", this.popScene.bind(this));
-        this._listWindow.setMode(this.mode(), this.needsAutosave());
+        this._listWindow.setMode(this.mode()!, this.needsAutosave());
         this._listWindow.selectSavefile(this.firstSavefileId());
         this._listWindow.refresh();
         this.addWindow(this._listWindow);
     }
 
-    /** @returns {Rectangle} */
-    listWindowRect() {
+    listWindowRect(): Rectangle {
         const wx = 0;
         const wy = this.mainAreaTop() + this._helpWindow.height;
         const ww = Graphics.boxWidth;
@@ -2600,33 +2396,27 @@ class Scene_File extends Scene_MenuBase {
         return new PIXI.Rectangle(wx, wy, ww, wh);
     }
 
-    /** @returns {"save" | "load"} */
-    mode() {
+    mode(): "save" | "load" | null {
         return null;
     }
 
-    /** @returns {boolean} */
-    needsAutosave() {
+    needsAutosave(): boolean {
         return $gameSystem.isAutosaveEnabled();
     }
 
-    /** @returns {void} */
-    activateListWindow() {
+    activateListWindow(): void {
         this._listWindow.activate();
     }
 
-    /** @returns {string} */
-    helpWindowText() {
+    helpWindowText(): string {
         return "";
     }
 
-    /** @returns {number} */
-    firstSavefileId() {
+    firstSavefileId(): number {
         return 0;
     }
 
-    /** @returns {void} */
-    onSavefileOk() {
+    onSavefileOk(): void {
         //
     }
 }
@@ -2635,31 +2425,29 @@ class Scene_File extends Scene_MenuBase {
  * The scene class of the save screen.
  */
 class Scene_Save extends Scene_File {
-    constructor(...args) {
+    constructor(...args: any[]) {
         super(...args);
     }
 
-    initialize() {
+    initialize(): void;
+    initialize(...args: any[]): void;
+    initialize(): void {
         super.initialize();
     }
 
-    /** @returns {"save"} */
-    mode() {
+    mode(): "save" {
         return "save";
     }
 
-    /** @returns {string} */
-    helpWindowText() {
+    helpWindowText(): string {
         return TextManager.saveMessage;
     }
 
-    /** @returns {number} */
-    firstSavefileId() {
+    firstSavefileId(): number {
         return $gameSystem.savefileId();
     }
 
-    /** @returns {void} */
-    onSavefileOk() {
+    onSavefileOk(): void {
         super.onSavefileOk();
         const savefileId = this.savefileId();
         if (this.isSavefileEnabled(savefileId)) {
@@ -2669,11 +2457,7 @@ class Scene_Save extends Scene_File {
         }
     }
 
-    /**
-     * @param {number} savefileId
-     * @returns {void}
-     */
-    executeSave(savefileId) {
+    executeSave(savefileId: number): void {
         $gameSystem.setSavefileId(savefileId);
         $gameSystem.onBeforeSave();
         DataManager.saveGame(savefileId)
@@ -2681,14 +2465,12 @@ class Scene_Save extends Scene_File {
             .catch(() => this.onSaveFailure());
     }
 
-    /** @returns {void} */
-    onSaveSuccess() {
+    onSaveSuccess(): void {
         SoundManager.playSave();
         this.popScene();
     }
 
-    /** @returns {void} */
-    onSaveFailure() {
+    onSaveFailure(): void {
         SoundManager.playBuzzer();
         this.activateListWindow();
     }
@@ -2698,41 +2480,40 @@ class Scene_Save extends Scene_File {
  * The scene class of the load screen.
  */
 class Scene_Load extends Scene_File {
-    constructor(...args) {
+    declare _loadSuccess: boolean;
+
+    constructor(...args: any[]) {
         super(...args);
     }
 
-    initialize() {
+    initialize(): void;
+    initialize(...args: any[]): void;
+    initialize(): void {
         super.initialize();
-        /** @type {boolean} */
+
         this._loadSuccess = false;
     }
 
-    /** @returns {void} */
-    terminate() {
+    terminate(): void {
         super.terminate();
         if (this._loadSuccess) {
             $gameSystem.onAfterLoad();
         }
     }
 
-    /** @returns {"load"} */
-    mode() {
+    mode(): "load" {
         return "load";
     }
 
-    /** @returns {string} */
-    helpWindowText() {
+    helpWindowText(): string {
         return TextManager.loadMessage;
     }
 
-    /** @returns {number} */
-    firstSavefileId() {
+    firstSavefileId(): number {
         return DataManager.latestSavefileId();
     }
 
-    /** @returns {void} */
-    onSavefileOk() {
+    onSavefileOk(): void {
         super.onSavefileOk();
         const savefileId = this.savefileId();
         if (this.isSavefileEnabled(savefileId)) {
@@ -2742,18 +2523,13 @@ class Scene_Load extends Scene_File {
         }
     }
 
-    /**
-     * @param {number} savefileId
-     * @returns {void}
-     */
-    executeLoad(savefileId) {
+    executeLoad(savefileId: number): void {
         DataManager.loadGame(savefileId)
             .then(() => this.onLoadSuccess())
             .catch(() => this.onLoadFailure());
     }
 
-    /** @returns {void} */
-    onLoadSuccess() {
+    onLoadSuccess(): void {
         SoundManager.playLoad();
         this.fadeOutAll();
         this.reloadMapIfUpdated();
@@ -2761,14 +2537,12 @@ class Scene_Load extends Scene_File {
         this._loadSuccess = true;
     }
 
-    /** @returns {void} */
-    onLoadFailure() {
+    onLoadFailure(): void {
         SoundManager.playBuzzer();
         this.activateListWindow();
     }
 
-    /** @returns {void} */
-    reloadMapIfUpdated() {
+    reloadMapIfUpdated(): void {
         if ($gameSystem.versionId() !== $dataSystem.versionId) {
             const mapId = $gameMap.mapId();
             const x = $gamePlayer.x;
@@ -2784,43 +2558,45 @@ class Scene_Load extends Scene_File {
  * The scene class of the game end screen.
  */
 class Scene_GameEnd extends Scene_MenuBase {
-    constructor(...args) {
+    declare _commandWindow: Window_GameEnd;
+
+    constructor(...args: any[]) {
         super(...args);
     }
 
-    initialize() {
+    initialize(): void;
+    initialize(...args: any[]): void;
+    initialize(): void {
         super.initialize();
     }
 
-    /** @returns {void} */
-    create() {
+    create(): void {
         super.create();
         this.createCommandWindow();
     }
 
-    /** @returns {void} */
-    stop() {
+    stop(): void {
         super.stop();
         this._commandWindow.close();
     }
 
-    /** @returns {void} */
-    createBackground() {
+    createBackground(): void {
         super.createBackground();
         this.setBackgroundOpacity(128);
     }
 
-    /** @returns {void} */
-    createCommandWindow() {
+    createCommandWindow(): void {
         const rect = this.commandWindowRect();
         this._commandWindow = new Window_GameEnd(rect);
-        this._commandWindow.setHandler("toTitle", this.commandToTitle.bind(this));
+        this._commandWindow.setHandler(
+            "toTitle",
+            this.commandToTitle.bind(this),
+        );
         this._commandWindow.setHandler("cancel", this.popScene.bind(this));
         this.addWindow(this._commandWindow);
     }
 
-    /** @returns {Rectangle} */
-    commandWindowRect() {
+    commandWindowRect(): Rectangle {
         const ww = this.mainCommandWidth();
         const wh = this.calcWindowHeight(2, true);
         const wx = (Graphics.boxWidth - ww) / 2;
@@ -2828,8 +2604,7 @@ class Scene_GameEnd extends Scene_MenuBase {
         return new PIXI.Rectangle(wx, wy, ww, wh);
     }
 
-    /** @returns {void} */
-    commandToTitle() {
+    commandToTitle(): void {
         this.fadeOutAll();
         SceneManager.goto(Scene_Title);
         Window_TitleCommand.initCommandPosition();
@@ -2840,27 +2615,35 @@ class Scene_GameEnd extends Scene_MenuBase {
  * The scene class of the shop screen.
  */
 class Scene_Shop extends Scene_MenuBase {
-    constructor(...args) {
+    declare _goods: RMMZ.ShopGoodsEntry[];
+    declare _purchaseOnly: boolean;
+    declare _item: RMMZ.InventoryItem | null;
+    declare _goldWindow: Window_Gold;
+    declare _commandWindow: Window_ShopCommand;
+    declare _dummyWindow: Window_Base;
+    declare _numberWindow: Window_ShopNumber;
+    declare _statusWindow: Window_ShopStatus;
+    declare _buyWindow: Window_ShopBuy;
+    declare _categoryWindow: Window_ItemCategory;
+    declare _sellWindow: Window_ShopSell;
+
+    constructor(...args: any[]) {
         super(...args);
     }
 
-    initialize() {
+    initialize(): void;
+    initialize(...args: any[]): void;
+    initialize(): void {
         super.initialize();
     }
 
-    /**
-     * @param {RMMZ.ShopGoods[]} goods
-     * @param {boolean} purchaseOnly
-     * @returns {void}
-     */
-    prepare(goods, purchaseOnly) {
+    prepare(goods: RMMZ.ShopGoodsEntry[], purchaseOnly: boolean): void {
         this._goods = goods;
         this._purchaseOnly = purchaseOnly;
         this._item = null;
     }
 
-    /** @returns {void} */
-    create() {
+    create(): void {
         super.create();
         this.createHelpWindow();
         this.createGoldWindow();
@@ -2873,15 +2656,13 @@ class Scene_Shop extends Scene_MenuBase {
         this.createSellWindow();
     }
 
-    /** @returns {void} */
-    createGoldWindow() {
+    createGoldWindow(): void {
         const rect = this.goldWindowRect();
         this._goldWindow = new Window_Gold(rect);
         this.addWindow(this._goldWindow);
     }
 
-    /** @returns {Rectangle} */
-    goldWindowRect() {
+    goldWindowRect(): Rectangle {
         const ww = this.mainCommandWidth();
         const wh = this.calcWindowHeight(1, true);
         const wx = Graphics.boxWidth - ww;
@@ -2889,8 +2670,7 @@ class Scene_Shop extends Scene_MenuBase {
         return new PIXI.Rectangle(wx, wy, ww, wh);
     }
 
-    /** @returns {void} */
-    createCommandWindow() {
+    createCommandWindow(): void {
         const rect = this.commandWindowRect();
         this._commandWindow = new Window_ShopCommand(rect);
         this._commandWindow.setPurchaseOnly(this._purchaseOnly);
@@ -2901,8 +2681,7 @@ class Scene_Shop extends Scene_MenuBase {
         this.addWindow(this._commandWindow);
     }
 
-    /** @returns {Rectangle} */
-    commandWindowRect() {
+    commandWindowRect(): Rectangle {
         const wx = 0;
         const wy = this.mainAreaTop();
         const ww = this._goldWindow.x;
@@ -2910,15 +2689,13 @@ class Scene_Shop extends Scene_MenuBase {
         return new PIXI.Rectangle(wx, wy, ww, wh);
     }
 
-    /** @returns {void} */
-    createDummyWindow() {
+    createDummyWindow(): void {
         const rect = this.dummyWindowRect();
         this._dummyWindow = new Window_Base(rect);
         this.addWindow(this._dummyWindow);
     }
 
-    /** @returns {Rectangle} */
-    dummyWindowRect() {
+    dummyWindowRect(): Rectangle {
         const wx = 0;
         const wy = this._commandWindow.y + this._commandWindow.height;
         const ww = Graphics.boxWidth;
@@ -2926,8 +2703,7 @@ class Scene_Shop extends Scene_MenuBase {
         return new PIXI.Rectangle(wx, wy, ww, wh);
     }
 
-    /** @returns {void} */
-    createNumberWindow() {
+    createNumberWindow(): void {
         const rect = this.numberWindowRect();
         this._numberWindow = new Window_ShopNumber(rect);
         this._numberWindow.hide();
@@ -2936,8 +2712,7 @@ class Scene_Shop extends Scene_MenuBase {
         this.addWindow(this._numberWindow);
     }
 
-    /** @returns {Rectangle} */
-    numberWindowRect() {
+    numberWindowRect(): Rectangle {
         const wx = 0;
         const wy = this._dummyWindow.y;
         const ww = Graphics.boxWidth - this.statusWidth();
@@ -2945,16 +2720,14 @@ class Scene_Shop extends Scene_MenuBase {
         return new PIXI.Rectangle(wx, wy, ww, wh);
     }
 
-    /** @returns {void} */
-    createStatusWindow() {
+    createStatusWindow(): void {
         const rect = this.statusWindowRect();
         this._statusWindow = new Window_ShopStatus(rect);
         this._statusWindow.hide();
         this.addWindow(this._statusWindow);
     }
 
-    /** @returns {Rectangle} */
-    statusWindowRect() {
+    statusWindowRect(): Rectangle {
         const ww = this.statusWidth();
         const wh = this._dummyWindow.height;
         const wx = Graphics.boxWidth - ww;
@@ -2962,8 +2735,7 @@ class Scene_Shop extends Scene_MenuBase {
         return new PIXI.Rectangle(wx, wy, ww, wh);
     }
 
-    /** @returns {void} */
-    createBuyWindow() {
+    createBuyWindow(): void {
         const rect = this.buyWindowRect();
         this._buyWindow = new Window_ShopBuy(rect);
         this._buyWindow.setupGoods(this._goods);
@@ -2975,8 +2747,7 @@ class Scene_Shop extends Scene_MenuBase {
         this.addWindow(this._buyWindow);
     }
 
-    /** @returns {Rectangle} */
-    buyWindowRect() {
+    buyWindowRect(): Rectangle {
         const wx = 0;
         const wy = this._dummyWindow.y;
         const ww = Graphics.boxWidth - this.statusWidth();
@@ -2984,20 +2755,21 @@ class Scene_Shop extends Scene_MenuBase {
         return new PIXI.Rectangle(wx, wy, ww, wh);
     }
 
-    /** @returns {void} */
-    createCategoryWindow() {
+    createCategoryWindow(): void {
         const rect = this.categoryWindowRect();
         this._categoryWindow = new Window_ItemCategory(rect);
         this._categoryWindow.setHelpWindow(this._helpWindow);
         this._categoryWindow.hide();
         this._categoryWindow.deactivate();
         this._categoryWindow.setHandler("ok", this.onCategoryOk.bind(this));
-        this._categoryWindow.setHandler("cancel", this.onCategoryCancel.bind(this));
+        this._categoryWindow.setHandler(
+            "cancel",
+            this.onCategoryCancel.bind(this),
+        );
         this.addWindow(this._categoryWindow);
     }
 
-    /** @returns {Rectangle} */
-    categoryWindowRect() {
+    categoryWindowRect(): Rectangle {
         const wx = 0;
         const wy = this._dummyWindow.y;
         const ww = Graphics.boxWidth;
@@ -3005,8 +2777,7 @@ class Scene_Shop extends Scene_MenuBase {
         return new PIXI.Rectangle(wx, wy, ww, wh);
     }
 
-    /** @returns {void} */
-    createSellWindow() {
+    createSellWindow(): void {
         const rect = this.sellWindowRect();
         this._sellWindow = new Window_ShopSell(rect);
         this._sellWindow.setHelpWindow(this._helpWindow);
@@ -3022,8 +2793,7 @@ class Scene_Shop extends Scene_MenuBase {
         }
     }
 
-    /** @returns {Rectangle} */
-    sellWindowRect() {
+    sellWindowRect(): Rectangle {
         const wx = 0;
         const wy = this._categoryWindow.y + this._categoryWindow.height;
         const ww = Graphics.boxWidth;
@@ -3034,21 +2804,18 @@ class Scene_Shop extends Scene_MenuBase {
         return new PIXI.Rectangle(wx, wy, ww, wh);
     }
 
-    /** @returns {number} */
-    statusWidth() {
+    statusWidth(): number {
         return 352;
     }
 
-    /** @returns {void} */
-    activateBuyWindow() {
+    activateBuyWindow(): void {
         this._buyWindow.setMoney(this.money());
         this._buyWindow.show();
         this._buyWindow.activate();
         this._statusWindow.show();
     }
 
-    /** @returns {void} */
-    activateSellWindow() {
+    activateSellWindow(): void {
         if (this._categoryWindow.needsSelection()) {
             this._categoryWindow.show();
         }
@@ -3058,14 +2825,12 @@ class Scene_Shop extends Scene_MenuBase {
         this._statusWindow.hide();
     }
 
-    /** @returns {void} */
-    commandBuy() {
+    commandBuy(): void {
         this._dummyWindow.hide();
         this.activateBuyWindow();
     }
 
-    /** @returns {void} */
-    commandSell() {
+    commandSell(): void {
         this._dummyWindow.hide();
         this._sellWindow.show();
         this._sellWindow.deselect();
@@ -3078,18 +2843,20 @@ class Scene_Shop extends Scene_MenuBase {
         }
     }
 
-    /** @returns {void} */
-    onBuyOk() {
+    onBuyOk(): void {
         this._item = this._buyWindow.item();
         this._buyWindow.hide();
-        this._numberWindow.setup(this._item, this.maxBuy(), this.buyingPrice());
+        this._numberWindow.setup(
+            this._item!,
+            this.maxBuy(),
+            this.buyingPrice(),
+        );
         this._numberWindow.setCurrencyUnit(this.currencyUnit());
         this._numberWindow.show();
         this._numberWindow.activate();
     }
 
-    /** @returns {void} */
-    onBuyCancel() {
+    onBuyCancel(): void {
         this._commandWindow.activate();
         this._dummyWindow.show();
         this._buyWindow.hide();
@@ -3098,36 +2865,36 @@ class Scene_Shop extends Scene_MenuBase {
         this._helpWindow.clear();
     }
 
-    /** @returns {void} */
-    onCategoryOk() {
+    onCategoryOk(): void {
         this.activateSellWindow();
         this._sellWindow.select(0);
         this._sellWindow.setTopRow(0);
     }
 
-    /** @returns {void} */
-    onCategoryCancel() {
+    onCategoryCancel(): void {
         this._commandWindow.activate();
         this._dummyWindow.show();
         this._categoryWindow.hide();
         this._sellWindow.hide();
     }
 
-    /** @returns {void} */
-    onSellOk() {
+    onSellOk(): void {
         this._item = this._sellWindow.item();
         this._categoryWindow.hide();
         this._sellWindow.hide();
-        this._numberWindow.setup(this._item, this.maxSell(), this.sellingPrice());
+        this._numberWindow.setup(
+            this._item!,
+            this.maxSell(),
+            this.sellingPrice(),
+        );
         this._numberWindow.setCurrencyUnit(this.currencyUnit());
         this._numberWindow.show();
         this._numberWindow.activate();
-        this._statusWindow.setItem(this._item);
+        this._statusWindow.setItem(this._item!);
         this._statusWindow.show();
     }
 
-    /** @returns {void} */
-    onSellCancel() {
+    onSellCancel(): void {
         this._sellWindow.deselect();
         this._statusWindow.setItem(null);
         this._helpWindow.clear();
@@ -3138,8 +2905,7 @@ class Scene_Shop extends Scene_MenuBase {
         }
     }
 
-    /** @returns {void} */
-    onNumberOk() {
+    onNumberOk(): void {
         SoundManager.playShop();
         switch (this._commandWindow.currentSymbol()) {
             case "buy":
@@ -3154,32 +2920,22 @@ class Scene_Shop extends Scene_MenuBase {
         this._statusWindow.refresh();
     }
 
-    /** @returns {void} */
-    onNumberCancel() {
+    onNumberCancel(): void {
         SoundManager.playCancel();
         this.endNumberInput();
     }
 
-    /**
-     * @param {number} number
-     * @returns {void}
-     */
-    doBuy(number) {
+    doBuy(number: number): void {
         $gameParty.loseGold(number * this.buyingPrice());
         $gameParty.gainItem(this._item, number);
     }
 
-    /**
-     * @param {number} number
-     * @returns {void}
-     */
-    doSell(number) {
+    doSell(number: number): void {
         $gameParty.gainGold(number * this.sellingPrice());
         $gameParty.loseItem(this._item, number);
     }
 
-    /** @returns {void} */
-    endNumberInput() {
+    endNumberInput(): void {
         this._numberWindow.hide();
         switch (this._commandWindow.currentSymbol()) {
             case "buy":
@@ -3191,10 +2947,9 @@ class Scene_Shop extends Scene_MenuBase {
         }
     }
 
-    /** @returns {number} */
-    maxBuy() {
+    maxBuy(): number {
         const num = $gameParty.numItems(this._item);
-        const max = $gameParty.maxItems(this._item) - num;
+        const max = $gameParty.maxItems(this._item!) - num;
         const price = this.buyingPrice();
         if (price > 0) {
             return Math.min(max, Math.floor(this.money() / price));
@@ -3203,29 +2958,24 @@ class Scene_Shop extends Scene_MenuBase {
         }
     }
 
-    /** @returns {number} */
-    maxSell() {
+    maxSell(): number {
         return $gameParty.numItems(this._item);
     }
 
-    /** @returns {number} */
-    money() {
+    money(): number {
         return this._goldWindow.value();
     }
 
-    /** @returns {string} */
-    currencyUnit() {
+    currencyUnit(): string {
         return this._goldWindow.currencyUnit();
     }
 
-    /** @returns {number} */
-    buyingPrice() {
-        return this._buyWindow.price(this._item);
+    buyingPrice(): number {
+        return this._buyWindow.price(this._item!);
     }
 
-    /** @returns {number} */
-    sellingPrice() {
-        return Math.floor(this._item.price / 2);
+    sellingPrice(): number {
+        return Math.floor(this._item!.price / 2);
     }
 }
 
@@ -3233,48 +2983,46 @@ class Scene_Shop extends Scene_MenuBase {
  * The scene class of the name input screen.
  */
 class Scene_Name extends Scene_MenuBase {
-    constructor(...args) {
+    declare _actorId: number;
+    declare _maxLength: number;
+    declare _editWindow: Window_NameEdit;
+    declare _inputWindow: Window_NameInput;
+
+    constructor(...args: any[]) {
         super(...args);
     }
 
-    initialize() {
+    initialize(): void;
+    initialize(...args: any[]): void;
+    initialize(): void {
         super.initialize();
     }
 
-    /**
-     * @param {RMMZ.ActorID} actorId
-     * @param {number} maxLength
-     * @returns {void}
-     */
-    prepare(actorId, maxLength) {
+    prepare(actorId: RMMZ.ActorID, maxLength: number): void {
         this._actorId = actorId;
         this._maxLength = maxLength;
     }
 
-    /** @returns {void} */
-    create() {
+    create(): void {
         super.create();
-        this._actor = $gameActors.actor(this._actorId);
+        this._actor = $gameActors.actor(this._actorId)!;
         this.createEditWindow();
         this.createInputWindow();
     }
 
-    /** @returns {void} */
-    start() {
+    start(): void {
         super.start();
         this._editWindow.refresh();
     }
 
-    /** @returns {void} */
-    createEditWindow() {
+    createEditWindow(): void {
         const rect = this.editWindowRect();
         this._editWindow = new Window_NameEdit(rect);
         this._editWindow.setup(this._actor, this._maxLength);
         this.addWindow(this._editWindow);
     }
 
-    /** @returns {Rectangle} */
-    editWindowRect() {
+    editWindowRect(): Rectangle {
         const inputWindowHeight = this.calcWindowHeight(9, true);
         const padding = $gameSystem.windowPadding();
         const ww = 600;
@@ -3284,8 +3032,7 @@ class Scene_Name extends Scene_MenuBase {
         return new PIXI.Rectangle(wx, wy, ww, wh);
     }
 
-    /** @returns {void} */
-    createInputWindow() {
+    createInputWindow(): void {
         const rect = this.inputWindowRect();
         this._inputWindow = new Window_NameInput(rect);
         this._inputWindow.setEditWindow(this._editWindow);
@@ -3293,8 +3040,7 @@ class Scene_Name extends Scene_MenuBase {
         this.addWindow(this._inputWindow);
     }
 
-    /** @returns {Rectangle} */
-    inputWindowRect() {
+    inputWindowRect(): Rectangle {
         const wx = this._editWindow.x;
         const wy = this._editWindow.y + this._editWindow.height + 8;
         const ww = this._editWindow.width;
@@ -3302,9 +3048,8 @@ class Scene_Name extends Scene_MenuBase {
         return new PIXI.Rectangle(wx, wy, ww, wh);
     }
 
-    /** @returns {void} */
-    onInputOk() {
-        this._actor.setName(this._editWindow.name());
+    onInputOk(): void {
+        this._actor.setName(this._editWindow.inputName());
         this.popScene();
     }
 }
@@ -3313,29 +3058,32 @@ class Scene_Name extends Scene_MenuBase {
  * The scene class of the debug screen.
  */
 class Scene_Debug extends Scene_MenuBase {
-    constructor(...args) {
+    declare _rangeWindow: Window_DebugRange;
+    declare _editWindow: Window_DebugEdit;
+    declare _debugHelpWindow: Window_Base;
+
+    constructor(...args: any[]) {
         super(...args);
     }
 
-    initialize() {
+    initialize(): void;
+    initialize(...args: any[]): void;
+    initialize(): void {
         super.initialize();
     }
 
-    /** @returns {void} */
-    create() {
+    create(): void {
         super.create();
         this.createRangeWindow();
         this.createEditWindow();
         this.createDebugHelpWindow();
     }
 
-    /** @returns {boolean} */
-    needsCancelButton() {
+    needsCancelButton(): boolean {
         return false;
     }
 
-    /** @returns {void} */
-    createRangeWindow() {
+    createRangeWindow(): void {
         const rect = this.rangeWindowRect();
         this._rangeWindow = new Window_DebugRange(rect);
         this._rangeWindow.setHandler("ok", this.onRangeOk.bind(this));
@@ -3343,8 +3091,7 @@ class Scene_Debug extends Scene_MenuBase {
         this.addWindow(this._rangeWindow);
     }
 
-    /** @returns {Rectangle} */
-    rangeWindowRect() {
+    rangeWindowRect(): Rectangle {
         const wx = 0;
         const wy = 0;
         const ww = 246;
@@ -3352,8 +3099,7 @@ class Scene_Debug extends Scene_MenuBase {
         return new PIXI.Rectangle(wx, wy, ww, wh);
     }
 
-    /** @returns {void} */
-    createEditWindow() {
+    createEditWindow(): void {
         const rect = this.editWindowRect();
         this._editWindow = new Window_DebugEdit(rect);
         this._editWindow.setHandler("cancel", this.onEditCancel.bind(this));
@@ -3361,8 +3107,7 @@ class Scene_Debug extends Scene_MenuBase {
         this.addWindow(this._editWindow);
     }
 
-    /** @returns {Rectangle} */
-    editWindowRect() {
+    editWindowRect(): Rectangle {
         const wx = this._rangeWindow.width;
         const wy = 0;
         const ww = Graphics.boxWidth - wx;
@@ -3370,15 +3115,13 @@ class Scene_Debug extends Scene_MenuBase {
         return new PIXI.Rectangle(wx, wy, ww, wh);
     }
 
-    /** @returns {void} */
-    createDebugHelpWindow() {
+    createDebugHelpWindow(): void {
         const rect = this.debugHelpWindowRect();
         this._debugHelpWindow = new Window_Base(rect);
         this.addWindow(this._debugHelpWindow);
     }
 
-    /** @returns {Rectangle} */
-    debugHelpWindowRect() {
+    debugHelpWindowRect(): Rectangle {
         const wx = this._editWindow.x;
         const wy = this._editWindow.height;
         const ww = this._editWindow.width;
@@ -3386,22 +3129,19 @@ class Scene_Debug extends Scene_MenuBase {
         return new PIXI.Rectangle(wx, wy, ww, wh);
     }
 
-    /** @returns {void} */
-    onRangeOk() {
+    onRangeOk(): void {
         this._editWindow.activate();
         this._editWindow.select(0);
         this.refreshHelpWindow();
     }
 
-    /** @returns {void} */
-    onEditCancel() {
+    onEditCancel(): void {
         this._rangeWindow.activate();
         this._editWindow.deselect();
         this.refreshHelpWindow();
     }
 
-    /** @returns {void} */
-    refreshHelpWindow() {
+    refreshHelpWindow(): void {
         const helpWindow = this._debugHelpWindow;
         helpWindow.contents.clear();
         if (this._editWindow.active) {
@@ -3410,8 +3150,7 @@ class Scene_Debug extends Scene_MenuBase {
         }
     }
 
-    /** @returns {string} */
-    helpText() {
+    helpText(): string {
         if (this._rangeWindow.mode() === "switch") {
             return "Enter : ON / OFF";
         } else {
@@ -3427,22 +3166,34 @@ class Scene_Debug extends Scene_MenuBase {
  * The scene class of the battle screen.
  */
 class Scene_Battle extends Scene_Message {
-    constructor(...args) {
+    declare _spriteset: Spriteset_Battle;
+    declare _logWindow: Window_BattleLog;
+    declare _statusWindow: Window_BattleStatus;
+    declare _partyCommandWindow: Window_PartyCommand;
+    declare _actorCommandWindow: Window_ActorCommand;
+    declare _helpWindow: Window_Help;
+    declare _skillWindow: Window_BattleSkill;
+    declare _itemWindow: Window_BattleItem;
+    declare _actorWindow: Window_BattleActor;
+    declare _enemyWindow: Window_BattleEnemy;
+    declare _cancelButton: Sprite_Button;
+
+    constructor(...args: any[]) {
         super(...args);
     }
 
-    initialize() {
+    initialize(): void;
+    initialize(...args: any[]): void;
+    initialize(): void {
         super.initialize();
     }
 
-    /** @returns {void} */
-    create() {
+    create(): void {
         super.create();
         this.createDisplayObjects();
     }
 
-    /** @returns {void} */
-    start() {
+    start(): void {
         super.start();
         BattleManager.playBattleBgm();
         BattleManager.startBattle();
@@ -3450,8 +3201,7 @@ class Scene_Battle extends Scene_Message {
         this.startFadeIn(this.fadeSpeed(), false);
     }
 
-    /** @returns {void} */
-    update() {
+    update(): void {
         const active = this.isActive();
         $gameTimer.update(active);
         $gameScreen.update();
@@ -3462,21 +3212,18 @@ class Scene_Battle extends Scene_Message {
         super.update();
     }
 
-    /** @returns {void} */
-    updateVisibility() {
+    updateVisibility(): void {
         this.updateLogWindowVisibility();
         this.updateStatusWindowVisibility();
         this.updateInputWindowVisibility();
         this.updateCancelButton();
     }
 
-    /** @returns {void} */
-    updateBattleProcess() {
+    updateBattleProcess(): void {
         BattleManager.update(this.isTimeActive());
     }
 
-    /** @returns {boolean} */
-    isTimeActive() {
+    isTimeActive(): boolean {
         if (BattleManager.isActiveTpb()) {
             return !this._skillWindow.active && !this._itemWindow.active;
         } else {
@@ -3484,8 +3231,7 @@ class Scene_Battle extends Scene_Message {
         }
     }
 
-    /** @returns {boolean} */
-    isAnyInputWindowActive() {
+    isAnyInputWindowActive(): boolean {
         return (
             this._partyCommandWindow.active ||
             this._actorCommandWindow.active ||
@@ -3496,8 +3242,7 @@ class Scene_Battle extends Scene_Message {
         );
     }
 
-    /** @returns {void} */
-    changeInputWindow() {
+    changeInputWindow(): void {
         this.hideSubInputWindows();
         if (BattleManager.isInputting()) {
             if (BattleManager.actor()) {
@@ -3510,8 +3255,7 @@ class Scene_Battle extends Scene_Message {
         }
     }
 
-    /** @returns {void} */
-    stop() {
+    stop(): void {
         super.stop();
         if (this.needsSlowFadeOut()) {
             this.startFadeOut(this.slowFadeSpeed(), false);
@@ -3523,8 +3267,7 @@ class Scene_Battle extends Scene_Message {
         this._actorCommandWindow.close();
     }
 
-    /** @returns {void} */
-    terminate() {
+    terminate(): void {
         super.terminate();
         $gameParty.onBattleEnd();
         $gameTroop.onBattleEnd();
@@ -3534,26 +3277,22 @@ class Scene_Battle extends Scene_Message {
         }
     }
 
-    /** @returns {boolean | null} */
-    shouldAutosave() {
+    shouldAutosave(): boolean | null {
         return SceneManager.isNextScene(Scene_Map);
     }
 
-    /** @returns {boolean | null} */
-    needsSlowFadeOut() {
+    needsSlowFadeOut(): boolean | null {
         return (
             SceneManager.isNextScene(Scene_Title) ||
             SceneManager.isNextScene(Scene_Gameover)
         );
     }
 
-    /** @returns {void} */
-    updateLogWindowVisibility() {
+    updateLogWindowVisibility(): void {
         this._logWindow.visible = !this._helpWindow.visible;
     }
 
-    /** @returns {void} */
-    updateStatusWindowVisibility() {
+    updateStatusWindowVisibility(): void {
         if ($gameMessage.isBusy()) {
             this._statusWindow.close();
         } else if (this.shouldOpenStatusWindow()) {
@@ -3562,8 +3301,7 @@ class Scene_Battle extends Scene_Message {
         this.updateStatusWindowPosition();
     }
 
-    /** @returns {boolean} */
-    shouldOpenStatusWindow() {
+    shouldOpenStatusWindow(): boolean {
         return (
             this.isActive() &&
             !this.isMessageWindowClosing() &&
@@ -3571,8 +3309,7 @@ class Scene_Battle extends Scene_Message {
         );
     }
 
-    /** @returns {void} */
-    updateStatusWindowPosition() {
+    updateStatusWindowPosition(): void {
         const statusWindow = this._statusWindow;
         const targetX = this.statusWindowX();
         if (statusWindow.x < targetX) {
@@ -3583,8 +3320,7 @@ class Scene_Battle extends Scene_Message {
         }
     }
 
-    /** @returns {number} */
-    statusWindowX() {
+    statusWindowX(): number {
         if (this.isAnyInputWindowActive()) {
             return this.statusWindowRect().x;
         } else {
@@ -3592,8 +3328,7 @@ class Scene_Battle extends Scene_Message {
         }
     }
 
-    /** @returns {void} */
-    updateInputWindowVisibility() {
+    updateInputWindowVisibility(): void {
         if ($gameMessage.isBusy()) {
             this.closeCommandWindows();
             this.hideSubInputWindows();
@@ -3602,8 +3337,7 @@ class Scene_Battle extends Scene_Message {
         }
     }
 
-    /** @returns {boolean} */
-    needsInputWindowChange() {
+    needsInputWindowChange(): boolean {
         const windowActive = this.isAnyInputWindowActive();
         const inputting = BattleManager.isInputting();
         if (windowActive && inputting) {
@@ -3612,16 +3346,15 @@ class Scene_Battle extends Scene_Message {
         return windowActive !== inputting;
     }
 
-    /** @returns {void} */
-    updateCancelButton() {
+    updateCancelButton(): void {
         if (this._cancelButton) {
             this._cancelButton.visible =
-                this.isAnyInputWindowActive() && !this._partyCommandWindow.active;
+                this.isAnyInputWindowActive() &&
+                !this._partyCommandWindow.active;
         }
     }
 
-    /** @returns {void} */
-    createDisplayObjects() {
+    createDisplayObjects(): void {
         this.createSpriteset();
         this.createWindowLayer();
         this.createAllWindows();
@@ -3631,14 +3364,12 @@ class Scene_Battle extends Scene_Message {
         this._logWindow.setSpriteset(this._spriteset);
     }
 
-    /** @returns {void} */
-    createSpriteset() {
+    createSpriteset(): void {
         this._spriteset = new Spriteset_Battle();
         this.addChild(this._spriteset);
     }
 
-    /** @returns {void} */
-    createAllWindows() {
+    createAllWindows(): void {
         this.createLogWindow();
         this.createStatusWindow();
         this.createPartyCommandWindow();
@@ -3651,15 +3382,13 @@ class Scene_Battle extends Scene_Message {
         super.createAllWindows();
     }
 
-    /** @returns {void} */
-    createLogWindow() {
+    createLogWindow(): void {
         const rect = this.logWindowRect();
         this._logWindow = new Window_BattleLog(rect);
         this.addWindow(this._logWindow);
     }
 
-    /** @returns {Rectangle} */
-    logWindowRect() {
+    logWindowRect(): Rectangle {
         const wx = 0;
         const wy = 0;
         const ww = Graphics.boxWidth;
@@ -3667,16 +3396,14 @@ class Scene_Battle extends Scene_Message {
         return new PIXI.Rectangle(wx, wy, ww, wh);
     }
 
-    /** @returns {void} */
-    createStatusWindow() {
+    createStatusWindow(): void {
         const rect = this.statusWindowRect();
         const statusWindow = new Window_BattleStatus(rect);
         this.addWindow(statusWindow);
         this._statusWindow = statusWindow;
     }
 
-    /** @returns {Rectangle} */
-    statusWindowRect() {
+    statusWindowRect(): Rectangle {
         const extra = 10;
         const ww = Graphics.boxWidth - 192;
         const wh = this.windowAreaHeight() + extra;
@@ -3685,8 +3412,7 @@ class Scene_Battle extends Scene_Message {
         return new PIXI.Rectangle(wx, wy, ww, wh);
     }
 
-    /** @returns {void} */
-    createPartyCommandWindow() {
+    createPartyCommandWindow(): void {
         const rect = this.partyCommandWindowRect();
         const commandWindow = new Window_PartyCommand(rect);
         commandWindow.setHandler("fight", this.commandFight.bind(this));
@@ -3696,8 +3422,7 @@ class Scene_Battle extends Scene_Message {
         this._partyCommandWindow = commandWindow;
     }
 
-    /** @returns {Rectangle} */
-    partyCommandWindowRect() {
+    partyCommandWindowRect(): Rectangle {
         const ww = 192;
         const wh = this.windowAreaHeight();
         const wx = this.isRightInputMode() ? Graphics.boxWidth - ww : 0;
@@ -3705,8 +3430,7 @@ class Scene_Battle extends Scene_Message {
         return new PIXI.Rectangle(wx, wy, ww, wh);
     }
 
-    /** @returns {void} */
-    createActorCommandWindow() {
+    createActorCommandWindow(): void {
         const rect = this.actorCommandWindowRect();
         const commandWindow = new Window_ActorCommand(rect);
         commandWindow.y = Graphics.boxHeight - commandWindow.height;
@@ -3719,8 +3443,7 @@ class Scene_Battle extends Scene_Message {
         this._actorCommandWindow = commandWindow;
     }
 
-    /** @returns {Rectangle} */
-    actorCommandWindowRect() {
+    actorCommandWindowRect(): Rectangle {
         const ww = 192;
         const wh = this.windowAreaHeight();
         const wx = this.isRightInputMode() ? Graphics.boxWidth - ww : 0;
@@ -3728,16 +3451,14 @@ class Scene_Battle extends Scene_Message {
         return new PIXI.Rectangle(wx, wy, ww, wh);
     }
 
-    /** @returns {void} */
-    createHelpWindow() {
+    createHelpWindow(): void {
         const rect = this.helpWindowRect();
         this._helpWindow = new Window_Help(rect);
         this._helpWindow.hide();
         this.addWindow(this._helpWindow);
     }
 
-    /** @returns {Rectangle} */
-    helpWindowRect() {
+    helpWindowRect(): Rectangle {
         const wx = 0;
         const wy = this.helpAreaTop();
         const ww = Graphics.boxWidth;
@@ -3745,8 +3466,7 @@ class Scene_Battle extends Scene_Message {
         return new PIXI.Rectangle(wx, wy, ww, wh);
     }
 
-    /** @returns {void} */
-    createSkillWindow() {
+    createSkillWindow(): void {
         const rect = this.skillWindowRect();
         this._skillWindow = new Window_BattleSkill(rect);
         this._skillWindow.setHelpWindow(this._helpWindow);
@@ -3755,8 +3475,7 @@ class Scene_Battle extends Scene_Message {
         this.addWindow(this._skillWindow);
     }
 
-    /** @returns {Rectangle} */
-    skillWindowRect() {
+    skillWindowRect(): Rectangle {
         const ww = Graphics.boxWidth;
         const wh = this.windowAreaHeight();
         const wx = 0;
@@ -3764,8 +3483,7 @@ class Scene_Battle extends Scene_Message {
         return new PIXI.Rectangle(wx, wy, ww, wh);
     }
 
-    /** @returns {void} */
-    createItemWindow() {
+    createItemWindow(): void {
         const rect = this.itemWindowRect();
         this._itemWindow = new Window_BattleItem(rect);
         this._itemWindow.setHelpWindow(this._helpWindow);
@@ -3774,13 +3492,11 @@ class Scene_Battle extends Scene_Message {
         this.addWindow(this._itemWindow);
     }
 
-    /** @returns {Rectangle} */
-    itemWindowRect() {
+    itemWindowRect(): Rectangle {
         return this.skillWindowRect();
     }
 
-    /** @returns {void} */
-    createActorWindow() {
+    createActorWindow(): void {
         const rect = this.actorWindowRect();
         this._actorWindow = new Window_BattleActor(rect);
         this._actorWindow.setHandler("ok", this.onActorOk.bind(this));
@@ -3788,13 +3504,11 @@ class Scene_Battle extends Scene_Message {
         this.addWindow(this._actorWindow);
     }
 
-    /** @returns {Rectangle} */
-    actorWindowRect() {
+    actorWindowRect(): Rectangle {
         return this.statusWindowRect();
     }
 
-    /** @returns {void} */
-    createEnemyWindow() {
+    createEnemyWindow(): void {
         const rect = this.enemyWindowRect();
         this._enemyWindow = new Window_BattleEnemy(rect);
         this._enemyWindow.setHandler("ok", this.onEnemyOk.bind(this));
@@ -3802,8 +3516,7 @@ class Scene_Battle extends Scene_Message {
         this.addWindow(this._enemyWindow);
     }
 
-    /** @returns {Rectangle} */
-    enemyWindowRect() {
+    enemyWindowRect(): Rectangle {
         const wx = this._statusWindow.x;
         const ww = this._statusWindow.width;
         const wh = this.windowAreaHeight();
@@ -3811,56 +3524,47 @@ class Scene_Battle extends Scene_Message {
         return new PIXI.Rectangle(wx, wy, ww, wh);
     }
 
-    /** @returns {number} */
-    helpAreaTop() {
+    helpAreaTop(): number {
         return 0;
     }
 
-    /** @returns {number} */
-    helpAreaBottom() {
+    helpAreaBottom(): number {
         return this.helpAreaTop() + this.helpAreaHeight();
     }
 
-    /** @returns {number} */
-    helpAreaHeight() {
+    helpAreaHeight(): number {
         return this.calcWindowHeight(2, false);
     }
 
-    /** @returns {number} */
-    buttonAreaTop() {
+    buttonAreaTop(): number {
         return this.helpAreaBottom();
     }
 
-    /** @returns {number} */
-    windowAreaHeight() {
+    windowAreaHeight(): number {
         return this.calcWindowHeight(4, true);
     }
 
-    /** @returns {void} */
-    createButtons() {
+    createButtons(): void {
         if (ConfigManager.touchUI) {
             this.createCancelButton();
         }
     }
 
-    /** @returns {void} */
-    createCancelButton() {
+    createCancelButton(): void {
         this._cancelButton = new Sprite_Button("cancel");
         this._cancelButton.x = Graphics.boxWidth - this._cancelButton.width - 4;
         this._cancelButton.y = this.buttonY();
         this.addWindow(this._cancelButton);
     }
 
-    /** @returns {void} */
-    closeCommandWindows() {
+    closeCommandWindows(): void {
         this._partyCommandWindow.deactivate();
         this._actorCommandWindow.deactivate();
         this._partyCommandWindow.close();
         this._actorCommandWindow.close();
     }
 
-    /** @returns {void} */
-    hideSubInputWindows() {
+    hideSubInputWindows(): void {
         this._actorWindow.deactivate();
         this._enemyWindow.deactivate();
         this._skillWindow.deactivate();
@@ -3871,8 +3575,7 @@ class Scene_Battle extends Scene_Message {
         this._itemWindow.hide();
     }
 
-    /** @returns {void} */
-    startPartyCommandSelection() {
+    startPartyCommandSelection(): void {
         this._statusWindow.deselect();
         this._statusWindow.show();
         this._statusWindow.open();
@@ -3881,19 +3584,16 @@ class Scene_Battle extends Scene_Message {
         this._partyCommandWindow.setup();
     }
 
-    /** @returns {void} */
-    commandFight() {
+    commandFight(): void {
         this.selectNextCommand();
     }
 
-    /** @returns {void} */
-    commandEscape() {
+    commandEscape(): void {
         BattleManager.processEscape();
         this.changeInputWindow();
     }
 
-    /** @returns {void} */
-    startActorCommandSelection() {
+    startActorCommandSelection(): void {
         this._statusWindow.show();
         this._statusWindow.selectActor(BattleManager.actor());
         this._partyCommandWindow.close();
@@ -3901,17 +3601,15 @@ class Scene_Battle extends Scene_Message {
         this._actorCommandWindow.setup(BattleManager.actor());
     }
 
-    /** @returns {void} */
-    commandAttack() {
+    commandAttack(): void {
         const action = BattleManager.inputtingAction();
-        action.setAttack();
+        action!.setAttack();
         this.onSelectAction();
     }
 
-    /** @returns {void} */
-    commandSkill() {
-        this._skillWindow.setActor(BattleManager.actor());
-        this._skillWindow.setStypeId(this._actorCommandWindow.currentExt());
+    commandSkill(): void {
+        this._skillWindow.setActor(BattleManager.actor()!);
+        this._skillWindow.setStypeId(this._actorCommandWindow.currentExt()!);
         this._skillWindow.refresh();
         this._skillWindow.show();
         this._skillWindow.activate();
@@ -3919,15 +3617,13 @@ class Scene_Battle extends Scene_Message {
         this._actorCommandWindow.hide();
     }
 
-    /** @returns {void} */
-    commandGuard() {
+    commandGuard(): void {
         const action = BattleManager.inputtingAction();
-        action.setGuard();
+        action!.setGuard();
         this.onSelectAction();
     }
 
-    /** @returns {void} */
-    commandItem() {
+    commandItem(): void {
         this._itemWindow.refresh();
         this._itemWindow.show();
         this._itemWindow.activate();
@@ -3935,40 +3631,34 @@ class Scene_Battle extends Scene_Message {
         this._actorCommandWindow.hide();
     }
 
-    /** @returns {void} */
-    commandCancel() {
+    commandCancel(): void {
         this.selectPreviousCommand();
     }
 
-    /** @returns {void} */
-    selectNextCommand() {
+    selectNextCommand(): void {
         BattleManager.selectNextCommand();
         this.changeInputWindow();
     }
 
-    /** @returns {void} */
-    selectPreviousCommand() {
+    selectPreviousCommand(): void {
         BattleManager.selectPreviousCommand();
         this.changeInputWindow();
     }
 
-    /** @returns {void} */
-    startActorSelection() {
+    startActorSelection(): void {
         this._actorWindow.refresh();
         this._actorWindow.show();
         this._actorWindow.activate();
     }
 
-    /** @returns {void} */
-    onActorOk() {
+    onActorOk(): void {
         const action = BattleManager.inputtingAction();
-        action.setTarget(this._actorWindow.index());
+        action!.setTarget(this._actorWindow.index());
         this.hideSubInputWindows();
         this.selectNextCommand();
     }
 
-    /** @returns {void} */
-    onActorCancel() {
+    onActorCancel(): void {
         this._actorWindow.hide();
         switch (this._actorCommandWindow.currentSymbol()) {
             case "skill":
@@ -3982,8 +3672,7 @@ class Scene_Battle extends Scene_Message {
         }
     }
 
-    /** @returns {void} */
-    startEnemySelection() {
+    startEnemySelection(): void {
         this._enemyWindow.refresh();
         this._enemyWindow.show();
         this._enemyWindow.select(0);
@@ -3991,16 +3680,14 @@ class Scene_Battle extends Scene_Message {
         this._statusWindow.hide();
     }
 
-    /** @returns {void} */
-    onEnemyOk() {
+    onEnemyOk(): void {
         const action = BattleManager.inputtingAction();
-        action.setTarget(this._enemyWindow.enemyIndex());
+        action!.setTarget(this._enemyWindow.enemyIndex());
         this.hideSubInputWindows();
         this.selectNextCommand();
     }
 
-    /** @returns {void} */
-    onEnemyCancel() {
+    onEnemyCancel(): void {
         this._enemyWindow.hide();
         switch (this._actorCommandWindow.currentSymbol()) {
             case "attack":
@@ -4018,54 +3705,48 @@ class Scene_Battle extends Scene_Message {
         }
     }
 
-    /** @returns {void} */
-    onSkillOk() {
+    onSkillOk(): void {
         const skill = this._skillWindow.item();
         const action = BattleManager.inputtingAction();
-        action.setSkill(skill.id);
-        BattleManager.actor().setLastBattleSkill(skill);
+        action!.setSkill(skill!.id);
+        BattleManager.actor()!.setLastBattleSkill(skill);
         this.onSelectAction();
     }
 
-    /** @returns {void} */
-    onSkillCancel() {
+    onSkillCancel(): void {
         this._skillWindow.hide();
         this._statusWindow.show();
         this._actorCommandWindow.show();
         this._actorCommandWindow.activate();
     }
 
-    /** @returns {void} */
-    onItemOk() {
+    onItemOk(): void {
         const item = this._itemWindow.item();
         const action = BattleManager.inputtingAction();
-        action.setItem(item.id);
+        action!.setItem(item!.id);
         $gameParty.setLastItem(item);
         this.onSelectAction();
     }
 
-    /** @returns {void} */
-    onItemCancel() {
+    onItemCancel(): void {
         this._itemWindow.hide();
         this._statusWindow.show();
         this._actorCommandWindow.show();
         this._actorCommandWindow.activate();
     }
 
-    /** @returns {void} */
-    onSelectAction() {
+    onSelectAction(): void {
         const action = BattleManager.inputtingAction();
-        if (!action.needsSelection()) {
+        if (!action!.needsSelection()) {
             this.selectNextCommand();
-        } else if (action.isForOpponent()) {
+        } else if (action!.isForOpponent()) {
             this.startEnemySelection();
         } else {
             this.startActorSelection();
         }
     }
 
-    /** @returns {void} */
-    endCommandSelection() {
+    endCommandSelection(): void {
         this.closeCommandWindows();
         this.hideSubInputWindows();
         this._statusWindow.deselect();
@@ -4077,103 +3758,69 @@ class Scene_Battle extends Scene_Message {
  * The scene class of the game over screen.
  */
 class Scene_Gameover extends Scene_Base {
-    constructor(...args) {
+    declare _backSprite: Sprite;
+
+    constructor(...args: any[]) {
         super(...args);
     }
 
-    initialize() {
+    initialize(): void;
+    initialize(...args: any[]): void;
+    initialize(): void {
         super.initialize();
     }
 
-    /** @returns {void} */
-    create() {
+    create(): void {
         super.create();
         this.playGameoverMusic();
         this.createBackground();
     }
 
-    /** @returns {void} */
-    start() {
+    start(): void {
         super.start();
         this.adjustBackground();
         this.startFadeIn(this.slowFadeSpeed(), false);
     }
 
-    /** @returns {void} */
-    update() {
+    update(): void {
         if (this.isActive() && !this.isBusy() && this.isTriggered()) {
             this.gotoTitle();
         }
         super.update();
     }
 
-    /** @returns {void} */
-    stop() {
+    stop(): void {
         super.stop();
         this.fadeOutAll();
     }
 
-    /** @returns {void} */
-    terminate() {
+    terminate(): void {
         super.terminate();
         AudioManager.stopAll();
     }
 
-    /** @returns {void} */
-    playGameoverMusic() {
+    playGameoverMusic(): void {
         AudioManager.stopBgm();
         AudioManager.stopBgs();
         AudioManager.playMe($dataSystem.gameoverMe);
     }
 
-    /** @returns {void} */
-    createBackground() {
+    createBackground(): void {
         this._backSprite = new Sprite();
         this._backSprite.bitmap = ImageManager.loadSystem("GameOver");
         this.addChild(this._backSprite);
     }
 
-    /** @returns {void} */
-    adjustBackground() {
+    adjustBackground(): void {
         this.scaleSprite(this._backSprite);
         this.centerSprite(this._backSprite);
     }
 
-    /** @returns {boolean} */
-    isTriggered() {
+    isTriggered(): boolean {
         return Input.isTriggered("ok") || TouchInput.isTriggered();
     }
 
-    /** @returns {void} */
-    gotoTitle() {
+    gotoTitle(): void {
         SceneManager.goto(Scene_Title);
     }
 }
-
-// Class declarations are lexical bindings, while plugins and JsonEx resolve
-// constructors through the global object, so expose them as global properties.
-Object.assign(globalThis, {
-    Scene_Base,
-    Scene_Boot,
-    Scene_Splash,
-    Scene_Title,
-    Scene_Message,
-    Scene_Map,
-    Scene_MenuBase,
-    Scene_Menu,
-    Scene_ItemBase,
-    Scene_Item,
-    Scene_Skill,
-    Scene_Equip,
-    Scene_Status,
-    Scene_Options,
-    Scene_File,
-    Scene_Save,
-    Scene_Load,
-    Scene_GameEnd,
-    Scene_Shop,
-    Scene_Name,
-    Scene_Debug,
-    Scene_Battle,
-    Scene_Gameover,
-});

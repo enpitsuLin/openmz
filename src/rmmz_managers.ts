@@ -8,14 +8,72 @@ class DataManager {
         throw new Error("This is a static class");
     }
 
-    /** @type {RMMZ.DataGlobalInfo | null} */
-    static _globalInfo = null;
+    static _globalInfo: RMMZ.DataGlobalInfo | null = null;
 
-    /** @type {{ name: string; src: string; url: string; }[]} */
-    static _errors = [];
+    static _errors: {
+        name: string;
+        src: string;
+        url: string;
+    }[] = [];
 
-    /** @type {readonly [ { readonly name: "$dataActors"; readonly src: "Actors.json"; }, { readonly name: "$dataClasses"; readonly src: "Classes.json"; }, { readonly name: "$dataSkills"; readonly src: "Skills.json"; }, { readonly name: "$dataItems"; readonly src: "Items.json"; }, { readonly name: "$dataWeapons"; readonly src: "Weapons.json"; }, { readonly name: "$dataArmors"; readonly src: "Armors.json"; }, { readonly name: "$dataEnemies"; readonly src: "Enemies.json"; }, { readonly name: "$dataTroops"; readonly src: "Troops.json"; }, { readonly name: "$dataStates"; readonly src: "States.json"; }, { readonly name: "$dataAnimations"; readonly src: "Animations.json"; }, { readonly name: "$dataTilesets"; readonly src: "Tilesets.json"; }, { readonly name: "$dataCommonEvents"; readonly src: "CommonEvents.json"; }, { readonly name: "$dataSystem"; readonly src: "System.json"; }, { readonly name: "$dataMapInfos"; readonly src: "MapInfos.json"; } ]} */
-    static _databaseFiles = [
+    static _databaseFiles: readonly [
+        {
+            readonly name: "$dataActors";
+            readonly src: "Actors.json";
+        },
+        {
+            readonly name: "$dataClasses";
+            readonly src: "Classes.json";
+        },
+        {
+            readonly name: "$dataSkills";
+            readonly src: "Skills.json";
+        },
+        {
+            readonly name: "$dataItems";
+            readonly src: "Items.json";
+        },
+        {
+            readonly name: "$dataWeapons";
+            readonly src: "Weapons.json";
+        },
+        {
+            readonly name: "$dataArmors";
+            readonly src: "Armors.json";
+        },
+        {
+            readonly name: "$dataEnemies";
+            readonly src: "Enemies.json";
+        },
+        {
+            readonly name: "$dataTroops";
+            readonly src: "Troops.json";
+        },
+        {
+            readonly name: "$dataStates";
+            readonly src: "States.json";
+        },
+        {
+            readonly name: "$dataAnimations";
+            readonly src: "Animations.json";
+        },
+        {
+            readonly name: "$dataTilesets";
+            readonly src: "Tilesets.json";
+        },
+        {
+            readonly name: "$dataCommonEvents";
+            readonly src: "CommonEvents.json";
+        },
+        {
+            readonly name: "$dataSystem";
+            readonly src: "System.json";
+        },
+        {
+            readonly name: "$dataMapInfos";
+            readonly src: "MapInfos.json";
+        },
+    ] = [
         { name: "$dataActors", src: "Actors.json" },
         { name: "$dataClasses", src: "Classes.json" },
         { name: "$dataSkills", src: "Skills.json" },
@@ -29,14 +87,13 @@ class DataManager {
         { name: "$dataTilesets", src: "Tilesets.json" },
         { name: "$dataCommonEvents", src: "CommonEvents.json" },
         { name: "$dataSystem", src: "System.json" },
-        { name: "$dataMapInfos", src: "MapInfos.json" }
+        { name: "$dataMapInfos", src: "MapInfos.json" },
     ];
 
-    /** @returns {Promise<0 | undefined>} */
-    static loadGlobalInfo() {
-        StorageManager.loadObject("global")
-            .then(globalInfo => {
-                this._globalInfo = globalInfo;
+    static loadGlobalInfo(): void {
+        RmmzStorageManager.loadObject("global")
+            .then((globalInfo) => {
+                this._globalInfo = globalInfo as RMMZ.DataGlobalInfo | null;
                 this.removeInvalidGlobalInfo();
                 return 0;
             })
@@ -45,29 +102,25 @@ class DataManager {
             });
     }
 
-    /** @returns {void} */
-    static removeInvalidGlobalInfo() {
+    static removeInvalidGlobalInfo(): void {
         const globalInfo = this._globalInfo;
-        for (const info of globalInfo) {
-            const savefileId = globalInfo.indexOf(info);
+        for (const info of globalInfo!) {
+            const savefileId = globalInfo!.indexOf(info);
             if (!this.savefileExists(savefileId)) {
-                delete globalInfo[savefileId];
+                delete globalInfo![savefileId];
             }
         }
     }
 
-    /** @returns {void} */
-    static saveGlobalInfo() {
-        StorageManager.saveObject("global", this._globalInfo);
+    static saveGlobalInfo(): void {
+        RmmzStorageManager.saveObject("global", this._globalInfo);
     }
 
-    /** @returns {boolean} */
-    static isGlobalInfoLoaded() {
+    static isGlobalInfoLoaded(): boolean {
         return !!this._globalInfo;
     }
 
-    /** @returns {void} */
-    static loadDatabase() {
+    static loadDatabase(): void {
         const test = this.isBattleTest() || this.isEventTest();
         const prefix = test ? "Test_" : "";
         for (const databaseFile of this._databaseFiles) {
@@ -78,15 +131,10 @@ class DataManager {
         }
     }
 
-    /**
-     * @param {string} name
-     * @param {string} src
-     * @returns {void}
-     */
-    static loadDataFile(name, src) {
+    static loadDataFile(name: string, src: string): void {
         const xhr = new XMLHttpRequest();
         const url = "data/" + src;
-        window[name] = null;
+        (window as unknown as Record<string, unknown>)[name] = null;
         xhr.open("GET", url);
         xhr.overrideMimeType("application/json");
         xhr.onload = () => this.onXhrLoad(xhr, name, src, url);
@@ -94,49 +142,42 @@ class DataManager {
         xhr.send();
     }
 
-    /**
-     * @param {XMLHttpRequest} xhr
-     * @param {string} name
-     * @param {string} src
-     * @param {string} url
-     * @returns {void}
-     */
-    static onXhrLoad(xhr, name, src, url) {
+    static onXhrLoad(
+        xhr: XMLHttpRequest,
+        name: string,
+        src: string,
+        url: string,
+    ): void {
         if (xhr.status < 400) {
-            window[name] = JSON.parse(xhr.responseText);
-            this.onLoad(window[name]);
+            (window as unknown as Record<string, unknown>)[name] = JSON.parse(
+                xhr.responseText,
+            );
+            this.onLoad((window as unknown as Record<string, unknown>)[name]);
         } else {
             this.onXhrError(name, src, url);
         }
     }
 
-    /**
-     * @param {string} name
-     * @param {string} src
-     * @param {string} url
-     * @returns {void}
-     */
-    static onXhrError(name, src, url) {
+    static onXhrError(name: string, src: string, url: string): void {
         const error = { name: name, src: src, url: url };
         this._errors.push(error);
     }
 
-    /** @returns {boolean} */
-    static isDatabaseLoaded() {
+    static isDatabaseLoaded(): boolean {
         this.checkError();
         for (const databaseFile of this._databaseFiles) {
-            if (!window[databaseFile.name]) {
+            if (
+                !(window as unknown as Record<string, unknown>)[
+                    databaseFile.name
+                ]
+            ) {
                 return false;
             }
         }
         return true;
     }
 
-    /**
-     * @param {number} mapId
-     * @returns {void}
-     */
-    static loadMapData(mapId) {
+    static loadMapData(mapId: number): void {
         if (mapId > 0) {
             const filename = "Map%1.json".format(mapId.padZero(3));
             this.loadDataFile("$dataMap", filename);
@@ -145,9 +186,8 @@ class DataManager {
         }
     }
 
-    /** @returns {void} */
-    static makeEmptyMap() {
-        $dataMap = {};
+    static makeEmptyMap(): void {
+        $dataMap = {} as RMMZ.DataMap;
         $dataMap.data = [];
         $dataMap.events = [];
         $dataMap.width = 100;
@@ -155,17 +195,12 @@ class DataManager {
         $dataMap.scrollType = 3;
     }
 
-    /** @returns {boolean} */
-    static isMapLoaded() {
+    static isMapLoaded(): boolean {
         this.checkError();
         return !!$dataMap;
     }
 
-    /**
-     * @param {unknown} object
-     * @returns {void}
-     */
-    static onLoad(object) {
+    static onLoad(object: unknown): void {
         if (this.isMapObject(object)) {
             this.extractMetadata(object);
             this.extractArrayMetadata(object.events);
@@ -174,19 +209,13 @@ class DataManager {
         }
     }
 
-    /**
-     * @param {unknown} object
-     * @returns {object is RMMZ.DataMap}
-     */
-    static isMapObject(object) {
-        return !!(object.data && object.events);
+    static isMapObject(object: unknown): object is RMMZ.DataMap {
+        return !!(
+            (object as RMMZ.DataMap).data && (object as RMMZ.DataMap).events
+        );
     }
 
-    /**
-     * @param {unknown} array
-     * @returns {void}
-     */
-    static extractArrayMetadata(array) {
+    static extractArrayMetadata(array: unknown): void {
         if (Array.isArray(array)) {
             for (const data of array) {
                 if (data && "note" in data) {
@@ -196,11 +225,7 @@ class DataManager {
         }
     }
 
-    /**
-     * @param {{ note: string; meta?: RMMZ.Meta; }} data
-     * @returns {void}
-     */
-    static extractMetadata(data) {
+    static extractMetadata(data: { note: string; meta?: RMMZ.Meta }): void {
         const regExp = /<([^<>:]+)(:?)([^>]*)>/g;
         data.meta = {};
         for (;;) {
@@ -217,66 +242,45 @@ class DataManager {
         }
     }
 
-    /** @returns {void} */
-    static checkError() {
+    static checkError(): void {
         if (this._errors.length > 0) {
             const error = this._errors.shift();
             const retry = () => {
-                this.loadDataFile(error.name, error.src);
+                this.loadDataFile(error!.name, error!.src);
             };
-            throw ["LoadError", error.url, retry];
+            throw ["LoadError", error!.url, retry];
         }
     }
 
-    /** @returns {boolean} */
-    static isBattleTest() {
+    static isBattleTest(): boolean {
         return Utils.isOptionValid("btest");
     }
 
-    /** @returns {boolean} */
-    static isEventTest() {
+    static isEventTest(): boolean {
         return Utils.isOptionValid("etest");
     }
 
-    /** @returns {boolean} */
-    static isTitleSkip() {
+    static isTitleSkip(): boolean {
         return Utils.isOptionValid("tskip");
     }
 
-    /**
-     * @param {unknown} item
-     * @returns {item is RMMZ.DataSkill}
-     */
-    static isSkill(item) {
-        return item && $dataSkills.includes(item);
+    static isSkill(item: unknown): item is RMMZ.DataSkill {
+        return !!(item && $dataSkills.includes(item as RMMZ.DataSkill));
     }
 
-    /**
-     * @param {unknown} item
-     * @returns {item is RMMZ.DataItem}
-     */
-    static isItem(item) {
-        return item && $dataItems.includes(item);
+    static isItem(item: unknown): item is RMMZ.DataItem {
+        return !!(item && $dataItems.includes(item as RMMZ.DataItem));
     }
 
-    /**
-     * @param {unknown} item
-     * @returns {item is RMMZ.DataWeapon}
-     */
-    static isWeapon(item) {
-        return item && $dataWeapons.includes(item);
+    static isWeapon(item: unknown): item is RMMZ.DataWeapon {
+        return !!(item && $dataWeapons.includes(item as RMMZ.DataWeapon));
     }
 
-    /**
-     * @param {unknown} item
-     * @returns {item is RMMZ.DataArmor}
-     */
-    static isArmor(item) {
-        return item && $dataArmors.includes(item);
+    static isArmor(item: unknown): item is RMMZ.DataArmor {
+        return !!(item && $dataArmors.includes(item as RMMZ.DataArmor));
     }
 
-    /** @returns {void} */
-    static createGameObjects() {
+    static createGameObjects(): void {
         $gameTemp = new Game_Temp();
         $gameSystem = new Game_System();
         $gameScreen = new Game_Screen();
@@ -292,8 +296,7 @@ class DataManager {
         $gamePlayer = new Game_Player();
     }
 
-    /** @returns {void} */
-    static setupNewGame() {
+    static setupNewGame(): void {
         this.createGameObjects();
         this.selectSavefileForNewGame();
         $gameParty.setupStartingMembers();
@@ -301,8 +304,7 @@ class DataManager {
         Graphics.frameCount = 0;
     }
 
-    /** @returns {void} */
-    static setupBattleTest() {
+    static setupBattleTest(): void {
         this.createGameObjects();
         $gameParty.setupBattleTest();
         BattleManager.setup($dataSystem.testTroopId, true, false);
@@ -310,8 +312,7 @@ class DataManager {
         BattleManager.playBattleBgm();
     }
 
-    /** @returns {void} */
-    static setupEventTest() {
+    static setupEventTest(): void {
         this.createGameObjects();
         this.selectSavefileForNewGame();
         $gameParty.setupStartingMembers();
@@ -319,53 +320,46 @@ class DataManager {
         $gamePlayer.setTransparent(false);
     }
 
-    /** @returns {boolean} */
-    static isAnySavefileExists() {
-        return this._globalInfo.some(x => x);
+    static isAnySavefileExists(): boolean {
+        return this._globalInfo!.some((x) => x);
     }
 
-    /** @returns {number} */
-    static latestSavefileId() {
+    static latestSavefileId(): number {
         const globalInfo = this._globalInfo;
-        const validInfo = globalInfo.slice(1).filter(x => x);
-        const latest = Math.max(...validInfo.map(x => x.timestamp));
-        const index = globalInfo.findIndex(x => x && x.timestamp === latest);
+        const validInfo = globalInfo!.slice(1).filter((x) => x);
+        const latest = Math.max(...validInfo.map((x) => x!.timestamp));
+        const index = globalInfo!.findIndex((x) => x && x.timestamp === latest);
         return index > 0 ? index : 0;
     }
 
-    /** @returns {number} */
-    static earliestSavefileId() {
+    static earliestSavefileId(): number {
         const globalInfo = this._globalInfo;
-        const validInfo = globalInfo.slice(1).filter(x => x);
-        const earliest = Math.min(...validInfo.map(x => x.timestamp));
-        const index = globalInfo.findIndex(x => x && x.timestamp === earliest);
+        const validInfo = globalInfo!.slice(1).filter((x) => x);
+        const earliest = Math.min(...validInfo.map((x) => x!.timestamp));
+        const index = globalInfo!.findIndex(
+            (x) => x && x.timestamp === earliest,
+        );
         return index > 0 ? index : 0;
     }
 
-    /** @returns {number} */
-    static emptySavefileId() {
+    static emptySavefileId(): number {
         const globalInfo = this._globalInfo;
         const maxSavefiles = this.maxSavefiles();
-        if (globalInfo.length < maxSavefiles) {
-            return Math.max(1, globalInfo.length);
+        if (globalInfo!.length < maxSavefiles) {
+            return Math.max(1, globalInfo!.length);
         } else {
-            const index = globalInfo.slice(1).findIndex(x => !x);
+            const index = globalInfo!.slice(1).findIndex((x) => !x);
             return index >= 0 ? index + 1 : -1;
         }
     }
 
-    /** @returns {void} */
-    static loadAllSavefileImages() {
-        for (const info of this._globalInfo.filter(x => x)) {
-            this.loadSavefileImages(info);
+    static loadAllSavefileImages(): void {
+        for (const info of this._globalInfo!.filter((x) => x)) {
+            this.loadSavefileImages(info!);
         }
     }
 
-    /**
-     * @param {RMMZ.DataSaveInfo} info
-     * @returns {void}
-     */
-    static loadSavefileImages(info) {
+    static loadSavefileImages(info: RMMZ.DataSaveInfo): void {
         if (info.characters && Symbol.iterator in info.characters) {
             for (const character of info.characters) {
                 ImageManager.loadCharacter(character[0]);
@@ -378,67 +372,47 @@ class DataManager {
         }
     }
 
-    /** @returns {number} */
-    static maxSavefiles() {
+    static maxSavefiles(): number {
         return 20;
     }
 
-    /**
-     * @param {number} savefileId
-     * @returns {RMMZ.DataSaveInfo | null | undefined}
-     */
-    static savefileInfo(savefileId) {
+    static savefileInfo(
+        savefileId: number,
+    ): RMMZ.DataSaveInfo | null | undefined {
         const globalInfo = this._globalInfo;
-        return globalInfo[savefileId] ? globalInfo[savefileId] : null;
+        return globalInfo![savefileId] ? globalInfo![savefileId] : null;
     }
 
-    /**
-     * @param {number} savefileId
-     * @returns {boolean}
-     */
-    static savefileExists(savefileId) {
+    static savefileExists(savefileId: number): boolean {
         const saveName = this.makeSavename(savefileId);
-        return StorageManager.exists(saveName);
+        return RmmzStorageManager.exists(saveName);
     }
 
-    /**
-     * @param {number} savefileId
-     * @returns {Promise<number>}
-     */
-    static saveGame(savefileId) {
+    static saveGame(savefileId: number): Promise<number> {
         const contents = this.makeSaveContents();
         const saveName = this.makeSavename(savefileId);
-        return StorageManager.saveObject(saveName, contents).then(() => {
-            this._globalInfo[savefileId] = this.makeSavefileInfo();
+        return RmmzStorageManager.saveObject(saveName, contents).then(() => {
+            this._globalInfo![savefileId] = this.makeSavefileInfo();
             this.saveGlobalInfo();
             return 0;
         });
     }
 
-    /**
-     * @param {number} savefileId
-     * @returns {Promise<number>}
-     */
-    static loadGame(savefileId) {
+    static loadGame(savefileId: number): Promise<number> {
         const saveName = this.makeSavename(savefileId);
-        return StorageManager.loadObject(saveName).then(contents => {
+        return RmmzStorageManager.loadObject(saveName).then((contents) => {
             this.createGameObjects();
-            this.extractSaveContents(contents);
+            this.extractSaveContents(contents as RMMZ.SaveContents);
             this.correctDataErrors();
             return 0;
         });
     }
 
-    /**
-     * @param {number} savefileId
-     * @returns {string}
-     */
-    static makeSavename(savefileId) {
+    static makeSavename(savefileId: number): string {
         return "file%1".format(savefileId);
     }
 
-    /** @returns {void} */
-    static selectSavefileForNewGame() {
+    static selectSavefileForNewGame(): void {
         const emptySavefileId = this.emptySavefileId();
         const earliestSavefileId = this.earliestSavefileId();
         if (emptySavefileId > 0) {
@@ -448,9 +422,8 @@ class DataManager {
         }
     }
 
-    /** @returns {RMMZ.DataSaveInfo} */
-    static makeSavefileInfo() {
-        const info = {};
+    static makeSavefileInfo(): RMMZ.DataSaveInfo {
+        const info = {} as RMMZ.DataSaveInfo;
         info.title = $dataSystem.gameTitle;
         info.characters = $gameParty.charactersForSavefile();
         info.faces = $gameParty.facesForSavefile();
@@ -459,10 +432,9 @@ class DataManager {
         return info;
     }
 
-    /** @returns {RMMZ.SaveContents} */
-    static makeSaveContents() {
+    static makeSaveContents(): RMMZ.SaveContents {
         // A save data does not contain $gameTemp, $gameMessage, and $gameTroop.
-        const contents = {};
+        const contents = {} as RMMZ.SaveContents;
         contents.system = $gameSystem;
         contents.screen = $gameScreen;
         contents.timer = $gameTimer;
@@ -476,11 +448,7 @@ class DataManager {
         return contents;
     }
 
-    /**
-     * @param {RMMZ.SaveContents} contents
-     * @returns {void}
-     */
-    static extractSaveContents(contents) {
+    static extractSaveContents(contents: RMMZ.SaveContents): void {
         $gameSystem = contents.system;
         $gameScreen = contents.screen;
         $gameTimer = contents.timer;
@@ -493,40 +461,39 @@ class DataManager {
         $gamePlayer = contents.player;
     }
 
-    /** @returns {void} */
-    static correctDataErrors() {
+    static correctDataErrors(): void {
         $gameParty.removeInvalidMembers();
     }
 }
 
-$dataActors = null;
-$dataClasses = null;
-$dataSkills = null;
-$dataItems = null;
-$dataWeapons = null;
-$dataArmors = null;
-$dataEnemies = null;
-$dataTroops = null;
-$dataStates = null;
-$dataAnimations = null;
-$dataTilesets = null;
-$dataCommonEvents = null;
-$dataSystem = null;
-$dataMapInfos = null;
-$dataMap = null;
-$gameTemp = null;
-$gameSystem = null;
-$gameScreen = null;
-$gameTimer = null;
-$gameMessage = null;
-$gameSwitches = null;
-$gameVariables = null;
-$gameSelfSwitches = null;
-$gameActors = null;
-$gameParty = null;
-$gameTroop = null;
-$gameMap = null;
-$gamePlayer = null;
+$dataActors = null!;
+$dataClasses = null!;
+$dataSkills = null!;
+$dataItems = null!;
+$dataWeapons = null!;
+$dataArmors = null!;
+$dataEnemies = null!;
+$dataTroops = null!;
+$dataStates = null!;
+$dataAnimations = null!;
+$dataTilesets = null!;
+$dataCommonEvents = null!;
+$dataSystem = null!;
+$dataMapInfos = null!;
+$dataMap = null!;
+$gameTemp = null!;
+$gameSystem = null!;
+$gameScreen = null!;
+$gameTimer = null!;
+$gameMessage = null!;
+$gameSwitches = null!;
+$gameVariables = null!;
+$gameSelfSwitches = null!;
+$gameActors = null!;
+$gameParty = null!;
+$gameTroop = null!;
+$gameMap = null!;
+$gamePlayer = null!;
 $testEvent = null;
 
 /**
@@ -537,58 +504,49 @@ class ConfigManager {
         throw new Error("This is a static class");
     }
 
-    /** @type {boolean} */
-    static alwaysDash = false;
+    static alwaysDash: boolean = false;
 
-    /** @type {boolean} */
-    static commandRemember = false;
+    static commandRemember: boolean = false;
 
-    /** @type {boolean} */
-    static touchUI = true;
+    static touchUI: boolean = true;
 
-    /** @type {boolean} */
-    static _isLoaded = false;
+    static _isLoaded: boolean = false;
 
-    /** @type {number} */
-    static get bgmVolume() {
+    static get bgmVolume(): number {
         return AudioManager._bgmVolume;
     }
-    /** @param {number} value */
-    static set bgmVolume(value) {
+
+    static set bgmVolume(value: number) {
         AudioManager.bgmVolume = value;
     }
 
-    /** @type {number} */
-    static get bgsVolume() {
+    static get bgsVolume(): number {
         return AudioManager.bgsVolume;
     }
-    /** @param {number} value */
-    static set bgsVolume(value) {
+
+    static set bgsVolume(value: number) {
         AudioManager.bgsVolume = value;
     }
 
-    /** @type {number} */
-    static get meVolume() {
+    static get meVolume(): number {
         return AudioManager.meVolume;
     }
-    /** @param {number} value */
-    static set meVolume(value) {
+
+    static set meVolume(value: number) {
         AudioManager.meVolume = value;
     }
 
-    /** @type {number} */
-    static get seVolume() {
+    static get seVolume(): number {
         return AudioManager.seVolume;
     }
-    /** @param {number} value */
-    static set seVolume(value) {
+
+    static set seVolume(value: number) {
         AudioManager.seVolume = value;
     }
 
-    /** @returns {Promise<number>} */
-    static load() {
-        StorageManager.loadObject("config")
-            .then(config => this.applyData(config || {}))
+    static load(): void {
+        RmmzStorageManager.loadObject("config")
+            .then((config) => this.applyData(config || {}))
             .catch(() => 0)
             .then(() => {
                 this._isLoaded = true;
@@ -597,19 +555,16 @@ class ConfigManager {
             .catch(() => 0);
     }
 
-    /** @returns {void} */
-    static save() {
-        StorageManager.saveObject("config", this.makeData());
+    static save(): void {
+        RmmzStorageManager.saveObject("config", this.makeData());
     }
 
-    /** @returns {boolean} */
-    static isLoaded() {
+    static isLoaded(): boolean {
         return this._isLoaded;
     }
 
-    /** @returns {RMMZ.DataConfig} */
-    static makeData() {
-        const config = {};
+    static makeData(): RMMZ.DataConfig {
+        const config = {} as RMMZ.DataConfig;
         config.alwaysDash = this.alwaysDash;
         config.commandRemember = this.commandRemember;
         config.touchUI = this.touchUI;
@@ -620,11 +575,7 @@ class ConfigManager {
         return config;
     }
 
-    /**
-     * @param {Partial<RMMZ.DataConfig>} config
-     * @returns {void}
-     */
-    static applyData(config) {
+    static applyData(config: Partial<RMMZ.DataConfig>): void {
         this.alwaysDash = this.readFlag(config, "alwaysDash", false);
         this.commandRemember = this.readFlag(config, "commandRemember", false);
         this.touchUI = this.readFlag(config, "touchUI", true);
@@ -634,13 +585,11 @@ class ConfigManager {
         this.seVolume = this.readVolume(config, "seVolume");
     }
 
-    /**
-     * @param {Partial<RMMZ.DataConfig>} config
-     * @param {keyof RMMZ.DataConfig} name
-     * @param {boolean} defaultValue
-     * @returns {boolean}
-     */
-    static readFlag(config, name, defaultValue) {
+    static readFlag(
+        config: Partial<RMMZ.DataConfig>,
+        name: keyof RMMZ.DataConfig,
+        defaultValue: boolean,
+    ): boolean {
         if (name in config) {
             return !!config[name];
         } else {
@@ -648,12 +597,10 @@ class ConfigManager {
         }
     }
 
-    /**
-     * @param {Partial<RMMZ.DataConfig>} config
-     * @param {keyof RMMZ.DataConfig} name
-     * @returns {number}
-     */
-    static readVolume(config, name) {
+    static readVolume(
+        config: Partial<RMMZ.DataConfig>,
+        name: keyof RMMZ.DataConfig,
+    ): number {
         if (name in config) {
             return Number(config[name]).clamp(0, 100);
         } else {
@@ -665,51 +612,32 @@ class ConfigManager {
 /**
  * The static class that manages storage for saving game data.
  */
-class StorageManager {
+class RmmzStorageManager {
     constructor() {
         throw new Error("This is a static class");
     }
 
-    /** @type {string[]} */
-    static _forageKeys = [];
+    static _forageKeys: string[] = [];
 
-    /** @type {boolean} */
-    static _forageKeysUpdated = false;
+    static _forageKeysUpdated: boolean = false;
 
-    /** @returns {boolean} */
-    static isLocalMode() {
+    static isLocalMode(): boolean {
         return Utils.isNwjs();
     }
 
-    /**
-     * @template T
-     * @param {string} saveName
-     * @param {T} object
-     * @returns {Promise<number | void>}
-     */
-    static saveObject(saveName, object) {
+    static saveObject<T>(saveName: string, object: T): Promise<number | void> {
         return this.objectToJson(object)
-            .then(json => this.jsonToZip(json))
-            .then(zip => this.saveZip(saveName, zip));
+            .then((json) => this.jsonToZip(json))
+            .then((zip) => this.saveZip(saveName, zip));
     }
 
-    /**
-     * @template T
-     * @param {string} saveName
-     * @returns {Promise<T>}
-     */
-    static loadObject(saveName) {
+    static loadObject<T>(saveName: string): Promise<T> {
         return this.loadZip(saveName)
-            .then(zip => this.zipToJson(zip))
-            .then(json => this.jsonToObject(json));
+            .then((zip) => this.zipToJson(zip))
+            .then((json) => this.jsonToObject(json));
     }
 
-    /**
-     * @template T
-     * @param {T} object
-     * @returns {Promise<string>}
-     */
-    static objectToJson(object) {
+    static objectToJson<T>(object: T): Promise<string> {
         return new Promise((resolve, reject) => {
             try {
                 const json = JsonEx.stringify(object);
@@ -720,12 +648,7 @@ class StorageManager {
         });
     }
 
-    /**
-     * @template T
-     * @param {string} json
-     * @returns {Promise<T>}
-     */
-    static jsonToObject(json) {
+    static jsonToObject<T>(json: string): Promise<T> {
         return new Promise((resolve, reject) => {
             try {
                 const object = JsonEx.parse(json);
@@ -736,11 +659,7 @@ class StorageManager {
         });
     }
 
-    /**
-     * @param {string} json
-     * @returns {Promise<string>}
-     */
-    static jsonToZip(json) {
+    static jsonToZip(json: string): Promise<string> {
         return new Promise((resolve, reject) => {
             try {
                 const zip = pako.deflate(json, { to: "string", level: 1 });
@@ -754,11 +673,7 @@ class StorageManager {
         });
     }
 
-    /**
-     * @param {string} zip
-     * @returns {Promise<string>}
-     */
-    static zipToJson(zip) {
+    static zipToJson(zip: string): Promise<string> {
         return new Promise((resolve, reject) => {
             try {
                 if (zip) {
@@ -773,12 +688,7 @@ class StorageManager {
         });
     }
 
-    /**
-     * @param {string} saveName
-     * @param {string} zip
-     * @returns {Promise<void> | Promise<number>}
-     */
-    static saveZip(saveName, zip) {
+    static saveZip(saveName: string, zip: string): Promise<void | number> {
         if (this.isLocalMode()) {
             return this.saveToLocalFile(saveName, zip);
         } else {
@@ -786,11 +696,7 @@ class StorageManager {
         }
     }
 
-    /**
-     * @param {string} saveName
-     * @returns {Promise<string>}
-     */
-    static loadZip(saveName) {
+    static loadZip(saveName: string): Promise<string> {
         if (this.isLocalMode()) {
             return this.loadFromLocalFile(saveName);
         } else {
@@ -798,11 +704,7 @@ class StorageManager {
         }
     }
 
-    /**
-     * @param {string} saveName
-     * @returns {boolean}
-     */
-    static exists(saveName) {
+    static exists(saveName: string): boolean {
         if (this.isLocalMode()) {
             return this.localFileExists(saveName);
         } else {
@@ -810,11 +712,7 @@ class StorageManager {
         }
     }
 
-    /**
-     * @param {string} saveName
-     * @returns {void | Promise<number>}
-     */
-    static remove(saveName) {
+    static remove(saveName: string): void | Promise<number> {
         if (this.isLocalMode()) {
             return this.removeLocalFile(saveName);
         } else {
@@ -822,12 +720,7 @@ class StorageManager {
         }
     }
 
-    /**
-     * @param {string} saveName
-     * @param {string} zip
-     * @returns {Promise<void>}
-     */
-    static saveToLocalFile(saveName, zip) {
+    static saveToLocalFile(saveName: string, zip: string): Promise<void> {
         const dirPath = this.fileDirectoryPath();
         const filePath = this.filePath(saveName);
         const backupFilePath = filePath + "_";
@@ -851,11 +744,7 @@ class StorageManager {
         });
     }
 
-    /**
-     * @param {string} saveName
-     * @returns {Promise<string>}
-     */
-    static loadFromLocalFile(saveName) {
+    static loadFromLocalFile(saveName: string): Promise<string> {
         const filePath = this.filePath(saveName);
         return new Promise((resolve, reject) => {
             const data = this.fsReadFile(filePath);
@@ -867,29 +756,16 @@ class StorageManager {
         });
     }
 
-    /**
-     * @param {string} saveName
-     * @returns {boolean}
-     */
-    static localFileExists(saveName) {
+    static localFileExists(saveName: string): boolean {
         const fs = require("fs");
         return fs.existsSync(this.filePath(saveName));
     }
 
-    /**
-     * @param {string} saveName
-     * @returns {void}
-     */
-    static removeLocalFile(saveName) {
+    static removeLocalFile(saveName: string): void {
         this.fsUnlink(this.filePath(saveName));
     }
 
-    /**
-     * @param {string} saveName
-     * @param {string} zip
-     * @returns {Promise<number>}
-     */
-    static saveToForage(saveName, zip) {
+    static saveToForage(saveName: string, zip: string): Promise<number> {
         const key = this.forageKey(saveName);
         const testKey = this.forageTestKey();
         setTimeout(() => localforage.removeItem(testKey));
@@ -899,87 +775,56 @@ class StorageManager {
             .then(() => this.updateForageKeys());
     }
 
-    /**
-     * @param {string} saveName
-     * @returns {Promise<string>}
-     */
-    static loadFromForage(saveName) {
+    static loadFromForage(saveName: string): Promise<string> {
         const key = this.forageKey(saveName);
-        return localforage.getItem(key);
+        return localforage.getItem(key) as Promise<string>;
     }
 
-    /**
-     * @param {string} saveName
-     * @returns {boolean}
-     */
-    static forageExists(saveName) {
+    static forageExists(saveName: string): boolean {
         const key = this.forageKey(saveName);
         return this._forageKeys.includes(key);
     }
 
-    /**
-     * @param {string} saveName
-     * @returns {Promise<number>}
-     */
-    static removeForage(saveName) {
+    static removeForage(saveName: string): Promise<number> {
         const key = this.forageKey(saveName);
         return localforage.removeItem(key).then(() => this.updateForageKeys());
     }
 
-    /** @returns {Promise<number>} */
-    static updateForageKeys() {
+    static updateForageKeys(): Promise<number> {
         this._forageKeysUpdated = false;
-        return localforage.keys().then(keys => {
+        return localforage.keys().then((keys) => {
             this._forageKeys = keys;
             this._forageKeysUpdated = true;
             return 0;
         });
     }
 
-    /** @returns {boolean} */
-    static forageKeysUpdated() {
+    static forageKeysUpdated(): boolean {
         return this._forageKeysUpdated;
     }
 
-    /**
-     * @param {string} path
-     * @returns {void}
-     */
-    static fsMkdir(path) {
+    static fsMkdir(path: string): void {
         const fs = require("fs");
         if (!fs.existsSync(path)) {
             fs.mkdirSync(path);
         }
     }
 
-    /**
-     * @param {string} oldPath
-     * @param {string} newPath
-     * @returns {void}
-     */
-    static fsRename(oldPath, newPath) {
+    static fsRename(oldPath: string, newPath: string): void {
         const fs = require("fs");
         if (fs.existsSync(oldPath)) {
             fs.renameSync(oldPath, newPath);
         }
     }
 
-    /**
-     * @param {string} path
-     * @returns {void}
-     */
-    static fsUnlink(path) {
+    static fsUnlink(path: string): void {
         const fs = require("fs");
         if (fs.existsSync(path)) {
             fs.unlinkSync(path);
         }
     }
 
-    /**
-     * @param {string} path
-     * @returns {string | null}
-     */
-    static fsReadFile(path) {
+    static fsReadFile(path: string): string | null {
         const fs = require("fs");
         if (fs.existsSync(path)) {
             return fs.readFileSync(path, { encoding: "utf8" });
@@ -988,43 +833,28 @@ class StorageManager {
         }
     }
 
-    /**
-     * @param {string} path
-     * @param {string} data
-     * @returns {void}
-     */
-    static fsWriteFile(path, data) {
+    static fsWriteFile(path: string, data: string): void {
         const fs = require("fs");
         fs.writeFileSync(path, data);
     }
 
-    /** @returns {string} */
-    static fileDirectoryPath() {
+    static fileDirectoryPath(): string {
         const path = require("path");
-        const base = path.dirname(/** @type {NodeModule} */ (process.mainModule).filename);
+        const base = path.dirname((process.mainModule as NodeModule).filename);
         return path.join(base, "save/");
     }
 
-    /**
-     * @param {string} saveName
-     * @returns {string}
-     */
-    static filePath(saveName) {
+    static filePath(saveName: string): string {
         const dir = this.fileDirectoryPath();
         return dir + saveName + ".rmmzsave";
     }
 
-    /**
-     * @param {string} saveName
-     * @returns {string}
-     */
-    static forageKey(saveName) {
+    static forageKey(saveName: string): string {
         const gameId = $dataSystem.advanced.gameId;
         return "rmmzsave." + gameId + "." + saveName;
     }
 
-    /** @returns {string} */
-    static forageTestKey() {
+    static forageTestKey(): string {
         return "rmmzsave.test";
     }
 }
@@ -1037,18 +867,11 @@ class FontManager {
         throw new Error("This is a static class");
     }
 
-    /** @type {Record<string, string>} */
-    static _urls = {};
+    static _urls: Record<string, string> = {};
 
-    /** @type {Record<string, string>} */
-    static _states = {};
+    static _states: Record<string, string> = {};
 
-    /**
-     * @param {string} family
-     * @param {string} filename
-     * @returns {void}
-     */
-    static load(family, filename) {
+    static load(family: string, filename: string): void {
         if (this._states[family] !== "loaded") {
             if (filename) {
                 const url = this.makeUrl(filename);
@@ -1060,8 +883,7 @@ class FontManager {
         }
     }
 
-    /** @returns {boolean} */
-    static isReady() {
+    static isReady(): boolean {
         for (const family in this._states) {
             const state = this._states[family];
             if (state === "loading") {
@@ -1074,12 +896,7 @@ class FontManager {
         return true;
     }
 
-    /**
-     * @param {string} family
-     * @param {string} url
-     * @returns {void}
-     */
-    static startLoading(family, url) {
+    static startLoading(family: string, url: string): void {
         const source = "url(" + url + ")";
         const font = new FontFace(family, source);
         this._urls[family] = url;
@@ -1095,21 +912,13 @@ class FontManager {
             });
     }
 
-    /**
-     * @param {string} family
-     * @returns {void}
-     */
-    static throwLoadError(family) {
+    static throwLoadError(family: string): void {
         const url = this._urls[family];
         const retry = () => this.startLoading(family, url);
         throw ["LoadError", url, retry];
     }
 
-    /**
-     * @param {string} filename
-     * @returns {string}
-     */
-    static makeUrl(filename) {
+    static makeUrl(filename: string): string {
         return "fonts/" + Utils.encodeURI(filename);
     }
 }
@@ -1122,179 +931,109 @@ class ImageManager {
         throw new Error("This is a static class");
     }
 
-    static standardIconWidth = 32;
+    static standardIconWidth: number = 32;
 
-    static standardIconHeight = 32;
+    static standardIconHeight: number = 32;
 
-    static standardFaceWidth = 144;
+    static standardFaceWidth: number = 144;
 
-    static standardFaceHeight = 144;
+    static standardFaceHeight: number = 144;
 
-    /** @type {Record<string, Bitmap>} */
-    static _cache = {};
+    static _cache: Record<string, Bitmap> = {};
 
-    /** @type {Record<string, Bitmap>} */
-    static _system = {};
+    static _system: Record<string, Bitmap> = {};
 
-    /** @type {Bitmap} */
-    static _emptyBitmap = new Bitmap(1, 1);
+    static _emptyBitmap: Bitmap = new Bitmap(1, 1);
 
-    /** @type {number} */
-    static get iconWidth() {
+    static get iconWidth(): number {
         return this.getIconSize();
     }
 
-    /** @type {number} */
-    static get iconHeight() {
+    static get iconHeight(): number {
         return this.getIconSize();
     }
 
-    /** @type {number} */
-    static get faceWidth() {
+    static get faceWidth(): number {
         return this.getFaceSize();
     }
 
-    /** @type {number} */
-    static get faceHeight() {
+    static get faceHeight(): number {
         return this.getFaceSize();
     }
 
-    /** @returns {number} */
-    static getIconSize() {
+    static getIconSize(): number {
         if ("iconSize" in $dataSystem) {
-            return $dataSystem.iconSize;
+            return $dataSystem.iconSize!;
         } else {
             return this.standardIconWidth;
         }
     }
 
-    /** @returns {number} */
-    static getFaceSize() {
+    static getFaceSize(): number {
         if ("faceSize" in $dataSystem) {
-            return $dataSystem.faceSize;
+            return $dataSystem.faceSize!;
         } else {
             return this.standardFaceWidth;
         }
     }
 
-    /**
-     * @param {string} filename
-     * @returns {Bitmap}
-     */
-    static loadAnimation(filename) {
+    static loadAnimation(filename: string): Bitmap {
         return this.loadBitmap("img/animations/", filename);
     }
 
-    /**
-     * @param {string} filename
-     * @returns {Bitmap}
-     */
-    static loadBattleback1(filename) {
+    static loadBattleback1(filename: string): Bitmap {
         return this.loadBitmap("img/battlebacks1/", filename);
     }
 
-    /**
-     * @param {string} filename
-     * @returns {Bitmap}
-     */
-    static loadBattleback2(filename) {
+    static loadBattleback2(filename: string): Bitmap {
         return this.loadBitmap("img/battlebacks2/", filename);
     }
 
-    /**
-     * @param {string} filename
-     * @returns {Bitmap}
-     */
-    static loadEnemy(filename) {
+    static loadEnemy(filename: string): Bitmap {
         return this.loadBitmap("img/enemies/", filename);
     }
 
-    /**
-     * @param {string} filename
-     * @returns {Bitmap}
-     */
-    static loadCharacter(filename) {
+    static loadCharacter(filename: string): Bitmap {
         return this.loadBitmap("img/characters/", filename);
     }
 
-    /**
-     * @param {string} filename
-     * @returns {Bitmap}
-     */
-    static loadFace(filename) {
+    static loadFace(filename: string): Bitmap {
         return this.loadBitmap("img/faces/", filename);
     }
 
-    /**
-     * @param {string} filename
-     * @returns {Bitmap}
-     */
-    static loadParallax(filename) {
+    static loadParallax(filename: string): Bitmap {
         return this.loadBitmap("img/parallaxes/", filename);
     }
 
-    /**
-     * @param {string} filename
-     * @returns {Bitmap}
-     */
-    static loadPicture(filename) {
+    static loadPicture(filename: string): Bitmap {
         return this.loadBitmap("img/pictures/", filename);
     }
 
-    /**
-     * @param {string} filename
-     * @returns {Bitmap}
-     */
-    static loadSvActor(filename) {
+    static loadSvActor(filename: string): Bitmap {
         return this.loadBitmap("img/sv_actors/", filename);
     }
 
-    /**
-     * @param {string} filename
-     * @returns {Bitmap}
-     */
-    static loadSvEnemy(filename) {
+    static loadSvEnemy(filename: string): Bitmap {
         return this.loadBitmap("img/sv_enemies/", filename);
     }
 
-    /**
-     * @param {string} filename
-     * @returns {Bitmap}
-     */
-    static loadSystem(filename) {
+    static loadSystem(filename: string): Bitmap {
         return this.loadBitmap("img/system/", filename);
     }
 
-    /**
-     * @param {string} filename
-     * @returns {Bitmap}
-     */
-    static loadTileset(filename) {
+    static loadTileset(filename: string): Bitmap {
         return this.loadBitmap("img/tilesets/", filename);
     }
 
-    /**
-     * @param {string} filename
-     * @returns {Bitmap}
-     */
-    static loadTitle1(filename) {
+    static loadTitle1(filename: string): Bitmap {
         return this.loadBitmap("img/titles1/", filename);
     }
 
-    /**
-     * @param {string} filename
-     * @returns {Bitmap}
-     */
-    static loadTitle2(filename) {
+    static loadTitle2(filename: string): Bitmap {
         return this.loadBitmap("img/titles2/", filename);
     }
 
-    /**
-     * @param {string} folder
-     * @param {string} filename
-     * @returns {Bitmap}
-     */
-    static loadBitmap(folder, filename) {
+    static loadBitmap(folder: string, filename: string): Bitmap {
         if (filename) {
             const url = folder + Utils.encodeURI(filename) + ".png";
             return this.loadBitmapFromUrl(url);
@@ -1303,11 +1042,7 @@ class ImageManager {
         }
     }
 
-    /**
-     * @param {string} url
-     * @returns {Bitmap}
-     */
-    static loadBitmapFromUrl(url) {
+    static loadBitmapFromUrl(url: string): Bitmap {
         const cache = url.includes("/system/") ? this._system : this._cache;
         if (!cache[url]) {
             cache[url] = Bitmap.load(url);
@@ -1315,8 +1050,7 @@ class ImageManager {
         return cache[url];
     }
 
-    /** @returns {void} */
-    static clear() {
+    static clear(): void {
         const cache = this._cache;
         for (const url in cache) {
             cache[url].destroy();
@@ -1324,8 +1058,7 @@ class ImageManager {
         this._cache = {};
     }
 
-    /** @returns {boolean} */
-    static isReady() {
+    static isReady(): boolean {
         for (const cache of [this._cache, this._system]) {
             for (const url in cache) {
                 const bitmap = cache[url];
@@ -1340,38 +1073,22 @@ class ImageManager {
         return true;
     }
 
-    /**
-     * @param {Bitmap} bitmap
-     * @returns {void}
-     */
-    static throwLoadError(bitmap) {
+    static throwLoadError(bitmap: Bitmap): void {
         const retry = bitmap.retry.bind(bitmap);
         throw ["LoadError", bitmap.url, retry];
     }
 
-    /**
-     * @param {string} filename
-     * @returns {boolean}
-     */
-    static isObjectCharacter(filename) {
+    static isObjectCharacter(filename: string): boolean {
         const sign = Utils.extractFileName(filename).match(/^[!$]+/);
-        return sign && sign[0].includes("!");
+        return (sign && sign[0].includes("!"))!;
     }
 
-    /**
-     * @param {string} filename
-     * @returns {boolean}
-     */
-    static isBigCharacter(filename) {
+    static isBigCharacter(filename: string): boolean {
         const sign = Utils.extractFileName(filename).match(/^[!$]+/);
-        return sign && sign[0].includes("$");
+        return (sign && sign[0].includes("$"))!;
     }
 
-    /**
-     * @param {string} filename
-     * @returns {boolean}
-     */
-    static isZeroParallax(filename) {
+    static isZeroParallax(filename: string): boolean {
         return Utils.extractFileName(filename).charAt(0) === "!";
     }
 }
@@ -1384,17 +1101,11 @@ class EffectManager {
         throw new Error("This is a static class");
     }
 
-    /** @type {Record<string, effekseer.EffekseerEffect>} */
-    static _cache = {};
+    static _cache: Record<string, effekseer.EffekseerEffect> = {};
 
-    /** @type {string[]} */
-    static _errorUrls = [];
+    static _errorUrls: string[] = [];
 
-    /**
-     * @param {string} [filename]
-     * @returns {effekseer.EffekseerEffect | null}
-     */
-    static load(filename) {
+    static load(filename?: string): effekseer.EffekseerEffect | null {
         if (filename) {
             const url = this.makeUrl(filename);
             const cache = this._cache;
@@ -1407,20 +1118,15 @@ class EffectManager {
         }
     }
 
-    /**
-     * @param {string} url
-     * @returns {effekseer.EffekseerEffect}
-     */
-    static startLoading(url) {
+    static startLoading(url: string): effekseer.EffekseerEffect {
         const onLoad = () => this.onLoad(url);
-        const onError = (message, url) => this.onError(url);
+        const onError = (message: string, url: string) => this.onError(url);
         const effect = Graphics.effekseer.loadEffect(url, 1, onLoad, onError);
         this._cache[url] = effect;
         return effect;
     }
 
-    /** @returns {void} */
-    static clear() {
+    static clear(): void {
         for (const url in this._cache) {
             const effect = this._cache[url];
             Graphics.effekseer.releaseEffect(effect);
@@ -1428,46 +1134,32 @@ class EffectManager {
         this._cache = {};
     }
 
-    /** @returns {void} */
-    static onLoad(/*url*/) {
+    static onLoad(..._extra: any[]): void;
+    static onLoad(/*url*/): void {
         //
     }
 
-    /**
-     * @param {string} url
-     * @returns {void}
-     */
-    static onError(url) {
+    static onError(url: string): void {
         this._errorUrls.push(url);
     }
 
-    /**
-     * @param {string} filename
-     * @returns {string}
-     */
-    static makeUrl(filename) {
+    static makeUrl(filename: string): string {
         return "effects/" + Utils.encodeURI(filename) + ".efkefc";
     }
 
-    /** @returns {void} */
-    static checkErrors() {
+    static checkErrors(): void {
         const url = this._errorUrls.shift();
         if (url) {
             this.throwLoadError(url);
         }
     }
 
-    /**
-     * @param {string} url
-     * @returns {void}
-     */
-    static throwLoadError(url) {
+    static throwLoadError(url: string): void {
         const retry = () => this.startLoading(url);
         throw ["LoadError", url, retry];
     }
 
-    /** @returns {boolean} */
-    static isReady() {
+    static isReady(): boolean {
         this.checkErrors();
         for (const url in this._cache) {
             const effect = this._cache[url];
@@ -1483,94 +1175,79 @@ class EffectManager {
  * The static class that handles BGM, BGS, ME and SE.
  */
 class AudioManager {
+    declare static _currentMe: RMMZ.DataAudio | null;
+
+    declare _bgmVolume: number;
+    declare _bgsVolume: number;
+    declare _meVolume: number;
+    declare _seVolume: number;
+
     constructor() {
         throw new Error("This is a static class");
     }
 
-    /** @type {number} */
-    static _bgmVolume = 100;
+    static _bgmVolume: number = 100;
 
-    /** @type {number} */
-    static _bgsVolume = 100;
+    static _bgsVolume: number = 100;
 
-    /** @type {number} */
-    static _meVolume = 100;
+    static _meVolume: number = 100;
 
-    /** @type {number} */
-    static _seVolume = 100;
+    static _seVolume: number = 100;
 
-    /** @type {RMMZ.DataAudio | null} */
-    static _currentBgm = null;
+    static _currentBgm: RMMZ.DataAudio | null = null;
 
-    /** @type {RMMZ.DataAudio | null} */
-    static _currentBgs = null;
+    static _currentBgs: RMMZ.DataAudio | null = null;
 
-    /** @type {WebAudio | null} */
-    static _bgmBuffer = null;
+    static _bgmBuffer: WebAudio | null = null;
 
-    /** @type {WebAudio | null} */
-    static _bgsBuffer = null;
+    static _bgsBuffer: WebAudio | null = null;
 
-    /** @type {WebAudio | null} */
-    static _meBuffer = null;
+    static _meBuffer: WebAudio | null = null;
 
-    /** @type {WebAudio[]} */
-    static _seBuffers = [];
+    static _seBuffers: WebAudio[] = [];
 
-    /** @type {WebAudio[]} */
-    static _staticBuffers = [];
+    static _staticBuffers: WebAudio[] = [];
 
-    /** @type {number} */
-    static _replayFadeTime = 0.5;
+    static _replayFadeTime: number = 0.5;
 
-    /** @type {string} */
-    static _path = "audio/";
+    static _path: string = "audio/";
 
-    /** @type {number} */
-    static get bgmVolume() {
+    static get bgmVolume(): number {
         return this._bgmVolume;
     }
-    /** @param {number} value */
-    static set bgmVolume(value) {
+
+    static set bgmVolume(value: number) {
         this._bgmVolume = value;
         this.updateBgmParameters(this._currentBgm);
     }
 
-    /** @type {number} */
-    static get bgsVolume() {
+    static get bgsVolume(): number {
         return this._bgsVolume;
     }
-    /** @param {number} value */
-    static set bgsVolume(value) {
+
+    static set bgsVolume(value: number) {
         this._bgsVolume = value;
         this.updateBgsParameters(this._currentBgs);
     }
 
-    /** @type {number} */
-    static get meVolume() {
+    static get meVolume(): number {
         return this._meVolume;
     }
-    /** @param {number} value */
-    static set meVolume(value) {
+
+    static set meVolume(value: number) {
         this._meVolume = value;
         this.updateMeParameters(this._currentMe);
     }
 
-    /** @type {number} */
-    static get seVolume() {
+    static get seVolume(): number {
         return this._seVolume;
     }
-    /** @param {number} value */
-    static set seVolume(value) {
+
+    static set seVolume(value: number) {
         this._seVolume = value;
     }
 
-    /**
-     * @param {RMMZ.DataAudio} bgm
-     * @param {number} [pos]
-     * @returns {void}
-     */
-    static playBgm(bgm, pos) {
+    static playBgm(bgm: RMMZ.DataAudio, pos?: number): void {
         if (this.isCurrentBgm(bgm)) {
             this.updateBgmParameters(bgm);
         } else {
@@ -1586,11 +1263,7 @@ class AudioManager {
         this.updateCurrentBgm(bgm, pos);
     }
 
-    /**
-     * @param {RMMZ.DataAudio} bgm
-     * @returns {void}
-     */
-    static replayBgm(bgm) {
+    static replayBgm(bgm: RMMZ.DataAudio): void {
         if (this.isCurrentBgm(bgm)) {
             this.updateBgmParameters(bgm);
         } else {
@@ -1601,11 +1274,7 @@ class AudioManager {
         }
     }
 
-    /**
-     * @param {RMMZ.DataAudio} bgm
-     * @returns {boolean | null}
-     */
-    static isCurrentBgm(bgm) {
+    static isCurrentBgm(bgm: RMMZ.DataAudio): boolean | null {
         return (
             this._currentBgm &&
             this._bgmBuffer &&
@@ -1613,31 +1282,21 @@ class AudioManager {
         );
     }
 
-    /**
-     * @param {RMMZ.DataAudio | null} bgm
-     * @returns {void}
-     */
-    static updateBgmParameters(bgm) {
+    static updateBgmParameters(bgm: RMMZ.DataAudio | null): void {
         this.updateBufferParameters(this._bgmBuffer, this._bgmVolume, bgm);
     }
 
-    /**
-     * @param {RMMZ.DataAudio} bgm
-     * @param {number} [pos]
-     * @returns {void}
-     */
-    static updateCurrentBgm(bgm, pos) {
+    static updateCurrentBgm(bgm: RMMZ.DataAudio, pos?: number): void {
         this._currentBgm = {
             name: bgm.name,
             volume: bgm.volume,
             pitch: bgm.pitch,
             pan: bgm.pan,
-            pos: pos
+            pos: pos,
         };
     }
 
-    /** @returns {void} */
-    static stopBgm() {
+    static stopBgm(): void {
         if (this._bgmBuffer) {
             this._bgmBuffer.destroy();
             this._bgmBuffer = null;
@@ -1645,33 +1304,20 @@ class AudioManager {
         }
     }
 
-    /**
-     * @param {number} duration
-     * @returns {void}
-     */
-    static fadeOutBgm(duration) {
+    static fadeOutBgm(duration: number): void {
         if (this._bgmBuffer && this._currentBgm) {
             this._bgmBuffer.fadeOut(duration);
             this._currentBgm = null;
         }
     }
 
-    /**
-     * @param {number} duration
-     * @returns {void}
-     */
-    static fadeInBgm(duration) {
+    static fadeInBgm(duration: number): void {
         if (this._bgmBuffer && this._currentBgm) {
             this._bgmBuffer.fadeIn(duration);
         }
     }
 
-    /**
-     * @param {RMMZ.DataAudio} bgs
-     * @param {number} [pos]
-     * @returns {void}
-     */
-    static playBgs(bgs, pos) {
+    static playBgs(bgs: RMMZ.DataAudio, pos?: number): void {
         if (this.isCurrentBgs(bgs)) {
             this.updateBgsParameters(bgs);
         } else {
@@ -1685,11 +1331,7 @@ class AudioManager {
         this.updateCurrentBgs(bgs, pos);
     }
 
-    /**
-     * @param {RMMZ.DataAudio} bgs
-     * @returns {void}
-     */
-    static replayBgs(bgs) {
+    static replayBgs(bgs: RMMZ.DataAudio): void {
         if (this.isCurrentBgs(bgs)) {
             this.updateBgsParameters(bgs);
         } else {
@@ -1700,11 +1342,7 @@ class AudioManager {
         }
     }
 
-    /**
-     * @param {RMMZ.DataAudio} bgs
-     * @returns {boolean | null}
-     */
-    static isCurrentBgs(bgs) {
+    static isCurrentBgs(bgs: RMMZ.DataAudio): boolean | null {
         return (
             this._currentBgs &&
             this._bgsBuffer &&
@@ -1712,31 +1350,21 @@ class AudioManager {
         );
     }
 
-    /**
-     * @param {RMMZ.DataAudio | null} bgs
-     * @returns {void}
-     */
-    static updateBgsParameters(bgs) {
+    static updateBgsParameters(bgs: RMMZ.DataAudio | null): void {
         this.updateBufferParameters(this._bgsBuffer, this._bgsVolume, bgs);
     }
 
-    /**
-     * @param {RMMZ.DataAudio} bgs
-     * @param {number} [pos]
-     * @returns {void}
-     */
-    static updateCurrentBgs(bgs, pos) {
+    static updateCurrentBgs(bgs: RMMZ.DataAudio, pos?: number): void {
         this._currentBgs = {
             name: bgs.name,
             volume: bgs.volume,
             pitch: bgs.pitch,
             pan: bgs.pan,
-            pos: pos
+            pos: pos,
         };
     }
 
-    /** @returns {void} */
-    static stopBgs() {
+    static stopBgs(): void {
         if (this._bgsBuffer) {
             this._bgsBuffer.destroy();
             this._bgsBuffer = null;
@@ -1744,32 +1372,20 @@ class AudioManager {
         }
     }
 
-    /**
-     * @param {number} duration
-     * @returns {void}
-     */
-    static fadeOutBgs(duration) {
+    static fadeOutBgs(duration: number): void {
         if (this._bgsBuffer && this._currentBgs) {
             this._bgsBuffer.fadeOut(duration);
             this._currentBgs = null;
         }
     }
 
-    /**
-     * @param {number} duration
-     * @returns {void}
-     */
-    static fadeInBgs(duration) {
+    static fadeInBgs(duration: number): void {
         if (this._bgsBuffer && this._currentBgs) {
             this._bgsBuffer.fadeIn(duration);
         }
     }
 
-    /**
-     * @param {RMMZ.DataAudio} me
-     * @returns {void}
-     */
-    static playMe(me) {
+    static playMe(me: RMMZ.DataAudio): void {
         this.stopMe();
         if (me.name) {
             if (this._bgmBuffer && this._currentBgm) {
@@ -1783,26 +1399,17 @@ class AudioManager {
         }
     }
 
-    /**
-     * @param {RMMZ.DataAudio | null} me
-     * @returns {void}
-     */
-    static updateMeParameters(me) {
+    static updateMeParameters(me: RMMZ.DataAudio | null): void {
         this.updateBufferParameters(this._meBuffer, this._meVolume, me);
     }
 
-    /**
-     * @param {number} duration
-     * @returns {void}
-     */
-    static fadeOutMe(duration) {
+    static fadeOutMe(duration: number): void {
         if (this._meBuffer) {
             this._meBuffer.fadeOut(duration);
         }
     }
 
-    /** @returns {void} */
-    static stopMe() {
+    static stopMe(): void {
         if (this._meBuffer) {
             this._meBuffer.destroy();
             this._meBuffer = null;
@@ -1817,17 +1424,13 @@ class AudioManager {
         }
     }
 
-    /**
-     * @param {RMMZ.DataAudio} se
-     * @returns {void}
-     */
-    static playSe(se) {
+    static playSe(se: RMMZ.DataAudio): void {
         if (se.name) {
             // [Note] Do not play the same sound in the same frame.
             const latestBuffers = this._seBuffers.filter(
-                buffer => buffer.frameCount === Graphics.frameCount
+                (buffer) => buffer.frameCount === Graphics.frameCount,
             );
-            if (latestBuffers.find(buffer => buffer.name === se.name)) {
+            if (latestBuffers.find((buffer) => buffer.name === se.name)) {
                 return;
             }
             const buffer = this.createBuffer("se/", se.name);
@@ -1838,38 +1441,32 @@ class AudioManager {
         }
     }
 
-    /**
-     * @param {WebAudio} buffer
-     * @param {RMMZ.DataAudio | null} se
-     * @returns {void}
-     */
-    static updateSeParameters(buffer, se) {
+    static updateSeParameters(
+        buffer: WebAudio,
+        se: RMMZ.DataAudio | null,
+    ): void {
         this.updateBufferParameters(buffer, this._seVolume, se);
     }
 
-    /** @returns {void} */
-    static cleanupSe() {
+    static cleanupSe(): void {
         for (const buffer of this._seBuffers) {
             if (!buffer.isPlaying()) {
                 buffer.destroy();
             }
         }
-        this._seBuffers = this._seBuffers.filter(buffer => buffer.isPlaying());
+        this._seBuffers = this._seBuffers.filter((buffer) =>
+            buffer.isPlaying(),
+        );
     }
 
-    /** @returns {void} */
-    static stopSe() {
+    static stopSe(): void {
         for (const buffer of this._seBuffers) {
             buffer.destroy();
         }
         this._seBuffers = [];
     }
 
-    /**
-     * @param {RMMZ.DataAudio} se
-     * @returns {void}
-     */
-    static playStaticSe(se) {
+    static playStaticSe(se: RMMZ.DataAudio): void {
         if (se.name) {
             this.loadStaticSe(se);
             for (const buffer of this._staticBuffers) {
@@ -1883,22 +1480,14 @@ class AudioManager {
         }
     }
 
-    /**
-     * @param {RMMZ.DataAudio} se
-     * @returns {void}
-     */
-    static loadStaticSe(se) {
+    static loadStaticSe(se: RMMZ.DataAudio): void {
         if (se.name && !this.isStaticSe(se)) {
             const buffer = this.createBuffer("se/", se.name);
             this._staticBuffers.push(buffer);
         }
     }
 
-    /**
-     * @param {RMMZ.DataAudio} se
-     * @returns {boolean}
-     */
-    static isStaticSe(se) {
+    static isStaticSe(se: RMMZ.DataAudio): boolean {
         for (const buffer of this._staticBuffers) {
             if (buffer.name === se.name) {
                 return true;
@@ -1907,16 +1496,14 @@ class AudioManager {
         return false;
     }
 
-    /** @returns {void} */
-    static stopAll() {
+    static stopAll(): void {
         this.stopMe();
         this.stopBgm();
         this.stopBgs();
         this.stopSe();
     }
 
-    /** @returns {RMMZ.DataAudio} */
-    static saveBgm() {
+    static saveBgm(): RMMZ.DataAudio {
         if (this._currentBgm) {
             const bgm = this._currentBgm;
             return {
@@ -1924,15 +1511,14 @@ class AudioManager {
                 volume: bgm.volume,
                 pitch: bgm.pitch,
                 pan: bgm.pan,
-                pos: this._bgmBuffer ? this._bgmBuffer.seek() : 0
+                pos: this._bgmBuffer ? this._bgmBuffer.seek() : 0,
             };
         } else {
             return this.makeEmptyAudioObject();
         }
     }
 
-    /** @returns {RMMZ.DataAudio} */
-    static saveBgs() {
+    static saveBgs(): RMMZ.DataAudio {
         if (this._currentBgs) {
             const bgs = this._currentBgs;
             return {
@@ -1940,24 +1526,18 @@ class AudioManager {
                 volume: bgs.volume,
                 pitch: bgs.pitch,
                 pan: bgs.pan,
-                pos: this._bgsBuffer ? this._bgsBuffer.seek() : 0
+                pos: this._bgsBuffer ? this._bgsBuffer.seek() : 0,
             };
         } else {
             return this.makeEmptyAudioObject();
         }
     }
 
-    /** @returns {RMMZ.DataAudio} */
-    static makeEmptyAudioObject() {
-        return { name: "", volume: 0, pitch: 0 };
+    static makeEmptyAudioObject(): RMMZ.DataAudio {
+        return { name: "", volume: 0, pitch: 0, pan: 0 };
     }
 
-    /**
-     * @param {string} folder
-     * @param {string} name
-     * @returns {WebAudio}
-     */
-    static createBuffer(folder, name) {
+    static createBuffer(folder: string, name: string): WebAudio {
         const ext = this.audioFileExt();
         const url = this._path + folder + Utils.encodeURI(name) + ext;
         const buffer = new WebAudio(url);
@@ -1966,13 +1546,11 @@ class AudioManager {
         return buffer;
     }
 
-    /**
-     * @param {WebAudio | null} buffer
-     * @param {number} configVolume
-     * @param {RMMZ.DataAudio | null} audio
-     * @returns {void}
-     */
-    static updateBufferParameters(buffer, configVolume, audio) {
+    static updateBufferParameters(
+        buffer: WebAudio | null,
+        configVolume: number,
+        audio: RMMZ.DataAudio | null,
+    ): void {
         if (buffer && audio) {
             buffer.volume = (configVolume * (audio.volume || 0)) / 10000;
             buffer.pitch = (audio.pitch || 0) / 100;
@@ -1980,13 +1558,11 @@ class AudioManager {
         }
     }
 
-    /** @returns {string} */
-    static audioFileExt() {
+    static audioFileExt(): string {
         return ".ogg";
     }
 
-    /** @returns {void} */
-    static checkErrors() {
+    static checkErrors(): void {
         const buffers = [this._bgmBuffer, this._bgsBuffer, this._meBuffer];
         buffers.push(...this._seBuffers);
         buffers.push(...this._staticBuffers);
@@ -1997,11 +1573,7 @@ class AudioManager {
         }
     }
 
-    /**
-     * @param {WebAudio} webAudio
-     * @returns {void}
-     */
-    static throwLoadError(webAudio) {
+    static throwLoadError(webAudio: WebAudio): void {
         const retry = webAudio.retry.bind(webAudio);
         throw ["LoadError", webAudio.url, retry];
     }
@@ -2015,151 +1587,118 @@ class SoundManager {
         throw new Error("This is a static class");
     }
 
-    /** @returns {void} */
-    static preloadImportantSounds() {
+    static preloadImportantSounds(): void {
         this.loadSystemSound(0);
         this.loadSystemSound(1);
         this.loadSystemSound(2);
         this.loadSystemSound(3);
     }
 
-    /**
-     * @param {number} n
-     * @returns {void}
-     */
-    static loadSystemSound(n) {
+    static loadSystemSound(n: number): void {
         if ($dataSystem) {
             AudioManager.loadStaticSe($dataSystem.sounds[n]);
         }
     }
 
-    /**
-     * @param {number} n
-     * @returns {void}
-     */
-    static playSystemSound(n) {
+    static playSystemSound(n: number): void {
         if ($dataSystem) {
             AudioManager.playStaticSe($dataSystem.sounds[n]);
         }
     }
 
-    /** @returns {void} */
-    static playCursor() {
+    static playCursor(): void {
         this.playSystemSound(0);
     }
 
-    /** @returns {void} */
-    static playOk() {
+    static playOk(): void {
         this.playSystemSound(1);
     }
 
-    /** @returns {void} */
-    static playCancel() {
+    static playCancel(): void {
         this.playSystemSound(2);
     }
 
-    /** @returns {void} */
-    static playBuzzer() {
+    static playBuzzer(): void {
         this.playSystemSound(3);
     }
 
-    /** @returns {void} */
-    static playEquip() {
+    static playEquip(): void {
         this.playSystemSound(4);
     }
 
-    /** @returns {void} */
-    static playSave() {
+    static playSave(): void {
         this.playSystemSound(5);
     }
 
-    /** @returns {void} */
-    static playLoad() {
+    static playLoad(): void {
         this.playSystemSound(6);
     }
 
-    /** @returns {void} */
-    static playBattleStart() {
+    static playBattleStart(): void {
         this.playSystemSound(7);
     }
 
-    /** @returns {void} */
-    static playEscape() {
+    static playEscape(): void {
         this.playSystemSound(8);
     }
 
-    /** @returns {void} */
-    static playEnemyAttack() {
+    static playEnemyAttack(): void {
         this.playSystemSound(9);
     }
 
-    /** @returns {void} */
-    static playEnemyDamage() {
+    static playEnemyDamage(): void {
         this.playSystemSound(10);
     }
 
-    /** @returns {void} */
-    static playEnemyCollapse() {
+    static playEnemyCollapse(): void {
         this.playSystemSound(11);
     }
 
-    /** @returns {void} */
-    static playBossCollapse1() {
+    static playBossCollapse1(): void {
         this.playSystemSound(12);
     }
 
-    /** @returns {void} */
-    static playBossCollapse2() {
+    static playBossCollapse2(): void {
         this.playSystemSound(13);
     }
 
-    /** @returns {void} */
-    static playActorDamage() {
+    static playActorDamage(): void {
         this.playSystemSound(14);
     }
 
-    /** @returns {void} */
-    static playActorCollapse() {
+    static playActorCollapse(): void {
         this.playSystemSound(15);
     }
 
-    /** @returns {void} */
-    static playRecovery() {
+    static playRecovery(): void {
         this.playSystemSound(16);
     }
 
-    /** @returns {void} */
-    static playMiss() {
+    static playMiss(): void {
         this.playSystemSound(17);
     }
 
-    /** @returns {void} */
-    static playEvasion() {
+    static playEvasion(): void {
         this.playSystemSound(18);
     }
 
-    /** @returns {void} */
-    static playMagicEvasion() {
+    static playMagicEvasion(): void {
         this.playSystemSound(19);
     }
 
-    /** @returns {void} */
-    static playReflection() {
+    static playReflection(): void {
         this.playSystemSound(20);
     }
 
-    /** @returns {void} */
-    static playShop() {
+    static playShop(): void {
         this.playSystemSound(21);
     }
 
-    /** @returns {void} */
-    static playUseItem() {
+    static playUseItem(): void {
         this.playSystemSound(22);
     }
 
-    /** @returns {void} */
-    static playUseSkill() {
+    static playUseSkill(): void {
         this.playSystemSound(23);
     }
 }
@@ -2172,266 +1711,392 @@ class TextManager {
         throw new Error("This is a static class");
     }
 
-    /**
-     * @param {number} basicId
-     * @returns {string}
-     */
-    static basic(basicId) {
+    static basic(basicId: number): string {
         return $dataSystem.terms.basic[basicId] || "";
     }
 
-    /**
-     * @param {number} paramId
-     * @returns {string}
-     */
-    static param(paramId) {
+    static param(paramId: number): string {
         return $dataSystem.terms.params[paramId] || "";
     }
 
-    /**
-     * @param {number} commandId
-     * @returns {string}
-     */
-    static command(commandId) {
+    static command(commandId: number): string {
         return $dataSystem.terms.commands[commandId] || "";
     }
 
-    /**
-     * @param {keyof RMMZ.Messages} messageId
-     * @returns {string}
-     */
-    static message(messageId) {
+    static message(messageId: keyof RMMZ.Messages): string {
         return $dataSystem.terms.messages[messageId] || "";
     }
 
-    /**
-     * @param {string} method
-     * @param {number} param
-     * @returns {PropertyDescriptor}
-     */
-    static getter(method, param) {
+    static getter(method: string, param: number | string): PropertyDescriptor {
         return {
-            get: function() {
+            get: function (
+                this: Record<string, (param: number | string) => string>,
+            ) {
                 return this[method](param);
             },
-            configurable: true
+            configurable: true,
         };
     }
 
-    /** @type {string} */
-    static get currencyUnit() {
+    static get currencyUnit(): string {
         return $dataSystem.currencyUnit;
     }
+    static get level(): string {
+        return this.basic(0);
+    }
+    static get levelA(): string {
+        return this.basic(1);
+    }
+    static get hp(): string {
+        return this.basic(2);
+    }
+    static get hpA(): string {
+        return this.basic(3);
+    }
+    static get mp(): string {
+        return this.basic(4);
+    }
+    static get mpA(): string {
+        return this.basic(5);
+    }
+    static get tp(): string {
+        return this.basic(6);
+    }
+    static get tpA(): string {
+        return this.basic(7);
+    }
+    static get exp(): string {
+        return this.basic(8);
+    }
+    static get expA(): string {
+        return this.basic(9);
+    }
+    static get fight(): string {
+        return this.command(0);
+    }
+    static get escape(): string {
+        return this.command(1);
+    }
+    static get attack(): string {
+        return this.command(2);
+    }
+    static get guard(): string {
+        return this.command(3);
+    }
+    static get item(): string {
+        return this.command(4);
+    }
+    static get skill(): string {
+        return this.command(5);
+    }
+    static get equip(): string {
+        return this.command(6);
+    }
+    static get status(): string {
+        return this.command(7);
+    }
+    static get formation(): string {
+        return this.command(8);
+    }
+    static get save(): string {
+        return this.command(9);
+    }
+    static get gameEnd(): string {
+        return this.command(10);
+    }
+    static get options(): string {
+        return this.command(11);
+    }
+    static get weapon(): string {
+        return this.command(12);
+    }
+    static get armor(): string {
+        return this.command(13);
+    }
+    static get keyItem(): string {
+        return this.command(14);
+    }
+    static get equip2(): string {
+        return this.command(15);
+    }
+    static get optimize(): string {
+        return this.command(16);
+    }
+    static get clear(): string {
+        return this.command(17);
+    }
+    static get newGame(): string {
+        return this.command(18);
+    }
+    static get continue_(): string {
+        return this.command(19);
+    }
+    static get toTitle(): string {
+        return this.command(21);
+    }
+    static get cancel(): string {
+        return this.command(22);
+    }
+    static get buy(): string {
+        return this.command(24);
+    }
+    static get sell(): string {
+        return this.command(25);
+    }
+    static get alwaysDash(): string {
+        return this.message("alwaysDash");
+    }
+    static get commandRemember(): string {
+        return this.message("commandRemember");
+    }
+    static get touchUI(): string {
+        return this.message("touchUI");
+    }
+    static get bgmVolume(): string {
+        return this.message("bgmVolume");
+    }
+    static get bgsVolume(): string {
+        return this.message("bgsVolume");
+    }
+    static get meVolume(): string {
+        return this.message("meVolume");
+    }
+    static get seVolume(): string {
+        return this.message("seVolume");
+    }
+    static get possession(): string {
+        return this.message("possession");
+    }
+    static get expTotal(): string {
+        return this.message("expTotal");
+    }
+    static get expNext(): string {
+        return this.message("expNext");
+    }
+    static get saveMessage(): string {
+        return this.message("saveMessage");
+    }
+    static get loadMessage(): string {
+        return this.message("loadMessage");
+    }
+    static get file(): string {
+        return this.message("file");
+    }
+    static get autosave(): string {
+        return this.message("autosave");
+    }
+    static get partyName(): string {
+        return this.message("partyName");
+    }
+    static get emerge(): string {
+        return this.message("emerge");
+    }
+    static get preemptive(): string {
+        return this.message("preemptive");
+    }
+    static get surprise(): string {
+        return this.message("surprise");
+    }
+    static get escapeStart(): string {
+        return this.message("escapeStart");
+    }
+    static get escapeFailure(): string {
+        return this.message("escapeFailure");
+    }
+    static get victory(): string {
+        return this.message("victory");
+    }
+    static get defeat(): string {
+        return this.message("defeat");
+    }
+    static get obtainExp(): string {
+        return this.message("obtainExp");
+    }
+    static get obtainGold(): string {
+        return this.message("obtainGold");
+    }
+    static get obtainItem(): string {
+        return this.message("obtainItem");
+    }
+    static get levelUp(): string {
+        return this.message("levelUp");
+    }
+    static get obtainSkill(): string {
+        return this.message("obtainSkill");
+    }
+    static get useItem(): string {
+        return this.message("useItem");
+    }
+    static get criticalToEnemy(): string {
+        return this.message("criticalToEnemy");
+    }
+    static get criticalToActor(): string {
+        return this.message("criticalToActor");
+    }
+    static get actorDamage(): string {
+        return this.message("actorDamage");
+    }
+    static get actorRecovery(): string {
+        return this.message("actorRecovery");
+    }
+    static get actorGain(): string {
+        return this.message("actorGain");
+    }
+    static get actorLoss(): string {
+        return this.message("actorLoss");
+    }
+    static get actorDrain(): string {
+        return this.message("actorDrain");
+    }
+    static get actorNoDamage(): string {
+        return this.message("actorNoDamage");
+    }
+    static get actorNoHit(): string {
+        return this.message("actorNoHit");
+    }
+    static get enemyDamage(): string {
+        return this.message("enemyDamage");
+    }
+    static get enemyRecovery(): string {
+        return this.message("enemyRecovery");
+    }
+    static get enemyGain(): string {
+        return this.message("enemyGain");
+    }
+    static get enemyLoss(): string {
+        return this.message("enemyLoss");
+    }
+    static get enemyDrain(): string {
+        return this.message("enemyDrain");
+    }
+    static get enemyNoDamage(): string {
+        return this.message("enemyNoDamage");
+    }
+    static get enemyNoHit(): string {
+        return this.message("enemyNoHit");
+    }
+    static get evasion(): string {
+        return this.message("evasion");
+    }
+    static get magicEvasion(): string {
+        return this.message("magicEvasion");
+    }
+    static get magicReflection(): string {
+        return this.message("magicReflection");
+    }
+    static get counterAttack(): string {
+        return this.message("counterAttack");
+    }
+    static get substitute(): string {
+        return this.message("substitute");
+    }
+    static get buffAdd(): string {
+        return this.message("buffAdd");
+    }
+    static get debuffAdd(): string {
+        return this.message("debuffAdd");
+    }
+    static get buffRemove(): string {
+        return this.message("buffRemove");
+    }
+    static get actionFailure(): string {
+        return this.message("actionFailure");
+    }
 }
-
-Object.defineProperties(TextManager, {
-    level: TextManager.getter("basic", 0),
-    levelA: TextManager.getter("basic", 1),
-    hp: TextManager.getter("basic", 2),
-    hpA: TextManager.getter("basic", 3),
-    mp: TextManager.getter("basic", 4),
-    mpA: TextManager.getter("basic", 5),
-    tp: TextManager.getter("basic", 6),
-    tpA: TextManager.getter("basic", 7),
-    exp: TextManager.getter("basic", 8),
-    expA: TextManager.getter("basic", 9),
-    fight: TextManager.getter("command", 0),
-    escape: TextManager.getter("command", 1),
-    attack: TextManager.getter("command", 2),
-    guard: TextManager.getter("command", 3),
-    item: TextManager.getter("command", 4),
-    skill: TextManager.getter("command", 5),
-    equip: TextManager.getter("command", 6),
-    status: TextManager.getter("command", 7),
-    formation: TextManager.getter("command", 8),
-    save: TextManager.getter("command", 9),
-    gameEnd: TextManager.getter("command", 10),
-    options: TextManager.getter("command", 11),
-    weapon: TextManager.getter("command", 12),
-    armor: TextManager.getter("command", 13),
-    keyItem: TextManager.getter("command", 14),
-    equip2: TextManager.getter("command", 15),
-    optimize: TextManager.getter("command", 16),
-    clear: TextManager.getter("command", 17),
-    newGame: TextManager.getter("command", 18),
-    continue_: TextManager.getter("command", 19),
-    toTitle: TextManager.getter("command", 21),
-    cancel: TextManager.getter("command", 22),
-    buy: TextManager.getter("command", 24),
-    sell: TextManager.getter("command", 25),
-    alwaysDash: TextManager.getter("message", "alwaysDash"),
-    commandRemember: TextManager.getter("message", "commandRemember"),
-    touchUI: TextManager.getter("message", "touchUI"),
-    bgmVolume: TextManager.getter("message", "bgmVolume"),
-    bgsVolume: TextManager.getter("message", "bgsVolume"),
-    meVolume: TextManager.getter("message", "meVolume"),
-    seVolume: TextManager.getter("message", "seVolume"),
-    possession: TextManager.getter("message", "possession"),
-    expTotal: TextManager.getter("message", "expTotal"),
-    expNext: TextManager.getter("message", "expNext"),
-    saveMessage: TextManager.getter("message", "saveMessage"),
-    loadMessage: TextManager.getter("message", "loadMessage"),
-    file: TextManager.getter("message", "file"),
-    autosave: TextManager.getter("message", "autosave"),
-    partyName: TextManager.getter("message", "partyName"),
-    emerge: TextManager.getter("message", "emerge"),
-    preemptive: TextManager.getter("message", "preemptive"),
-    surprise: TextManager.getter("message", "surprise"),
-    escapeStart: TextManager.getter("message", "escapeStart"),
-    escapeFailure: TextManager.getter("message", "escapeFailure"),
-    victory: TextManager.getter("message", "victory"),
-    defeat: TextManager.getter("message", "defeat"),
-    obtainExp: TextManager.getter("message", "obtainExp"),
-    obtainGold: TextManager.getter("message", "obtainGold"),
-    obtainItem: TextManager.getter("message", "obtainItem"),
-    levelUp: TextManager.getter("message", "levelUp"),
-    obtainSkill: TextManager.getter("message", "obtainSkill"),
-    useItem: TextManager.getter("message", "useItem"),
-    criticalToEnemy: TextManager.getter("message", "criticalToEnemy"),
-    criticalToActor: TextManager.getter("message", "criticalToActor"),
-    actorDamage: TextManager.getter("message", "actorDamage"),
-    actorRecovery: TextManager.getter("message", "actorRecovery"),
-    actorGain: TextManager.getter("message", "actorGain"),
-    actorLoss: TextManager.getter("message", "actorLoss"),
-    actorDrain: TextManager.getter("message", "actorDrain"),
-    actorNoDamage: TextManager.getter("message", "actorNoDamage"),
-    actorNoHit: TextManager.getter("message", "actorNoHit"),
-    enemyDamage: TextManager.getter("message", "enemyDamage"),
-    enemyRecovery: TextManager.getter("message", "enemyRecovery"),
-    enemyGain: TextManager.getter("message", "enemyGain"),
-    enemyLoss: TextManager.getter("message", "enemyLoss"),
-    enemyDrain: TextManager.getter("message", "enemyDrain"),
-    enemyNoDamage: TextManager.getter("message", "enemyNoDamage"),
-    enemyNoHit: TextManager.getter("message", "enemyNoHit"),
-    evasion: TextManager.getter("message", "evasion"),
-    magicEvasion: TextManager.getter("message", "magicEvasion"),
-    magicReflection: TextManager.getter("message", "magicReflection"),
-    counterAttack: TextManager.getter("message", "counterAttack"),
-    substitute: TextManager.getter("message", "substitute"),
-    buffAdd: TextManager.getter("message", "buffAdd"),
-    debuffAdd: TextManager.getter("message", "debuffAdd"),
-    buffRemove: TextManager.getter("message", "buffRemove"),
-    actionFailure: TextManager.getter("message", "actionFailure")
-});
 
 /**
  * The static class that handles the window colors.
  */
 class ColorManager {
+    declare static _windowskin: Bitmap;
+
     constructor() {
         throw new Error("This is a static class");
     }
 
-    /** @returns {void} */
-    static loadWindowskin() {
+    static loadWindowskin(): void {
         this._windowskin = ImageManager.loadSystem("Window");
     }
 
-    /**
-     * @param {number} n
-     * @returns {string}
-     */
-    static textColor(n) {
+    static textColor(n: number): string {
         const px = 96 + (n % 8) * 12 + 6;
         const py = 144 + Math.floor(n / 8) * 12 + 6;
         return this._windowskin.getPixel(px, py);
     }
 
-    /** @returns {string} */
-    static normalColor() {
+    static normalColor(): string {
         return this.textColor(0);
     }
 
-    /** @returns {string} */
-    static systemColor() {
+    static systemColor(): string {
         return this.textColor(16);
     }
 
-    /** @returns {string} */
-    static crisisColor() {
+    static crisisColor(): string {
         return this.textColor(17);
     }
 
-    /** @returns {string} */
-    static deathColor() {
+    static deathColor(): string {
         return this.textColor(18);
     }
 
-    /** @returns {string} */
-    static gaugeBackColor() {
+    static gaugeBackColor(): string {
         return this.textColor(19);
     }
 
-    /** @returns {string} */
-    static hpGaugeColor1() {
+    static hpGaugeColor1(): string {
         return this.textColor(20);
     }
 
-    /** @returns {string} */
-    static hpGaugeColor2() {
+    static hpGaugeColor2(): string {
         return this.textColor(21);
     }
 
-    /** @returns {string} */
-    static mpGaugeColor1() {
+    static mpGaugeColor1(): string {
         return this.textColor(22);
     }
 
-    /** @returns {string} */
-    static mpGaugeColor2() {
+    static mpGaugeColor2(): string {
         return this.textColor(23);
     }
 
-    /** @returns {string} */
-    static mpCostColor() {
+    static mpCostColor(): string {
         return this.textColor(23);
     }
 
-    /** @returns {string} */
-    static powerUpColor() {
+    static powerUpColor(): string {
         return this.textColor(24);
     }
 
-    /** @returns {string} */
-    static powerDownColor() {
+    static powerDownColor(): string {
         return this.textColor(25);
     }
 
-    /** @returns {string} */
-    static ctGaugeColor1() {
+    static ctGaugeColor1(): string {
         return this.textColor(26);
     }
 
-    /** @returns {string} */
-    static ctGaugeColor2() {
+    static ctGaugeColor2(): string {
         return this.textColor(27);
     }
 
-    /** @returns {string} */
-    static tpGaugeColor1() {
+    static tpGaugeColor1(): string {
         return this.textColor(28);
     }
 
-    /** @returns {string} */
-    static tpGaugeColor2() {
+    static tpGaugeColor2(): string {
         return this.textColor(29);
     }
 
-    /** @returns {string} */
-    static tpCostColor() {
+    static tpCostColor(): string {
         return this.textColor(29);
     }
 
-    /** @returns {string} */
-    static pendingColor() {
+    static pendingColor(): string {
         return this._windowskin.getPixel(120, 120);
     }
 
-    /**
-     * @param {Game_BattlerBase | null} actor
-     * @returns {string}
-     */
-    static hpColor(actor) {
+    static hpColor(actor: Game_BattlerBase | null): string {
         if (!actor) {
             return this.normalColor();
         } else if (actor.isDead()) {
@@ -2443,21 +2108,17 @@ class ColorManager {
         }
     }
 
-    /** @returns {string} */
-    static mpColor(/*actor*/) {
+    static mpColor(..._extra: any[]): string;
+    static mpColor(/*actor*/): string {
         return this.normalColor();
     }
 
-    /** @returns {string} */
-    static tpColor(/*actor*/) {
+    static tpColor(..._extra: any[]): string;
+    static tpColor(/*actor*/): string {
         return this.normalColor();
     }
 
-    /**
-     * @param {number} change
-     * @returns {string}
-     */
-    static paramchangeTextColor(change) {
+    static paramchangeTextColor(change: number): string {
         if (change > 0) {
             return this.powerUpColor();
         } else if (change < 0) {
@@ -2467,11 +2128,9 @@ class ColorManager {
         }
     }
 
-    /**
-     * @param {number} colorType
-     * @returns {"#ffffff" | "#b9ffb5" | "#ffff90" | "#80b0ff" | "#808080"}
-     */
-    static damageColor(colorType) {
+    static damageColor(
+        colorType: number,
+    ): "#ffffff" | "#b9ffb5" | "#ffff90" | "#80b0ff" | "#808080" {
         switch (colorType) {
             case 0: // HP damage
                 return "#ffffff";
@@ -2486,28 +2145,23 @@ class ColorManager {
         }
     }
 
-    /** @returns {string} */
-    static outlineColor() {
+    static outlineColor(): string {
         return "rgba(0, 0, 0, 0.6)";
     }
 
-    /** @returns {string} */
-    static dimColor1() {
+    static dimColor1(): string {
         return "rgba(0, 0, 0, 0.6)";
     }
 
-    /** @returns {string} */
-    static dimColor2() {
+    static dimColor2(): string {
         return "rgba(0, 0, 0, 0)";
     }
 
-    /** @returns {string} */
-    static itemBackColor1() {
+    static itemBackColor1(): string {
         return "rgba(32, 32, 32, 0.5)";
     }
 
-    /** @returns {string} */
-    static itemBackColor2() {
+    static itemBackColor2(): string {
         return "rgba(0, 0, 0, 0.5)";
     }
 }
@@ -2520,38 +2174,25 @@ class SceneManager {
         throw new Error("This is a static class");
     }
 
-    /** @type {Scene_Base | null} */
-    static _scene = null;
+    static _scene: Scene_Base | null = null;
 
-    /** @type {Scene_Base | null} */
-    static _nextScene = null;
+    static _nextScene: Scene_Base | null = null;
 
-    /** @type {(new () => Scene_Base)[]} */
-    static _stack = [];
+    static _stack: (new () => Scene_Base)[] = [];
 
-    /** @type {boolean} */
-    static _exiting = false;
+    static _exiting: boolean = false;
 
-    /** @type {Scene_Base | null} */
-    static _previousScene = null;
+    static _previousScene: Scene_Base | null = null;
 
-    /** @type {(new () => Scene_Base) | null} */
-    static _previousClass = null;
+    static _previousClass: (new () => Scene_Base) | null = null;
 
-    /** @type {Bitmap | null} */
-    static _backgroundBitmap = null;
+    static _backgroundBitmap: Bitmap | null = null;
 
-    /** @type {number} */
-    static _smoothDeltaTime = 1;
+    static _smoothDeltaTime: number = 1;
 
-    /** @type {number} */
-    static _elapsedTime = 0;
+    static _elapsedTime: number = 0;
 
-    /**
-     * @param {new () => Scene_Base} sceneClass
-     * @returns {Promise<void>}
-     */
-    static async run(sceneClass) {
+    static async run(sceneClass: new () => Scene_Base): Promise<void> {
         try {
             await this.initialize();
             this.goto(sceneClass);
@@ -2561,8 +2202,7 @@ class SceneManager {
         }
     }
 
-    /** @returns {Promise<void>} */
-    static async initialize() {
+    static async initialize(): Promise<void> {
         this.checkBrowser();
         this.checkPluginErrors();
         await this.initGraphics();
@@ -2572,8 +2212,7 @@ class SceneManager {
         this.setupEventHandlers();
     }
 
-    /** @returns {void} */
-    static checkBrowser() {
+    static checkBrowser(): void {
         if (!Utils.canUseWebGL()) {
             throw new Error("Your browser does not support WebGL.");
         }
@@ -2588,46 +2227,36 @@ class SceneManager {
         }
     }
 
-    /** @returns {void} */
-    static checkPluginErrors() {
+    static checkPluginErrors(): void {
         PluginManager.checkErrors();
     }
 
-    /** @returns {Promise<void>} */
-    static async initGraphics() {
+    static async initGraphics(): Promise<void> {
         await Graphics.initialize();
         Graphics.setTickHandler(this.update.bind(this));
     }
 
-    /** @returns {void} */
-    static initAudio() {
+    static initAudio(): void {
         WebAudio.initialize();
     }
 
-    /** @returns {void} */
-    static initVideo() {
+    static initVideo(): void {
         Video.initialize(Graphics.width, Graphics.height);
     }
 
-    /** @returns {void} */
-    static initInput() {
+    static initInput(): void {
         Input.initialize();
         TouchInput.initialize();
     }
 
-    /** @returns {void} */
-    static setupEventHandlers() {
+    static setupEventHandlers(): void {
         window.addEventListener("error", this.onError.bind(this));
         window.addEventListener("unhandledrejection", this.onReject.bind(this));
         window.addEventListener("unload", this.onUnload.bind(this));
         document.addEventListener("keydown", this.onKeyDown.bind(this));
     }
 
-    /**
-     * @param {number} deltaTime
-     * @returns {void}
-     */
-    static update(deltaTime) {
+    static update(deltaTime: number): void {
         try {
             const n = this.determineRepeatNumber(deltaTime);
             for (let i = 0; i < n; i++) {
@@ -2642,11 +2271,8 @@ class SceneManager {
      * Determines how many game updates to run for this frame.
      * The calculation accounts for refresh rates above 60 Hz and smooths
      * sudden changes in deltaTime.
-     *
-     * @param {number} deltaTime
-     * @returns {number}
      */
-    static determineRepeatNumber(deltaTime) {
+    static determineRepeatNumber(deltaTime: number): number {
         this._smoothDeltaTime *= 0.8;
         this._smoothDeltaTime += Math.min(deltaTime, 2) * 0.2;
         if (this._smoothDeltaTime >= 0.9) {
@@ -2662,18 +2288,16 @@ class SceneManager {
         }
     }
 
-    /** @returns {void} */
-    static terminate() {
+    static terminate(): void {
         if (Utils.isNwjs()) {
             nw.App.quit();
         }
     }
 
-    /**
-     * @param {ErrorEvent} event
-     * @returns {void}
-     */
-    static onError(event) {
+    static onError(
+        event: Pick<ErrorEvent, "message"> &
+            Partial<Pick<ErrorEvent, "filename" | "lineno">>,
+    ): void {
         console.error(event.message);
         console.error(event.filename, event.lineno);
         try {
@@ -2685,28 +2309,20 @@ class SceneManager {
         }
     }
 
-    /**
-     * @param {PromiseRejectionEvent} event
-     * @returns {void}
-     */
-    static onReject(event) {
+    static onReject(event: PromiseRejectionEvent): void {
         // Catch uncaught exception in Promise
-        event.message = event.reason;
-        this.onError(event);
+        (event as PromiseRejectionEvent & { message: string }).message =
+            event.reason;
+        this.onError(event as PromiseRejectionEvent & { message: string });
     }
 
-    /** @returns {void} */
-    static onUnload() {
+    static onUnload(): void {
         ImageManager.clear();
         EffectManager.clear();
         AudioManager.stopAll();
     }
 
-    /**
-     * @param {KeyboardEvent} event
-     * @returns {void}
-     */
-    static onKeyDown(event) {
+    static onKeyDown(event: KeyboardEvent): void {
         if (!event.ctrlKey && !event.altKey) {
             switch (event.keyCode) {
                 case 116: // F5
@@ -2719,50 +2335,36 @@ class SceneManager {
         }
     }
 
-    /** @returns {void} */
-    static reloadGame() {
+    static reloadGame(): void {
         if (Utils.isNwjs()) {
             chrome.runtime.reload();
         }
     }
 
-    /** @returns {void} */
-    static showDevTools() {
+    static showDevTools(): void {
         if (Utils.isNwjs() && Utils.isOptionValid("test")) {
             nw.Window.get().showDevTools();
         }
     }
 
-    /**
-     * @param {unknown} e
-     * @returns {void}
-     */
-    static catchException(e) {
+    static catchException(e: unknown): void {
         if (e instanceof Error) {
             this.catchNormalError(e);
         } else if (e instanceof Array && e[0] === "LoadError") {
-            this.catchLoadError(e);
+            this.catchLoadError(e as ["LoadError", string, () => void]);
         } else {
             this.catchUnknownError(e);
         }
         this.stop();
     }
 
-    /**
-     * @param {Error} e
-     * @returns {void}
-     */
-    static catchNormalError(e) {
+    static catchNormalError(e: Error): void {
         Graphics.printError(e.name, e.message, e);
         AudioManager.stopAll();
         console.error(e.stack);
     }
 
-    /**
-     * @param {[ "LoadError", string, () => void ]} e
-     * @returns {void}
-     */
-    static catchLoadError(e) {
+    static catchLoadError(e: ["LoadError", string, () => void]): void {
         const url = e[1];
         const retry = e[2];
         Graphics.printError("Failed to load", url);
@@ -2776,17 +2378,12 @@ class SceneManager {
         }
     }
 
-    /**
-     * @param {unknown} e
-     * @returns {void}
-     */
-    static catchUnknownError(e) {
+    static catchUnknownError(e: unknown): void {
         Graphics.printError("UnknownError", String(e));
         AudioManager.stopAll();
     }
 
-    /** @returns {void} */
-    static updateMain() {
+    static updateMain(): void {
         this.updateFrameCount();
         this.updateInputData();
         this.updateEffekseer();
@@ -2794,26 +2391,22 @@ class SceneManager {
         this.updateScene();
     }
 
-    /** @returns {void} */
-    static updateFrameCount() {
+    static updateFrameCount(): void {
         Graphics.frameCount++;
     }
 
-    /** @returns {void} */
-    static updateInputData() {
+    static updateInputData(): void {
         Input.update();
         TouchInput.update();
     }
 
-    /** @returns {void} */
-    static updateEffekseer() {
+    static updateEffekseer(): void {
         if (Graphics.effekseer && this.isGameActive()) {
             Graphics.effekseer.update();
         }
     }
 
-    /** @returns {void} */
-    static changeScene() {
+    static changeScene(): void {
         if (this.isSceneChanging() && !this.isCurrentSceneBusy()) {
             if (this._scene) {
                 this._scene.terminate();
@@ -2831,8 +2424,7 @@ class SceneManager {
         }
     }
 
-    /** @returns {void} */
-    static updateScene() {
+    static updateScene(): void {
         if (this._scene) {
             if (this._scene.isStarted()) {
                 if (this.isGameActive()) {
@@ -2846,31 +2438,28 @@ class SceneManager {
         }
     }
 
-    /** @returns {boolean} */
-    static isGameActive() {
+    static isGameActive(): boolean {
         // [Note] We use "window.top" to support an iframe.
         try {
-            return window.top.document.hasFocus();
+            return window.top!.document.hasFocus();
         } catch (e) {
             // SecurityError
             return true;
         }
     }
 
-    /** @returns {void} */
-    static onSceneTerminate() {
+    static onSceneTerminate(): void {
         this._previousScene = this._scene;
-        this._previousClass = this._scene.constructor;
+        this._previousClass = this._scene!.constructor as
+            (new () => Scene_Base) | null;
         Graphics.setStage(null);
     }
 
-    /** @returns {void} */
-    static onSceneCreate() {
+    static onSceneCreate(): void {
         Graphics.startLoading();
     }
 
-    /** @returns {void} */
-    static onBeforeSceneStart() {
+    static onBeforeSceneStart(): void {
         if (this._previousScene) {
             this._previousScene.destroy();
             this._previousScene = null;
@@ -2880,43 +2469,28 @@ class SceneManager {
         }
     }
 
-    /** @returns {void} */
-    static onSceneStart() {
+    static onSceneStart(): void {
         Graphics.endLoading();
         Graphics.setStage(this._scene);
     }
 
-    /** @returns {boolean} */
-    static isSceneChanging() {
+    static isSceneChanging(): boolean {
         return this._exiting || !!this._nextScene;
     }
 
-    /** @returns {boolean | null} */
-    static isCurrentSceneBusy() {
+    static isCurrentSceneBusy(): boolean | null {
         return this._scene && this._scene.isBusy();
     }
 
-    /**
-     * @param {new () => Scene_Base} sceneClass
-     * @returns {boolean | null}
-     */
-    static isNextScene(sceneClass) {
+    static isNextScene(sceneClass: new () => Scene_Base): boolean | null {
         return this._nextScene && this._nextScene.constructor === sceneClass;
     }
 
-    /**
-     * @param {new () => Scene_Base} sceneClass
-     * @returns {boolean}
-     */
-    static isPreviousScene(sceneClass) {
+    static isPreviousScene(sceneClass: new () => Scene_Base): boolean {
         return this._previousClass === sceneClass;
     }
 
-    /**
-     * @param {(new () => Scene_Base) | null} sceneClass
-     * @returns {void}
-     */
-    static goto(sceneClass) {
+    static goto(sceneClass: (new () => Scene_Base) | null): void {
         if (sceneClass) {
             this._nextScene = new sceneClass();
         }
@@ -2925,68 +2499,65 @@ class SceneManager {
         }
     }
 
-    /**
-     * @param {new () => Scene_Base} sceneClass
-     * @returns {void}
-     */
-    static push(sceneClass) {
-        this._stack.push(this._scene.constructor);
+    static push(sceneClass: new () => Scene_Base): void {
+        this._stack.push(this._scene!.constructor as new () => Scene_Base);
         this.goto(sceneClass);
     }
 
-    /** @returns {void} */
-    static pop() {
+    static pop(): void {
         if (this._stack.length > 0) {
-            this.goto(this._stack.pop());
+            this.goto(this._stack.pop()!);
         } else {
             this.exit();
         }
     }
 
-    /** @returns {void} */
-    static exit() {
+    static exit(): void {
         this.goto(null);
         this._exiting = true;
     }
 
-    /** @returns {void} */
-    static clearStack() {
+    static clearStack(): void {
         this._stack = [];
     }
 
-    /** @returns {void} */
-    static stop() {
+    static stop(): void {
         Graphics.stopGameLoop();
     }
 
-    /**
-     * @template {Scene_Base & { prepare: (...args: any[]) => void; }} T
-     * @returns {void}
-     */
-    static prepareNextScene() {
-        this._nextScene.prepare(...arguments);
+    static prepareNextScene<
+        T extends Scene_Base & {
+            prepare: (...args: any[]) => void;
+        },
+    >(..._extra: any[]): void;
+    static prepareNextScene<
+        T extends Scene_Base & {
+            prepare: (...args: any[]) => void;
+        },
+    >(): void {
+        (
+            this._nextScene as Scene_Base & {
+                prepare: (...args: any[]) => void;
+            }
+        ).prepare(...arguments);
     }
 
-    /** @returns {Bitmap} */
-    static snap() {
-        return Bitmap.snap(this._scene);
+    static snap(): Bitmap {
+        return Bitmap.snap(this._scene!);
     }
 
-    /** @returns {void} */
-    static snapForBackground() {
+    static snapForBackground(): void {
         if (this._backgroundBitmap) {
             this._backgroundBitmap.destroy();
         }
         this._backgroundBitmap = this.snap();
     }
 
-    /** @returns {Bitmap | null} */
-    static backgroundBitmap() {
+    static backgroundBitmap(): Bitmap | null {
         return this._backgroundBitmap;
     }
 
-    /** @returns {void} */
-    static resume() {
+    static resume(): void {
         TouchInput.update();
         Graphics.startGameLoop();
     }
@@ -2996,17 +2567,40 @@ class SceneManager {
  * The static class that manages battle progress.
  */
 class BattleManager {
+    declare static _currentActor: Game_Actor | null;
+
+    declare static _action: Game_Action | null;
+    declare static _targets: (Game_Actor | Game_Enemy)[];
+
+    declare static _canEscape: boolean;
+    declare static _canLose: boolean;
+    declare static _phase: string;
+    declare static _inputting: boolean;
+    declare static _battleTest: boolean;
+    declare static _eventCallback: (result: number) => void | null;
+    declare static _preemptive: boolean;
+    declare static _surprise: boolean;
+    declare static _actionForcedBattler: RMMZ.ActionTarget | null;
+    declare static _mapBgm: RMMZ.AudioFile | null;
+    declare static _mapBgs: RMMZ.AudioFile | null;
+    declare static _actionBattlers: (Game_Actor | Game_Enemy)[];
+    declare static _subject: RMMZ.ActionTarget | null;
+    declare static _logWindow: Window_BattleLog | null;
+    declare static _spriteset: Spriteset_Battle | null;
+    declare static _escapeRatio: number;
+    declare static _escaped: boolean;
+    declare static _rewards: {
+        gold: number;
+        exp: number;
+        items: RMMZ.DatabaseItem[];
+    };
+    declare static _tpbNeedsPartyCommand: boolean;
+
     constructor() {
         throw new Error("This is a static class");
     }
 
-    /**
-     * @param {number} troopId
-     * @param {boolean} canEscape
-     * @param {boolean} canLose
-     * @returns {void}
-     */
-    static setup(troopId, canEscape, canLose) {
+    static setup(troopId: number, canEscape: boolean, canLose: boolean): void {
         this.initMembers();
         this._canEscape = canEscape;
         this._canLose = canLose;
@@ -3015,14 +2609,13 @@ class BattleManager {
         this.makeEscapeRatio();
     }
 
-    /** @returns {void} */
-    static initMembers() {
+    static initMembers(): void {
         this._phase = "";
         this._inputting = false;
         this._canEscape = false;
         this._canLose = false;
         this._battleTest = false;
-        this._eventCallback = null;
+        this._eventCallback = null!;
         this._preemptive = false;
         this._surprise = false;
         this._currentActor = null;
@@ -3037,97 +2630,71 @@ class BattleManager {
         this._spriteset = null;
         this._escapeRatio = 0;
         this._escaped = false;
-        this._rewards = {};
+        this._rewards = {} as typeof BattleManager._rewards;
         this._tpbNeedsPartyCommand = true;
     }
 
-    /** @returns {boolean} */
-    static isTpb() {
+    static isTpb(): boolean {
         return $dataSystem.battleSystem >= 1;
     }
 
-    /** @returns {boolean} */
-    static isActiveTpb() {
+    static isActiveTpb(): boolean {
         return $dataSystem.battleSystem === 1;
     }
 
-    /** @returns {boolean} */
-    static isBattleTest() {
+    static isBattleTest(): boolean {
         return this._battleTest;
     }
 
-    /**
-     * @param {boolean} battleTest
-     * @returns {void}
-     */
-    static setBattleTest(battleTest) {
+    static setBattleTest(battleTest: boolean): void {
         this._battleTest = battleTest;
     }
 
-    /**
-     * @param {(result: number) => void} callback
-     * @returns {void}
-     */
-    static setEventCallback(callback) {
+    static setEventCallback(callback: (result: number) => void): void {
         this._eventCallback = callback;
     }
 
-    /**
-     * @param {Window_BattleLog} logWindow
-     * @returns {void}
-     */
-    static setLogWindow(logWindow) {
+    static setLogWindow(logWindow: Window_BattleLog): void {
         this._logWindow = logWindow;
     }
 
-    /**
-     * @param {Spriteset_Battle} spriteset
-     * @returns {void}
-     */
-    static setSpriteset(spriteset) {
+    static setSpriteset(spriteset: Spriteset_Battle): void {
         this._spriteset = spriteset;
     }
 
-    /** @returns {void} */
-    static onEncounter() {
+    static onEncounter(): void {
         this._preemptive = Math.random() < this.ratePreemptive();
-        this._surprise = Math.random() < this.rateSurprise() && !this._preemptive;
+        this._surprise =
+            Math.random() < this.rateSurprise() && !this._preemptive;
     }
 
-    /** @returns {number} */
-    static ratePreemptive() {
+    static ratePreemptive(): number {
         return $gameParty.ratePreemptive($gameTroop.agility());
     }
 
-    /** @returns {number} */
-    static rateSurprise() {
+    static rateSurprise(): number {
         return $gameParty.rateSurprise($gameTroop.agility());
     }
 
-    /** @returns {void} */
-    static saveBgmAndBgs() {
+    static saveBgmAndBgs(): void {
         this._mapBgm = AudioManager.saveBgm();
         this._mapBgs = AudioManager.saveBgs();
     }
 
-    /** @returns {void} */
-    static playBattleBgm() {
+    static playBattleBgm(): void {
         AudioManager.playBgm($gameSystem.battleBgm());
         AudioManager.stopBgs();
     }
 
-    /** @returns {void} */
-    static playVictoryMe() {
+    static playVictoryMe(): void {
         AudioManager.playMe($gameSystem.victoryMe());
     }
 
-    /** @returns {void} */
-    static playDefeatMe() {
+    static playDefeatMe(): void {
         AudioManager.playMe($gameSystem.defeatMe());
     }
 
-    /** @returns {void} */
-    static replayBgmAndBgs() {
+    static replayBgmAndBgs(): void {
         if (this._mapBgm) {
             AudioManager.replayBgm(this._mapBgm);
         } else {
@@ -3138,16 +2705,11 @@ class BattleManager {
         }
     }
 
-    /** @returns {void} */
-    static makeEscapeRatio() {
+    static makeEscapeRatio(): void {
         this._escapeRatio = (0.5 * $gameParty.agility()) / $gameTroop.agility();
     }
 
-    /**
-     * @param {boolean} timeActive
-     * @returns {void}
-     */
-    static update(timeActive) {
+    static update(timeActive: boolean): void {
         if (!this.isBusy() && !this.updateEvent()) {
             this.updatePhase(timeActive);
         }
@@ -3156,11 +2718,7 @@ class BattleManager {
         }
     }
 
-    /**
-     * @param {boolean} timeActive
-     * @returns {void}
-     */
-    static updatePhase(timeActive) {
+    static updatePhase(timeActive: boolean): void {
         switch (this._phase) {
             case "start":
                 this.updateStart();
@@ -3180,8 +2738,7 @@ class BattleManager {
         }
     }
 
-    /** @returns {boolean} */
-    static updateEvent() {
+    static updateEvent(): boolean {
         switch (this._phase) {
             case "start":
             case "turn":
@@ -3196,8 +2753,7 @@ class BattleManager {
         return this.checkAbort();
     }
 
-    /** @returns {boolean} */
-    static updateEventMain() {
+    static updateEventMain(): boolean {
         $gameTroop.updateInterpreter();
         $gameParty.requestMotionRefresh();
         if ($gameTroop.isEventRunning() || this.checkBattleEnd()) {
@@ -3210,17 +2766,28 @@ class BattleManager {
         return false;
     }
 
-    /** @returns {boolean | "video" | "scroll" | "image" | "message" | "transfer" | "route" | "animation" | "balloon" | "gather" | "action" | "effect" | "movement"} */
-    static isBusy() {
+    static isBusy():
+        | boolean
+        | "video"
+        | "scroll"
+        | "image"
+        | "message"
+        | "transfer"
+        | "route"
+        | "animation"
+        | "balloon"
+        | "gather"
+        | "action"
+        | "effect"
+        | "movement" {
         return (
             $gameMessage.isBusy() ||
-            this._spriteset.isBusy() ||
-            this._logWindow.isBusy()
+            this._spriteset!.isBusy() ||
+            this._logWindow!.isBusy()
         );
     }
 
-    /** @returns {void} */
-    static updateTpbInput() {
+    static updateTpbInput(): void {
         if (this._inputting) {
             this.checkTpbInputClose();
         } else {
@@ -3228,8 +2795,7 @@ class BattleManager {
         }
     }
 
-    /** @returns {void} */
-    static checkTpbInputClose() {
+    static checkTpbInputClose(): void {
         if (!this.isPartyTpbInputtable() || this.needsActorInputCancel()) {
             this.cancelActorInput();
             this._currentActor = null;
@@ -3237,8 +2803,7 @@ class BattleManager {
         }
     }
 
-    /** @returns {void} */
-    static checkTpbInputOpen() {
+    static checkTpbInputOpen(): void {
         if (this.isPartyTpbInputtable()) {
             if (this._tpbNeedsPartyCommand) {
                 this._inputting = true;
@@ -3249,68 +2814,55 @@ class BattleManager {
         }
     }
 
-    /** @returns {boolean} */
-    static isPartyTpbInputtable() {
+    static isPartyTpbInputtable(): boolean {
         return $gameParty.canInput() && this.isTpbMainPhase();
     }
 
-    /** @returns {boolean | null} */
-    static needsActorInputCancel() {
+    static needsActorInputCancel(): boolean | null {
         return this._currentActor && !this._currentActor.canInput();
     }
 
-    /** @returns {boolean} */
-    static isTpbMainPhase() {
+    static isTpbMainPhase(): boolean {
         return ["turn", "turnEnd", "action"].includes(this._phase);
     }
 
-    /** @returns {boolean} */
-    static isInputting() {
+    static isInputting(): boolean {
         return this._inputting;
     }
 
-    /** @returns {boolean} */
-    static isInTurn() {
+    static isInTurn(): boolean {
         return this._phase === "turn";
     }
 
-    /** @returns {boolean} */
-    static isTurnEnd() {
+    static isTurnEnd(): boolean {
         return this._phase === "turnEnd";
     }
 
-    /** @returns {boolean} */
-    static isAborting() {
+    static isAborting(): boolean {
         return this._phase === "aborting";
     }
 
-    /** @returns {boolean} */
-    static isBattleEnd() {
+    static isBattleEnd(): boolean {
         return this._phase === "battleEnd";
     }
 
-    /** @returns {boolean} */
-    static canEscape() {
+    static canEscape(): boolean {
         return this._canEscape;
     }
 
-    /** @returns {boolean} */
-    static canLose() {
+    static canLose(): boolean {
         return this._canLose;
     }
 
-    /** @returns {boolean} */
-    static isEscaped() {
+    static isEscaped(): boolean {
         return this._escaped;
     }
 
-    /** @returns {Game_Actor | null} */
-    static actor() {
+    static actor(): Game_Actor | null {
         return this._currentActor;
     }
 
-    /** @returns {void} */
-    static startBattle() {
+    static startBattle(): void {
         this._phase = "start";
         $gameSystem.onBattleStart();
         $gameParty.onBattleStart(this._preemptive);
@@ -3318,8 +2870,7 @@ class BattleManager {
         this.displayStartMessages();
     }
 
-    /** @returns {void} */
-    static displayStartMessages() {
+    static displayStartMessages(): void {
         for (const name of $gameTroop.enemyNames()) {
             $gameMessage.add(TextManager.emerge.format(name));
         }
@@ -3330,8 +2881,7 @@ class BattleManager {
         }
     }
 
-    /** @returns {void} */
-    static startInput() {
+    static startInput(): void {
         this._phase = "input";
         this._inputting = true;
         $gameParty.makeActions();
@@ -3342,13 +2892,11 @@ class BattleManager {
         }
     }
 
-    /** @returns {Game_Action | null} */
-    static inputtingAction() {
+    static inputtingAction(): Game_Action | null {
         return this._currentActor ? this._currentActor.inputtingAction() : null;
     }
 
-    /** @returns {void} */
-    static selectNextCommand() {
+    static selectNextCommand(): void {
         if (this._currentActor) {
             if (this._currentActor.selectNextCommand()) {
                 return;
@@ -3358,8 +2906,7 @@ class BattleManager {
         this.selectNextActor();
     }
 
-    /** @returns {void} */
-    static selectNextActor() {
+    static selectNextActor(): void {
         this.changeCurrentActor(true);
         if (!this._currentActor) {
             if (this.isTpb()) {
@@ -3370,8 +2917,7 @@ class BattleManager {
         }
     }
 
-    /** @returns {void} */
-    static selectPreviousCommand() {
+    static selectPreviousCommand(): void {
         if (this._currentActor) {
             if (this._currentActor.selectPreviousCommand()) {
                 return;
@@ -3381,8 +2927,7 @@ class BattleManager {
         this.selectPreviousActor();
     }
 
-    /** @returns {void} */
-    static selectPreviousActor() {
+    static selectPreviousActor(): void {
         if (this.isTpb()) {
             this.changeCurrentActor(true);
             if (!this._currentActor) {
@@ -3393,15 +2938,11 @@ class BattleManager {
         }
     }
 
-    /**
-     * @param {boolean} forward
-     * @returns {void}
-     */
-    static changeCurrentActor(forward) {
+    static changeCurrentActor(forward: boolean): void {
         const members = $gameParty.battleMembers();
         let actor = this._currentActor;
         for (;;) {
-            const currentIndex = members.indexOf(actor);
+            const currentIndex = members.indexOf(actor!);
             actor = members[currentIndex + (forward ? 1 : -1)];
             if (!actor || actor.canInput()) {
                 break;
@@ -3411,16 +2952,14 @@ class BattleManager {
         this.startActorInput();
     }
 
-    /** @returns {void} */
-    static startActorInput() {
+    static startActorInput(): void {
         if (this._currentActor) {
             this._currentActor.setActionState("inputting");
             this._inputting = true;
         }
     }
 
-    /** @returns {void} */
-    static finishActorInput() {
+    static finishActorInput(): void {
         if (this._currentActor) {
             if (this.isTpb()) {
                 this._currentActor.startTpbCasting();
@@ -3429,15 +2968,13 @@ class BattleManager {
         }
     }
 
-    /** @returns {void} */
-    static cancelActorInput() {
+    static cancelActorInput(): void {
         if (this._currentActor) {
             this._currentActor.setActionState("undecided");
         }
     }
 
-    /** @returns {void} */
-    static updateStart() {
+    static updateStart(): void {
         if (this.isTpb()) {
             this._phase = "turn";
         } else {
@@ -3445,23 +2982,18 @@ class BattleManager {
         }
     }
 
-    /** @returns {void} */
-    static startTurn() {
+    static startTurn(): void {
         this._phase = "turn";
         $gameTroop.increaseTurn();
         $gameParty.requestMotionRefresh();
         if (!this.isTpb()) {
             this.makeActionOrders();
-            this._logWindow.startTurn();
+            this._logWindow!.startTurn();
             this._inputting = false;
         }
     }
 
-    /**
-     * @param {boolean} timeActive
-     * @returns {void}
-     */
-    static updateTurn(timeActive) {
+    static updateTurn(timeActive: boolean): void {
         $gameParty.requestMotionRefresh();
         if (this.isTpb() && timeActive) {
             this.updateTpb();
@@ -3476,26 +3008,20 @@ class BattleManager {
         }
     }
 
-    /** @returns {void} */
-    static updateTpb() {
+    static updateTpb(): void {
         $gameParty.updateTpb();
         $gameTroop.updateTpb();
         this.updateAllTpbBattlers();
         this.checkTpbTurnEnd();
     }
 
-    /** @returns {void} */
-    static updateAllTpbBattlers() {
+    static updateAllTpbBattlers(): void {
         for (const battler of this.allBattleMembers()) {
             this.updateTpbBattler(battler);
         }
     }
 
-    /**
-     * @param {RMMZ.ActionTarget} battler
-     * @returns {void}
-     */
-    static updateTpbBattler(battler) {
+    static updateTpbBattler(battler: RMMZ.ActionTarget): void {
         if (battler.isTpbTurnEnd()) {
             battler.onTurnEnd();
             battler.startTpbTurn();
@@ -3509,49 +3035,41 @@ class BattleManager {
         }
     }
 
-    /** @returns {void} */
-    static checkTpbTurnEnd() {
+    static checkTpbTurnEnd(): void {
         if ($gameTroop.isTpbTurnEnd()) {
             this.endTurn();
         }
     }
 
-    /** @returns {void} */
-    static processTurn() {
+    static processTurn(): void {
         const subject = this._subject;
-        const action = subject.currentAction();
+        const action = subject!.currentAction();
         if (action) {
             action.prepare();
             if (action.isValid()) {
                 this.startAction();
             }
-            subject.removeCurrentAction();
+            subject!.removeCurrentAction();
         } else {
             this.endAction();
             this._subject = null;
         }
     }
 
-    /**
-     * @param {RMMZ.ActionTarget} battler
-     * @returns {void}
-     */
-    static endBattlerActions(battler) {
+    static endBattlerActions(battler: RMMZ.ActionTarget): void {
         battler.setActionState(this.isTpb() ? "undecided" : "done");
         battler.onAllActionsEnd();
         battler.clearTpbChargeTime();
         this.displayBattlerStatus(battler, true);
     }
 
-    /** @returns {void} */
-    static endTurn() {
+    static endTurn(): void {
         this._phase = "turnEnd";
         this._preemptive = false;
         this._surprise = false;
     }
 
-    /** @returns {void} */
-    static updateTurnEnd() {
+    static updateTurnEnd(): void {
         if (this.isTpb()) {
             this.startTurn();
         } else {
@@ -3560,29 +3078,25 @@ class BattleManager {
         }
     }
 
-    /** @returns {void} */
-    static endAllBattlersTurn() {
+    static endAllBattlersTurn(): void {
         for (const battler of this.allBattleMembers()) {
             battler.onTurnEnd();
             this.displayBattlerStatus(battler, false);
         }
     }
 
-    /**
-     * @param {RMMZ.ActionTarget} battler
-     * @param {boolean} current
-     * @returns {void}
-     */
-    static displayBattlerStatus(battler, current) {
-        this._logWindow.displayAutoAffectedStatus(battler);
+    static displayBattlerStatus(
+        battler: RMMZ.ActionTarget,
+        current: boolean,
+    ): void {
+        this._logWindow!.displayAutoAffectedStatus(battler);
         if (current) {
-            this._logWindow.displayCurrentState(battler);
+            this._logWindow!.displayCurrentState(battler);
         }
-        this._logWindow.displayRegeneration(battler);
+        this._logWindow!.displayRegeneration(battler);
     }
 
-    /** @returns {RMMZ.ActionTarget | null} */
-    static getNextSubject() {
+    static getNextSubject(): RMMZ.ActionTarget | null {
         for (;;) {
             const battler = this._actionBattlers.shift();
             if (!battler) {
@@ -3594,13 +3108,11 @@ class BattleManager {
         }
     }
 
-    /** @returns {(Game_Actor | import("../objects").Game_Enemy)[]} */
-    static allBattleMembers() {
-        return $gameParty.battleMembers().concat($gameTroop.members());
+    static allBattleMembers(): (Game_Actor | Game_Enemy)[] {
+        return [...$gameParty.battleMembers(), ...$gameTroop.members()];
     }
 
-    /** @returns {void} */
-    static makeActionOrders() {
+    static makeActionOrders(): void {
         const battlers = [];
         if (!this._surprise) {
             battlers.push(...$gameParty.battleMembers());
@@ -3615,119 +3127,101 @@ class BattleManager {
         this._actionBattlers = battlers;
     }
 
-    /** @returns {void} */
-    static startAction() {
+    static startAction(): void {
         const subject = this._subject;
-        const action = subject.currentAction();
+        const action = subject!.currentAction();
         const targets = action.makeTargets();
         this._phase = "action";
         this._action = action;
         this._targets = targets;
-        subject.cancelMotionRefresh();
-        subject.useItem(action.item());
+        subject!.cancelMotionRefresh();
+        subject!.useItem(action.item());
         this._action.applyGlobal();
-        this._logWindow.startAction(subject, action, targets);
+        this._logWindow!.startAction(subject!, action, targets);
     }
 
-    /** @returns {void} */
-    static updateAction() {
+    static updateAction(): void {
         const target = this._targets.shift();
         if (target) {
-            this.invokeAction(this._subject, target);
+            this.invokeAction(this._subject!, target);
         } else {
             this.endAction();
         }
     }
 
-    /** @returns {void} */
-    static endAction() {
-        this._logWindow.endAction(this._subject);
+    static endAction(): void {
+        this._logWindow!.endAction(this._subject!);
         this._phase = "turn";
-        if (this._subject.numActions() === 0) {
-            this.endBattlerActions(this._subject);
+        if (this._subject!.numActions() === 0) {
+            this.endBattlerActions(this._subject!);
             this._subject = null;
         }
     }
 
-    /**
-     * @param {RMMZ.ActionTarget} subject
-     * @param {RMMZ.ActionTarget} target
-     * @returns {void}
-     */
-    static invokeAction(subject, target) {
-        this._logWindow.push("pushBaseLine");
-        if (Math.random() < this._action.itemCnt(target)) {
+    static invokeAction(
+        subject: RMMZ.ActionTarget,
+        target: RMMZ.ActionTarget,
+    ): void {
+        this._logWindow!.push("pushBaseLine");
+        if (Math.random() < this._action!.itemCnt(target)) {
             this.invokeCounterAttack(subject, target);
-        } else if (Math.random() < this._action.itemMrf(target)) {
+        } else if (Math.random() < this._action!.itemMrf(target)) {
             this.invokeMagicReflection(subject, target);
         } else {
             this.invokeNormalAction(subject, target);
         }
         subject.setLastTarget(target);
-        this._logWindow.push("popBaseLine");
+        this._logWindow!.push("popBaseLine");
     }
 
-    /**
-     * @param {RMMZ.ActionTarget} subject
-     * @param {RMMZ.ActionTarget} target
-     * @returns {void}
-     */
-    static invokeNormalAction(subject, target) {
+    static invokeNormalAction(
+        subject: RMMZ.ActionTarget,
+        target: RMMZ.ActionTarget,
+    ): void {
         const realTarget = this.applySubstitute(target);
-        this._action.apply(realTarget);
-        this._logWindow.displayActionResults(subject, realTarget);
+        this._action!.apply(realTarget);
+        this._logWindow!.displayActionResults(subject, realTarget);
     }
 
-    /**
-     * @param {RMMZ.ActionTarget} subject
-     * @param {RMMZ.ActionTarget} target
-     * @returns {void}
-     */
-    static invokeCounterAttack(subject, target) {
+    static invokeCounterAttack(
+        subject: RMMZ.ActionTarget,
+        target: RMMZ.ActionTarget,
+    ): void {
         const action = new Game_Action(target);
         action.setAttack();
         action.apply(subject);
-        this._logWindow.displayCounter(target);
-        this._logWindow.displayActionResults(target, subject);
+        this._logWindow!.displayCounter(target);
+        this._logWindow!.displayActionResults(target, subject);
     }
 
-    /**
-     * @param {RMMZ.ActionTarget} subject
-     * @param {RMMZ.ActionTarget} target
-     * @returns {void}
-     */
-    static invokeMagicReflection(subject, target) {
-        this._action._reflectionTarget = target;
-        this._logWindow.displayReflection(target);
-        this._action.apply(subject);
-        this._logWindow.displayActionResults(target, subject);
+    static invokeMagicReflection(
+        subject: RMMZ.ActionTarget,
+        target: RMMZ.ActionTarget,
+    ): void {
+        this._action!._reflectionTarget = target;
+        this._logWindow!.displayReflection(target);
+        this._action!.apply(subject);
+        this._logWindow!.displayActionResults(target, subject);
     }
 
-    /**
-     * @param {RMMZ.ActionTarget} target
-     * @returns {RMMZ.ActionTarget}
-     */
-    static applySubstitute(target) {
+    static applySubstitute(target: RMMZ.ActionTarget): RMMZ.ActionTarget {
         if (this.checkSubstitute(target)) {
-            const substitute = target.friendsUnit().substituteBattler(target);
+            const substitute = target
+                .friendsUnit()
+                .substituteBattler(target as Game_Enemy & Game_Actor);
             if (substitute) {
-                this._logWindow.displaySubstitute(substitute, target);
+                this._logWindow!.displaySubstitute(substitute, target);
                 return substitute;
             }
         }
         return target;
     }
 
-    /**
-     * @param {RMMZ.ActionTarget} target
-     * @returns {boolean}
-     */
-    static checkSubstitute(target) {
-        return target.isDying() && !this._action.isCertainHit();
+    static checkSubstitute(target: RMMZ.ActionTarget): boolean {
+        return target.isDying() && !this._action!.isCertainHit();
     }
 
-    /** @returns {boolean} */
-    static isActionForced() {
+    static isActionForced(): boolean {
         return (
             !!this._actionForcedBattler &&
             !$gameParty.isAllDead() &&
@@ -3735,19 +3229,14 @@ class BattleManager {
         );
     }
 
-    /**
-     * @param {RMMZ.ActionTarget} battler
-     * @returns {void}
-     */
-    static forceAction(battler) {
+    static forceAction(battler: RMMZ.ActionTarget): void {
         if (battler.numActions() > 0) {
             this._actionForcedBattler = battler;
             this._actionBattlers.remove(battler);
         }
     }
 
-    /** @returns {void} */
-    static processForcedAction() {
+    static processForcedAction(): void {
         if (this._actionForcedBattler) {
             if (this._subject) {
                 this.endBattlerActions(this._subject);
@@ -3759,13 +3248,11 @@ class BattleManager {
         }
     }
 
-    /** @returns {void} */
-    static abort() {
+    static abort(): void {
         this._phase = "aborting";
     }
 
-    /** @returns {boolean} */
-    static checkBattleEnd() {
+    static checkBattleEnd(): boolean {
         if (this._phase) {
             if ($gameParty.isEscaped()) {
                 this.processPartyEscape();
@@ -3781,8 +3268,7 @@ class BattleManager {
         return false;
     }
 
-    /** @returns {boolean} */
-    static checkAbort() {
+    static checkAbort(): boolean {
         if (this.isAborting()) {
             this.processAbort();
             return true;
@@ -3790,8 +3276,7 @@ class BattleManager {
         return false;
     }
 
-    /** @returns {void} */
-    static processVictory() {
+    static processVictory(): void {
         $gameParty.removeBattleStates();
         $gameParty.performVictory();
         this.playVictoryMe();
@@ -3803,8 +3288,7 @@ class BattleManager {
         this.endBattle(0);
     }
 
-    /** @returns {boolean} */
-    static processEscape() {
+    static processEscape(): boolean {
         $gameParty.performEscape();
         SoundManager.playEscape();
         const success = this._preemptive || Math.random() < this._escapeRatio;
@@ -3816,15 +3300,13 @@ class BattleManager {
         return success;
     }
 
-    /** @returns {void} */
-    static onEscapeSuccess() {
+    static onEscapeSuccess(): void {
         this.displayEscapeSuccessMessage();
         this._escaped = true;
         this.processAbort();
     }
 
-    /** @returns {void} */
-    static onEscapeFailure() {
+    static onEscapeFailure(): void {
         $gameParty.onEscapeFailure();
         this.displayEscapeFailureMessage();
         this._escapeRatio += 0.1;
@@ -3833,22 +3315,19 @@ class BattleManager {
         }
     }
 
-    /** @returns {void} */
-    static processPartyEscape() {
+    static processPartyEscape(): void {
         this._escaped = true;
         this.processAbort();
     }
 
-    /** @returns {void} */
-    static processAbort() {
+    static processAbort(): void {
         $gameParty.removeBattleStates();
-        this._logWindow.clear();
+        this._logWindow!.clear();
         this.replayBgmAndBgs();
         this.endBattle(1);
     }
 
-    /** @returns {void} */
-    static processDefeat() {
+    static processDefeat(): void {
         this.displayDefeatMessage();
         this.playDefeatMe();
         if (this._canLose) {
@@ -3859,11 +3338,7 @@ class BattleManager {
         this.endBattle(2);
     }
 
-    /**
-     * @param {number} result
-     * @returns {void}
-     */
-    static endBattle(result) {
+    static endBattle(result: number): void {
         this._phase = "battleEnd";
         this.cancelActorInput();
         this._inputting = false;
@@ -3878,8 +3353,7 @@ class BattleManager {
         $gameTemp.clearCommonEventReservation();
     }
 
-    /** @returns {void} */
-    static updateBattleEnd() {
+    static updateBattleEnd(): void {
         if (this.isBattleTest()) {
             AudioManager.stopBgm();
             SceneManager.exit();
@@ -3896,45 +3370,38 @@ class BattleManager {
         this._phase = "";
     }
 
-    /** @returns {void} */
-    static makeRewards() {
+    static makeRewards(): void {
         this._rewards = {
             gold: $gameTroop.goldTotal(),
             exp: $gameTroop.expTotal(),
-            items: $gameTroop.makeDropItems()
+            items: $gameTroop.makeDropItems(),
         };
     }
 
-    /** @returns {void} */
-    static displayVictoryMessage() {
+    static displayVictoryMessage(): void {
         $gameMessage.add(TextManager.victory.format($gameParty.name()));
     }
 
-    /** @returns {void} */
-    static displayDefeatMessage() {
+    static displayDefeatMessage(): void {
         $gameMessage.add(TextManager.defeat.format($gameParty.name()));
     }
 
-    /** @returns {void} */
-    static displayEscapeSuccessMessage() {
+    static displayEscapeSuccessMessage(): void {
         $gameMessage.add(TextManager.escapeStart.format($gameParty.name()));
     }
 
-    /** @returns {void} */
-    static displayEscapeFailureMessage() {
+    static displayEscapeFailureMessage(): void {
         $gameMessage.add(TextManager.escapeStart.format($gameParty.name()));
         $gameMessage.add("\\." + TextManager.escapeFailure);
     }
 
-    /** @returns {void} */
-    static displayRewards() {
+    static displayRewards(): void {
         this.displayExp();
         this.displayGold();
         this.displayDropItems();
     }
 
-    /** @returns {void} */
-    static displayExp() {
+    static displayExp(): void {
         const exp = this._rewards.exp;
         if (exp > 0) {
             const text = TextManager.obtainExp.format(exp, TextManager.exp);
@@ -3942,16 +3409,14 @@ class BattleManager {
         }
     }
 
-    /** @returns {void} */
-    static displayGold() {
+    static displayGold(): void {
         const gold = this._rewards.gold;
         if (gold > 0) {
             $gameMessage.add("\\." + TextManager.obtainGold.format(gold));
         }
     }
 
-    /** @returns {void} */
-    static displayDropItems() {
+    static displayDropItems(): void {
         const items = this._rewards.items;
         if (items.length > 0) {
             $gameMessage.newPage();
@@ -3961,28 +3426,24 @@ class BattleManager {
         }
     }
 
-    /** @returns {void} */
-    static gainRewards() {
+    static gainRewards(): void {
         this.gainExp();
         this.gainGold();
         this.gainDropItems();
     }
 
-    /** @returns {void} */
-    static gainExp() {
+    static gainExp(): void {
         const exp = this._rewards.exp;
         for (const actor of $gameParty.allMembers()) {
             actor.gainExp(exp);
         }
     }
 
-    /** @returns {void} */
-    static gainGold() {
+    static gainGold(): void {
         $gameParty.gainGold(this._rewards.gold);
     }
 
-    /** @returns {void} */
-    static gainDropItems() {
+    static gainDropItems(): void {
         const items = this._rewards.items;
         for (const item of items) {
             $gameParty.gainItem(item, 1);
@@ -3998,23 +3459,16 @@ class PluginManager {
         throw new Error("This is a static class");
     }
 
-    /** @type {string[]} */
-    static _scripts = [];
+    static _scripts: string[] = [];
 
-    /** @type {string[]} */
-    static _errorUrls = [];
+    static _errorUrls: string[] = [];
 
-    /** @type {Record<string, Record<string, unknown>>} */
-    static _parameters = {};
+    static _parameters: Record<string, Record<string, unknown>> = {};
 
-    /** @type {Record<string, (...args: unknown[]) => void>} */
-    static _commands = {};
+    static _commands: Record<string, (args: RMMZ.PluginParameters) => void> =
+        {};
 
-    /**
-     * @param {RMMZ.DataPlugin[]} plugins
-     * @returns {void}
-     */
-    static setup(plugins) {
+    static setup(plugins: RMMZ.DataPlugin[]): void {
         for (const plugin of plugins) {
             const pluginName = Utils.extractFileName(plugin.name);
             if (plugin.status && !this._scripts.includes(pluginName)) {
@@ -4025,30 +3479,22 @@ class PluginManager {
         }
     }
 
-    /**
-     * @param {string} name
-     * @returns {Record<string, unknown>}
-     */
-    static parameters(name) {
+    static parameters(name: string): Record<string, unknown> {
         return this._parameters[name.toLowerCase()] || {};
     }
 
-    /**
-     * @param {string} name
-     * @param {Record<string, unknown>} parameters
-     * @returns {void}
-     */
-    static setParameters(name, parameters) {
+    static setParameters(
+        name: string,
+        parameters: Record<string, unknown>,
+    ): void {
         this._parameters[name.toLowerCase()] = parameters;
     }
 
-    /**
-     * @param {string} filename
-     * @returns {void}
-     */
-    static loadScript(filename) {
+    static loadScript(filename: string): void {
         const url = this.makeUrl(filename);
-        const script = document.createElement("script");
+        const script = document.createElement("script") as HTMLScriptElement & {
+            _url: string;
+        };
         script.type = "text/javascript";
         script.src = url;
         script.async = false;
@@ -4058,58 +3504,42 @@ class PluginManager {
         document.body.appendChild(script);
     }
 
-    /**
-     * @param {Event | string} e
-     * @returns {void}
-     */
-    static onError(e) {
-        this._errorUrls.push(e.target._url);
+    static onError(e: Event | string): void {
+        this._errorUrls.push(
+            ((e as Event).target as HTMLScriptElement & { _url: string })._url,
+        );
     }
 
-    /**
-     * @param {string} filename
-     * @returns {string}
-     */
-    static makeUrl(filename) {
+    static makeUrl(filename: string): string {
         return "js/plugins/" + Utils.encodeURI(filename) + ".js";
     }
 
-    /** @returns {void} */
-    static checkErrors() {
+    static checkErrors(): void {
         const url = this._errorUrls.shift();
         if (url) {
             this.throwLoadError(url);
         }
     }
 
-    /**
-     * @param {string} url
-     * @returns {void}
-     */
-    static throwLoadError(url) {
+    static throwLoadError(url: string): void {
         throw new Error("Failed to load: " + url);
     }
 
-    /**
-     * @template {RMMZ.PluginParameters} T
-     * @param {string} pluginName
-     * @param {string} commandName
-     * @param {(args: T) => void} func
-     * @returns {void}
-     */
-    static registerCommand(pluginName, commandName, func) {
+    static registerCommand<T extends RMMZ.PluginParameters>(
+        pluginName: string,
+        commandName: string,
+        func: (args: T) => void,
+    ): void {
         const key = pluginName + ":" + commandName;
-        this._commands[key] = func;
+        this._commands[key] = func as (...args: unknown[]) => void;
     }
 
-    /**
-     * @param {unknown} self
-     * @param {string} pluginName
-     * @param {string} commandName
-     * @param {unknown[]} args
-     * @returns {void}
-     */
-    static callCommand(self, pluginName, commandName, args) {
+    static callCommand(
+        self: unknown,
+        pluginName: string,
+        commandName: string,
+        args: RMMZ.PluginParameters,
+    ): void {
         const key = pluginName + ":" + commandName;
         const func = this._commands[key];
         if (typeof func === "function") {
@@ -4117,21 +3547,3 @@ class PluginManager {
         }
     }
 }
-
-// Class declarations are lexical bindings, while plugins and JsonEx resolve
-// constructors through the global object, so expose them as global properties.
-Object.assign(globalThis, {
-    DataManager,
-    ConfigManager,
-    StorageManager,
-    FontManager,
-    ImageManager,
-    EffectManager,
-    AudioManager,
-    SoundManager,
-    TextManager,
-    ColorManager,
-    SceneManager,
-    BattleManager,
-    PluginManager,
-});

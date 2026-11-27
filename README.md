@@ -1,8 +1,10 @@
 # OpenMZ
 
-用 ES6 class 维护的 RPG Maker MZ 引擎核心。构建时生成原型式引擎与 PixiJS 8，使既有插件能够通过 `prototype`、`.call(this)` 和 `initialize` 扩展引擎。
+用 TypeScript 与 ES6 class 维护的 RPG Maker MZ 引擎核心。构建时生成原型式 JavaScript 引擎与 PixiJS 8，使既有插件能够通过 `prototype`、`.call(this)` 和 `initialize` 扩展引擎。
 
 ## 构建与使用
+
+使用 Node.js 24 或更新版本：
 
 ```sh
 pnpm install
@@ -18,16 +20,17 @@ pnpm build
 
 将 `dist/runtime/js/` 的内容复制到 RPG Maker MZ 工程的 `js/` 目录。产物不包含 `plugins.js` 和 `plugins/`，工程原有的插件配置、数据库、素材和存档保持原样。
 
-`src/` 保留完整的示例工程及 class 源码。运行 legacy 插件时应使用构建产物；插件兼容性测试会自动将构建脚本与示例工程资源组合加载。
+`src/` 只维护引擎 TypeScript 源码、类型协议和 `lib/pixi.js` 打包入口。示例工程资源与插件样本位于 `tests/plugin-compat/fixtures/`；测试服务器会将它们与正式构建产物组合加载。
 
 ## 构建方式
 
-1. Rolldown 从安装的 `pixi.js` 包生成浏览器全局 `PIXI`。
-2. ast-grep 将 `rmmz_*.js` 与 PixiJS 的 class 转换为平铺的函数、原型方法及属性描述符，不再为每个类生成 IIFE 或添加严格模式。类表达式使用唯一的内部绑定，保留构造函数名称和自身引用。`main.js` 按源码直接输出，保留 `class Main`，与原版引擎一致。
-3. 构建时将 `Sprite`、`TilingSprite`、`Window`、`Stage` 的 PixiJS 初始化移入 `initialize`。普通 `new` 与旧插件的 `initialize.call(this)` 都在同一个对象上初始化一次。
-4. 生成 `js/openmz.json`，记录引擎版本、PixiJS 版本及产物格式。单元测试检查原型结构、现代语法保留，以及没有引入 TypeScript 降级辅助函数。
+1. Node.js 擦除 `src/{main,rmmz_*}.ts` 的类型；`declare` 字段不生成赋值，保留 `initialize` 的原有初始化顺序。构建脚本、共享协议、更新器和测试也直接维护为 TypeScript。
+2. Rolldown 通过 `src/lib/pixi.js` 从安装的 `pixi.js` 包生成浏览器全局 `PIXI`，其他第三方运行库从 `vendor/libs/` 复制。
+3. ast-grep 将引擎与 PixiJS 的 class 转换为平铺的函数、原型方法及属性描述符，不为每个类生成 IIFE 或添加严格模式。类表达式使用唯一的内部绑定，保留构造函数名称和自身引用。`main.ts` 只擦除类型，产出的 `main.js` 保留 `class Main`。
+4. 构建时将 `Sprite`、`TilingSprite`、`Window`、`Stage` 的 PixiJS 初始化移入 `initialize`。普通 `new` 与旧插件的 `initialize.call(this)` 都在同一个对象上初始化一次。
+5. 生成 `js/openmz.json`，记录引擎版本、PixiJS 版本及产物格式。单元测试检查类型擦除、原型结构、现代语法保留，以及没有引入 TypeScript 降级辅助函数。
 
-派生构造函数使用 `.call` / `.apply`，不通过 `Reflect.construct` 替换对象。方法可以枚举，访问器不可枚举。转换后的函数采用原版原型式引擎的非严格模式语义。Rolldown 保留 PixiJS 与更新器的命名空间外壳，并关闭严格模式指令输出。其余现代语法（包括 async/await、箭头函数、可选链、解构和迭代）保留原样，不进行 ES5 语法降级。TypeScript 仅用于类型检查与声明生成。
+派生构造函数使用 `.call` / `.apply`，不通过 `Reflect.construct` 替换对象。方法可以枚举，访问器不可枚举。转换后的函数采用原版原型式引擎的非严格模式语义。Rolldown 保留 PixiJS 与更新器的命名空间外壳，并关闭严格模式指令输出。其余现代语法（包括 async/await、箭头函数、可选链、解构和迭代）保留原样，不进行 ES5 语法降级。类型直接写在维护源码中，不再生成或同步另一份引擎 `.d.ts`。`src/data.d.ts` 定义数据库、存档及事件协议；`environment.d.ts` 连接浏览器、NW.js 与第三方库。
 
 ## 测试
 
@@ -99,9 +102,7 @@ pnpm serve:manifest
 | --- | --- |
 | `pnpm build` | 构建完整运行时与更新插件 |
 | `pnpm build:release` | 从构建产物生成发布压缩包、清单与更新插件 |
-| `pnpm build:types` | 从源码 JSDoc 生成类型声明 |
-| `pnpm check:types` | 检查类型声明是否同步 |
-| `pnpm typecheck` | 执行 TypeScript 类型检查 |
+| `pnpm typecheck` | 严格检查引擎、构建脚本、更新器及测试的 TypeScript 类型 |
 | `pnpm test` | 执行两个 Vitest 项目 |
 | `pnpm serve:manifest` | 提供本地更新源 |
 
@@ -111,14 +112,15 @@ pnpm serve:manifest
 
 | 路径 | 内容 |
 | --- | --- |
-| `src/` | 示例工程、ES6 class 核心源码与开发依赖 |
-| `types/` | 数据类型、环境声明及自动生成的引擎声明 |
-| `scripts/` | AST 转换、构建、类型生成、发布和本地服务器 |
+| `src/` | TypeScript class 引擎源码、数据库协议及外部环境类型 |
+| `src/lib/pixi.js` | PixiJS 的 npm 打包入口 |
+| `vendor/libs/` | Effekseer、Pako、LocalForage 和 Vorbis 等第三方运行库 |
+| `scripts/` | TypeScript 类型擦除、AST 转换、构建、发布和本地服务器 |
 | `shared/` | 构建与更新器共用的发布协议 |
 | `plugins/` | 更新插件的 ESM 入口、安装核心与标题界面 |
 | `tests/unit/` | Node.js 单元测试 |
-| `tests/plugin-compat/` | 浏览器插件测试与原版插件样本 |
-| `vendor/` | 原版 MZ 参考及第三方打包入口 |
+| `tests/plugin-compat/` | 浏览器插件测试；`fixtures/` 存放示例工程资源、HTML 和插件样本 |
+| `vendor/js/` | 原版 MZ 运行时参考 |
 | `dist/` | 自动生成的运行时、插件和发布产物 |
 
 ## 许可证

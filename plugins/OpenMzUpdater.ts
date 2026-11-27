@@ -37,6 +37,6 @@
  * js/openmz.json 保存已安装版本。插件保持启用，不修改 js/plugins.js。
  * 安装完成后重启游戏生效。留空更新清单地址时不检查更新。
  */
-import { setupUpdater } from './updater/ui.js';
+import { setupUpdater } from './updater/ui.ts';
 
 setupUpdater();

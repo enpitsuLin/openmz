@@ -1,6 +1,6 @@
 import { playwright } from '@vitest/browser-playwright';
 import { defineConfig } from 'vitest/config';
-import { pluginCompatServer } from './tests/plugin-compat/game-server.js';
+import { pluginCompatServer } from './tests/plugin-compat/game-server.ts';
 
 export default defineConfig({
   test: {
@@ -9,7 +9,7 @@ export default defineConfig({
         test: {
           name: 'unit',
           environment: 'node',
-          include: ['tests/unit/**/*.test.mjs'],
+          include: ['tests/unit/**/*.test.ts'],
           testTimeout: 30_000,
           hookTimeout: 30_000,
         },
@@ -25,7 +25,10 @@ export default defineConfig({
             viewport: { width: 1000, height: 800 },
             provider: playwright({
               launchOptions: {
-                args: ['--use-angle=swiftshader', '--enable-unsafe-swiftshader'],
+                args: [
+                  '--use-angle=swiftshader',
+                  '--enable-unsafe-swiftshader',
+                ],
               },
             }),
             instances: [{ browser: 'chromium' }],
