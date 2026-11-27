@@ -1,4 +1,4 @@
-import type { RuntimeMetadata } from '../shared/engine-release.ts';
+import type { RuntimeMetadata } from '../../../shared/engine-release.ts';
 
 export interface BuildRuntimeOptions {
   outDir?: string;
@@ -6,15 +6,14 @@ export interface BuildRuntimeOptions {
 }
 import { mkdir, readdir, readFile, writeFile } from 'node:fs/promises';
 import { dirname, join } from 'node:path';
-import { pathToFileURL } from 'node:url';
-import { bundleScript, formatOutput, projectRoot } from './build-utils.ts';
 import {
   coreScripts,
   isVersion,
   runtimeFormat,
   statePath,
-} from '../shared/engine-release.ts';
+} from '../../../shared/engine-release.ts';
 import { emitEngineSource } from './emit-engine.ts';
+import { bundleScript, formatOutput, projectRoot } from './output.ts';
 import {
   restorePixiInitializers,
   transformClasses,
@@ -99,14 +98,4 @@ export async function buildRuntime({
     }),
   );
   return { outDir, files, metadata };
-}
-
-if (
-  process.argv[1] &&
-  import.meta.url === pathToFileURL(process.argv[1]).href
-) {
-  const runtime = await buildRuntime();
-  console.log(
-    `Built OpenMZ ${runtime.metadata.version}: ${runtime.files.length} runtime files in ${runtime.outDir}`,
-  );
 }

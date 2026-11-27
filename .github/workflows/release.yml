@@ -39,7 +39,7 @@ jobs:
       - run: pnpm test:unit
       - run: pnpm exec playwright install --with-deps chromium
       - run: pnpm test:plugin-compat
-      - run: pnpm build:release
+      - run: pnpm openmz pack
       - uses: softprops/action-gh-release@v3
         with:
           tag_name: ${{ env.RELEASE_TAG }}

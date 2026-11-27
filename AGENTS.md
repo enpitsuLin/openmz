@@ -6,13 +6,10 @@ RPG Maker MZ 核心引擎：使用 TypeScript class 与 PixiJS 8 维护，构建
 
 - `src/`：唯一的引擎维护源码，根目录包含 `main.ts`、六个 `rmmz_*.ts`、数据库协议 `data.d.ts` 和外部环境声明 `environment.d.ts`。
 - `src/lib/pixi.js`：PixiJS 的 npm 打包入口；不保留预打包的开发副本。
-- `scripts/emit-engine.ts`：只擦除 TypeScript 类型，并恢复浏览器运行时的类名、嵌套类及方法名。
-- `scripts/transform-classes.ts`：ast-grep 转换类与原地构造，恢复四个 Pixi 边界类的 initialize 路径。
-- `scripts/build.ts`：组合引擎与插件构建。
-- `scripts/build-runtime.ts`：生成 `dist/runtime/`。
-- `scripts/build-plugins.ts`：独立构建全部或指定插件，自动发现 `plugins/<插件名>/index.ts`，生成 `dist/plugins/`。
-- `scripts/build-utils.ts`：共用的项目路径、Rolldown 打包和 Oxfmt 产物格式化。
-- `scripts/build-release.ts`：仅从正式构建产物生成 `dist/release/`。
+- `scripts/cli.ts`：注册并启动 Citty 命令。
+- `scripts/commands/build/`：`build` 命令、运行时和插件构建，以及相关的引擎转换和产物格式化。
+- `scripts/commands/pack/`：`pack` 命令和发布产物生成。
+- `scripts/serve-manifest.ts`：提供本地更新源。
 - `shared/engine-release.ts`：发布清单、版本、运行时格式与压缩包条目的公共协议。
 - `plugins/`：每个插件使用独立目录，入口统一为 `plugins/<插件名>/index.ts`，内部可按模块继续分层，测试放在插件自己的 `__test__/` 目录。
 - `plugins/OpenMzUpdater/`：更新器插件；`index.ts` 为 ESM 入口，`core.ts` 为安装逻辑，`ui.ts` 为标题界面。游戏只安装构建后的 `OpenMzUpdater.js`。
@@ -25,10 +22,10 @@ RPG Maker MZ 核心引擎：使用 TypeScript class 与 PixiJS 8 维护，构建
 
 使用 Node.js 24+ 与 pnpm。Node.js 直接执行工具的 `.ts` 入口。
 
-- `pnpm build`：构建引擎、PixiJS 8、其他依赖及全部插件。
-- `pnpm build:runtime`：仅构建运行时。
-- `pnpm build:plugins [插件名]`：仅构建全部或指定插件。
-- `pnpm build:release`：构建并打包运行时、清单与全部插件。
+- `pnpm openmz build`（简写为 `pnpm build`）：构建引擎、PixiJS 8、其他依赖及全部插件。
+- `pnpm openmz build runtime`：仅构建运行时。
+- `pnpm openmz build plugin [插件名]`：仅构建全部或指定插件。
+- `pnpm openmz pack`：构建并打包运行时、清单与全部插件。
 - `pnpm lint` / `pnpm lint:fix`：使用 Oxlint 检查或安全修复维护源码。
 - `pnpm format` / `pnpm format:check`：使用 Oxfmt 格式化或检查格式。
 - `pnpm typecheck`：使用唯一 `tsconfig.json`，严格检查全部维护源码与测试。

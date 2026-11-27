@@ -17,11 +17,11 @@ import { pathToFileURL } from 'node:url';
 import { runInNewContext } from 'node:vm';
 import { gzipSync } from 'node:zlib';
 import { afterAll, beforeAll, test } from 'vitest';
-import { buildRuntime } from '../../../scripts/build-runtime.ts';
+import { buildRuntime } from '../../../scripts/commands/build/runtime.ts';
 import {
   buildRelease,
   createTarBuffer,
-} from '../../../scripts/build-release.ts';
+} from '../../../scripts/commands/pack/artifacts.ts';
 import { createManifestServer } from '../../../scripts/serve-manifest.ts';
 import {
   checkForUpdate,

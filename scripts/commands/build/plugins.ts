@@ -1,8 +1,7 @@
 import { mkdir, readdir, readFile, writeFile } from 'node:fs/promises';
 import { join } from 'node:path';
-import { pathToFileURL } from 'node:url';
 import { Lang, parse } from '@ast-grep/napi';
-import { bundleScript, formatOutput, projectRoot } from './build-utils.ts';
+import { bundleScript, formatOutput, projectRoot } from './output.ts';
 import { transformClasses } from './transform-classes.ts';
 
 export interface BuildPluginOptions {
@@ -47,13 +46,4 @@ export async function buildPlugins(options: BuildPluginOptions = {}) {
     .map((directory) => directory.name)
     .sort();
   return Promise.all(names.map((name) => buildPlugin(name, options)));
-}
-
-if (
-  process.argv[1] &&
-  import.meta.url === pathToFileURL(process.argv[1]).href
-) {
-  const [name] = process.argv.slice(2);
-  const files = name ? [await buildPlugin(name)] : await buildPlugins();
-  for (const file of files) console.log(`Built plugin: ${file}`);
 }

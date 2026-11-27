@@ -1,4 +1,3 @@
-import { emitEngineSource } from '../../scripts/emit-engine.ts';
 import assert from 'node:assert/strict';
 import { mkdtemp, readFile, rm } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
@@ -7,13 +6,14 @@ import { runInNewContext, Script } from 'node:vm';
 import { afterAll, beforeAll, test } from 'vitest';
 import { Lang, parse as parseAst } from '@ast-grep/napi';
 import { format } from 'oxfmt';
-import { buildRuntime } from '../../scripts/build-runtime.ts';
-import { buildPlugin } from '../../scripts/build-plugins.ts';
-import { outputFormatOptions } from '../../scripts/build-utils.ts';
+import { emitEngineSource } from '../../scripts/commands/build/emit-engine.ts';
+import { outputFormatOptions } from '../../scripts/commands/build/output.ts';
+import { buildPlugin } from '../../scripts/commands/build/plugins.ts';
+import { buildRuntime } from '../../scripts/commands/build/runtime.ts';
 import {
   restorePixiInitializers,
   transformClasses,
-} from '../../scripts/transform-classes.ts';
+} from '../../scripts/commands/build/transform-classes.ts';
 
 const root = await mkdtemp(join(tmpdir(), 'openmz-build-'));
 let runtime: Awaited<ReturnType<typeof buildRuntime>>;

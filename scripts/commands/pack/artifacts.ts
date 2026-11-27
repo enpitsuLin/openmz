@@ -1,4 +1,4 @@
-import type { ArchiveEntry } from '../shared/engine-release.ts';
+import type { ArchiveEntry } from '../../../shared/engine-release.ts';
 interface ReleaseOptions {
   outDir?: string;
   version?: string;
@@ -6,13 +6,12 @@ interface ReleaseOptions {
 }
 import { createHash } from 'node:crypto';
 import { mkdir, readFile, writeFile } from 'node:fs/promises';
-import { join, resolve } from 'node:path';
-import { fileURLToPath } from 'node:url';
+import { join } from 'node:path';
 import { gzipSync } from 'node:zlib';
-import { manifestSchema } from '../shared/engine-release.ts';
-import { buildRuntime, resolveVersion } from './build-runtime.ts';
-import { buildPlugins } from './build-plugins.ts';
-import { formatOutput, projectRoot } from './build-utils.ts';
+import { manifestSchema } from '../../../shared/engine-release.ts';
+import { formatOutput, projectRoot } from '../build/output.ts';
+import { buildPlugins } from '../build/plugins.ts';
+import { buildRuntime, resolveVersion } from '../build/runtime.ts';
 
 const blockSize = 512;
 
@@ -104,17 +103,4 @@ export async function buildRelease({
     ),
   );
   return { manifest, includedFiles };
-}
-
-if (
-  process.argv[1] &&
-  resolve(process.argv[1]) === fileURLToPath(import.meta.url)
-) {
-  const args = process.argv.slice(2);
-  const index = args.indexOf('--version');
-  const version = index === -1 ? undefined : (args[index + 1] ?? '');
-  const release = await buildRelease({ version });
-  console.log(
-    `Built ${release.manifest.archive.url} (${release.includedFiles.length} files)`,
-  );
 }

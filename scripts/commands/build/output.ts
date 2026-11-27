@@ -3,9 +3,9 @@ import { resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { rolldown } from 'rolldown';
 import { format } from 'oxfmt';
-import formatOptions from '../.oxfmtrc.json' with { type: 'json' };
+import formatOptions from '../../../.oxfmtrc.json' with { type: 'json' };
 
-export const projectRoot = fileURLToPath(new URL('../', import.meta.url));
+export const projectRoot = fileURLToPath(new URL('../../../', import.meta.url));
 export const outputFormatOptions = { ...formatOptions, printWidth: 120 };
 
 export async function bundleScript(input: string, output: OutputOptions = {}) {

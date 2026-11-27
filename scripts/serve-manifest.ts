@@ -2,7 +2,7 @@ import { readFile } from 'node:fs/promises';
 import { createServer } from 'node:http';
 import { extname, resolve, sep } from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { buildRelease, defaultReleaseDir } from './build-release.ts';
+import { buildRelease, defaultReleaseDir } from './commands/pack/artifacts.ts';
 
 const mimeTypes: Record<string, string> = {
   '.gz': 'application/gzip',
