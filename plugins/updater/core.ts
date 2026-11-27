@@ -20,7 +20,8 @@ export type NodeRequire = <K extends keyof NodeModules>(
 ) => NodeModules[K];
 type DownloadCallback = (loaded: number, total: number) => void;
 type HttpResult =
-  { location: string; buffer?: never } | { buffer: Buffer; location?: never };
+  | { location: string; buffer?: never }
+  | { buffer: Buffer; location?: never };
 interface FetchResult {
   buffer: Buffer;
   finalUrl: string;
@@ -41,7 +42,9 @@ export interface DownloadProgress {
   total: number;
 }
 export type UpdateProgress =
-  DownloadProgress | { phase: 'verify' } | { phase: 'apply'; total: number };
+  | DownloadProgress
+  | { phase: 'verify' }
+  | { phase: 'apply'; total: number };
 export type UpdateCheck = Awaited<ReturnType<typeof checkForUpdate>>;
 export interface InstallOptions extends ProjectOptions {
   update: UpdateCheck;

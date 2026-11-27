@@ -67,10 +67,6 @@ declare namespace RMMZ {
 
     export type DatabaseItem = DataSkill | InventoryItem;
     export type InventoryItem = DataItem | DataWeapon | DataArmor;
-    export type AnimationTarget = (Game_Character | Game_Battler) & {
-        startAnimation?: () => void;
-        endAnimation?: () => void;
-    };
 
     // Shared types
 
@@ -189,7 +185,21 @@ declare namespace RMMZ {
         critical: boolean;
     }
     export type Scope =
-        0 | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 | 10 | 11 | 12 | 13 | 14;
+        | 0
+        | 1
+        | 2
+        | 3
+        | 4
+        | 5
+        | 6
+        | 7
+        | 8
+        | 9
+        | 10
+        | 11
+        | 12
+        | 13
+        | 14;
     export type Occasion = 0 | 1 | 2 | 3;
     export type Direction = 0 | 1 | 2 | 3 | 4 | 6 | 7 | 8 | 9;
 
@@ -232,7 +242,11 @@ declare namespace RMMZ {
     export type ActionTarget = Game_Actor | Game_Enemy;
     export type ActionItem = DataSkill | DataItem;
     export type ActionState =
-        "undecided" | "inputting" | "waiting" | "acting" | "done";
+        | "undecided"
+        | "inputting"
+        | "waiting"
+        | "acting"
+        | "done";
     export type BattlerEffectType =
         | "whiten"
         | "blink"
@@ -481,7 +495,10 @@ declare namespace RMMZ {
         timings: DataTimingMV[];
         position: number;
     }
-    export type AnimationTarget = Game_Character | Game_Battler;
+    export type AnimationTarget = (Game_Character | Game_Battler) & {
+        startAnimation?: () => void;
+        endAnimation?: () => void;
+    };
     export type AnimationRequest = {
         targets: AnimationTarget[];
         animationId: AnimationID;
@@ -664,9 +681,13 @@ declare namespace RMMZ {
     // Event and movement commands
 
     export type TextWindowBackgroundType =
-        0 /* Window */ | 1 /* Dim */ | 2; /* Transparent */
+        | 0 /* Window */
+        | 1 /* Dim */
+        | 2; /* Transparent */
     export type TextWindowPositionType =
-        0 /* Top */ | 1 /* Middle */ | 2; /* Bottom */
+        | 0 /* Top */
+        | 1 /* Middle */
+        | 2; /* Bottom */
     export type VariableComparisonType =
         | 0 /* Equal to */
         | 1 /* Greater than or Equal to */
@@ -1141,7 +1162,7 @@ declare namespace RMMZ {
                   (
                       | 0 /* Terrain Tag */
                       | 1 /* Event ID */
-                      | (2 | 3 | 4 | 5 /* Tile ID (Layer 1 ~ 4) */)
+                      | (2 | 3 | 4 | 5) /* Tile ID (Layer 1 ~ 4) */
                       /* Region ID */
                       | 6
                   ),
@@ -1316,7 +1337,8 @@ declare namespace RMMZ {
         | 5; /* Mod */
     export type ValueOperation = 0 /* Value */ | 1; /* Negative Value */
     export type ValueOperand =
-        [0, number] /* Constant */ | [1, VariableID]; /* Variable */
+        | [0, number] /* Constant */
+        | [1, VariableID]; /* Variable */
     export type IterateActorArguments = [0, ActorID] | [1, VariableID];
     export type ChangeActorValue = [
         ...IterateActorArguments,

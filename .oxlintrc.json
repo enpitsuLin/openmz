@@ -1,0 +1,40 @@
+{
+  "$schema": "./node_modules/oxlint/configuration_schema.json",
+  "env": { "browser": true, "node": true },
+  "overrides": [
+    {
+      "files": ["src/*.ts"],
+      "rules": {
+        "no-unused-vars": [
+          "error",
+          { "varsIgnorePattern": "^[A-Z]", "argsIgnorePattern": "^_" }
+        ]
+      }
+    },
+    {
+      "files": ["src/rmmz_objects.ts"],
+      "rules": { "no-eval": "off" }
+    },
+    {
+      "files": ["src/rmmz_windows.ts"],
+      "rules": { "no-control-regex": "off" }
+    },
+    {
+      "files": ["src/rmmz_sprites.ts"],
+      "rules": {
+        "typescript/no-this-alias": [
+          "error",
+          { "allowedNames": ["sprite", "object"] }
+        ]
+      }
+    }
+  ],
+  "ignorePatterns": [
+    "dist/**",
+    "vendor/**",
+    "tests/plugin-compat/fixtures/**",
+    ".agents/**",
+    ".codemod/**",
+    ".planning/**"
+  ]
+}

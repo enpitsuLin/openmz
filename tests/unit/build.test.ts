@@ -243,7 +243,7 @@ test('flattens named class expressions with distinct internal bindings', () => {
   const functions = parseAst(Lang.JavaScript, transformed)
     .root()
     .findAll({ rule: { kind: 'variable_declarator' } })
-    .filter((node) => node.field('value')!?.kind() === 'function_expression');
+    .filter((node) => node.field('value')?.kind() === 'function_expression');
   assert.equal(functions.length, 2);
   const context = load(source);
   assert.equal(context.Layer, undefined);

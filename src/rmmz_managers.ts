@@ -736,7 +736,7 @@ class RmmzStorageManager {
                 try {
                     this.fsUnlink(filePath);
                     this.fsRename(backupFilePath, filePath);
-                } catch (e2) {
+                } catch {
                     //
                 }
                 reject(e);
@@ -2304,7 +2304,7 @@ class SceneManager {
             this.stop();
             Graphics.printError("Error", event.message, event);
             AudioManager.stopAll();
-        } catch (e) {
+        } catch {
             //
         }
     }
@@ -2442,7 +2442,7 @@ class SceneManager {
         // [Note] We use "window.top" to support an iframe.
         try {
             return window.top!.document.hasFocus();
-        } catch (e) {
+        } catch {
             // SecurityError
             return true;
         }
@@ -2451,7 +2451,8 @@ class SceneManager {
     static onSceneTerminate(): void {
         this._previousScene = this._scene;
         this._previousClass = this._scene!.constructor as
-            (new () => Scene_Base) | null;
+            | (new () => Scene_Base)
+            | null;
         Graphics.setStage(null);
     }
 
@@ -2525,16 +2526,8 @@ class SceneManager {
         Graphics.stopGameLoop();
     }
 
-    static prepareNextScene<
-        T extends Scene_Base & {
-            prepare: (...args: any[]) => void;
-        },
-    >(..._extra: any[]): void;
-    static prepareNextScene<
-        T extends Scene_Base & {
-            prepare: (...args: any[]) => void;
-        },
-    >(): void {
+    static prepareNextScene(..._extra: any[]): void;
+    static prepareNextScene(): void {
         (
             this._nextScene as Scene_Base & {
                 prepare: (...args: any[]) => void;

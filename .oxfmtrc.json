@@ -1,0 +1,21 @@
+{
+  "$schema": "./node_modules/oxfmt/configuration_schema.json",
+  "printWidth": 80,
+  "singleQuote": true,
+  "sortPackageJson": false,
+  "ignorePatterns": [
+    "dist/**",
+    "vendor/**",
+    "tests/plugin-compat/fixtures/**",
+    ".agents/**",
+    ".codemod/**",
+    ".planning/**",
+    "pnpm-lock.yaml"
+  ],
+  "overrides": [
+    {
+      "files": ["src/*.ts"],
+      "options": { "tabWidth": 4, "singleQuote": false }
+    }
+  ]
+}

@@ -13,10 +13,10 @@ pnpm build
 
 构建生成：
 
-| 目录 | 内容 |
-| --- | --- |
-| `dist/runtime/js/` | 核心脚本、原型式 PixiJS 8、其他运行依赖与 `openmz.json` |
-| `dist/plugins/OpenMzUpdater.js` | 可直接安装的单文件更新插件 |
+| 目录                            | 内容                                                    |
+| ------------------------------- | ------------------------------------------------------- |
+| `dist/runtime/js/`              | 核心脚本、原型式 PixiJS 8、其他运行依赖与 `openmz.json` |
+| `dist/plugins/OpenMzUpdater.js` | 可直接安装的单文件更新插件                              |
 
 将 `dist/runtime/js/` 的内容复制到 RPG Maker MZ 工程的 `js/` 目录。产物不包含 `plugins.js` 和 `plugins/`，工程原有的插件配置、数据库、素材和存档保持原样。
 
@@ -36,9 +36,9 @@ pnpm build
 
 Vitest 包含两个项目：
 
-| 项目 | 环境 | 范围 |
-| --- | --- | --- |
-| `unit` | Node.js | AST 转换、原型式构建、版本检查、发布包、安装及回滚 |
+| 项目            | 环境                | 范围                                                   |
+| --------------- | ------------------- | ------------------------------------------------------ |
+| `unit`          | Node.js             | AST 转换、原型式构建、版本检查、发布包、安装及回滚     |
 | `plugin-compat` | Playwright Chromium | 对照原版 MZ 与正式产物测试插件、窗口、场景、精灵和渲染 |
 
 ```sh
@@ -76,15 +76,15 @@ pnpm exec playwright install chromium
 
 首次发布的清单使用 `schemaVersion: 1`。
 
-| 字段 | 内容 |
-| --- | --- |
-| `name` | `OpenMZ` |
-| `version` | 引擎语义版本 |
-| `format` | `prototype` |
-| `pixiVersion` | 打包的 PixiJS 版本 |
-| `archive.url` | 核心 `tar.gz` 地址，可使用相对路径 |
-| `archive.size` | 压缩包字节数，必填 |
-| `archive.sha256` | 压缩包 SHA-256，必填 |
+| 字段             | 内容                               |
+| ---------------- | ---------------------------------- |
+| `name`           | `OpenMZ`                           |
+| `version`        | 引擎语义版本                       |
+| `format`         | `prototype`                        |
+| `pixiVersion`    | 打包的 PixiJS 版本                 |
+| `archive.url`    | 核心 `tar.gz` 地址，可使用相对路径 |
+| `archive.size`   | 压缩包字节数，必填                 |
+| `archive.sha256` | 压缩包 SHA-256，必填               |
 
 相对压缩包地址以清单重定向链中原站最后一个地址为基准，支持 GitHub Release 的标签跳转与 CDN 下载。
 
@@ -98,30 +98,36 @@ pnpm serve:manifest
 
 ## 开发命令
 
-| 命令 | 作用 |
-| --- | --- |
-| `pnpm build` | 构建完整运行时与更新插件 |
-| `pnpm build:release` | 从构建产物生成发布压缩包、清单与更新插件 |
-| `pnpm typecheck` | 严格检查引擎、构建脚本、更新器及测试的 TypeScript 类型 |
-| `pnpm test` | 执行两个 Vitest 项目 |
-| `pnpm serve:manifest` | 提供本地更新源 |
+| 命令                  | 作用                                                   |
+| --------------------- | ------------------------------------------------------ |
+| `pnpm build`          | 构建完整运行时与更新插件                               |
+| `pnpm build:release`  | 从构建产物生成发布压缩包、清单与更新插件               |
+| `pnpm lint`           | 使用 Oxlint 检查维护源码，警告也视为失败               |
+| `pnpm lint:fix`       | 应用 Oxlint 的安全自动修复                             |
+| `pnpm format`         | 使用 Oxfmt 格式化维护源码与配置                        |
+| `pnpm format:check`   | 检查格式，供 CI 使用                                   |
+| `pnpm typecheck`      | 严格检查引擎、构建脚本、更新器及测试的 TypeScript 类型 |
+| `pnpm test`           | 执行两个 Vitest 项目                                   |
+| `pnpm serve:manifest` | 提供本地更新源                                         |
+
+Oxlint 与 Oxfmt 的配置分别位于 `.oxlintrc.json`、`.oxfmtrc.json`。引擎保留四空格缩进与双引号，工具代码使用双空格与单引号；第三方库、兼容性夹具和生成产物不参与检查或格式化。
 
 发布流程从标签或 `--version` 取得版本，保证包内记录与清单一致。推送 `v*` 标签后，GitHub Actions 会完成类型检查、两个项目的测试，再将 `dist/release/` 中的产物上传到 Release。
 
 ## 目录
 
-| 路径 | 内容 |
-| --- | --- |
-| `src/` | TypeScript class 引擎源码、数据库协议及外部环境类型 |
-| `src/lib/pixi.js` | PixiJS 的 npm 打包入口 |
-| `vendor/libs/` | Effekseer、Pako、LocalForage 和 Vorbis 等第三方运行库 |
-| `scripts/` | TypeScript 类型擦除、AST 转换、构建、发布和本地服务器 |
-| `shared/` | 构建与更新器共用的发布协议 |
-| `plugins/` | 更新插件的 ESM 入口、安装核心与标题界面 |
-| `tests/unit/` | Node.js 单元测试 |
+| 路径                   | 内容                                                          |
+| ---------------------- | ------------------------------------------------------------- |
+| `src/`                 | TypeScript class 引擎源码、数据库协议及外部环境类型           |
+| `src/lib/pixi.js`      | PixiJS 的 npm 打包入口                                        |
+| `vendor/libs/`         | Effekseer、Pako、LocalForage 和 Vorbis 等第三方运行库         |
+| `scripts/`             | TypeScript 类型擦除、AST 转换、构建、发布和本地服务器         |
+| `shared/`              | 构建与更新器共用的发布协议                                    |
+| `plugins/`             | 更新插件的 ESM 入口、安装核心与标题界面                       |
+| `tests/unit/`          | Node.js 单元测试                                              |
 | `tests/plugin-compat/` | 浏览器插件测试；`fixtures/` 存放示例工程资源、HTML 和插件样本 |
-| `vendor/js/` | 原版 MZ 运行时参考 |
-| `dist/` | 自动生成的运行时、插件和发布产物 |
+| `vendor/js/`           | 原版 MZ 运行时参考                                            |
+| `dist/`                | 自动生成的运行时、插件和发布产物                              |
 
 ## 许可证
 

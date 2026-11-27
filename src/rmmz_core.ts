@@ -276,7 +276,7 @@ to the given version.
         try {
             const canvas = document.createElement("canvas");
             return !!canvas.getContext("webgl");
-        } catch (e) {
+        } catch {
             return false;
         }
     }
@@ -1415,7 +1415,7 @@ class Bitmap {
             this.context.globalCompositeOperation = "source-over";
             this.context.drawImage(image!, sx, sy, sw, sh, dx, dy, dw, dh);
             this._textureSource!.update();
-        } catch (e) {
+        } catch {
             //
         }
     }
@@ -4688,7 +4688,7 @@ class WebAudio {
             const AudioContext =
                 window.AudioContext || window.webkitAudioContext;
             this._context = new AudioContext();
-        } catch (e) {
+        } catch {
             this._context = null;
         }
     }
@@ -5081,7 +5081,8 @@ class WebAudio {
                 done,
                 value,
             }: ReadableStreamReadResult<Uint8Array<ArrayBuffer>>):
-                Promise<number> | number => {
+                | Promise<number>
+                | number => {
                 if (done) {
                     this._isLoaded = true;
                     if (this._fetchedSize > 0) {
@@ -5298,7 +5299,7 @@ class WebAudio {
             try {
                 sourceNode.onended = null;
                 sourceNode.stop();
-            } catch (e) {
+            } catch {
                 // Ignore InvalidStateError
             }
         }

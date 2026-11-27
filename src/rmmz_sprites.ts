@@ -766,7 +766,8 @@ class Sprite_Battler extends Sprite_Clickable {
 class Sprite_Actor extends Sprite_Battler {
     declare _battlerName: string;
     declare _motion:
-        (typeof Sprite_Actor.MOTIONS)[RMMZ.BattlerMotionType] | null;
+        | (typeof Sprite_Actor.MOTIONS)[RMMZ.BattlerMotionType]
+        | null;
     declare _motionCount: number;
     declare _pattern: number;
     declare _mainSprite: Sprite;
@@ -3558,7 +3559,7 @@ class Spriteset_Base extends Sprite {
         this.x += Math.round(screen.shake());
     }
 
-    findTargetSprite(target: any): Sprite | null | undefined {
+    findTargetSprite(_target: any): Sprite | null | undefined {
         return null;
     }
 

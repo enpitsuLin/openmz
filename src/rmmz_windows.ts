@@ -1443,7 +1443,7 @@ class Window_Selectable extends Window_Scrollable {
         }
     }
 
-    drawItem(index: number): void {
+    drawItem(_index: number): void {
         //
     }
 
@@ -3047,7 +3047,7 @@ class Window_Status extends Window_StatusBase {
 
     drawBasicInfo(x: number, y: number): void {
         const lineHeight = this.lineHeight();
-        this.drawActorLevel(this._actor!, x, y + lineHeight * 0);
+        this.drawActorLevel(this._actor!, x, y);
         this.drawActorIcons(this._actor!, x, y + lineHeight * 1);
         this.placeBasicGauges(this._actor!, x, y + lineHeight * 2);
     }
@@ -3057,7 +3057,7 @@ class Window_Status extends Window_StatusBase {
         const expTotal = TextManager.expTotal.format(TextManager.exp);
         const expNext = TextManager.expNext.format(TextManager.level);
         this.changeTextColor(ColorManager.systemColor());
-        this.drawText(expTotal, x, y + lineHeight * 0, 270);
+        this.drawText(expTotal, x, y, 270);
         this.drawText(expNext, x, y + lineHeight * 2, 270);
         this.resetTextColor();
         this.drawText(
@@ -3131,7 +3131,7 @@ class Window_StatusParams extends Window_StatusBase {
         this.drawText(value, rect.x + 160, rect.y, 60, "right");
     }
 
-    drawItemBackground(index: number): void {
+    drawItemBackground(_index: number): void {
         //
     }
 }
@@ -6029,7 +6029,7 @@ class Window_BattleLog extends Window_Base {
     }
 
     // prettier-ignore
-    showEnemyAttackAnimation(subject: Game_Enemy, targets: RMMZ.ActionTarget[]): void {
+    showEnemyAttackAnimation(_subject: Game_Enemy, _targets: RMMZ.ActionTarget[]): void {
         SoundManager.playEnemyAttack();
     }
 

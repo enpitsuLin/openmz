@@ -23,6 +23,8 @@ RPG Maker MZ 核心引擎：使用 TypeScript class 与 PixiJS 8 维护，构建
 
 - `pnpm build`：构建引擎、PixiJS 8、其他依赖及更新器。
 - `pnpm build:release`：构建并打包发布产物。
+- `pnpm lint` / `pnpm lint:fix`：使用 Oxlint 检查或安全修复维护源码。
+- `pnpm format` / `pnpm format:check`：使用 Oxfmt 格式化或检查格式。
 - `pnpm typecheck`：使用唯一 `tsconfig.json`，严格检查全部维护源码与测试。
 - `pnpm test`：执行两个 Vitest 项目。
 - `pnpm test:unit`：只执行 Node.js 项目。
@@ -40,3 +42,5 @@ RPG Maker MZ 核心引擎：使用 TypeScript class 与 PixiJS 8 维护，构建
 7. `main.ts` 只擦除类型，产物保留 `class Main`。其余引擎、PixiJS 和更新器的类转换为平铺的函数与原型定义，不为单个类创建 IIFE 或注入严格模式。Rolldown 命名空间外壳保留，strict 设为 false。保留原生 async/await、箭头函数、可选链、解构与迭代，不做 ES5 降级。
 8. 更新清单从 schemaVersion 1 开始，格式为 prototype。版本记录在 js/openmz.json；更新器不得安装 TypeScript 源码或改写工程插件配置。
 9. 不手改 dist，不维护第二份原型式源码。新增引擎语法时扩展转换与相关单元测试，并检查真实插件场景。
+10. 使用 Oxlint 与 Oxfmt，不再临时运行 Prettier。引擎源码保留四空格、双引号；工具代码保留双空格、单引号。vendor、兼容性夹具与生成产物不参与格式化。
+11. Oxlint 对引擎大写全局声明保留跨文件引用例外，局部未用变量继续由 TypeScript 检查。事件脚本的 eval、文本控制码正则和祖先遍历中的 this 游标是明确允许的引擎机制。

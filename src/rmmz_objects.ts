@@ -2087,7 +2087,7 @@ class Game_Action {
         }
     }
 
-    itemHit(target: Game_Battler): number {
+    itemHit(_target: Game_Battler): number {
         const successRate = this.item().successRate;
         if (this.isPhysical()) {
             return successRate * 0.01 * this.subject().hit;
@@ -2160,15 +2160,17 @@ class Game_Action {
     evalDamageFormula(target: RMMZ.ActionTarget): number {
         try {
             const item = this.item();
-            const a = this.subject(); // eslint-disable-line no-unused-vars
-            const b = target; // eslint-disable-line no-unused-vars
-            const v = $gameVariables._data; // eslint-disable-line no-unused-vars
+            const a = this.subject();
+            const b = target;
+            const v = $gameVariables._data;
             // These bindings are consumed by user-defined damage formulas through eval.
-            (void a, b, v);
+            void a;
+            void b;
+            void v;
             const sign = [3, 4].includes(item.damage.type) ? -1 : 1;
             const value = Math.max(eval(item.damage.formula), 0) * sign;
             return isNaN(value) ? 0 : value;
-        } catch (e) {
+        } catch {
             return 0;
         }
     }
@@ -2480,8 +2482,8 @@ class Game_Action {
     }
 
     itemEffectCommonEvent(
-        target: Game_Battler,
-        effect: RMMZ.ActionEffectBase,
+        _target: Game_Battler,
+        _effect: RMMZ.ActionEffectBase,
     ): void {
         //
     }
@@ -2490,7 +2492,7 @@ class Game_Action {
         target.result().success = true;
     }
 
-    applyItemUserEffect(target: Game_Battler): void {
+    applyItemUserEffect(_target: Game_Battler): void {
         const value = Math.floor(this.item().tpGain * this.subject().tcr);
         this.subject().gainSilentTp(value);
     }
@@ -3099,7 +3101,7 @@ class Game_BattlerBase {
         );
     }
 
-    paramBase(paramId: RMMZ.ParamID): number {
+    paramBase(_paramId: RMMZ.ParamID): number {
         return 0;
     }
 
@@ -3119,7 +3121,7 @@ class Game_BattlerBase {
         }
     }
 
-    paramMax(paramId: RMMZ.ParamID): number {
+    paramMax(_paramId: RMMZ.ParamID): number {
         return Infinity;
     }
 
@@ -3466,7 +3468,7 @@ class Game_BattlerBase {
         }
     }
 
-    isSkillWtypeOk(skill: RMMZ.DataSkill): boolean {
+    isSkillWtypeOk(_skill: RMMZ.DataSkill): boolean {
         return true;
     }
 
@@ -4283,7 +4285,7 @@ class Game_Battler extends Game_BattlerBase {
         }
     }
 
-    performAction(action: Game_Action): void {
+    performAction(_action: Game_Action): void {
         //
     }
 
@@ -4319,7 +4321,7 @@ class Game_Battler extends Game_BattlerBase {
         SoundManager.playReflection();
     }
 
-    performSubstitute(target: Game_Battler): void {
+    performSubstitute(_target: Game_Battler): void {
         //
     }
 
@@ -6004,7 +6006,7 @@ class Game_Party extends Game_Unit<Game_Actor> {
     }
 
     maxItems(
-        item: RMMZ.DataItem | RMMZ.DataWeapon | RMMZ.DataArmor | null,
+        _item: RMMZ.DataItem | RMMZ.DataWeapon | RMMZ.DataArmor | null,
     ): number {
         return 99;
     }
@@ -6014,7 +6016,10 @@ class Game_Party extends Game_Unit<Game_Actor> {
             this.numItems(item) >=
             this.maxItems(
                 item! as
-                    RMMZ.DataItem | RMMZ.DataWeapon | RMMZ.DataArmor | null,
+                    | RMMZ.DataItem
+                    | RMMZ.DataWeapon
+                    | RMMZ.DataArmor
+                    | null,
             )
         );
     }
@@ -6049,7 +6054,10 @@ class Game_Party extends Game_Unit<Game_Actor> {
                 0,
                 this.maxItems(
                     item! as
-                        RMMZ.DataItem | RMMZ.DataWeapon | RMMZ.DataArmor | null,
+                        | RMMZ.DataItem
+                        | RMMZ.DataWeapon
+                        | RMMZ.DataArmor
+                        | null,
                 ),
             );
             if (container[item!.id] === 0) {
@@ -7899,7 +7907,7 @@ class Game_CharacterBase {
         this.checkEventTriggerTouch(x2, y2);
     }
 
-    checkEventTriggerTouch(x: number, y: number): boolean | void {
+    checkEventTriggerTouch(_x: number, _y: number): boolean | void {
         return false;
     }
 
@@ -10375,9 +10383,11 @@ class Game_Interpreter {
     }
 
     currentCommand<T extends RMMZ.CommandCode>():
-        RMMZ.ExtractDataCommand<T> | undefined {
+        | RMMZ.ExtractDataCommand<T>
+        | undefined {
         return this._list![this._index] as
-            RMMZ.ExtractDataCommand<T> | undefined;
+            | RMMZ.ExtractDataCommand<T>
+            | undefined;
     }
 
     nextEventCode(): RMMZ.CommandCode {
@@ -11072,7 +11082,7 @@ class Game_Interpreter {
                     $gameVariables.setValue(variableId, oldValue % value);
                     break;
             }
-        } catch (e) {
+        } catch {
             $gameVariables.setValue(variableId, 0);
         }
     }
