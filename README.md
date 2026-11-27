@@ -25,7 +25,7 @@ pnpm build
 ## 构建方式
 
 1. Node.js 擦除 `src/{main,rmmz_*}.ts` 的类型；`declare` 字段不生成赋值，保留 `initialize` 的原有初始化顺序。构建脚本、共享协议、更新器和测试也直接维护为 TypeScript。
-2. Rolldown 通过 `src/lib/pixi.js` 从安装的 `pixi.js` 包生成浏览器全局 `PIXI`，其他第三方运行库从 `vendor/libs/` 复制。
+2. 构建按文件名合并 `vendor/js/libs/` 和 `src/libs/`，同名文件优先采用 `src/libs/`。`libraryProcessors` 可按文件名指定处理方式。`pixi.js` 通过 Rolldown 从 npm 依赖生成浏览器全局 `PIXI`，其余库默认按原格式输出。
 3. ast-grep 将引擎与 PixiJS 的 class 转换为平铺的函数、原型方法及属性描述符，不为每个类生成 IIFE 或添加严格模式。类表达式使用唯一的内部绑定，保留构造函数名称和自身引用。`main.ts` 只擦除类型，产出的 `main.js` 保留 `class Main`。
 4. 构建时将 `Sprite`、`TilingSprite`、`Window`、`Stage` 的 PixiJS 初始化移入 `initialize`。普通 `new` 与旧插件的 `initialize.call(this)` 都在同一个对象上初始化一次。
 5. 生成 `js/openmz.json`，记录引擎版本、PixiJS 版本及产物格式。单元测试检查类型擦除、原型结构、现代语法保留，以及没有引入 TypeScript 降级辅助函数。
@@ -143,14 +143,13 @@ Oxlint 与 Oxfmt 的配置分别位于 `.oxlintrc.json`、`.oxfmtrc.json`。引�
 | 路径                   | 内容                                                          |
 | ---------------------- | ------------------------------------------------------------- |
 | `src/`                 | TypeScript class 引擎源码、数据库协议及外部环境类型           |
-| `src/lib/pixi.js`      | PixiJS 的 npm 打包入口                                        |
-| `vendor/libs/`         | Effekseer、Pako、LocalForage 和 Vorbis 等第三方运行库         |
+| `src/libs/`            | 第三方运行库的覆盖文件和 PixiJS npm 打包入口                  |
 | `scripts/`             | TypeScript 类型擦除、AST 转换、构建、发布和本地服务器         |
 | `shared/`              | 构建与更新器共用的发布协议                                    |
 | `plugins/`             | 按插件名分目录，包含各插件的入口与内部模块                    |
 | `tests/unit/`          | 引擎构建的 Node.js 单元测试                                   |
 | `tests/plugin-compat/` | 浏览器插件测试；`fixtures/` 存放示例工程资源、HTML 和插件样本 |
-| `vendor/js/`           | 原版 MZ 运行时参考                                            |
+| `vendor/js/`           | 原版 MZ 运行时参考，`libs/` 提供第三方运行库                  |
 | `dist/`                | 自动生成的运行时、插件和发布产物                              |
 
 ## 许可证

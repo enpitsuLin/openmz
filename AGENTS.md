@@ -5,7 +5,7 @@ RPG Maker MZ 核心引擎：使用 TypeScript class 与 PixiJS 8 维护，构建
 ## 目录
 
 - `src/`：唯一的引擎维护源码，根目录包含 `main.ts`、六个 `rmmz_*.ts`、数据库协议 `data.d.ts` 和外部环境声明 `environment.d.ts`。
-- `src/lib/pixi.js`：PixiJS 的 npm 打包入口；不保留预打包的开发副本。
+- `src/libs/`：运行库覆盖目录，同名文件优先于 `vendor/js/libs/`；按文件名的特殊构建规则维护在 `runtime.ts` 的 `libraryProcessors`，其中 `pixi.js` 从 npm 打包。
 - `scripts/cli.ts`：注册并启动 Citty 命令。
 - `scripts/commands/build/`：`build` 命令、运行时和插件构建，以及相关的引擎转换和产物格式化。
 - `scripts/commands/pack/`：`pack` 命令和发布产物生成。
@@ -15,8 +15,7 @@ RPG Maker MZ 核心引擎：使用 TypeScript class 与 PixiJS 8 维护，构建
 - `plugins/OpenMzUpdater/`：更新器插件；`index.ts` 为 ESM 入口，`core.ts` 为安装逻辑，`ui.ts` 为标题界面。游戏只安装构建后的 `OpenMzUpdater.js`。
 - `tests/unit/`：引擎构建的 Vitest Node.js 测试。`unit` 项目同时自动发现 `plugins/**/__test__/**/*.test.ts`。
 - `tests/plugin-compat/`：Vitest Browser + Playwright Chromium，对照原版和正式产物；`fixtures/` 存放示例工程资源、HTML 和 JavaScript 插件样本，素材沿用原有忽略规则。
-- `vendor/js/`：原版 MZ 参考，勿修改。
-- `vendor/libs/`：正式运行时需要复制的第三方浏览器库与 WASM。
+- `vendor/js/`：原版 MZ 参考，勿修改。`vendor/js/libs/` 提供未在 `src/libs/` 覆盖的运行库。
 
 ## 命令
 
@@ -36,7 +35,7 @@ RPG Maker MZ 核心引擎：使用 TypeScript class 与 PixiJS 8 维护，构建
 
 ## 开发约定
 
-1. 引擎 `.ts` 维持经典全局脚本，不引入 ES import/export；`src/lib/pixi.js`、工具、共享协议和更新器使用 ESM。
+1. 引擎 `.ts` 维持经典全局脚本，不引入 ES import/export；`src/libs/pixi.js`、工具、共享协议和更新器使用 ESM。
 2. 类型直接维护在 `.ts` 签名中；JSDoc 保留用途说明。不要生成或维护第二份引擎声明，也不要恢复声明同步脚本。
 3. 经 `initialize` 初始化的实例字段使用 `declare`，避免派生类字段在父构造之后重置状态。只使用可擦除的 TypeScript 语法，不使用 enum、参数属性或需要生成运行时代码的 namespace。
 4. 数据类型在 `RMMZ` 命名空间。外部环境声明只连接宿主与第三方库。PixiJS 类型使用 `import("pixi.js").Type`。
