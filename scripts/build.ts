@@ -139,11 +139,11 @@ export async function buildUpdater({
   outDir = pluginDir,
 }: Pick<BuildOptions, 'outDir'> = {}) {
   const entry = await readFile(
-    join(projectRoot, 'plugins/OpenMzUpdater.ts'),
+    join(projectRoot, 'plugins/OpenMzUpdater/index.ts'),
     'utf8',
   );
   const header = entry.slice(0, entry.indexOf('import '));
-  const source = await bundleScript('plugins/OpenMzUpdater.ts');
+  const source = await bundleScript('plugins/OpenMzUpdater/index.ts');
   const file = join(outDir, 'OpenMzUpdater.js');
   await mkdir(outDir, { recursive: true });
   await writeFile(

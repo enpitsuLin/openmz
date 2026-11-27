@@ -9,7 +9,10 @@ export default defineConfig({
         test: {
           name: 'unit',
           environment: 'node',
-          include: ['tests/unit/**/*.test.ts'],
+          include: [
+            'tests/unit/**/*.test.ts',
+            'plugins/**/__test__/**/*.test.ts',
+          ],
           testTimeout: 30_000,
           hookTimeout: 30_000,
         },

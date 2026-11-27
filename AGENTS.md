@@ -11,8 +11,9 @@ RPG Maker MZ 核心引擎：使用 TypeScript class 与 PixiJS 8 维护，构建
 - `scripts/build.ts`：打包 PixiJS 和更新器，生成 `dist/runtime/` 与 `dist/plugins/`。
 - `scripts/build-release.ts`：仅从正式构建产物生成 `dist/release/`。
 - `shared/engine-release.ts`：发布清单、版本、运行时格式与压缩包条目的公共协议。
-- `plugins/OpenMzUpdater.ts`：更新器的 ESM 入口；`plugins/updater/` 存放安装核心与标题界面。游戏只安装构建后的 `OpenMzUpdater.js`。
-- `tests/unit/`：Vitest Node.js 测试，使用 TypeScript。
+- `plugins/`：每个插件使用独立目录，入口统一为 `plugins/<插件名>/index.ts`，内部可按模块继续分层，测试放在插件自己的 `__test__/` 目录。
+- `plugins/OpenMzUpdater/`：更新器插件；`index.ts` 为 ESM 入口，`core.ts` 为安装逻辑，`ui.ts` 为标题界面。游戏只安装构建后的 `OpenMzUpdater.js`。
+- `tests/unit/`：引擎构建的 Vitest Node.js 测试。`unit` 项目同时自动发现 `plugins/**/__test__/**/*.test.ts`。
 - `tests/plugin-compat/`：Vitest Browser + Playwright Chromium，对照原版和正式产物；`fixtures/` 存放示例工程资源、HTML 和 JavaScript 插件样本，素材沿用原有忽略规则。
 - `vendor/js/`：原版 MZ 参考，勿修改。
 - `vendor/libs/`：正式运行时需要复制的第三方浏览器库与 WASM。

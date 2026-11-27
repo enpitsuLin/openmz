@@ -3,8 +3,8 @@ import type {
   ArchiveEntry,
   ReleaseManifest,
   RuntimeMetadata,
-} from '../../shared/engine-release.ts';
-import type { InstallOptions } from '../../plugins/updater/core.ts';
+} from '../../../shared/engine-release.ts';
+import type { InstallOptions } from '../core.ts';
 import assert from 'node:assert/strict';
 import { createHash } from 'node:crypto';
 import { existsSync } from 'node:fs';
@@ -17,15 +17,18 @@ import { pathToFileURL } from 'node:url';
 import { runInNewContext } from 'node:vm';
 import { gzipSync } from 'node:zlib';
 import { afterAll, beforeAll, test } from 'vitest';
-import { buildRuntime } from '../../scripts/build.ts';
-import { buildRelease, createTarBuffer } from '../../scripts/build-release.ts';
-import { createManifestServer } from '../../scripts/serve-manifest.ts';
+import { buildRuntime } from '../../../scripts/build.ts';
+import {
+  buildRelease,
+  createTarBuffer,
+} from '../../../scripts/build-release.ts';
+import { createManifestServer } from '../../../scripts/serve-manifest.ts';
 import {
   checkForUpdate,
   fetchBuffer,
   installUpdate,
   parseTarBuffer,
-} from '../../plugins/updater/core.ts';
+} from '../core.ts';
 import {
   compareVersions,
   coreScripts,
@@ -33,7 +36,7 @@ import {
   manifestSchema,
   runtimeFormat,
   statePath,
-} from '../../shared/engine-release.ts';
+} from '../../../shared/engine-release.ts';
 
 const require = createRequire(import.meta.url);
 const originalMain = 'original core';

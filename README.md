@@ -56,6 +56,20 @@ pnpm exec playwright install chromium
 
 ## 更新插件
 
+插件源码按插件名分目录，当前更新器结构为：
+
+```text
+plugins/
+└── OpenMzUpdater/
+    ├── index.ts
+    ├── core.ts
+    ├── ui.ts
+    └── __test__/
+        └── updater.test.ts
+```
+
+每个插件以自己的 `index.ts` 为入口，内部可继续按功能拆分子目录。插件测试放在对应的 `__test__/` 下，由 `pnpm test:unit` 自动发现。
+
 1. 将构建或 Release 中的 `OpenMzUpdater.js` 放入工程的 `js/plugins/`。
 2. 在编辑器的插件管理器中启用它，配置“更新清单地址”。
 3. 在 NW.js 中启动游戏。首次进入标题画面时，插件在后台读取清单并比较版本。
@@ -124,8 +138,8 @@ Oxlint 与 Oxfmt 的配置分别位于 `.oxlintrc.json`、`.oxfmtrc.json`。引�
 | `vendor/libs/`         | Effekseer、Pako、LocalForage 和 Vorbis 等第三方运行库         |
 | `scripts/`             | TypeScript 类型擦除、AST 转换、构建、发布和本地服务器         |
 | `shared/`              | 构建与更新器共用的发布协议                                    |
-| `plugins/`             | 更新插件的 ESM 入口、安装核心与标题界面                       |
-| `tests/unit/`          | Node.js 单元测试                                              |
+| `plugins/`             | 按插件名分目录，包含各插件的入口与内部模块                    |
+| `tests/unit/`          | 引擎构建的 Node.js 单元测试                                   |
 | `tests/plugin-compat/` | 浏览器插件测试；`fixtures/` 存放示例工程资源、HTML 和插件样本 |
 | `vendor/js/`           | 原版 MZ 运行时参考                                            |
 | `dist/`                | 自动生成的运行时、插件和发布产物                              |
