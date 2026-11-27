@@ -72,7 +72,11 @@ export async function buildRuntime({
   };
   const pixi = await bundleScript('src/lib/pixi.js', {
     name: 'PIXI',
-    banner: `/*! PixiJS v${pixiInfo.version} | ${pixiInfo.license} | https://pixijs.com */`,
+    banner: `/*! PixiJS v${pixiInfo.version} | ${pixiInfo.license} | https://pixijs.com
+ * Modified by OpenMZ v${metadata.version} | https://github.com/enpitsuLin/openmz
+ * Runtime format: ${metadata.format}; modern JavaScript syntax preserved.
+ * Classes converted to functions/prototypes for legacy plugin construction.
+ */`,
   });
   const libraries = (await readdir(libraryDir)).sort();
   const files = [

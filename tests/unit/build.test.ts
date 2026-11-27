@@ -312,6 +312,15 @@ test('builds a complete prototype runtime without syntax downleveling or TypeScr
   assert(!runtime.files.some((path) => path.startsWith('js/plugins')));
   for (const file of runtime.files.filter((path) => path.endsWith('.js'))) {
     const source = await readFile(join(runtime.outDir, file), 'utf8');
+    if (file === 'js/libs/pixi.js') {
+      assert(
+        source.startsWith(`/*! PixiJS v${runtime.metadata.pixiVersion} |`),
+      );
+      const banner = source.slice(0, source.indexOf('*/'));
+      assert(
+        banner.includes(`Modified by OpenMZ v${runtime.metadata.version}`),
+      );
+    }
     if (file.startsWith('js/rmmz_')) {
       const original = await readFile(
         new URL(
