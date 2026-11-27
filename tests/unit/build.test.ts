@@ -7,11 +7,9 @@ import { runInNewContext, Script } from 'node:vm';
 import { afterAll, beforeAll, test } from 'vitest';
 import { Lang, parse as parseAst } from '@ast-grep/napi';
 import { format } from 'oxfmt';
-import {
-  buildRuntime,
-  buildUpdater,
-  outputFormatOptions,
-} from '../../scripts/build.ts';
+import { buildRuntime } from '../../scripts/build-runtime.ts';
+import { buildPlugin } from '../../scripts/build-plugins.ts';
+import { outputFormatOptions } from '../../scripts/build-utils.ts';
 import {
   restorePixiInitializers,
   transformClasses,
@@ -25,7 +23,9 @@ beforeAll(async () => {
     outDir: join(root, 'runtime'),
     version: '1.2.3',
   });
-  updater = await buildUpdater({ outDir: join(root, 'plugins') });
+  updater = await buildPlugin('OpenMzUpdater', {
+    outDir: join(root, 'plugins'),
+  });
 });
 afterAll(() => rm(root, { recursive: true, force: true }));
 
@@ -379,6 +379,7 @@ test('builds a standalone prototype updater that is inert outside RPG Maker', as
   assert.deepEqual(formatted.errors, []);
   assert.equal(source, formatted.code);
   assert.match(source, /@param manifestUrl/);
+  assert(source.includes('/*:zh'));
   assertPrototypeScript(source, 'OpenMzUpdater.js');
   assert.doesNotThrow(() => runInNewContext(source, {}));
 });

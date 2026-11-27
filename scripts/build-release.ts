@@ -10,13 +10,9 @@ import { join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { gzipSync } from 'node:zlib';
 import { manifestSchema } from '../shared/engine-release.ts';
-import {
-  buildRuntime,
-  buildUpdater,
-  formatOutput,
-  projectRoot,
-  resolveVersion,
-} from './build.ts';
+import { buildRuntime, resolveVersion } from './build-runtime.ts';
+import { buildPlugins } from './build-plugins.ts';
+import { formatOutput, projectRoot } from './build-utils.ts';
 
 const blockSize = 512;
 
@@ -98,7 +94,7 @@ export async function buildRelease({
   await mkdir(outDir, { recursive: true });
   await Promise.all([
     writeFile(join(outDir, manifest.archive.url), archive),
-    buildUpdater({ outDir }),
+    buildPlugins({ outDir }),
   ]);
   await writeFile(
     join(outDir, 'manifest.json'),

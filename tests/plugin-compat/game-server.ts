@@ -2,7 +2,7 @@ import type { Plugin } from 'vitest/config';
 import { readFile } from 'node:fs/promises';
 import { extname, resolve, sep } from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { buildRuntime, runtimeDir } from '../../scripts/build.ts';
+import { buildRuntime, runtimeDir } from '../../scripts/build-runtime.ts';
 
 const vendor = fileURLToPath(new URL('../../vendor', import.meta.url));
 const fixtures = fileURLToPath(new URL('./fixtures', import.meta.url));

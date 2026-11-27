@@ -5,6 +5,8 @@
   "main": "index.js",
   "scripts": {
     "build": "node scripts/build.ts",
+    "build:runtime": "node scripts/build-runtime.ts",
+    "build:plugins": "node scripts/build-plugins.ts",
     "build:release": "node scripts/build-release.ts",
     "serve:manifest": "node scripts/serve-manifest.ts",
     "lint": "oxlint --deny-warnings",

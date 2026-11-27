@@ -13,10 +13,10 @@ pnpm build
 
 构建生成：
 
-| 目录                            | 内容                                                    |
-| ------------------------------- | ------------------------------------------------------- |
-| `dist/runtime/js/`              | 核心脚本、原型式 PixiJS 8、其他运行依赖与 `openmz.json` |
-| `dist/plugins/OpenMzUpdater.js` | 可直接安装的单文件更新插件                              |
+| 目录                | 内容                                                    |
+| ------------------- | ------------------------------------------------------- |
+| `dist/runtime/js/`  | 核心脚本、原型式 PixiJS 8、其他运行依赖与 `openmz.json` |
+| `dist/plugins/*.js` | 每个插件独立生成的可安装脚本                            |
 
 将 `dist/runtime/js/` 的内容复制到 RPG Maker MZ 工程的 `js/` 目录。产物不包含 `plugins.js` 和 `plugins/`，工程原有的插件配置、数据库、素材和存档保持原样。
 
@@ -70,6 +70,13 @@ plugins/
 
 每个插件以自己的 `index.ts` 为入口，内部可继续按功能拆分子目录。插件测试放在对应的 `__test__/` 下，由 `pnpm test:unit` 自动发现。
 
+```sh
+pnpm build:plugins
+pnpm build:plugins OpenMzUpdater
+```
+
+插件构建会自动发现 `plugins/` 下各插件目录，保留中英文插件元数据，输出为 `dist/plugins/<插件名>.js`。也可以传入插件名仅构建指定插件。
+
 1. 将构建或 Release 中的 `OpenMzUpdater.js` 放入工程的 `js/plugins/`。
 2. 在编辑器的插件管理器中启用它，配置“更新清单地址”。
 3. 在 NW.js 中启动游戏。首次进入标题画面时，插件在后台读取清单并比较版本。
@@ -113,17 +120,19 @@ pnpm serve:manifest
 
 ## 开发命令
 
-| 命令                  | 作用                                                   |
-| --------------------- | ------------------------------------------------------ |
-| `pnpm build`          | 构建完整运行时与更新插件                               |
-| `pnpm build:release`  | 从构建产物生成发布压缩包、清单与更新插件               |
-| `pnpm lint`           | 使用 Oxlint 检查维护源码，警告也视为失败               |
-| `pnpm lint:fix`       | 应用 Oxlint 的安全自动修复                             |
-| `pnpm format`         | 使用 Oxfmt 格式化维护源码与配置                        |
-| `pnpm format:check`   | 检查格式，供 CI 使用                                   |
-| `pnpm typecheck`      | 严格检查引擎、构建脚本、更新器及测试的 TypeScript 类型 |
-| `pnpm test`           | 执行两个 Vitest 项目                                   |
-| `pnpm serve:manifest` | 提供本地更新源                                         |
+| 命令                          | 作用                                                   |
+| ----------------------------- | ------------------------------------------------------ |
+| `pnpm build`                  | 构建完整运行时与全部插件                               |
+| `pnpm build:runtime`          | 仅构建引擎、PixiJS 与其他运行依赖                      |
+| `pnpm build:plugins [插件名]` | 独立构建全部插件或指定插件                             |
+| `pnpm build:release`          | 生成运行时压缩包、清单与全部插件                       |
+| `pnpm lint`                   | 使用 Oxlint 检查维护源码，警告也视为失败               |
+| `pnpm lint:fix`               | 应用 Oxlint 的安全自动修复                             |
+| `pnpm format`                 | 使用 Oxfmt 格式化维护源码与配置                        |
+| `pnpm format:check`           | 检查格式，供 CI 使用                                   |
+| `pnpm typecheck`              | 严格检查引擎、构建脚本、更新器及测试的 TypeScript 类型 |
+| `pnpm test`                   | 执行两个 Vitest 项目                                   |
+| `pnpm serve:manifest`         | 提供本地更新源                                         |
 
 Oxlint 与 Oxfmt 的配置分别位于 `.oxlintrc.json`、`.oxfmtrc.json`。引擎保留四空格缩进与双引号，工具代码使用双空格与单引号；第三方库、兼容性夹具和生成目录不参与源码检查或 CLI 格式化；构建流程会通过 API 格式化生成的文本产物。
 
