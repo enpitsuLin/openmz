@@ -49,12 +49,17 @@ jobs:
           fi
           echo "dir=$PLUGIN_DIR" >> "$GITHUB_OUTPUT"
           echo "version=$PLUGIN_VERSION" >> "$GITHUB_OUTPUT"
+          case "${PLUGIN_VERSION%%+*}" in
+            *-*) echo "prerelease=true" ;;
+            *) echo "prerelease=false" ;;
+          esac >> "$GITHUB_OUTPUT"
       - uses: ./.github/actions/setup
       - run: pnpm --filter "./plugins/${{ steps.plugin.outputs.dir }}" run build
       - uses: softprops/action-gh-release@v3
         with:
           tag_name: ${{ env.RELEASE_TAG }}
           name: ${{ steps.plugin.outputs.dir }} v${{ steps.plugin.outputs.version }}
+          prerelease: ${{ steps.plugin.outputs.prerelease }}
           fail_on_unmatched_files: true
           files: |
             plugins/${{ steps.plugin.outputs.dir }}/dist/*.js

@@ -27,11 +27,20 @@ jobs:
         with:
           ref: refs/tags/${{ env.RELEASE_TAG }}
           persist-credentials: false
+      - name: Detect prerelease from tag
+        id: tag
+        shell: bash
+        run: |
+          case "${RELEASE_TAG%%+*}" in
+            *-*) echo "prerelease=true" ;;
+            *) echo "prerelease=false" ;;
+          esac >> "$GITHUB_OUTPUT"
       - uses: ./.github/actions/setup
       - run: pnpm --filter openmz run pack
       - uses: softprops/action-gh-release@v3
         with:
           tag_name: ${{ env.RELEASE_TAG }}
+          prerelease: ${{ steps.tag.outputs.prerelease }}
           fail_on_unmatched_files: true
           files: |
             packages/openmz/dist/release/openmz-core-*.tar.gz
