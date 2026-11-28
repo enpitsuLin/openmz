@@ -5,10 +5,7 @@
     {
       "files": ["src/*.ts"],
       "rules": {
-        "no-unused-vars": [
-          "error",
-          { "varsIgnorePattern": "^[A-Z]", "argsIgnorePattern": "^_" }
-        ]
+        "no-unused-vars": ["error", { "varsIgnorePattern": "^[A-Z]", "argsIgnorePattern": "^_" }]
       }
     },
     {
@@ -22,10 +19,7 @@
     {
       "files": ["src/rmmz_sprites.ts"],
       "rules": {
-        "typescript/no-this-alias": [
-          "error",
-          { "allowedNames": ["sprite", "object"] }
-        ]
+        "typescript/no-this-alias": ["error", { "allowedNames": ["sprite", "object"] }]
       }
     }
   ],

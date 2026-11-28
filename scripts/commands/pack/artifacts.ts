@@ -57,20 +57,12 @@ export function createTarBuffer(entries: ArchiveEntry[]) {
   return Buffer.concat([...chunks, Buffer.alloc(2 * blockSize)]);
 }
 
-export async function buildRelease({
-  outDir = defaultReleaseDir,
-  version,
-  runtime,
-}: ReleaseOptions = {}) {
+export async function buildRelease({ outDir = defaultReleaseDir, version, runtime }: ReleaseOptions = {}) {
   const releaseVersion = resolveVersion(
-    version ??
-      runtime?.metadata.version ??
-      process.env.RELEASE_TAG ??
-      process.env.GITHUB_REF_NAME,
+    version ?? runtime?.metadata.version ?? process.env.RELEASE_TAG ?? process.env.GITHUB_REF_NAME,
   );
   const built = runtime ?? (await buildRuntime({ version: releaseVersion }));
-  if (built.metadata.version !== releaseVersion)
-    throw new Error('Runtime and release versions must match.');
+  if (built.metadata.version !== releaseVersion) throw new Error('Runtime and release versions must match.');
   const includedFiles = built.files;
   const entries = await Promise.all(
     includedFiles.map(async (relativePath) => ({
@@ -91,16 +83,10 @@ export async function buildRelease({
   };
 
   await mkdir(outDir, { recursive: true });
-  await Promise.all([
-    writeFile(join(outDir, manifest.archive.url), archive),
-    buildPlugins({ outDir }),
-  ]);
+  await Promise.all([writeFile(join(outDir, manifest.archive.url), archive), buildPlugins({ outDir })]);
   await writeFile(
     join(outDir, 'manifest.json'),
-    await formatOutput(
-      'manifest.json',
-      `${JSON.stringify(manifest, null, 2)}\n`,
-    ),
+    await formatOutput('manifest.json', `${JSON.stringify(manifest, null, 2)}\n`),
   );
   return { manifest, includedFiles };
 }

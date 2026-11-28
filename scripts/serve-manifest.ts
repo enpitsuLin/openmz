@@ -33,9 +33,7 @@ export function createManifestServer({
       return;
     }
 
-    const pathname = decodeURIComponent(
-      new URL(request.url || '/', `http://${host}:${port}`).pathname,
-    );
+    const pathname = decodeURIComponent(new URL(request.url || '/', `http://${host}:${port}`).pathname);
     const relativePath = pathname.replace(/^\/+/, '');
     if (!relativePath) {
       response.writeHead(404).end('Not Found');
@@ -50,8 +48,7 @@ export function createManifestServer({
 
     try {
       const bytes = await readFile(filePath);
-      const contentType =
-        mimeTypes[extname(filePath)] || 'application/octet-stream';
+      const contentType = mimeTypes[extname(filePath)] || 'application/octet-stream';
       response.writeHead(200, {
         'Content-Type': contentType,
         'Content-Length': bytes.length,
@@ -59,13 +56,10 @@ export function createManifestServer({
       response.end(request.method === 'HEAD' ? undefined : bytes);
     } catch (error) {
       const status =
-        (error as NodeJS.ErrnoException).code === 'ENOENT' ||
-        (error as NodeJS.ErrnoException).code === 'EISDIR'
+        (error as NodeJS.ErrnoException).code === 'ENOENT' || (error as NodeJS.ErrnoException).code === 'EISDIR'
           ? 404
           : 500;
-      response
-        .writeHead(status)
-        .end(status === 404 ? 'Not Found' : (error as Error).message);
+      response.writeHead(status).end(status === 404 ? 'Not Found' : (error as Error).message);
     }
   });
 }
@@ -82,9 +76,7 @@ function parsePortArg(argv: string[]) {
   return Number.isInteger(envPort) && envPort > 0 ? envPort : 4173;
 }
 
-const isDirectRun =
-  process.argv[1] &&
-  resolve(process.argv[1]) === fileURLToPath(import.meta.url);
+const isDirectRun = process.argv[1] && resolve(process.argv[1]) === fileURLToPath(import.meta.url);
 
 if (isDirectRun) {
   const args = process.argv.slice(2);
@@ -104,8 +96,6 @@ if (isDirectRun) {
     port,
   });
   server.listen(port, host, () => {
-    console.log(
-      `OpenMZ manifest server listening at http://${host}:${port}/manifest.json`,
-    );
+    console.log(`OpenMZ manifest server listening at http://${host}:${port}/manifest.json`);
   });
 }

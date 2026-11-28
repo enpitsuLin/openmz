@@ -1,10 +1,6 @@
 import type { Buffer } from 'node:buffer';
 import type { Stats } from 'node:fs';
-import type {
-  ArchiveEntry,
-  ReleaseManifest,
-  RuntimeMetadata,
-} from '../../shared/engine-release.ts';
+import type { ArchiveEntry, ReleaseManifest, RuntimeMetadata } from '../../shared/engine-release.ts';
 
 export interface NodeModules {
   fs: typeof import('node:fs');
@@ -17,9 +13,7 @@ export interface NodeModules {
   zlib: typeof import('node:zlib');
 }
 
-export type NodeRequire = <K extends keyof NodeModules>(
-  name: K,
-) => NodeModules[K];
+export type NodeRequire = <K extends keyof NodeModules>(name: K) => NodeModules[K];
 
 export type DownloadCallback = (loaded: number, total: number) => void;
 
@@ -42,10 +36,7 @@ export interface ProjectOptions {
   nodeRequire: NodeRequire;
 }
 
-export type ParsedManifest = Omit<
-  ReleaseManifest,
-  'schemaVersion' | 'publishedAt'
->;
+export type ParsedManifest = Omit<ReleaseManifest, 'schemaVersion' | 'publishedAt'>;
 
 export interface UpdateCheck {
   installed: RuntimeMetadata | null;
@@ -60,10 +51,7 @@ export interface DownloadProgress {
   total: number;
 }
 
-export type UpdateProgress =
-  | DownloadProgress
-  | { phase: 'verify' }
-  | { phase: 'apply'; total: number };
+export type UpdateProgress = DownloadProgress | { phase: 'verify' } | { phase: 'apply'; total: number };
 
 export interface InstallOptions extends ProjectOptions {
   update: UpdateCheck;

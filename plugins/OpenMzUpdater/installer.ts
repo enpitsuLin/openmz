@@ -20,10 +20,7 @@ function inspectTargetFile(fs: FsModule, filePath: string): Stats | undefined {
     throw error;
   }
   if (!stat.isFile()) {
-    throw createUpdaterError(
-      'UNSAFE_TARGET_PATH',
-      `Unexpected filesystem entry: ${filePath}`,
-    );
+    throw createUpdaterError('UNSAFE_TARGET_PATH', `Unexpected filesystem entry: ${filePath}`);
   }
   return stat;
 }
@@ -43,10 +40,7 @@ function inspectIntermediateDirectories(
     try {
       const stat = fs.lstatSync(current);
       if (!stat.isDirectory()) {
-        throw createUpdaterError(
-          'UNSAFE_TARGET_PATH',
-          `Unexpected filesystem entry: ${current}`,
-        );
+        throw createUpdaterError('UNSAFE_TARGET_PATH', `Unexpected filesystem entry: ${current}`);
       }
       checkedDirs.add(current);
     } catch (error) {
@@ -93,27 +87,20 @@ function createBackupDir(fs: FsModule, path: PathModule, root: string): string {
  * Preflights every target path before mutating the project directory.
  * Rejects symlinked directories or non-regular target files.
  */
-export function planUpgrade(
-  fs: FsModule,
-  path: PathModule,
-  projectRoot: string,
-  entries: ArchiveEntry[],
-): UpgradePlan {
+export function planUpgrade(fs: FsModule, path: PathModule, projectRoot: string, entries: ArchiveEntry[]): UpgradePlan {
   const root = fs.realpathSync(projectRoot);
   const checkedDirs = new Set<string>();
-  const files: PlannedUpgradeFile[] = entries.map(
-    ({ relativePath, content }) => {
-      const segments = relativePath.split('/');
-      inspectIntermediateDirectories(fs, path, root, segments, checkedDirs);
-      const targetPath = path.join(root, ...segments);
-      return {
-        relativePath,
-        content,
-        targetPath,
-        stat: inspectTargetFile(fs, targetPath),
-      };
-    },
-  );
+  const files: PlannedUpgradeFile[] = entries.map(({ relativePath, content }) => {
+    const segments = relativePath.split('/');
+    inspectIntermediateDirectories(fs, path, root, segments, checkedDirs);
+    const targetPath = path.join(root, ...segments);
+    return {
+      relativePath,
+      content,
+      targetPath,
+      stat: inspectTargetFile(fs, targetPath),
+    };
+  });
   return { root, files };
 }
 
@@ -123,16 +110,11 @@ export function planUpgrade(
  * 2. Writes each file to a staged temporary path, preserves original mode, and atomically renames.
  * 3. On any failure, restores backed-up files, removes newly added files and created directories.
  */
-export function applyUpgradePlan(
-  fs: FsModule,
-  path: PathModule,
-  plan: UpgradePlan,
-): string {
+export function applyUpgradePlan(fs: FsModule, path: PathModule, plan: UpgradePlan): string {
   const { root, files } = plan;
   const backupDir = createBackupDir(fs, path, root);
   const stagedPath = path.join(backupDir, '.openmz-update');
-  const backupPathOf = (file: PlannedUpgradeFile) =>
-    path.join(backupDir, file.relativePath);
+  const backupPathOf = (file: PlannedUpgradeFile) => path.join(backupDir, file.relativePath);
 
   const createdDirs: string[] = [];
   const applied: PlannedUpgradeFile[] = [];
@@ -162,15 +144,7 @@ export function applyUpgradePlan(
       applied.push(file);
     }
   } catch (error) {
-    rollbackUpgrade(
-      fs,
-      backupDir,
-      stagedPath,
-      backupPathOf,
-      applied,
-      createdDirs,
-      error,
-    );
+    rollbackUpgrade(fs, backupDir, stagedPath, backupPathOf, applied, createdDirs, error);
   }
 
   return backupDir;

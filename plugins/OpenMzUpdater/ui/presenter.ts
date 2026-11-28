@@ -22,10 +22,7 @@ const DOWNLOAD_PROGRESS_WEIGHT = 0.8;
 const VERIFY_PROGRESS = 0.8;
 const APPLY_PROGRESS = 0.9;
 
-export function formatProgressSnapshot(
-  event: UpdateProgress,
-  texts: UpdaterTexts,
-): ProgressSnapshot {
+export function formatProgressSnapshot(event: UpdateProgress, texts: UpdaterTexts): ProgressSnapshot {
   if (event.phase === 'download') {
     const ratio = event.total > 0 ? Math.min(event.loaded / event.total, 1) : 0;
     const progress = ratio * DOWNLOAD_PROGRESS_WEIGHT;
@@ -57,16 +54,10 @@ export function createCheckingView(texts: UpdaterTexts): DialogView {
   };
 }
 
-export function createAvailableView(
-  update: UpdateCheck,
-  texts: UpdaterTexts,
-): DialogView {
+export function createAvailableView(update: UpdateCheck, texts: UpdaterTexts): DialogView {
   return {
     title: texts.title,
-    lines: [
-      texts.version(update.installed?.version, update.manifest.version),
-      texts.backup,
-    ],
+    lines: [texts.version(update.installed?.version, update.manifest.version), texts.backup],
     commands: [
       [texts.update, 'update'],
       [texts.skip, 'close'],
@@ -82,16 +73,10 @@ export function createUpToDateView(texts: UpdaterTexts): DialogView {
   };
 }
 
-export function createInstalledView(
-  result: InstallResult,
-  texts: UpdaterTexts,
-): DialogView {
+export function createInstalledView(result: InstallResult, texts: UpdaterTexts): DialogView {
   return {
     title: texts.done,
-    lines: [
-      texts.installed(result.version),
-      texts.saved(result.backupRelativeDir),
-    ],
+    lines: [texts.installed(result.version), texts.saved(result.backupRelativeDir)],
     progress: 1,
     commands: [
       [texts.reload, 'reload'],
@@ -119,11 +104,7 @@ export function createErrorView(
  * Wraps a single line of text to fit within `maxWidth`, breaking at whitespace
  * and path separators first and falling back to character-level wrapping.
  */
-export function wrapTextLine(
-  text: string,
-  maxWidth: number,
-  measureText: (value: string) => number,
-): string[] {
+export function wrapTextLine(text: string, maxWidth: number, measureText: (value: string) => number): string[] {
   const lines: string[] = [];
   let line = '';
   const tokens = text.match(/(?:[^/\s]+\/*|\/+)\s*/g) || [];
@@ -152,11 +133,7 @@ export function wrapTextLine(
   return lines;
 }
 
-export function wrapMessageLines(
-  lines: string[],
-  maxWidth: number,
-  measureText: (value: string) => number,
-): string[] {
+export function wrapMessageLines(lines: string[], maxWidth: number, measureText: (value: string) => number): string[] {
   return lines.flatMap((text) =>
     String(text)
       .split(/\r?\n/)

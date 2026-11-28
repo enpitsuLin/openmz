@@ -41,11 +41,7 @@ class Scene_Base extends Stage {
     }
 
     isReady(): boolean {
-        return (
-            ImageManager.isReady() &&
-            EffectManager.isReady() &&
-            FontManager.isReady()
-        );
+        return ImageManager.isReady() && EffectManager.isReady() && FontManager.isReady();
     }
 
     start(): void {
@@ -281,10 +277,7 @@ class Scene_Boot extends Scene_Base {
 
     isReady(): boolean {
         if (!this._databaseLoaded) {
-            if (
-                DataManager.isDatabaseLoaded() &&
-                RmmzStorageManager.forageKeysUpdated()
-            ) {
+            if (DataManager.isDatabaseLoaded() && RmmzStorageManager.forageKeysUpdated()) {
                 this._databaseLoaded = true;
                 this.onDatabaseLoaded();
             }
@@ -547,20 +540,14 @@ class Scene_Title extends Scene_Base {
     }
 
     createBackground(): void {
-        this._backSprite1 = new Sprite(
-            ImageManager.loadTitle1($dataSystem.title1Name),
-        );
-        this._backSprite2 = new Sprite(
-            ImageManager.loadTitle2($dataSystem.title2Name),
-        );
+        this._backSprite1 = new Sprite(ImageManager.loadTitle1($dataSystem.title1Name));
+        this._backSprite2 = new Sprite(ImageManager.loadTitle2($dataSystem.title2Name));
         this.addChild(this._backSprite1);
         this.addChild(this._backSprite2);
     }
 
     createForeground(): void {
-        this._gameTitleSprite = new Sprite(
-            new Bitmap(Graphics.width, Graphics.height),
-        );
+        this._gameTitleSprite = new Sprite(new Bitmap(Graphics.width, Graphics.height));
         this.addChild(this._gameTitleSprite);
         if ($dataSystem.optDrawTitle) {
             this.drawGameTitle();
@@ -592,18 +579,9 @@ class Scene_Title extends Scene_Base {
         const rect = this.commandWindowRect();
         this._commandWindow = new Window_TitleCommand(rect);
         this._commandWindow.setBackgroundType(background);
-        this._commandWindow.setHandler(
-            "newGame",
-            this.commandNewGame.bind(this),
-        );
-        this._commandWindow.setHandler(
-            "continue",
-            this.commandContinue.bind(this),
-        );
-        this._commandWindow.setHandler(
-            "options",
-            this.commandOptions.bind(this),
-        );
+        this._commandWindow.setHandler("newGame", this.commandNewGame.bind(this));
+        this._commandWindow.setHandler("continue", this.commandContinue.bind(this));
+        this._commandWindow.setHandler("options", this.commandOptions.bind(this));
         this.addWindow(this._commandWindow);
     }
 
@@ -912,10 +890,7 @@ class Scene_Map extends Scene_Message {
 
     isBusy(): boolean {
         return (
-            this.isMessageWindowClosing() ||
-            this._waitCount > 0 ||
-            this._encounterEffectDuration > 0 ||
-            super.isBusy()
+            this.isMessageWindowClosing() || this._waitCount > 0 || this._encounterEffectDuration > 0 || super.isBusy()
         );
     }
 
@@ -931,17 +906,11 @@ class Scene_Map extends Scene_Message {
     }
 
     needsFadeIn(): boolean {
-        return (
-            SceneManager.isPreviousScene(Scene_Battle) ||
-            SceneManager.isPreviousScene(Scene_Load)
-        );
+        return SceneManager.isPreviousScene(Scene_Battle) || SceneManager.isPreviousScene(Scene_Load);
     }
 
     needsSlowFadeOut(): boolean | null {
-        return (
-            SceneManager.isNextScene(Scene_Title) ||
-            SceneManager.isNextScene(Scene_Gameover)
-        );
+        return SceneManager.isNextScene(Scene_Title) || SceneManager.isNextScene(Scene_Gameover);
     }
 
     updateWaitCount(): boolean {
@@ -1281,9 +1250,7 @@ class Scene_MenuBase extends Scene_Base {
     }
 
     mainAreaHeight(): number {
-        return (
-            Graphics.boxHeight - this.buttonAreaHeight() - this.helpAreaHeight()
-        );
+        return Graphics.boxHeight - this.buttonAreaHeight() - this.helpAreaHeight();
     }
 
     actor(): Game_Actor {
@@ -1485,10 +1452,7 @@ class Scene_Menu extends Scene_MenuBase {
         this._statusWindow.selectLast();
         this._statusWindow.activate();
         this._statusWindow.setHandler("ok", this.onPersonalOk.bind(this));
-        this._statusWindow.setHandler(
-            "cancel",
-            this.onPersonalCancel.bind(this),
-        );
+        this._statusWindow.setHandler("cancel", this.onPersonalCancel.bind(this));
     }
 
     commandFormation(): void {
@@ -1496,10 +1460,7 @@ class Scene_Menu extends Scene_MenuBase {
         this._statusWindow.selectLast();
         this._statusWindow.activate();
         this._statusWindow.setHandler("ok", this.onFormationOk.bind(this));
-        this._statusWindow.setHandler(
-            "cancel",
-            this.onFormationCancel.bind(this),
-        );
+        this._statusWindow.setHandler("cancel", this.onFormationCancel.bind(this));
     }
 
     commandOptions(): void {
@@ -1687,9 +1648,7 @@ abstract class Scene_ItemBase extends Scene_MenuBase {
     isItemEffectsValid(): boolean {
         const action = new Game_Action(this.user()!);
         action.setItemObject(this.item());
-        return this.itemTargetActors().some((target) =>
-            action.testApply(target),
-        );
+        return this.itemTargetActors().some((target) => action.testApply(target));
     }
 
     applyItem(): void {
@@ -1854,10 +1813,7 @@ class Scene_Skill extends Scene_ItemBase {
         this._skillTypeWindow.setHandler("skill", this.commandSkill.bind(this));
         this._skillTypeWindow.setHandler("cancel", this.popScene.bind(this));
         this._skillTypeWindow.setHandler("pagedown", this.nextActor.bind(this));
-        this._skillTypeWindow.setHandler(
-            "pageup",
-            this.previousActor.bind(this),
-        );
+        this._skillTypeWindow.setHandler("pageup", this.previousActor.bind(this));
         this.addWindow(this._skillTypeWindow);
     }
 
@@ -2001,10 +1957,7 @@ class Scene_Equip extends Scene_MenuBase {
         this._commandWindow = new Window_EquipCommand(rect);
         this._commandWindow.setHelpWindow(this._helpWindow);
         this._commandWindow.setHandler("equip", this.commandEquip.bind(this));
-        this._commandWindow.setHandler(
-            "optimize",
-            this.commandOptimize.bind(this),
-        );
+        this._commandWindow.setHandler("optimize", this.commandOptimize.bind(this));
         this._commandWindow.setHandler("clear", this.commandClear.bind(this));
         this._commandWindow.setHandler("cancel", this.popScene.bind(this));
         this._commandWindow.setHandler("pagedown", this.nextActor.bind(this));
@@ -2588,10 +2541,7 @@ class Scene_GameEnd extends Scene_MenuBase {
     createCommandWindow(): void {
         const rect = this.commandWindowRect();
         this._commandWindow = new Window_GameEnd(rect);
-        this._commandWindow.setHandler(
-            "toTitle",
-            this.commandToTitle.bind(this),
-        );
+        this._commandWindow.setHandler("toTitle", this.commandToTitle.bind(this));
         this._commandWindow.setHandler("cancel", this.popScene.bind(this));
         this.addWindow(this._commandWindow);
     }
@@ -2762,10 +2712,7 @@ class Scene_Shop extends Scene_MenuBase {
         this._categoryWindow.hide();
         this._categoryWindow.deactivate();
         this._categoryWindow.setHandler("ok", this.onCategoryOk.bind(this));
-        this._categoryWindow.setHandler(
-            "cancel",
-            this.onCategoryCancel.bind(this),
-        );
+        this._categoryWindow.setHandler("cancel", this.onCategoryCancel.bind(this));
         this.addWindow(this._categoryWindow);
     }
 
@@ -2797,10 +2744,7 @@ class Scene_Shop extends Scene_MenuBase {
         const wx = 0;
         const wy = this._categoryWindow.y + this._categoryWindow.height;
         const ww = Graphics.boxWidth;
-        const wh =
-            this.mainAreaHeight() -
-            this._commandWindow.height -
-            this._categoryWindow.height;
+        const wh = this.mainAreaHeight() - this._commandWindow.height - this._categoryWindow.height;
         return new PIXI.Rectangle(wx, wy, ww, wh);
     }
 
@@ -2846,11 +2790,7 @@ class Scene_Shop extends Scene_MenuBase {
     onBuyOk(): void {
         this._item = this._buyWindow.item();
         this._buyWindow.hide();
-        this._numberWindow.setup(
-            this._item!,
-            this.maxBuy(),
-            this.buyingPrice(),
-        );
+        this._numberWindow.setup(this._item!, this.maxBuy(), this.buyingPrice());
         this._numberWindow.setCurrencyUnit(this.currencyUnit());
         this._numberWindow.show();
         this._numberWindow.activate();
@@ -2882,11 +2822,7 @@ class Scene_Shop extends Scene_MenuBase {
         this._item = this._sellWindow.item();
         this._categoryWindow.hide();
         this._sellWindow.hide();
-        this._numberWindow.setup(
-            this._item!,
-            this.maxSell(),
-            this.sellingPrice(),
-        );
+        this._numberWindow.setup(this._item!, this.maxSell(), this.sellingPrice());
         this._numberWindow.setCurrencyUnit(this.currencyUnit());
         this._numberWindow.show();
         this._numberWindow.activate();
@@ -3154,10 +3090,7 @@ class Scene_Debug extends Scene_MenuBase {
         if (this._rangeWindow.mode() === "switch") {
             return "Enter : ON / OFF";
         } else {
-            return (
-                "Left     :  -1    Pageup   : -10\n" +
-                "Right    :  +1    Pagedown : +10"
-            );
+            return "Left     :  -1    Pageup   : -10\n" + "Right    :  +1    Pagedown : +10";
         }
     }
 }
@@ -3282,10 +3215,7 @@ class Scene_Battle extends Scene_Message {
     }
 
     needsSlowFadeOut(): boolean | null {
-        return (
-            SceneManager.isNextScene(Scene_Title) ||
-            SceneManager.isNextScene(Scene_Gameover)
-        );
+        return SceneManager.isNextScene(Scene_Title) || SceneManager.isNextScene(Scene_Gameover);
     }
 
     updateLogWindowVisibility(): void {
@@ -3302,11 +3232,7 @@ class Scene_Battle extends Scene_Message {
     }
 
     shouldOpenStatusWindow(): boolean {
-        return (
-            this.isActive() &&
-            !this.isMessageWindowClosing() &&
-            !BattleManager.isBattleEnd()
-        );
+        return this.isActive() && !this.isMessageWindowClosing() && !BattleManager.isBattleEnd();
     }
 
     updateStatusWindowPosition(): void {
@@ -3348,9 +3274,7 @@ class Scene_Battle extends Scene_Message {
 
     updateCancelButton(): void {
         if (this._cancelButton) {
-            this._cancelButton.visible =
-                this.isAnyInputWindowActive() &&
-                !this._partyCommandWindow.active;
+            this._cancelButton.visible = this.isAnyInputWindowActive() && !this._partyCommandWindow.active;
         }
     }
 

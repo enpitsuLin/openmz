@@ -1,10 +1,6 @@
 import type { ReleaseManifest } from '../../shared/engine-release.ts';
 import type { FetchResult, ParsedManifest } from './types.ts';
-import {
-  isVersion,
-  manifestSchema,
-  runtimeFormat,
-} from '../../shared/engine-release.ts';
+import { isVersion, manifestSchema, runtimeFormat } from '../../shared/engine-release.ts';
 import { createUpdaterError } from './errors.ts';
 
 const SHA256_PATTERN = /^[\da-f]{64}$/i;
@@ -22,75 +18,44 @@ function resolveAssetBaseUrl(redirectChain: string[]): URL {
   const original = new URL(redirectChain[0]);
   for (let index = redirectChain.length - 1; index >= 0; index--) {
     const candidate = new URL(redirectChain[index]);
-    if (
-      candidate.protocol === original.protocol &&
-      candidate.origin === original.origin
-    ) {
+    if (candidate.protocol === original.protocol && candidate.origin === original.origin) {
       return candidate;
     }
   }
   return original;
 }
 
-export function parseManifest({
-  buffer,
-  redirectChain,
-}: FetchResult): ParsedManifest {
+export function parseManifest({ buffer, redirectChain }: FetchResult): ParsedManifest {
   let raw: unknown;
   try {
     raw = JSON.parse(buffer.toString('utf8'));
   } catch (cause) {
-    throw createUpdaterError(
-      'INVALID_MANIFEST',
-      'Release manifest is not valid JSON.',
-      { cause },
-    );
+    throw createUpdaterError('INVALID_MANIFEST', 'Release manifest is not valid JSON.', { cause });
   }
 
   if (!isRecord(raw) || raw.schemaVersion !== manifestSchema) {
-    throw createUpdaterError(
-      'INVALID_MANIFEST',
-      `Expected a schemaVersion ${manifestSchema} manifest.`,
-    );
+    throw createUpdaterError('INVALID_MANIFEST', `Expected a schemaVersion ${manifestSchema} manifest.`);
   }
 
   const manifest = raw as unknown as ReleaseManifest;
   const { name, version, format, pixiVersion, archive } = manifest;
-  if (
-    name !== 'OpenMZ' ||
-    !isVersion(version) ||
-    !isVersion(pixiVersion) ||
-    format !== runtimeFormat
-  ) {
+  if (name !== 'OpenMZ' || !isVersion(version) || !isVersion(pixiVersion) || format !== runtimeFormat) {
     throw createUpdaterError(
       'INVALID_MANIFEST',
       'Manifest must describe an OpenMZ prototype runtime and its PixiJS version.',
     );
   }
 
-  if (
-    !isRecord(archive) ||
-    typeof archive.url !== 'string' ||
-    !archive.url.trim()
-  ) {
-    throw createUpdaterError(
-      'INVALID_MANIFEST',
-      'Manifest requires an archive URL.',
-    );
+  if (!isRecord(archive) || typeof archive.url !== 'string' || !archive.url.trim()) {
+    throw createUpdaterError('INVALID_MANIFEST', 'Manifest requires an archive URL.');
   }
 
   const { size, sha256 } = archive;
   if (!Number.isSafeInteger(size) || size <= 0) {
-    throw createUpdaterError(
-      'INVALID_MANIFEST',
-      'Invalid archive size in manifest.',
-    );
+    throw createUpdaterError('INVALID_MANIFEST', 'Invalid archive size in manifest.');
   }
   if (typeof sha256 !== 'string' || !SHA256_PATTERN.test(sha256)) {
-    throw createUpdaterError(
-      'INVALID_MANIFEST',
-      'Invalid archive SHA-256 in manifest.',
-    );
+    throw createUpdaterError('INVALID_MANIFEST', 'Invalid archive SHA-256 in manifest.');
   }
 
   const baseUrl = resolveAssetBaseUrl(redirectChain);
@@ -98,18 +63,11 @@ export function parseManifest({
   try {
     resolvedUrl = new URL(archive.url.trim(), baseUrl);
   } catch (cause) {
-    throw createUpdaterError(
-      'INVALID_MANIFEST',
-      `Invalid archive URL in manifest: ${archive.url}`,
-      { cause },
-    );
+    throw createUpdaterError('INVALID_MANIFEST', `Invalid archive URL in manifest: ${archive.url}`, { cause });
   }
 
   if (!ALLOWED_ARCHIVE_PROTOCOLS.has(resolvedUrl.protocol)) {
-    throw createUpdaterError(
-      'UNSAFE_PROTOCOL',
-      `Unsupported archive protocol: ${resolvedUrl.protocol}`,
-    );
+    throw createUpdaterError('UNSAFE_PROTOCOL', `Unsupported archive protocol: ${resolvedUrl.protocol}`);
   }
   // Never allow a remote HTTP(S) manifest to point to a local file:// archive.
   if (baseUrl.protocol !== 'file:' && resolvedUrl.protocol === 'file:') {

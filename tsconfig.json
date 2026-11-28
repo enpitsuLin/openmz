@@ -17,12 +17,5 @@
     "skipLibCheck": true,
     "noEmit": true
   },
-  "include": [
-    "src",
-    "scripts/**/*.ts",
-    "plugins/**/*.ts",
-    "shared/**/*.ts",
-    "tests/**/*.ts",
-    "vitest.config.ts"
-  ]
+  "include": ["src", "scripts/**/*.ts", "plugins/**/*.ts", "shared/**/*.ts", "tests/**/*.ts", "vitest.config.ts"]
 }

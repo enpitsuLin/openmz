@@ -71,16 +71,9 @@ declare namespace RMMZ {
     // Shared types
 
     export type Constructor<T = any> = new (...args: any[]) => T;
-    export type AbstractConstructor<T = any> = abstract new (
-        ...args: any[]
-    ) => T;
+    export type AbstractConstructor<T = any> = abstract new (...args: any[]) => T;
     export type Nullable<T> = T | null;
-    export type Color = [
-        red: number,
-        green: number,
-        blue: number,
-        alpha: number,
-    ];
+    export type Color = [red: number, green: number, blue: number, alpha: number];
     export type Tone = [red: number, green: number, blue: number, gray: number];
     export type BlendMode = number | import("pixi.js").BLEND_MODES;
     export type PIXIDestroyOptions = import("pixi.js").DestroyOptions;
@@ -184,31 +177,13 @@ declare namespace RMMZ {
         variance: number;
         critical: boolean;
     }
-    export type Scope =
-        | 0
-        | 1
-        | 2
-        | 3
-        | 4
-        | 5
-        | 6
-        | 7
-        | 8
-        | 9
-        | 10
-        | 11
-        | 12
-        | 13
-        | 14;
+    export type Scope = 0 | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 | 10 | 11 | 12 | 13 | 14;
     export type Occasion = 0 | 1 | 2 | 3;
     export type Direction = 0 | 1 | 2 | 3 | 4 | 6 | 7 | 8 | 9;
 
     // Battlers, actors, and classes
 
-    interface ActionEffectData<
-        Code extends number,
-        DataId extends number = number,
-    > {
+    interface ActionEffectData<Code extends number, DataId extends number = number> {
         code: Code;
         dataId: DataId;
         value1: number;
@@ -231,22 +206,16 @@ declare namespace RMMZ {
         | ActionEffectData<42, ParamID>
         | ActionEffectData<43, SkillID>
         | ActionEffectData<44, CommonEventID>;
-    export type ActionEffect<TCode extends number = ActionEffectBase["code"]> =
-        Extract<
-            ActionEffectBase,
-            {
-                code: TCode;
-            }
-        >;
+    export type ActionEffect<TCode extends number = ActionEffectBase["code"]> = Extract<
+        ActionEffectBase,
+        {
+            code: TCode;
+        }
+    >;
     export type ActionUnit = Game_Party | Game_Troop;
     export type ActionTarget = Game_Actor | Game_Enemy;
     export type ActionItem = DataSkill | DataItem;
-    export type ActionState =
-        | "undecided"
-        | "inputting"
-        | "waiting"
-        | "acting"
-        | "done";
+    export type ActionState = "undecided" | "inputting" | "waiting" | "acting" | "done";
     export type BattlerEffectType =
         | "whiten"
         | "blink"
@@ -295,31 +264,13 @@ declare namespace RMMZ {
         note: string;
         skillId: SkillID;
     }
-    export type BattlerParams = [
-        number,
-        number,
-        number,
-        number,
-        number,
-        number,
-        number,
-        number,
-    ];
+    export type BattlerParams = [number, number, number, number, number, number, number, number];
     export type ParamID = 0 | 1 | 2 | 3 | 4 | 5 | 6 | 7;
     export interface DataClass extends DataBase {
         expParams: [number, number, number, number];
         traits: Trait[];
         learnings: Learning[];
-        params: [
-            number[],
-            number[],
-            number[],
-            number[],
-            number[],
-            number[],
-            number[],
-            number[],
-        ];
+        params: [number[], number[], number[], number[], number[], number[], number[], number[]];
     }
 
     export type DropItemType = 0 | 1 | 2 | 3;
@@ -417,16 +368,7 @@ declare namespace RMMZ {
     export interface DataEquipment extends DataPricedItemBase {
         etypeId: EquipmentType;
         traits: Trait[];
-        params: [
-            number,
-            number,
-            number,
-            number,
-            number,
-            number,
-            number,
-            number,
-        ];
+        params: [number, number, number, number, number, number, number, number];
     }
     export interface DataWeapon extends DataEquipment {
         etypeId: 1;
@@ -579,17 +521,7 @@ declare namespace RMMZ {
     export type TilesetMode = 0 | 1;
     export interface DataTileset extends DataBase {
         mode: TilesetMode;
-        tilesetNames: [
-            string,
-            string,
-            string,
-            string,
-            string,
-            string,
-            string,
-            string,
-            string,
-        ];
+        tilesetNames: [string, string, string, string, string, string, string, string, string];
         flags: number[];
     }
 
@@ -680,14 +612,8 @@ declare namespace RMMZ {
 
     // Event and movement commands
 
-    export type TextWindowBackgroundType =
-        | 0 /* Window */
-        | 1 /* Dim */
-        | 2; /* Transparent */
-    export type TextWindowPositionType =
-        | 0 /* Top */
-        | 1 /* Middle */
-        | 2; /* Bottom */
+    export type TextWindowBackgroundType = 0 /* Window */ | 1 /* Dim */ | 2; /* Transparent */
+    export type TextWindowPositionType = 0 /* Top */ | 1 /* Middle */ | 2; /* Bottom */
     export type VariableComparisonType =
         | 0 /* Equal to */
         | 1 /* Greater than or Equal to */
@@ -729,20 +655,8 @@ declare namespace RMMZ {
     export type ConditionalBranchParams =
         | [0, SwitchID, 0 | 1] /* Switch */
         /* Variable */
-        | [
-              1,
-              VariableID,
-              0,
-              number,
-              VariableComparisonType,
-          ] /* Compare by value */
-        | [
-              1,
-              VariableID,
-              1,
-              VariableID,
-              VariableComparisonType,
-          ] /* Compare by variable */
+        | [1, VariableID, 0, number, VariableComparisonType] /* Compare by value */
+        | [1, VariableID, 1, VariableID, VariableComparisonType] /* Compare by variable */
         /* Self Switch */
         | [2, SelfSwitchCharacter, 0 | 1]
         /* Timer */
@@ -769,11 +683,7 @@ declare namespace RMMZ {
         /* Armor */
         | [10, ArmorID, boolean]
         /* Button */
-        | [
-              11,
-              string /* Key Name */,
-              0 | 1 | 2 /* Is Pressed, Is Triggered, Is Repeated */,
-          ]
+        | [11, string /* Key Name */, 0 | 1 | 2 /* Is Pressed, Is Triggered, Is Repeated */]
         /* Script */
         | [12, string]
         /* Vehicle */
@@ -803,10 +713,7 @@ declare namespace RMMZ {
                   TextWindowBackgroundType,
               ]
           >
-        | CommandData<
-              402,
-              [choiceIndex: number, choiceName: string]
-          > /* When [**] */
+        | CommandData<402, [choiceIndex: number, choiceName: string]> /* When [**] */
         | CommandData<403> /* When Cancel */
         | CommandData<404> /* End Choices */
         /* Input Number */
@@ -864,39 +771,13 @@ declare namespace RMMZ {
                                       3 /* Actor */,
                                       ActorID,
                                       /* Level, EXP, HP, MP, (param 0~7), TP */
-                                      (
-                                          | 0
-                                          | 1
-                                          | 2
-                                          | 3
-                                          | 4
-                                          | 5
-                                          | 6
-                                          | 7
-                                          | 8
-                                          | 9
-                                          | 10
-                                          | 11
-                                          | 12
-                                      ),
+                                      0 | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 | 10 | 11 | 12,
                                   ]
                                 | [
                                       4 /* Enemy */,
                                       EnemyID,
                                       /* HP, MP, (param 0~7), TP */
-                                      (
-                                          | 0
-                                          | 1
-                                          | 2
-                                          | 3
-                                          | 4
-                                          | 5
-                                          | 6
-                                          | 7
-                                          | 8
-                                          | 9
-                                          | 10
-                                      ),
+                                      0 | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 | 10,
                                   ]
                                 | [
                                       5 /* Character */,
@@ -942,11 +823,7 @@ declare namespace RMMZ {
         /* Change Armors */
         | CommandData<128, [ArmorID, ValueOperation, ...ValueOperand, boolean]>
         /* Change Party Member */
-        | CommandData<
-              129,
-              | [ActorID, 0, boolean] /* Add, initialize */
-              | [ActorID, 1, boolean?] /* Remove */
-          >
+        | CommandData<129, [ActorID, 0, boolean] /* Add, initialize */ | [ActorID, 1, boolean?] /* Remove */>
         /* Change Battle BGM */
         | CommandData<132, [DataAudio]>
         /* Change Victory ME */
@@ -993,38 +870,12 @@ declare namespace RMMZ {
         /* Set Event Location */
         | CommandData<
               203,
-              | [
-                    CharacterID,
-                    0,
-                    number,
-                    number,
-                    Direction,
-                ] /* Direct designation */
-              | [
-                    CharacterID,
-                    1,
-                    VariableID,
-                    VariableID,
-                    Direction,
-                ] /* Designation by variables */
-              | [
-                    CharacterID,
-                    2,
-                    CharacterID,
-                    number,
-                    Direction,
-                ] /* Exchange with another event */
+              | [CharacterID, 0, number, number, Direction] /* Direct designation */
+              | [CharacterID, 1, VariableID, VariableID, Direction] /* Designation by variables */
+              | [CharacterID, 2, CharacterID, number, Direction] /* Exchange with another event */
           >
         /* Scroll Map */
-        | CommandData<
-              204,
-              [
-                  Direction,
-                  number /* Distance */,
-                  number /* Speed */,
-                  boolean /* Wait */,
-              ]
-          >
+        | CommandData<204, [Direction, number /* Distance */, number /* Speed */, boolean /* Wait */]>
         /* Set Movement Route */
         | CommandData<205, [number /* Character ID */, MoveRoute]>
         /* Movement Route */
@@ -1052,15 +903,7 @@ declare namespace RMMZ {
         /* Flash Screen */
         | CommandData<224, [Color, number /* Duration */, boolean /* Wait */]>
         /* Shake Screen */
-        | CommandData<
-              225,
-              [
-                  number /* Power */,
-                  number /* Speed */,
-                  number /* Duration */,
-                  boolean /* Wait */,
-              ]
-          >
+        | CommandData<225, [number /* Power */, number /* Speed */, number /* Duration */, boolean /* Wait */]>
         /* Wait */
         | CommandData<230, [number]>
         /* Show Picture */
@@ -1101,22 +944,11 @@ declare namespace RMMZ {
         /* Rotate Picture */
         | CommandData<233, [PictureID, number]>
         /* Tint Picture */
-        | CommandData<
-              234,
-              [PictureID, Tone, number /* Duration */, boolean /* Wait */]
-          >
+        | CommandData<234, [PictureID, Tone, number /* Duration */, boolean /* Wait */]>
         /* Erase Picture */
         | CommandData<235, [PictureID]>
         /* Set Weather Effect */
-        | CommandData<
-              236,
-              [
-                  WeatherType,
-                  number /* Power */,
-                  number /* Duration */,
-                  boolean /* Wait */,
-              ]
-          >
+        | CommandData<236, [WeatherType, number /* Power */, number /* Duration */, boolean /* Wait */]>
         /* Play BGM */
         | CommandData<241, [DataAudio]>
         /* Fadeout BGM */
@@ -1206,10 +1038,7 @@ declare namespace RMMZ {
         /* Change TP */
         | CommandData<326, ChangeActorValue>
         /* Change State */
-        | CommandData<
-              313,
-              [...IterateActorArguments, 0 | 1 /* Add | Remove */, StateID]
-          >
+        | CommandData<313, [...IterateActorArguments, 0 | 1 /* Add | Remove */, StateID]>
         /* Recover All */
         | CommandData<314, IterateActorArguments>
         /* Change EXP */
@@ -1217,20 +1046,9 @@ declare namespace RMMZ {
         /* Change Level */
         | CommandData<316, [...ChangeActorValue, boolean /* Show */]>
         /* Change Parameter */
-        | CommandData<
-              317,
-              [
-                  ...IterateActorArguments,
-                  ParamID,
-                  ValueOperation,
-                  ...ValueOperand,
-              ]
-          >
+        | CommandData<317, [...IterateActorArguments, ParamID, ValueOperation, ...ValueOperand]>
         /* Change Skill */
-        | CommandData<
-              318,
-              [...IterateActorArguments, 0 | 1 /* Learn | Forget */, SkillID]
-          >
+        | CommandData<318, [...IterateActorArguments, 0 | 1 /* Learn | Forget */, SkillID]>
         /* Change Equipment */
         | CommandData<319, [ActorID, EquipmentType, ItemID]>
         /* Change Name */
@@ -1248,14 +1066,7 @@ declare namespace RMMZ {
               ]
           >
         /* Change Vehicle Image */
-        | CommandData<
-              323,
-              [
-                  vehicle: VehicleIndex,
-                  characterName: string,
-                  characterIndex: number,
-              ]
-          >
+        | CommandData<323, [vehicle: VehicleIndex, characterName: string, characterIndex: number]>
         /* Change Nickname */
         | CommandData<324, [ActorID, string]>
         /* Change Profile */
@@ -1277,10 +1088,7 @@ declare namespace RMMZ {
         /* Show Battle Animation */
         | CommandData<337, [EnemyID, AnimationID, boolean]>
         /* Force Action */
-        | CommandData<
-              339,
-              [...([0, EnemyID] | [1, ActorID]), SkillID, ActorID | EnemyID]
-          >
+        | CommandData<339, [...([0, EnemyID] | [1, ActorID]), SkillID, ActorID | EnemyID]>
         /* Abort Battle */
         | CommandData<340>
         /* Open Menu Screen */
@@ -1297,15 +1105,7 @@ declare namespace RMMZ {
         /* Plugin Command MV (deprecated) */
         | CommandData<356, [string]>
         /* Plugin Command */
-        | CommandData<
-              357,
-              [
-                  pluginName: string,
-                  commandName: string,
-                  displayName: string,
-                  args: PluginParameters,
-              ]
-          >
+        | CommandData<357, [pluginName: string, commandName: string, displayName: string, args: PluginParameters]>
         | CommandData<657, [string]>
     );
     export type DataCommand = DataEventCommand;
@@ -1318,8 +1118,7 @@ declare namespace RMMZ {
             code: TCode;
         }
     >;
-    export type CommandParams<TCode extends CommandCode> =
-        ExtractDataCommand<TCode>["parameters"];
+    export type CommandParams<TCode extends CommandCode> = ExtractDataCommand<TCode>["parameters"];
     export interface MoveRoute {
         list: MoveCommand[];
         repeat: boolean;
@@ -1336,15 +1135,9 @@ declare namespace RMMZ {
         | 4 /* Div */
         | 5; /* Mod */
     export type ValueOperation = 0 /* Value */ | 1; /* Negative Value */
-    export type ValueOperand =
-        | [0, number] /* Constant */
-        | [1, VariableID]; /* Variable */
+    export type ValueOperand = [0, number] /* Constant */ | [1, VariableID]; /* Variable */
     export type IterateActorArguments = [0, ActorID] | [1, VariableID];
-    export type ChangeActorValue = [
-        ...IterateActorArguments,
-        ValueOperation,
-        ...ValueOperand,
-    ];
+    export type ChangeActorValue = [...IterateActorArguments, ValueOperation, ...ValueOperand];
     export type ChangeEnemyValue = [EnemyID, ValueOperation, ...ValueOperand];
     export type WaitMode =
         | ""
@@ -1362,10 +1155,7 @@ declare namespace RMMZ {
         | "movement";
     export type ShopGoodsEntry = [...ShopGoods, boolean?];
 
-    export type ShopGoods = [
-        ...([0, ItemID] | [1, WeaponID] | [2, ArmorID]),
-        ...([0, number] | [1, number]),
-    ];
+    export type ShopGoods = [...([0, ItemID] | [1, WeaponID] | [2, ArmorID]), ...([0, number] | [1, number])];
 
     // System, saves, and plugins
 
@@ -1535,30 +1325,8 @@ declare namespace RMMZ {
         actionFailure: string;
     }
     export interface Terms {
-        basic: [
-            string,
-            string,
-            string,
-            string,
-            string,
-            string,
-            string,
-            string,
-            string,
-            string,
-        ];
-        params: [
-            string,
-            string,
-            string,
-            string,
-            string,
-            string,
-            string,
-            string,
-            string,
-            string,
-        ];
+        basic: [string, string, string, string, string, string, string, string, string, string];
+        params: [string, string, string, string, string, string, string, string, string, string];
         commands: (string | null)[];
         messages: Messages;
     }

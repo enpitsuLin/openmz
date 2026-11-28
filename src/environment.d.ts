@@ -195,12 +195,7 @@ declare global {
             releaseEffect(effect: EffekseerEffect): void;
 
             update(): void;
-            play(
-                effect: EffekseerEffect,
-                x?: number,
-                y?: number,
-                z?: number,
-            ): EffekseerHandle;
+            play(effect: EffekseerEffect, x?: number, y?: number, z?: number): EffekseerHandle;
             stopAll(): void;
         }
 
@@ -218,22 +213,13 @@ declare global {
             setScale(x: number, y: number, z: number): void;
             setSpeed(speed: number): void;
             setMatrix(matrix: Float32Array): void;
-            setAllColor(
-                red: number,
-                green: number,
-                blue: number,
-                alpha: number,
-            ): void;
+            setAllColor(red: number, green: number, blue: number, alpha: number): void;
             setDynamicInput(index: number, value: number): void;
         }
     }
 
     var effekseer: {
-        initRuntime(
-            path: string,
-            onload: () => void,
-            onerror: () => void,
-        ): void;
+        initRuntime(path: string, onload: () => void, onerror: () => void): void;
         createContext(): effekseer.EffekseerContext;
     };
 

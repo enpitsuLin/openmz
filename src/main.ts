@@ -79,9 +79,7 @@ class Main {
             script.async = false;
             script.defer = true;
             script.onload = this.onScriptLoad.bind(this);
-            script.onerror = this.onScriptError.bind(
-                this,
-            ) as OnErrorEventHandler;
+            script.onerror = this.onScriptError.bind(this) as OnErrorEventHandler;
             script._url = url;
             document.body.appendChild(script);
         }
@@ -145,12 +143,7 @@ class Main {
      * from saving properly.
      */
     isPathRandomized(): boolean {
-        return (
-            typeof process === "object" &&
-            (process.mainModule as NodeModule).filename.startsWith(
-                "/private/var",
-            )
-        );
+        return typeof process === "object" && (process.mainModule as NodeModule).filename.startsWith("/private/var");
     }
 
     initEffekseerRuntime(): void {

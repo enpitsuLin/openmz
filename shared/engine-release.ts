@@ -43,8 +43,7 @@ export function compareVersions(left: string, right: string): -1 | 0 | 1 {
   const b = versionPattern.exec(right);
   if (!a || !b) throw new Error('Invalid semantic version.');
   for (let i = 1; i <= 3; i++) {
-    if (Number(a[i]) !== Number(b[i]))
-      return Number(a[i]) > Number(b[i]) ? 1 : -1;
+    if (Number(a[i]) !== Number(b[i])) return Number(a[i]) > Number(b[i]) ? 1 : -1;
   }
   if (a[4] === b[4]) return 0;
   if (!a[4] || !b[4]) return a[4] ? -1 : 1;
@@ -52,8 +51,7 @@ export function compareVersions(left: string, right: string): -1 | 0 | 1 {
   const bp = b[4].split('.');
   for (let i = 0; i < Math.max(ap.length, bp.length); i++) {
     if (ap[i] === bp[i]) continue;
-    if (ap[i] === undefined || bp[i] === undefined)
-      return ap[i] === undefined ? -1 : 1;
+    if (ap[i] === undefined || bp[i] === undefined) return ap[i] === undefined ? -1 : 1;
     const an = /^\d+$/.test(ap[i]);
     const bn = /^\d+$/.test(bp[i]);
     if (an !== bn) return an ? -1 : 1;

@@ -15,13 +15,7 @@ import {
 } from './presenter.ts';
 import { createUpdaterWindows } from './windows.ts';
 
-type UpdaterSceneState =
-  | 'idle'
-  | 'checking'
-  | 'prompt'
-  | 'installing'
-  | 'done'
-  | 'error';
+type UpdaterSceneState = 'idle' | 'checking' | 'prompt' | 'installing' | 'done' | 'error';
 
 export interface UpdaterTitleScene extends Scene_Title {
   _openMzUpdaterActive?: boolean;
@@ -44,10 +38,7 @@ const DIALOG_HORIZONTAL_MARGIN = 48;
 function isSceneStillActive(scene: UpdaterTitleScene): boolean {
   if (typeof SceneManager === 'undefined') return false;
   if (SceneManager._scene !== scene) return false;
-  if (
-    typeof SceneManager.isSceneChanging === 'function' &&
-    SceneManager.isSceneChanging()
-  ) {
+  if (typeof SceneManager.isSceneChanging === 'function' && SceneManager.isSceneChanging()) {
     return false;
   }
   return true;
@@ -77,9 +68,7 @@ export function attachUpdaterToSceneTitle(env: UpdaterEnvironment): void {
   const originalIsBusy = title.isBusy;
   title.isBusy = function (this: UpdaterTitleScene) {
     return (
-      Boolean(this._openMzUpdaterActive) ||
-      Boolean(this._openMzMessageWindow?.isClosing()) ||
-      originalIsBusy.call(this)
+      Boolean(this._openMzUpdaterActive) || Boolean(this._openMzMessageWindow?.isClosing()) || originalIsBusy.call(this)
     );
   };
 
@@ -95,79 +84,45 @@ export function attachUpdaterToSceneTitle(env: UpdaterEnvironment): void {
 
   title.createOpenMzUpdater = function (this: UpdaterTitleScene) {
     if (this._openMzMessageWindow) return;
-    const width = Math.min(
-      DIALOG_MAX_WIDTH,
-      Graphics.boxWidth - DIALOG_HORIZONTAL_MARGIN,
-    );
+    const width = Math.min(DIALOG_MAX_WIDTH, Graphics.boxWidth - DIALOG_HORIZONTAL_MARGIN);
     const x = Math.floor((Graphics.boxWidth - width) / 2);
-    this._openMzMessageWindow = new Window_OpenMzMessage(
-      new Rectangle(x, 0, width, this.calcWindowHeight(1, false)),
-    );
-    this._openMzConfirmWindow = new Window_OpenMzConfirm(
-      new Rectangle(x, 0, width, this.calcWindowHeight(1, true)),
-    );
-    this._openMzConfirmWindow.setHandler(
-      'update',
-      this.runOpenMzUpdate.bind(this),
-    );
-    this._openMzConfirmWindow.setHandler(
-      'check',
-      this.checkOpenMzUpdate.bind(this),
-    );
+    this._openMzMessageWindow = new Window_OpenMzMessage(new Rectangle(x, 0, width, this.calcWindowHeight(1, false)));
+    this._openMzConfirmWindow = new Window_OpenMzConfirm(new Rectangle(x, 0, width, this.calcWindowHeight(1, true)));
+    this._openMzConfirmWindow.setHandler('update', this.runOpenMzUpdate.bind(this));
+    this._openMzConfirmWindow.setHandler('check', this.checkOpenMzUpdate.bind(this));
     this._openMzConfirmWindow.setHandler('reload', env.reloadApp);
-    this._openMzConfirmWindow.setHandler(
-      'close',
-      this.closeOpenMzUpdater.bind(this),
-    );
-    this._openMzConfirmWindow.setHandler(
-      'cancel',
-      this.closeOpenMzUpdater.bind(this),
-    );
+    this._openMzConfirmWindow.setHandler('close', this.closeOpenMzUpdater.bind(this));
+    this._openMzConfirmWindow.setHandler('cancel', this.closeOpenMzUpdater.bind(this));
     this.addWindow(this._openMzMessageWindow);
     this.addWindow(this._openMzConfirmWindow);
   };
 
-  title.showOpenMzMessage = function (
-    this: UpdaterTitleScene,
-    heading: string,
-    lines: string[],
-    progress?: number,
-  ) {
+  title.showOpenMzMessage = function (this: UpdaterTitleScene, heading: string, lines: string[], progress?: number) {
     this.createOpenMzUpdater();
     this._openMzUpdaterActive = true;
     this._commandWindow?.deactivate();
     const message = this._openMzMessageWindow!;
     const commands = this._openMzConfirmWindow!;
     message.setMessage(heading, lines, progress);
-    message.y = Math.max(
-      0,
-      Math.floor((Graphics.boxHeight - message.height - commands.height) / 2),
-    );
+    message.y = Math.max(0, Math.floor((Graphics.boxHeight - message.height - commands.height) / 2));
     commands.y = message.y + message.height;
     message.open();
   };
 
-  title.showOpenMzCommands = function (
-    this: UpdaterTitleScene,
-    commands: UpdaterCommand[],
-  ) {
+  title.showOpenMzCommands = function (this: UpdaterTitleScene, commands: UpdaterCommand[]) {
     this._openMzConfirmWindow!.setCommands(commands);
     this._openMzConfirmWindow!.open();
     this._openMzConfirmWindow!.activate();
   };
 
   title.checkOpenMzUpdate = async function (this: UpdaterTitleScene) {
-    if (
-      this._openMzState === 'checking' ||
-      this._openMzState === 'installing'
-    ) {
+    if (this._openMzState === 'checking' || this._openMzState === 'installing') {
       return;
     }
 
     const texts = getUpdaterTexts(env.getLocale());
     this._openMzState = 'checking';
-    const controller =
-      typeof AbortController === 'function' ? new AbortController() : undefined;
+    const controller = typeof AbortController === 'function' ? new AbortController() : undefined;
     this._openMzAbortController = controller;
 
     if (this._openMzConfirmWindow) {
@@ -200,10 +155,7 @@ export function attachUpdaterToSceneTitle(env: UpdaterEnvironment): void {
         this._openMzState = 'idle';
       }
     } catch (error) {
-      if (
-        !isSceneStillActive(this) ||
-        (isUpdaterError(error) && error.code === 'ABORTED')
-      ) {
+      if (!isSceneStillActive(this) || (isUpdaterError(error) && error.code === 'ABORTED')) {
         this._openMzState = 'idle';
         return;
       }
@@ -217,11 +169,7 @@ export function attachUpdaterToSceneTitle(env: UpdaterEnvironment): void {
   };
 
   title.runOpenMzUpdate = async function (this: UpdaterTitleScene) {
-    if (
-      this._openMzState === 'installing' ||
-      this._openMzState === 'checking' ||
-      !this._openMzUpdate
-    ) {
+    if (this._openMzState === 'installing' || this._openMzState === 'checking' || !this._openMzUpdate) {
       return;
     }
 

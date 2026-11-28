@@ -37,9 +37,7 @@ export function createUpdaterWindows(): UpdaterWindowConstructors {
       const heading = wrapTextLine(title, width, measure);
       const body = wrapMessageLines(lines, width, measure);
       const hasProgress = typeof progress === 'number';
-      const height = this.fittingHeight(
-        heading.length + body.length + (hasProgress ? 1 : 0),
-      );
+      const height = this.fittingHeight(heading.length + body.length + (hasProgress ? 1 : 0));
       if (this.height !== height) {
         this.height = height;
         this.createContents();
@@ -49,25 +47,11 @@ export function createUpdaterWindows(): UpdaterWindowConstructors {
 
       const lineHeight = this.lineHeight();
       this.changeTextColor(ColorManager.systemColor());
-      heading.forEach((line, index) =>
-        this.drawText(line, inset, index * lineHeight, width, 'center'),
-      );
+      heading.forEach((line, index) => this.drawText(line, inset, index * lineHeight, width, 'center'));
       this.resetTextColor();
-      body.forEach((line, index) =>
-        this.drawText(
-          line,
-          inset,
-          (heading.length + index) * lineHeight,
-          width,
-        ),
-      );
+      body.forEach((line, index) => this.drawText(line, inset, (heading.length + index) * lineHeight, width));
       if (hasProgress) {
-        this.drawProgress(
-          progress,
-          inset,
-          (heading.length + body.length) * lineHeight,
-          width,
-        );
+        this.drawProgress(progress, inset, (heading.length + body.length) * lineHeight, width);
       }
     }
 
@@ -75,17 +59,10 @@ export function createUpdaterWindows(): UpdaterWindowConstructors {
       const rate = Math.min(Math.max(progress, 0), 1);
       const labelWidth = this.textWidth('100%');
       const barWidth = Math.max(0, width - labelWidth - this.itemPadding());
-      const barY =
-        y + Math.floor((this.lineHeight() - PROGRESS_BAR_HEIGHT) / 2);
+      const barY = y + Math.floor((this.lineHeight() - PROGRESS_BAR_HEIGHT) / 2);
 
       if (barWidth > 0) {
-        this.contents.fillRect(
-          x,
-          barY,
-          barWidth,
-          PROGRESS_BAR_HEIGHT,
-          ColorManager.gaugeBackColor(),
-        );
+        this.contents.fillRect(x, barY, barWidth, PROGRESS_BAR_HEIGHT, ColorManager.gaugeBackColor());
         const fillWidth = Math.max(0, Math.floor((barWidth - 2) * rate));
         if (fillWidth > 0) {
           this.contents.gradientFillRect(
@@ -99,13 +76,7 @@ export function createUpdaterWindows(): UpdaterWindowConstructors {
         }
       }
 
-      this.drawText(
-        `${Math.floor(rate * 100)}%`,
-        x + width - labelWidth,
-        y,
-        labelWidth,
-        'right',
-      );
+      this.drawText(`${Math.floor(rate * 100)}%`, x + width - labelWidth, y, labelWidth, 'right');
     }
 
     wrapLine(text: string, width: number) {

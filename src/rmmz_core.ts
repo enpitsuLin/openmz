@@ -97,11 +97,7 @@ Math.randomInt = function (max: number): number {
  * @param max - The upper boundary.
  * @returns A number in the range (min, max).
  */
-Number.prototype.clamp = function (
-    this: number,
-    min: number,
-    max: number,
-): number {
+Number.prototype.clamp = function (this: number, min: number, max: number): number {
     return Math.min(Math.max(this, min), max);
 };
 
@@ -244,11 +240,7 @@ to the given version.
      */
     static isMobileSafari(): boolean {
         const agent = navigator.userAgent;
-        return !!(
-            agent.match(/iPhone|iPad|iPod/) &&
-            agent.match(/AppleWebKit/) &&
-            !agent.match("CriOS")
-        );
+        return !!(agent.match(/iPhone|iPad|iPod/) && agent.match(/AppleWebKit/) && !agent.match("CriOS"));
     }
 
     /**
@@ -302,11 +294,7 @@ to the given version.
      * @returns True if the browser supports IndexedDB.
      */
     static canUseIndexedDB(): boolean {
-        return !!(
-            window.indexedDB ||
-            window.mozIndexedDB ||
-            window.webkitIndexedDB
-        );
+        return !!(window.indexedDB || window.mozIndexedDB || window.webkitIndexedDB);
     }
 
     /**
@@ -317,10 +305,7 @@ to the given version.
         if (!Utils._audioElement) {
             Utils._audioElement = document.createElement("audio");
         }
-        return !!(
-            Utils._audioElement &&
-            Utils._audioElement.canPlayType('audio/ogg; codecs="vorbis"')
-        );
+        return !!(Utils._audioElement && Utils._audioElement.canPlayType('audio/ogg; codecs="vorbis"'));
     }
 
     /**
@@ -331,10 +316,7 @@ to the given version.
         if (!Utils._videoElement) {
             Utils._videoElement = document.createElement("video");
         }
-        return !!(
-            Utils._videoElement &&
-            Utils._videoElement.canPlayType('video/webm; codecs="vp8, vorbis"')
-        );
+        return !!(Utils._videoElement && Utils._videoElement.canPlayType('video/webm; codecs="vp8, vorbis"'));
     }
 
     /**
@@ -369,10 +351,7 @@ to the given version.
             "'": "&#39;",
             "/": "&#x2F;",
         };
-        return String(str).replace(
-            /[&<>"'/]/g,
-            (s) => entityMap[s as keyof typeof entityMap],
-        );
+        return String(str).replace(/[&<>"'/]/g, (s) => entityMap[s as keyof typeof entityMap]);
     }
 
     /**
@@ -390,11 +369,7 @@ to the given version.
      * @param hasAudio - Whether the audio files are encrypted.
      * @param key - The encryption key.
      */
-    static setEncryptionInfo(
-        hasImages: boolean,
-        hasAudio: boolean,
-        key: string,
-    ): void {
+    static setEncryptionInfo(hasImages: boolean, hasAudio: boolean, key: string): void {
         // [Note] This function is implemented for module independence.
         this._hasEncryptedImages = hasImages;
         this._hasEncryptedAudio = hasAudio;
@@ -456,11 +431,7 @@ class Graphics {
     declare static _fpsCounter: Graphics.FPSCounter | null;
     declare static _loadingSpinner: HTMLDivElement | null;
     declare static _stretchEnabled: boolean;
-    declare static _app:
-        | import("pixi.js").Application<
-              import("pixi.js").WebGLRenderer<HTMLCanvasElement>
-          >
-        | null;
+    declare static _app: import("pixi.js").Application<import("pixi.js").WebGLRenderer<HTMLCanvasElement>> | null;
     declare static _effekseer: effekseer.EffekseerContext | null;
     declare static _wasLoading: boolean;
     declare static frameCount: number;
@@ -520,9 +491,7 @@ class Graphics {
      * The PIXI.Application object.
      * @name Graphics.app
      */
-    static get app(): import("pixi.js").Application<
-        import("pixi.js").WebGLRenderer<HTMLCanvasElement>
-    > {
+    static get app(): import("pixi.js").Application<import("pixi.js").WebGLRenderer<HTMLCanvasElement>> {
         return this._app!;
     }
 
@@ -598,19 +567,11 @@ class Graphics {
      * @param message - The message of the error.
      * @param error - The error object.
      */
-    static printError(
-        name: string,
-        message: string,
-        error: unknown = null,
-    ): void {
+    static printError(name: string, message: string, error: unknown = null): void {
         if (!this._errorPrinter) {
             this._createErrorPrinter();
         }
-        this._errorPrinter!.innerHTML = this._makeErrorHtml(
-            name,
-            message,
-            error,
-        );
+        this._errorPrinter!.innerHTML = this._makeErrorHtml(name, message, error);
         this._wasLoading = this.endLoading();
         this._applyCanvasFilter();
     }
@@ -817,11 +778,7 @@ is pressed.
         }
     }
 
-    static _makeErrorHtml(
-        name?: string,
-        message?: string,
-        ..._extra: any[]
-    ): string;
+    static _makeErrorHtml(name?: string, message?: string, ..._extra: any[]): string;
     static _makeErrorHtml(name?: string, message?: string /*, error*/): string {
         const nameDiv = document.createElement("div");
         const messageDiv = document.createElement("div");
@@ -900,8 +857,7 @@ is pressed.
         const elements = document.body.getElementsByTagName("*");
         const oncontextmenu = () => false;
         for (const element of elements) {
-            (element as Element & GlobalEventHandlers).oncontextmenu =
-                oncontextmenu;
+            (element as Element & GlobalEventHandlers).oncontextmenu = oncontextmenu;
         }
     }
 
@@ -967,9 +923,7 @@ is pressed.
     }
 
     static _isFullScreen(): boolean {
-        return (document.fullScreenElement ||
-            document.mozFullScreen ||
-            document.webkitFullscreenElement) as boolean;
+        return (document.fullScreenElement || document.mozFullScreen || document.webkitFullscreenElement) as boolean;
     }
 
     static _requestFullScreen(): void {
@@ -980,8 +934,7 @@ is pressed.
             element.mozRequestFullScreen();
         } else if (element.webkitRequestFullScreen) {
             element.webkitRequestFullScreen(
-                (Element as typeof Element & { ALLOW_KEYBOARD_INPUT: number })
-                    .ALLOW_KEYBOARD_INPUT,
+                (Element as typeof Element & { ALLOW_KEYBOARD_INPUT: number }).ALLOW_KEYBOARD_INPUT,
             );
         }
     }
@@ -997,9 +950,7 @@ is pressed.
     }
 
     static async _createPixiApp(): Promise<void> {
-        const app = new PIXI.Application<
-            import("pixi.js").WebGLRenderer<HTMLCanvasElement>
-        >();
+        const app = new PIXI.Application<import("pixi.js").WebGLRenderer<HTMLCanvasElement>>();
         await app.init({
             canvas: this._canvas!,
             preference: "webgl",
@@ -1473,13 +1424,7 @@ class Bitmap {
      * @param height - The height of the rectangle to fill.
      * @param color - The color of the rectangle in CSS format.
      */
-    fillRect(
-        x: number,
-        y: number,
-        width: number,
-        height: number,
-        color: string,
-    ): void {
+    fillRect(x: number, y: number, width: number, height: number, color: string): void {
         const context = this.context;
         context.save();
         context.fillStyle = color;
@@ -1504,13 +1449,7 @@ class Bitmap {
      * @param height - The height of the rectangle to fill.
      * @param color - The color of the rectangle in CSS format.
      */
-    strokeRect(
-        x: number,
-        y: number,
-        width: number,
-        height: number,
-        color: string,
-    ): void {
+    strokeRect(x: number, y: number, width: number, height: number, color: string): void {
         const context = this.context;
         context.save();
         context.strokeStyle = color;
@@ -1646,12 +1585,7 @@ class Bitmap {
         return italic + bold + this.fontSize + "px " + this.fontFace;
     }
 
-    _drawTextOutline(
-        text: string,
-        tx: number,
-        ty: number,
-        maxWidth: number,
-    ): void {
+    _drawTextOutline(text: string, tx: number, ty: number, maxWidth: number): void {
         const context = this.context;
         context.strokeStyle = this.outlineColor;
         context.lineWidth = this.outlineWidth;
@@ -1659,12 +1593,7 @@ class Bitmap {
         context.strokeText(text, tx, ty, maxWidth);
     }
 
-    _drawTextBody(
-        text: string,
-        tx: number,
-        ty: number,
-        maxWidth: number,
-    ): void {
+    _drawTextBody(text: string, tx: number, ty: number, maxWidth: number): void {
         const context = this.context;
         context.fillStyle = this.textColor;
         context.fillText(text, tx, ty, maxWidth);
@@ -1698,8 +1627,7 @@ class Bitmap {
     }
 
     _createTextureSource(resource: HTMLCanvasElement | HTMLImageElement): void {
-        const Source =
-            resource === this._canvas ? PIXI.CanvasSource : PIXI.ImageSource;
+        const Source = resource === this._canvas ? PIXI.CanvasSource : PIXI.ImageSource;
         this._textureSource = new Source({ resource, resolution: 1 });
         this._updateScaleMode();
     }
@@ -1876,10 +1804,7 @@ class Sprite extends PIXI.Sprite {
     }
 
     set blendMode(value: RMMZ.BlendMode) {
-        const mode =
-            typeof value === "number"
-                ? (Sprite._blendModes[value] ?? "normal")
-                : value;
+        const mode = typeof value === "number" ? (Sprite._blendModes[value] ?? "normal") : value;
         if (this._colorFilter) {
             this._colorFilter.blendMode = mode as import("pixi.js").BLEND_MODES;
         } else {
@@ -1952,12 +1877,7 @@ class Sprite extends PIXI.Sprite {
     setFrame(x: number, y: number, width: number, height: number): void {
         this._refreshFrame = false;
         const frame = this._frame;
-        if (
-            x !== frame.x ||
-            y !== frame.y ||
-            width !== frame.width ||
-            height !== frame.height
-        ) {
+        if (x !== frame.x || y !== frame.y || width !== frame.width || height !== frame.height) {
             frame.x = x;
             frame.y = y;
             frame.width = width;
@@ -2053,14 +1973,8 @@ class Sprite extends PIXI.Sprite {
         const textureSourceH = textureSource ? textureSource.height : 0;
         const realX = frameX.clamp(0, textureSourceW);
         const realY = frameY.clamp(0, textureSourceH);
-        const realW = (frameW - realX + frameX).clamp(
-            0,
-            textureSourceW - realX,
-        );
-        const realH = (frameH - realY + frameY).clamp(
-            0,
-            textureSourceH - realY,
-        );
+        const realW = (frameW - realX + frameX).clamp(0, textureSourceW - realX);
+        const realH = (frameH - realY + frameY).clamp(0, textureSourceH - realY);
         this.pivot.x = frameX - realX;
         this.pivot.y = frameY - realY;
         texture.frame.copyFrom({
@@ -2352,17 +2266,7 @@ class Tilemap extends PIXI.Container {
                 if (image?.width && image.height) {
                     const width = Math.min(image.width, 1024);
                     const height = Math.min(image.height, 1024);
-                    context.drawImage(
-                        image,
-                        0,
-                        0,
-                        width,
-                        height,
-                        1024 * (j % 2),
-                        1024 * (j >> 1),
-                        width,
-                        height,
-                    );
+                    context.drawImage(image, 0, 0, width, height, 1024 * (j % 2), 1024 * (j >> 1), width, height);
                 }
             }
             source.update();
@@ -2421,12 +2325,7 @@ class Tilemap extends PIXI.Container {
         }
     }
 
-    _addTile(
-        layer: TilemapCombinedLayer,
-        tileId: RMMZ.TileID,
-        dx: number,
-        dy: number,
-    ): void {
+    _addTile(layer: TilemapCombinedLayer, tileId: RMMZ.TileID, dx: number, dy: number): void {
         if (Tilemap.isVisibleTile(tileId)) {
             if (Tilemap.isAutotile(tileId)) {
                 this._addAutotile(layer, tileId, dx, dy);
@@ -2436,12 +2335,7 @@ class Tilemap extends PIXI.Container {
         }
     }
 
-    _addNormalTile(
-        layer: TilemapCombinedLayer,
-        tileId: RMMZ.TileID,
-        dx: number,
-        dy: number,
-    ): void {
+    _addNormalTile(layer: TilemapCombinedLayer, tileId: RMMZ.TileID, dx: number, dy: number): void {
         let setNumber = 0;
 
         if (Tilemap.isTileA5(tileId)) {
@@ -2458,12 +2352,7 @@ class Tilemap extends PIXI.Container {
         layer.addRect(setNumber, sx, sy, dx, dy, w, h);
     }
 
-    _addAutotile(
-        layer: TilemapCombinedLayer,
-        tileId: RMMZ.TileID,
-        dx: number,
-        dy: number,
-    ): void {
+    _addAutotile(layer: TilemapCombinedLayer, tileId: RMMZ.TileID, dx: number, dy: number): void {
         const kind = Tilemap.getAutotileKind(tileId);
         const shape = Tilemap.getAutotileShape(tileId);
         const tx = kind % 8;
@@ -2535,27 +2424,14 @@ class Tilemap extends PIXI.Container {
                 const sx2 = (bx * 2 + qsx2) * w1;
                 const sy2 = (by * 2 + qsy2) * h1;
                 layer.addRect(setNumber, sx2, sy2, dx1, dy1, w1, h1);
-                layer.addRect(
-                    setNumber,
-                    sx1,
-                    sy1,
-                    dx1,
-                    dy1 + h1 / 2,
-                    w1,
-                    h1 / 2,
-                );
+                layer.addRect(setNumber, sx1, sy1, dx1, dy1 + h1 / 2, w1, h1 / 2);
             } else {
                 layer.addRect(setNumber, sx1, sy1, dx1, dy1, w1, h1);
             }
         }
     }
 
-    _addTableEdge(
-        layer: TilemapCombinedLayer,
-        tileId: RMMZ.TileID,
-        dx: number,
-        dy: number,
-    ): void {
+    _addTableEdge(layer: TilemapCombinedLayer, tileId: RMMZ.TileID, dx: number, dy: number): void {
         if (Tilemap.isTileA2(tileId)) {
             const autotileTable = Tilemap.FLOOR_AUTOTILE_TABLE;
             const kind = Tilemap.getAutotileKind(tileId);
@@ -2580,12 +2456,7 @@ class Tilemap extends PIXI.Container {
         }
     }
 
-    _addShadow(
-        layer: TilemapCombinedLayer,
-        shadowBits: number,
-        dx: number,
-        dy: number,
-    ): void {
+    _addShadow(layer: TilemapCombinedLayer, shadowBits: number, dx: number, dy: number): void {
         if (shadowBits & 0x0f) {
             const w1 = this.tileWidth / 2;
             const h1 = this.tileHeight / 2;
@@ -2637,10 +2508,7 @@ class Tilemap extends PIXI.Container {
             .slice()
             .sort(
                 this._compareChildOrder as
-                    | ((
-                          a: import("pixi.js").ContainerChild,
-                          b: import("pixi.js").ContainerChild,
-                      ) => number)
+                    | ((a: import("pixi.js").ContainerChild, b: import("pixi.js").ContainerChild) => number)
                     | undefined,
             );
         for (let i = 0; i < sorted.length; i++) {
@@ -2701,9 +2569,7 @@ class Tilemap extends PIXI.Container {
 
     static isSameKindTile(tileID1: number, tileID2: number): boolean {
         if (this.isAutotile(tileID1) && this.isAutotile(tileID2)) {
-            return (
-                this.getAutotileKind(tileID1) === this.getAutotileKind(tileID2)
-            );
+            return this.getAutotileKind(tileID1) === this.getAutotileKind(tileID2);
         } else {
             return tileID1 === tileID2;
         }
@@ -2731,9 +2597,7 @@ class Tilemap extends PIXI.Container {
 
     static isWaterTile(tileId: RMMZ.TileID): boolean {
         if (this.isTileA1(tileId)) {
-            return !(
-                tileId >= this.TILE_ID_A1 + 96 && tileId < this.TILE_ID_A1 + 192
-            );
+            return !(tileId >= this.TILE_ID_A1 + 96 && tileId < this.TILE_ID_A1 + 192);
         } else {
             return false;
         }
@@ -2748,11 +2612,7 @@ class Tilemap extends PIXI.Container {
     }
 
     static isGroundTile(tileId: RMMZ.TileID): boolean {
-        return (
-            this.isTileA1(tileId) ||
-            this.isTileA2(tileId) ||
-            this.isTileA5(tileId)
-        );
+        return this.isTileA1(tileId) || this.isTileA2(tileId) || this.isTileA5(tileId);
     }
 
     static isShadowingTile(tileId: RMMZ.TileID): boolean {
@@ -2768,10 +2628,7 @@ class Tilemap extends PIXI.Container {
     }
 
     static isWallSideTile(tileId: RMMZ.TileID): boolean {
-        return (
-            (this.isTileA3(tileId) || this.isTileA4(tileId)) &&
-            this.getAutotileKind(tileId) % 16 >= 8
-        );
+        return (this.isTileA3(tileId) || this.isTileA4(tileId)) && this.getAutotileKind(tileId) % 16 >= 8;
     }
 
     static isWallTile(tileId: RMMZ.TileID): boolean {
@@ -2938,13 +2795,8 @@ class Tilemap extends PIXI.Container {
 
 // Internal classes
 
-class TilemapLayer extends PIXI.Mesh<
-    import("pixi.js").Geometry,
-    import("pixi.js").Shader
-> {
-    declare _elements: Array<
-        [number, number, number, number, number, number, number]
-    >;
+class TilemapLayer extends PIXI.Mesh<import("pixi.js").Geometry, import("pixi.js").Shader> {
+    declare _elements: Array<[number, number, number, number, number, number, number]>;
     declare _indexArray: Uint16Array;
     declare _vertexArray: Float32Array;
     declare _needsVertexUpdate: boolean;
@@ -2960,10 +2812,7 @@ class TilemapLayer extends PIXI.Mesh<
             usage: PIXI.BufferUsage.INDEX | PIXI.BufferUsage.COPY_DST,
             shrinkToFit: false,
         });
-        const attribute = (
-            format: import("pixi.js").VertexFormat,
-            offset: number,
-        ) => ({
+        const attribute = (format: import("pixi.js").VertexFormat, offset: number) => ({
             buffer: vertices,
             format,
             stride: 9 * Float32Array.BYTES_PER_ELEMENT,
@@ -3005,15 +2854,7 @@ class TilemapLayer extends PIXI.Mesh<
         return this._elements.length;
     }
 
-    addRect(
-        setNumber: number,
-        sx: number,
-        sy: number,
-        dx: number,
-        dy: number,
-        w: number,
-        h: number,
-    ): void {
+    addRect(setNumber: number, sx: number, sy: number, dx: number, dy: number, w: number, h: number): void {
         this._elements.push([setNumber, sx, sy, dx, dy, w, h]);
         this._needsVertexUpdate = true;
     }
@@ -3111,9 +2952,7 @@ class TilemapLayer extends PIXI.Mesh<
             vertexArray[index++] = dx;
             vertexArray[index++] = dy + h;
         }
-        this.geometry
-            .getBuffer("aPosition")
-            .setDataWithSize(vertexArray, required, true);
+        this.geometry.getBuffer("aPosition").setDataWithSize(vertexArray, required, true);
     }
 }
 Tilemap.Layer = TilemapLayer;
@@ -3648,12 +3487,7 @@ class RmmzWindow extends PIXI.Container {
      * @name Window#innerRect
      */
     get innerRect(): Rectangle {
-        return new PIXI.Rectangle(
-            this._padding,
-            this._padding,
-            this.innerWidth,
-            this.innerHeight,
-        );
+        return new PIXI.Rectangle(this._padding, this._padding, this.innerWidth, this.innerHeight);
     }
 
     /**
@@ -3772,9 +3606,7 @@ class RmmzWindow extends PIXI.Container {
      * @param child - The child to add.
      * @returns The child that was added.
      */
-    addChildToBack(
-        child: import("pixi.js").ContainerChild,
-    ): import("pixi.js").ContainerChild {
+    addChildToBack(child: import("pixi.js").ContainerChild): import("pixi.js").ContainerChild {
         const containerIndex = this.children.indexOf(this._container);
         return this.addChildAt(child, containerIndex + 1);
     }
@@ -3784,9 +3616,7 @@ class RmmzWindow extends PIXI.Container {
      * @param child - The child to add.
      * @returns The child that was added.
      */
-    addInnerChild(
-        child: import("pixi.js").ContainerChild,
-    ): import("pixi.js").ContainerChild {
+    addInnerChild(child: import("pixi.js").ContainerChild): import("pixi.js").ContainerChild {
         this._innerChildren.push(child);
         return this._clientArea.addChild(child);
     }
@@ -3804,12 +3634,7 @@ class RmmzWindow extends PIXI.Container {
 
     openBounds(): import("pixi.js").Rectangle {
         const height = (this.height * this.openness) / 255;
-        return new PIXI.Rectangle(
-            this.x,
-            this.y + (this.height - height) / 2,
-            this.width,
-            height,
-        );
+        return new PIXI.Rectangle(this.x, this.y + (this.height - height) / 2, this.width, height);
     }
 
     _createAllParts(): void {
@@ -3920,12 +3745,7 @@ class RmmzWindow extends PIXI.Container {
         for (const child of this._frameSprite.children as Sprite[]) {
             child.bitmap = this._windowskin;
         }
-        this._setRectPartsGeometry(
-            this._frameSprite,
-            srect as Rectangle,
-            drect,
-            m,
-        );
+        this._setRectPartsGeometry(this._frameSprite, srect as Rectangle, drect, m);
     }
 
     _refreshCursor(): void {
@@ -3935,12 +3755,7 @@ class RmmzWindow extends PIXI.Container {
         for (const child of this._cursorSprite.children as Sprite[]) {
             child.bitmap = this._windowskin;
         }
-        this._setRectPartsGeometry(
-            this._cursorSprite,
-            srect as Rectangle,
-            drect,
-            m,
-        );
+        this._setRectPartsGeometry(this._cursorSprite, srect as Rectangle, drect, m);
     }
 
     _setRectPartsGeometry(
@@ -4048,12 +3863,7 @@ class RmmzWindow extends PIXI.Container {
     _updateContentsBack(): void {
         const bitmap = this._contentsBackSprite.bitmap;
         if (bitmap) {
-            this._contentsBackSprite.setFrame(
-                0,
-                0,
-                bitmap.width,
-                bitmap.height,
-            );
+            this._contentsBackSprite.setFrame(0, 0, bitmap.width, bitmap.height);
         }
     }
 
@@ -4130,9 +3940,7 @@ class WindowLayer extends PIXI.Container {
 
     addWindow(window: RmmzWindow): RmmzWindow {
         if (window._isWindow) {
-            const overlayIndex = this.children.findIndex(
-                (child) => !child._isWindow,
-            );
+            const overlayIndex = this.children.findIndex((child) => !child._isWindow);
             if (overlayIndex >= 0) {
                 return this.addChildAt(window, overlayIndex);
             }
@@ -4156,10 +3964,7 @@ class WindowLayer extends PIXI.Container {
             .filter((child) => child._isWindow)
             .map((window) => ({
                 window,
-                bounds:
-                    window.visible && window.openness > 0
-                        ? window.openBounds()
-                        : null,
+                bounds: window.visible && window.openness > 0 ? window.openBounds() : null,
             }));
         const previous = this._windowLayout;
         if (
@@ -4181,15 +3986,10 @@ class WindowLayer extends PIXI.Container {
         const occluders = [];
         for (let i = layout.length - 1; i >= 0; i--) {
             const { window, bounds } = layout[i];
-            const overlaps =
-                bounds &&
-                occluders.filter((rect: Rectangle) => rect.intersects(bounds));
+            const overlaps = bounds && occluders.filter((rect: Rectangle) => rect.intersects(bounds));
             if (overlaps?.length) {
                 this._applyWindowMask(window, bounds!, overlaps);
-            } else if (
-                window._windowLayerMask &&
-                window.mask === window._windowLayerMask
-            ) {
+            } else if (window._windowLayerMask && window.mask === window._windowLayerMask) {
                 window._windowLayerMask.clear();
                 window.mask = null;
             }
@@ -4209,17 +4009,10 @@ class WindowLayer extends PIXI.Container {
         // Keep lower windows out of transparent parts of higher windows.
         let regions = [bounds];
         for (const occluder of occluders) {
-            regions = regions.flatMap((region) =>
-                WindowLayer.subtractRect(region, occluder),
-            );
+            regions = regions.flatMap((region) => WindowLayer.subtractRect(region, occluder));
         }
         for (const rect of regions) {
-            mask.rect(
-                rect.x - window.x,
-                rect.y - window.y,
-                rect.width,
-                rect.height,
-            ).fill(0xffffff);
+            mask.rect(rect.x - window.x, rect.y - window.y, rect.width, rect.height).fill(0xffffff);
         }
         window.mask = mask;
     }
@@ -4235,12 +4028,7 @@ class WindowLayer extends PIXI.Container {
         const bottom = Math.min(occluder.bottom, rect.bottom);
         return [
             new PIXI.Rectangle(rect.left, rect.top, rect.width, top - rect.top),
-            new PIXI.Rectangle(
-                rect.left,
-                bottom,
-                rect.width,
-                rect.bottom - bottom,
-            ),
+            new PIXI.Rectangle(rect.left, bottom, rect.width, rect.bottom - bottom),
             new PIXI.Rectangle(rect.left, top, left - rect.left, bottom - top),
             new PIXI.Rectangle(right, top, rect.right - right, bottom - top),
         ].filter((part) => part.width > 0 && part.height > 0);
@@ -4685,8 +4473,7 @@ class WebAudio {
 
     static _createContext(): void {
         try {
-            const AudioContext =
-                window.AudioContext || window.webkitAudioContext;
+            const AudioContext = window.AudioContext || window.webkitAudioContext;
             this._context = new AudioContext();
         } catch {
             this._context = null;
@@ -4827,10 +4614,7 @@ class WebAudio {
     set volume(value: number) {
         this._volume = value;
         if (this._gainNode) {
-            this._gainNode.gain.setValueAtTime(
-                this._volume,
-                WebAudio._currentTime(),
-            );
+            this._gainNode.gain.setValueAtTime(this._volume, WebAudio._currentTime());
         }
     }
 
@@ -4938,10 +4722,7 @@ class WebAudio {
                 const gain = this._gainNode.gain;
                 const currentTime = WebAudio._currentTime();
                 gain.setValueAtTime(0, currentTime);
-                gain.linearRampToValueAtTime(
-                    this._volume,
-                    currentTime + duration,
-                );
+                gain.linearRampToValueAtTime(this._volume, currentTime + duration);
             }
         } else {
             this.addLoadListener(() => this.fadeIn(duration));
@@ -5030,11 +4811,7 @@ class WebAudio {
     }
 
     _createDecoder(): void {
-        this._decoder = new VorbisDecoder(
-            WebAudio._context,
-            this._onDecode.bind(this),
-            this._onError.bind(this),
-        );
+        this._decoder = new VorbisDecoder(WebAudio._context, this._onDecode.bind(this), this._onError.bind(this));
     }
 
     _destroyDecoder(): void {
@@ -5080,9 +4857,7 @@ class WebAudio {
             const readChunk = ({
                 done,
                 value,
-            }: ReadableStreamReadResult<Uint8Array<ArrayBuffer>>):
-                | Promise<number>
-                | number => {
+            }: ReadableStreamReadResult<Uint8Array<ArrayBuffer>>): Promise<number> | number => {
                 if (done) {
                     this._isLoaded = true;
                     if (this._fetchedSize > 0) {
@@ -5350,10 +5125,7 @@ class WebAudio {
         if (this._sourceNodes.length > 0 && !this._loop) {
             const endTime = this._startTime + this._totalTime / this._pitch;
             const delay = endTime - WebAudio._currentTime();
-            this._endTimer = window.setTimeout(
-                this.stop.bind(this),
-                delay * 1000,
-            );
+            this._endTimer = window.setTimeout(this.stop.bind(this), delay * 1000);
         }
     }
 
@@ -5758,8 +5530,7 @@ class Input {
             return (
                 this._latestButton === keyName &&
                 (this._pressedTime === 0 ||
-                    (this._pressedTime >= this.keyRepeatWait &&
-                        this._pressedTime % this.keyRepeatInterval === 0))
+                    (this._pressedTime >= this.keyRepeatWait && this._pressedTime % this.keyRepeatInterval === 0))
             );
         }
     }
@@ -5773,10 +5544,7 @@ class Input {
         if (this._isEscapeCompatible(keyName) && this.isLongPressed("escape")) {
             return true;
         } else {
-            return (
-                this._latestButton === keyName &&
-                this._pressedTime >= this.keyRepeatWait
-            );
+            return this._latestButton === keyName && this._pressedTime >= this.keyRepeatWait;
         }
     }
 
@@ -6068,8 +5836,7 @@ class TouchInput {
         return (
             this.isPressed() &&
             (this._currentState.triggered ||
-                (this._pressedTime >= this.keyRepeatWait &&
-                    this._pressedTime % this.keyRepeatInterval === 0))
+                (this._pressedTime >= this.keyRepeatWait && this._pressedTime % this.keyRepeatInterval === 0))
         );
     }
 
@@ -6179,21 +5946,10 @@ class TouchInput {
         document.addEventListener("mousemove", this._onMouseMove.bind(this));
         document.addEventListener("mouseup", this._onMouseUp.bind(this));
         document.addEventListener("wheel", this._onWheel.bind(this), pf);
-        document.addEventListener(
-            "touchstart",
-            this._onTouchStart.bind(this),
-            pf,
-        );
-        document.addEventListener(
-            "touchmove",
-            this._onTouchMove.bind(this),
-            pf,
-        );
+        document.addEventListener("touchstart", this._onTouchStart.bind(this), pf);
+        document.addEventListener("touchmove", this._onTouchMove.bind(this), pf);
         document.addEventListener("touchend", this._onTouchEnd.bind(this));
-        document.addEventListener(
-            "touchcancel",
-            this._onTouchCancel.bind(this),
-        );
+        document.addEventListener("touchcancel", this._onTouchCancel.bind(this));
         window.addEventListener("blur", this._onLostFocus.bind(this));
     }
 
@@ -6409,9 +6165,7 @@ class JsonEx {
         const type = Object.prototype.toString.call(value);
         if (type === "[object Object]" || type === "[object Array]") {
             if (value["@"]) {
-                const constructor = (
-                    window as unknown as Record<string, { prototype: object }>
-                )[value["@"]];
+                const constructor = (window as unknown as Record<string, { prototype: object }>)[value["@"]];
                 if (constructor) {
                     Object.setPrototypeOf(value, constructor.prototype);
                 }

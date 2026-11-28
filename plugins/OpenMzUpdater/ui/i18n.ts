@@ -23,13 +23,11 @@ export type UpdaterLocale = 'zh' | 'en';
 export const UPDATER_TEXTS: Readonly<Record<UpdaterLocale, UpdaterTexts>> = {
   zh: {
     title: '更新 OpenMZ',
-    version: (current, target) =>
-      `${current || 'RPG Maker MZ'} → OpenMZ ${target}`,
+    version: (current, target) => `${current || 'RPG Maker MZ'} → OpenMZ ${target}`,
     backup: '原文件将备份到 js_backup/。',
     check: '正在检查更新',
     current: '当前已是最新版',
-    download: (loaded, total) =>
-      `下载更新包：${Math.floor(loaded / 1024)} / ${Math.ceil(total / 1024)} KB`,
+    download: (loaded, total) => `下载更新包：${Math.floor(loaded / 1024)} / ${Math.ceil(total / 1024)} KB`,
     verify: '校验并解压更新包',
     apply: '备份并安装更新',
     done: '更新完成',
@@ -44,13 +42,11 @@ export const UPDATER_TEXTS: Readonly<Record<UpdaterLocale, UpdaterTexts>> = {
   },
   en: {
     title: 'Update OpenMZ',
-    version: (current, target) =>
-      `${current || 'RPG Maker MZ'} → OpenMZ ${target}`,
+    version: (current, target) => `${current || 'RPG Maker MZ'} → OpenMZ ${target}`,
     backup: 'Original files will be saved in js_backup/.',
     check: 'Checking for updates',
     current: 'Already up to date',
-    download: (loaded, total) =>
-      `Downloading: ${Math.floor(loaded / 1024)} / ${Math.ceil(total / 1024)} KB`,
+    download: (loaded, total) => `Downloading: ${Math.floor(loaded / 1024)} / ${Math.ceil(total / 1024)} KB`,
     verify: 'Verifying and extracting',
     apply: 'Backing up and installing',
     done: 'Update installed',

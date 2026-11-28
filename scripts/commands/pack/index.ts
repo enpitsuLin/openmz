@@ -11,8 +11,6 @@ export const pack = defineCommand({
   },
   async run({ args }) {
     const release = await buildRelease({ version: args.version });
-    console.log(
-      `Built ${release.manifest.archive.url} (${release.includedFiles.length} files)`,
-    );
+    console.log(`Built ${release.manifest.archive.url} (${release.includedFiles.length} files)`);
   },
 });

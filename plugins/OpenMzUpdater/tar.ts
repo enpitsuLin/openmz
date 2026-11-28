@@ -39,10 +39,7 @@ function isZeroBlock(block: Buffer): boolean {
 function computeHeaderChecksum(header: Buffer): number {
   let sum = 0;
   for (let index = 0; index < header.length; index++) {
-    sum +=
-      index >= CHECKSUM_START && index < CHECKSUM_END
-        ? CHECKSUM_SPACE
-        : header[index];
+    sum += index >= CHECKSUM_START && index < CHECKSUM_END ? CHECKSUM_SPACE : header[index];
   }
   return sum;
 }
@@ -68,14 +65,9 @@ export function parseTarBuffer(buffer: Buffer): ArchiveEntry[] {
       return entries;
     }
 
-    const expectedChecksum = readOctal(
-      header.subarray(CHECKSUM_START, CHECKSUM_END),
-    );
+    const expectedChecksum = readOctal(header.subarray(CHECKSUM_START, CHECKSUM_END));
     if (computeHeaderChecksum(header) !== expectedChecksum) {
-      throw createUpdaterError(
-        'INVALID_ARCHIVE',
-        'Invalid tar header checksum.',
-      );
+      throw createUpdaterError('INVALID_ARCHIVE', 'Invalid tar header checksum.');
     }
 
     const size = readOctal(header.subarray(SIZE_START, SIZE_END));
@@ -86,9 +78,7 @@ export function parseTarBuffer(buffer: Buffer): ArchiveEntry[] {
     const content = buffer.subarray(offset, offset + size);
     offset += paddedSize;
 
-    const type = String.fromCharCode(
-      header[TYPE_OFFSET] || REGULAR_FILE_DEFAULT_CHAR_CODE,
-    );
+    const type = String.fromCharCode(header[TYPE_OFFSET] || REGULAR_FILE_DEFAULT_CHAR_CODE);
     const name = readText(header.subarray(NAME_START, NAME_END));
 
     if (type === 'L' && (name === '././@LongLink' || name === '@LongLink')) {
@@ -106,10 +96,7 @@ export function parseTarBuffer(buffer: Buffer): ArchiveEntry[] {
       const relativePath = longPath ?? (prefix ? `${prefix}/${name}` : name);
       entries.push({ relativePath, content });
     } else if (type !== '5') {
-      throw createUpdaterError(
-        'INVALID_ARCHIVE',
-        `Unsupported tar entry type for ${name}.`,
-      );
+      throw createUpdaterError('INVALID_ARCHIVE', `Unsupported tar entry type for ${name}.`);
     }
     longPath = undefined;
   }

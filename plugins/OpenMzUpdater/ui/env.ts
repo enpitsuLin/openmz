@@ -23,11 +23,7 @@ function getCurrentScriptSrc(): string {
 
 function resolveProjectRoot(nodeRequire: NodeRequire): string {
   const path = nodeRequire('path');
-  if (
-    typeof window !== 'undefined' &&
-    window.location?.protocol === 'file:' &&
-    window.location.href
-  ) {
+  if (typeof window !== 'undefined' && window.location?.protocol === 'file:' && window.location.href) {
     return path.dirname(nodeRequire('url').fileURLToPath(window.location.href));
   }
   if (typeof process !== 'undefined') {
@@ -49,9 +45,7 @@ function reloadApplication(): void {
 }
 
 function waitForNextPaintedFrame(): Promise<void> {
-  return new Promise<void>((resolve) =>
-    requestAnimationFrame(() => requestAnimationFrame(() => resolve())),
-  );
+  return new Promise<void>((resolve) => requestAnimationFrame(() => requestAnimationFrame(() => resolve())));
 }
 
 /**
@@ -70,11 +64,8 @@ export function detectUpdaterEnvironment(): UpdaterEnvironment | null {
   }
 
   const pluginName = resolvePluginName(getCurrentScriptSrc());
-  const manifestUrl = String(
-    PluginManager.parameters(pluginName).manifestUrl || '',
-  ).trim();
-  const nodeRequire =
-    typeof require === 'function' ? (require as unknown as NodeRequire) : null;
+  const manifestUrl = String(PluginManager.parameters(pluginName).manifestUrl || '').trim();
+  const nodeRequire = typeof require === 'function' ? (require as unknown as NodeRequire) : null;
 
   if (!manifestUrl || !nodeRequire || !Utils.isNwjs()) {
     return null;

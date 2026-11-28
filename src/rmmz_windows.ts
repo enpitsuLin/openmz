@@ -62,12 +62,7 @@ class Window_Base extends RmmzWindow {
     }
 
     baseTextRect(): Rectangle {
-        const rect = new PIXI.Rectangle(
-            0,
-            0,
-            this.innerWidth,
-            this.innerHeight,
-        );
+        const rect = new PIXI.Rectangle(0, 0, this.innerWidth, this.innerHeight);
         rect.pad(-this.itemPadding(), 0);
         return rect;
     }
@@ -221,13 +216,7 @@ class Window_Base extends RmmzWindow {
         this.contents.fillRect(x + 1, y + 1, width - 2, height - 2, mainColor);
     }
 
-    drawText(
-        text: string | number,
-        x: number,
-        y: number,
-        maxWidth?: number,
-        align?: CanvasTextAlign,
-    ): void {
+    drawText(text: string | number, x: number, y: number, maxWidth?: number, align?: CanvasTextAlign): void {
         this.contents.drawText(text, x, y, maxWidth, this.lineHeight(), align);
     }
 
@@ -253,12 +242,7 @@ class Window_Base extends RmmzWindow {
         return { width: textState.outputWidth, height: textState.outputHeight };
     }
 
-    createTextState(
-        text: string,
-        x: number,
-        y: number,
-        width: number,
-    ): RMMZ.TextState {
+    createTextState(text: string, x: number, y: number, width: number): RMMZ.TextState {
         const rtl = Utils.containsArabic(text);
         const textState = {} as RMMZ.TextState;
         textState.text = this.convertEscapeCharacters(text);
@@ -313,16 +297,10 @@ class Window_Base extends RmmzWindow {
         text = text.replace(/\\/g, "\x1b");
         text = text.replace(/\x1b\x1b/g, "\\");
         while (text.match(/\x1bV\[(\d+)\]/gi)) {
-            text = text.replace(/\x1bV\[(\d+)\]/gi, (_, p1) =>
-                String($gameVariables.value(parseInt(p1))),
-            );
+            text = text.replace(/\x1bV\[(\d+)\]/gi, (_, p1) => String($gameVariables.value(parseInt(p1))));
         }
-        text = text.replace(/\x1bN\[(\d+)\]/gi, (_, p1) =>
-            this.actorName(parseInt(p1)),
-        );
-        text = text.replace(/\x1bP\[(\d+)\]/gi, (_, p1) =>
-            this.partyMemberName(parseInt(p1)),
-        );
+        text = text.replace(/\x1bN\[(\d+)\]/gi, (_, p1) => this.actorName(parseInt(p1)));
+        text = text.replace(/\x1bP\[(\d+)\]/gi, (_, p1) => this.partyMemberName(parseInt(p1)));
         text = text.replace(/\x1bG/gi, TextManager.currencyUnit);
         return text;
     }
@@ -353,10 +331,7 @@ class Window_Base extends RmmzWindow {
         }
         if (c === "\x1b") {
             const code = this.obtainEscapeCode(textState);
-            this.processEscapeCharacter(
-                code as "}" | "C" | "I" | "PX" | "PY" | "FS" | "{",
-                textState,
-            );
+            this.processEscapeCharacter(code as "}" | "C" | "I" | "PX" | "PY" | "FS" | "{", textState);
         }
     }
 
@@ -388,21 +363,13 @@ class Window_Base extends RmmzWindow {
         }
     }
 
-    processEscapeCharacter(
-        code: "C" | "I" | "PX" | "PY" | "FS" | "{" | "}",
-        textState: RMMZ.TextState,
-    ): void {
+    processEscapeCharacter(code: "C" | "I" | "PX" | "PY" | "FS" | "{" | "}", textState: RMMZ.TextState): void {
         switch (code) {
             case "C":
-                this.processColorChange(
-                    this.obtainEscapeParam(textState) as number,
-                );
+                this.processColorChange(this.obtainEscapeParam(textState) as number);
                 break;
             case "I":
-                this.processDrawIcon(
-                    this.obtainEscapeParam(textState) as number,
-                    textState,
-                );
+                this.processDrawIcon(this.obtainEscapeParam(textState) as number, textState);
                 break;
             case "PX":
                 textState.x = this.obtainEscapeParam(textState) as number;
@@ -411,9 +378,7 @@ class Window_Base extends RmmzWindow {
                 textState.y = this.obtainEscapeParam(textState) as number;
                 break;
             case "FS":
-                this.contents.fontSize = this.obtainEscapeParam(
-                    textState,
-                ) as number;
+                this.contents.fontSize = this.obtainEscapeParam(textState) as number;
                 break;
             case "{":
                 this.makeFontBigger();
@@ -430,8 +395,7 @@ class Window_Base extends RmmzWindow {
 
     processDrawIcon(iconIndex: number, textState: RMMZ.TextState): void {
         const deltaX = ImageManager.standardIconWidth - ImageManager.iconWidth;
-        const deltaY =
-            ImageManager.standardIconHeight - ImageManager.iconHeight;
+        const deltaY = ImageManager.standardIconHeight - ImageManager.iconHeight;
         if (textState.drawing) {
             const x = textState.x + deltaX / 2 + 2;
             const y = textState.y + deltaY / 2 + 2;
@@ -527,16 +491,10 @@ class Window_Base extends RmmzWindow {
         this.contents.blt(bitmap, sx, sy, pw, ph, x - pw / 2, y - ph);
     }
 
-    drawItemName(
-        item: RMMZ.DataItemBase | null,
-        x: number,
-        y: number,
-        width: number,
-    ): void {
+    drawItemName(item: RMMZ.DataItemBase | null, x: number, y: number, width: number): void {
         if (item) {
             const iconY = y + (this.lineHeight() - ImageManager.iconHeight) / 2;
-            const delta =
-                ImageManager.standardIconWidth - ImageManager.iconWidth;
+            const delta = ImageManager.standardIconWidth - ImageManager.iconWidth;
             const textMargin = ImageManager.standardIconWidth + 4;
             const itemWidth = Math.max(0, width - textMargin);
             this.resetTextColor();
@@ -545,13 +503,7 @@ class Window_Base extends RmmzWindow {
         }
     }
 
-    drawCurrencyValue(
-        value: number,
-        unit: string,
-        x: number,
-        y: number,
-        width: number,
-    ): void {
+    drawCurrencyValue(value: number, unit: string, x: number, y: number, width: number): void {
         const unitWidth = Math.min(80, this.textWidth(unit));
         this.resetTextColor();
         this.drawText(value, x, y, width - unitWidth - 6, "right");
@@ -1041,9 +993,7 @@ class Window_Selectable extends Window_Scrollable {
     }
 
     maxVisibleItems(): number {
-        const visibleRows = Math.ceil(
-            this.contentsHeight() / this.itemHeight(),
-        );
+        const visibleRows = Math.ceil(this.contentsHeight() / this.itemHeight());
         return visibleRows * this.maxCols();
     }
 
@@ -1122,12 +1072,7 @@ class Window_Selectable extends Window_Scrollable {
     }
 
     isCursorMovable(): boolean {
-        return (
-            this.isOpenAndActive() &&
-            !this._cursorFixed &&
-            !this._cursorAll &&
-            this.maxItems() > 0
-        );
+        return this.isOpenAndActive() && !this._cursorFixed && !this._cursorAll && this.maxItems() > 0;
     }
 
     cursorDown(wrap: boolean): void {
@@ -1320,10 +1265,7 @@ class Window_Selectable extends Window_Scrollable {
     }
 
     isTouchOkEnabled(): boolean {
-        return (
-            this.isOkEnabled() &&
-            (this._cursorFixed || this._cursorAll || this._doubleTouch)
-        );
+        return this.isOkEnabled() && (this._cursorFixed || this._cursorAll || this._doubleTouch);
     }
 
     isOkEnabled(): boolean {
@@ -1335,9 +1277,7 @@ class Window_Selectable extends Window_Scrollable {
     }
 
     isOkTriggered(): boolean {
-        return this._canRepeat
-            ? Input.isRepeated("ok")
-            : Input.isTriggered("ok");
+        return this._canRepeat ? Input.isRepeated("ok") : Input.isTriggered("ok");
     }
 
     isCancelTriggered(): boolean {
@@ -1620,13 +1560,7 @@ class Window_Command extends Window_Selectable {
         const align = this.itemTextAlign();
         this.resetTextColor();
         this.changePaintOpacity(this.isCommandEnabled(index));
-        this.drawText(
-            this.commandName(index),
-            rect.x,
-            rect.y,
-            rect.width,
-            align,
-        );
+        this.drawText(this.commandName(index), rect.x, rect.y, rect.width, align);
     }
 
     itemTextAlign(): CanvasTextAlign {
@@ -1813,12 +1747,7 @@ class Window_StatusBase extends Window_Selectable {
         sprite.show();
     }
 
-    placeGauge(
-        actor: Game_Actor,
-        type: "time" | "hp" | "mp" | "tp",
-        x: number,
-        y: number,
-    ): void {
+    placeGauge(actor: Game_Actor, type: "time" | "hp" | "mp" | "tp", x: number, y: number): void {
         const key = "actor%1-gauge-%2".format(actor.actorId(), type);
         const sprite = this.createInnerSprite(key, Sprite_Gauge);
         sprite.setup(actor, type);
@@ -1826,10 +1755,7 @@ class Window_StatusBase extends Window_Selectable {
         sprite.show();
     }
 
-    createInnerSprite<T extends Sprite>(
-        key: string,
-        spriteClass: new () => T,
-    ): T {
+    createInnerSprite<T extends Sprite>(key: string, spriteClass: new () => T): T {
         const dict = this._additionalSprites;
         if (dict[key]) {
             return dict[key] as T;
@@ -1871,34 +1797,19 @@ class Window_StatusBase extends Window_Selectable {
         this.drawFace(actor.faceName(), actor.faceIndex(), x, y, width, height);
     }
 
-    drawActorName(
-        actor: Game_Actor,
-        x: number,
-        y: number,
-        width?: number,
-    ): void {
+    drawActorName(actor: Game_Actor, x: number, y: number, width?: number): void {
         width = width || 168;
         this.changeTextColor(ColorManager.hpColor(actor));
         this.drawText(actor.name(), x, y, width);
     }
 
-    drawActorClass(
-        actor: Game_Actor,
-        x: number,
-        y: number,
-        width?: number,
-    ): void {
+    drawActorClass(actor: Game_Actor, x: number, y: number, width?: number): void {
         width = width || 168;
         this.resetTextColor();
         this.drawText(actor.currentClass().name, x, y, width);
     }
 
-    drawActorNickname(
-        actor: Game_Actor,
-        x: number,
-        y: number,
-        width?: number,
-    ): void {
+    drawActorNickname(actor: Game_Actor, x: number, y: number, width?: number): void {
         width = width || 270;
         this.resetTextColor();
         this.drawText(actor.nickname(), x, y, width);
@@ -1911,12 +1822,7 @@ class Window_StatusBase extends Window_Selectable {
         this.drawText(actor.level, x + 84, y, 36, "right");
     }
 
-    drawActorIcons(
-        actor: Game_Actor,
-        x: number,
-        y: number,
-        width?: number,
-    ): void {
+    drawActorIcons(actor: Game_Actor, x: number, y: number, width?: number): void {
         width = width || 144;
         const delta = ImageManager.standardIconWidth - ImageManager.iconWidth;
         const iconWidth = ImageManager.standardIconWidth;
@@ -2109,13 +2015,7 @@ class Window_MenuStatus extends Window_StatusBase {
             const rect = this.itemRect(index);
             const color = ColorManager.pendingColor();
             this.changePaintOpacity(false);
-            this.contents.fillRect(
-                rect.x,
-                rect.y,
-                rect.width,
-                rect.height,
-                color,
-            );
+            this.contents.fillRect(rect.x, rect.y, rect.width, rect.height, color);
             this.changePaintOpacity(true);
         }
     }
@@ -2134,8 +2034,7 @@ class Window_MenuStatus extends Window_StatusBase {
         const actor = this.actor(index);
         const rect = this.itemRect(index);
         const x = rect.x + 180;
-        const y =
-            rect.y + Math.floor(rect.height / 2 - this.lineHeight() * 1.5);
+        const y = rect.y + Math.floor(rect.height / 2 - this.lineHeight() * 1.5);
         this.drawActorSimpleStatus(actor, x, y);
     }
 
@@ -2366,9 +2265,7 @@ class Window_ItemList extends Window_Selectable {
     }
 
     makeItemList(): void {
-        this._data = $gameParty
-            .allItems()
-            .filter((item) => this.includes(item));
+        this._data = $gameParty.allItems().filter((item) => this.includes(item));
         if (this.includes(null)) {
             this._data.push(null);
         }
@@ -2395,12 +2292,7 @@ class Window_ItemList extends Window_Selectable {
         return this.textWidth("000");
     }
 
-    drawItemNumber(
-        item: RMMZ.InventoryItem,
-        x: number,
-        y: number,
-        width: number,
-    ): void {
+    drawItemNumber(item: RMMZ.InventoryItem, x: number, y: number, width: number): void {
         if (this.needsNumber()) {
             this.drawText(":", x, y, width - this.textWidth("00"), "right");
             this.drawText($gameParty.numItems(item), x, y, width, "right");
@@ -2584,9 +2476,7 @@ class Window_SkillList extends Window_Selectable {
 
     makeItemList(): void {
         if (this._actor) {
-            this._data = this._actor
-                .skills()
-                .filter((item) => this.includes(item));
+            this._data = this._actor.skills().filter((item) => this.includes(item));
         } else {
             this._data = [];
         }
@@ -2613,30 +2503,13 @@ class Window_SkillList extends Window_Selectable {
         return this.textWidth("000");
     }
 
-    drawSkillCost(
-        skill: RMMZ.DataSkill,
-        x: number,
-        y: number,
-        width: number,
-    ): void {
+    drawSkillCost(skill: RMMZ.DataSkill, x: number, y: number, width: number): void {
         if (this._actor!.skillTpCost(skill) > 0) {
             this.changeTextColor(ColorManager.tpCostColor());
-            this.drawText(
-                this._actor!.skillTpCost(skill),
-                x,
-                y,
-                width,
-                "right",
-            );
+            this.drawText(this._actor!.skillTpCost(skill), x, y, width, "right");
         } else if (this._actor!.skillMpCost(skill) > 0) {
             this.changeTextColor(ColorManager.mpCostColor());
-            this.drawText(
-                this._actor!.skillMpCost(skill),
-                x,
-                y,
-                width,
-                "right",
-            );
+            this.drawText(this._actor!.skillMpCost(skill), x, y, width, "right");
         }
     }
 
@@ -2719,11 +2592,7 @@ class Window_EquipStatus extends Window_StatusBase {
         }
         this.drawRightArrow(paramX + paramWidth, y);
         if (this._tempActor) {
-            this.drawNewParam(
-                paramX + paramWidth + rightArrowWidth,
-                y,
-                paramId,
-            );
+            this.drawNewParam(paramX + paramWidth + rightArrowWidth, y, paramId);
         }
     }
 
@@ -2856,12 +2725,7 @@ class Window_EquipSlot extends Window_StatusBase {
             this.changeTextColor(ColorManager.systemColor());
             this.changePaintOpacity(this.isEnabled(index));
             this.drawText(slotName, rect.x, rect.y, slotNameWidth);
-            this.drawItemName(
-                item as RMMZ.DatabaseItem | null,
-                rect.x + slotNameWidth,
-                rect.y,
-                itemWidth,
-            );
+            this.drawItemName(item as RMMZ.DatabaseItem | null, rect.x + slotNameWidth, rect.y, itemWidth);
             this.changePaintOpacity(true);
         }
     }
@@ -2945,9 +2809,7 @@ class Window_EquipItem extends Window_ItemList {
         if (item === null) {
             return true;
         }
-        return (this._actor &&
-            this._actor.canEquip(item) &&
-            item.etypeId === this.etypeId())!;
+        return (this._actor && this._actor.canEquip(item) && item.etypeId === this.etypeId())!;
     }
 
     etypeId(): number {
@@ -3060,13 +2922,7 @@ class Window_Status extends Window_StatusBase {
         this.drawText(expTotal, x, y, 270);
         this.drawText(expNext, x, y + lineHeight * 2, 270);
         this.resetTextColor();
-        this.drawText(
-            this.expTotalValue(),
-            x,
-            y + lineHeight * 1,
-            270,
-            "right",
-        );
+        this.drawText(this.expTotalValue(), x, y + lineHeight * 1, 270, "right");
         this.drawText(this.expNextValue(), x, y + lineHeight * 3, 270, "right");
     }
 
@@ -3177,12 +3033,7 @@ class Window_StatusEquip extends Window_StatusBase {
         const sw = 138;
         this.changeTextColor(ColorManager.systemColor());
         this.drawText(slotName, rect.x, rect.y, sw);
-        this.drawItemName(
-            item as RMMZ.DatabaseItem | null,
-            rect.x + sw,
-            rect.y,
-            rect.width - sw,
-        );
+        this.drawItemName(item as RMMZ.DatabaseItem | null, rect.x + sw, rect.y, rect.width - sw);
     }
 
     drawItemBackground(/*index*/): void {
@@ -3232,13 +3083,7 @@ class Window_Options extends Window_Command {
         this.resetTextColor();
         this.changePaintOpacity(this.isCommandEnabled(index));
         this.drawText(title, rect.x, rect.y, titleWidth, "left");
-        this.drawText(
-            status,
-            rect.x + titleWidth,
-            rect.y,
-            statusWidth,
-            "right",
-        );
+        this.drawText(status, rect.x + titleWidth, rect.y, statusWidth, "right");
     }
 
     statusWidth(): number {
@@ -3255,9 +3100,7 @@ class Window_Options extends Window_Command {
         }
     }
 
-    isVolumeSymbol(
-        symbol: string,
-    ): symbol is "bgmVolume" | "bgsVolume" | "meVolume" | "seVolume" {
+    isVolumeSymbol(symbol: string): symbol is "bgmVolume" | "bgsVolume" | "meVolume" | "seVolume" {
         return symbol.includes("Volume");
     }
 
@@ -3319,11 +3162,7 @@ class Window_Options extends Window_Command {
     }
 
     changeValue(
-        symbol:
-            | "alwaysDash"
-            | "commandRemember"
-            | "touchUI"
-            | ("bgmVolume" | "bgsVolume" | "meVolume" | "seVolume"),
+        symbol: "alwaysDash" | "commandRemember" | "touchUI" | ("bgmVolume" | "bgsVolume" | "meVolume" | "seVolume"),
         value: boolean | number,
     ): void {
         const lastValue = this.getConfigValue(symbol);
@@ -3335,21 +3174,13 @@ class Window_Options extends Window_Command {
     }
 
     getConfigValue<
-        T extends
-            | "alwaysDash"
-            | "commandRemember"
-            | "touchUI"
-            | ("bgmVolume" | "bgsVolume" | "meVolume" | "seVolume"),
+        T extends "alwaysDash" | "commandRemember" | "touchUI" | ("bgmVolume" | "bgsVolume" | "meVolume" | "seVolume"),
     >(symbol: T): (typeof ConfigManager)[T] {
         return ConfigManager[symbol];
     }
 
     setConfigValue<
-        T extends
-            | "alwaysDash"
-            | "commandRemember"
-            | "touchUI"
-            | ("bgmVolume" | "bgsVolume" | "meVolume" | "seVolume"),
+        T extends "alwaysDash" | "commandRemember" | "touchUI" | ("bgmVolume" | "bgsVolume" | "meVolume" | "seVolume"),
     >(symbol: T, volume: (typeof ConfigManager)[T]): void {
         ConfigManager[symbol] = volume;
     }
@@ -3462,12 +3293,7 @@ class Window_SavefileList extends Window_Selectable {
         }
     }
 
-    drawPlaytime(
-        info: RMMZ.DataSaveInfo,
-        x: number,
-        y: number,
-        width: number,
-    ): void {
+    drawPlaytime(info: RMMZ.DataSaveInfo, x: number, y: number, width: number): void {
         if (info.playtime) {
             this.drawText(info.playtime, x, y, width, "right");
         }
@@ -3564,9 +3390,7 @@ class Window_ShopBuy extends Window_Selectable {
     }
 
     isEnabled(item: RMMZ.InventoryItem | null): boolean {
-        return (item &&
-            this.price(item) <= this._money &&
-            !$gameParty.hasMaxItems(item))!;
+        return (item && this.price(item) <= this._money && !$gameParty.hasMaxItems(item))!;
     }
 
     refresh(): void {
@@ -3586,9 +3410,7 @@ class Window_ShopBuy extends Window_Selectable {
         }
     }
 
-    goodsToItem(
-        goods: RMMZ.ShopGoodsEntry,
-    ): RMMZ.DataItem | RMMZ.DataWeapon | RMMZ.DataArmor | null {
+    goodsToItem(goods: RMMZ.ShopGoodsEntry): RMMZ.DataItem | RMMZ.DataWeapon | RMMZ.DataArmor | null {
         switch (goods[0]) {
             case 0:
                 return $dataItems[goods[1]];
@@ -3709,16 +3531,7 @@ class Window_ShopNumber extends Window_Selectable {
         if (ConfigManager.touchUI) {
             for (const type of ["down2", "down", "up", "up2", "ok"]) {
                 const button = new Sprite_Button(
-                    type as
-                        | "menu"
-                        | "cancel"
-                        | "ok"
-                        | "pageup"
-                        | "pagedown"
-                        | "up"
-                        | "down"
-                        | "down2"
-                        | "up2",
+                    type as "menu" | "cancel" | "ok" | "pageup" | "pagedown" | "up" | "down" | "down2" | "up2",
                 );
                 this._buttons.push(button);
                 this.addInnerChild(button);
@@ -3951,9 +3764,7 @@ class Window_ShopStatus extends Window_StatusBase {
     }
 
     isEquipItem(): boolean {
-        return (
-            DataManager.isWeapon(this._item) || DataManager.isArmor(this._item)
-        );
+        return DataManager.isWeapon(this._item) || DataManager.isArmor(this._item);
     }
 
     drawPossession(x: number, y: number): void {
@@ -3984,16 +3795,11 @@ class Window_ShopStatus extends Window_StatusBase {
     }
 
     maxPages(): number {
-        return Math.floor(
-            ($gameParty.size() + this.pageSize() - 1) / this.pageSize(),
-        );
+        return Math.floor(($gameParty.size() + this.pageSize() - 1) / this.pageSize());
     }
 
     drawActorEquipInfo(x: number, y: number, actor: Game_Actor): void {
-        const item1 = this.currentEquippedItem(
-            actor,
-            (this._item as RMMZ.DataEquipment).etypeId,
-        );
+        const item1 = this.currentEquippedItem(actor, (this._item as RMMZ.DataEquipment).etypeId);
         const width = this.innerWidth - x - this.itemPadding();
         const enabled = actor.canEquip(this._item!);
         this.changePaintOpacity(enabled);
@@ -4002,12 +3808,7 @@ class Window_ShopStatus extends Window_StatusBase {
         if (enabled) {
             this.drawActorParamChange(x, y, actor, item1);
         }
-        this.drawItemName(
-            item1 as RMMZ.DatabaseItem | null,
-            x,
-            y + this.lineHeight(),
-            width,
-        );
+        this.drawItemName(item1 as RMMZ.DatabaseItem | null, x, y + this.lineHeight(), width);
         this.changePaintOpacity(true);
     }
 
@@ -4028,10 +3829,7 @@ class Window_ShopStatus extends Window_StatusBase {
         return DataManager.isWeapon(this._item) ? 2 : 3;
     }
 
-    currentEquippedItem(
-        actor: Game_Actor,
-        etypeId: RMMZ.EquipmentType,
-    ): RMMZ.DataEquipment | null {
+    currentEquippedItem(actor: Game_Actor, etypeId: RMMZ.EquipmentType): RMMZ.DataEquipment | null {
         const list = [];
         const equips = actor.equips();
         const slots = actor.equipSlots();
@@ -4164,10 +3962,7 @@ class Window_NameEdit extends Window_StatusBase {
     left(): number {
         const nameCenter = (this.innerWidth + this.faceWidth()) / 2;
         const nameWidth = (this._maxLength + 1) * this.charWidth();
-        return Math.min(
-            nameCenter - nameWidth / 2,
-            this.innerWidth - nameWidth,
-        );
+        return Math.min(nameCenter - nameWidth / 2, this.innerWidth - nameWidth);
     }
 
     itemRect(index: number): Rectangle {
@@ -4321,11 +4116,7 @@ class Window_NameInput extends Window_Selectable {
 
     table(): string[][] {
         if ($gameSystem.isJapanese()) {
-            return [
-                Window_NameInput.JAPAN1,
-                Window_NameInput.JAPAN2,
-                Window_NameInput.JAPAN3,
-            ];
+            return [Window_NameInput.JAPAN1, Window_NameInput.JAPAN2, Window_NameInput.JAPAN3];
         } else if ($gameSystem.isRussian()) {
             return [Window_NameInput.RUSSIA];
         } else {
@@ -4426,8 +4217,7 @@ class Window_NameInput extends Window_Selectable {
     }
 
     cursorPageup(): void {
-        this._page =
-            (this._page + this.table().length - 1) % this.table().length;
+        this._page = (this._page + this.table().length - 1) % this.table().length;
         this.refresh();
     }
 
@@ -4646,8 +4436,7 @@ class Window_ChoiceList extends Window_Command {
 
     updateCancelButton(): void {
         if (this._cancelButton) {
-            this._cancelButton.visible =
-                this.needsCancelButton() && this.isOpen();
+            this._cancelButton.visible = this.needsCancelButton() && this.isOpen();
         }
     }
 
@@ -4702,8 +4491,7 @@ class Window_ChoiceList extends Window_Command {
     }
 
     windowWidth(): number {
-        const width =
-            this.maxChoiceWidth() + this.colSpacing() + this.padding * 2;
+        const width = this.maxChoiceWidth() + this.colSpacing() + this.padding * 2;
         return Math.min(width, Graphics.boxWidth);
     }
 
@@ -4877,16 +4665,7 @@ class Window_NumberInput extends Window_Selectable {
         if (ConfigManager.touchUI) {
             for (const type of ["down", "up", "ok"]) {
                 const button = new Sprite_Button(
-                    type as
-                        | "menu"
-                        | "cancel"
-                        | "ok"
-                        | "pageup"
-                        | "pagedown"
-                        | "up"
-                        | "down"
-                        | "down2"
-                        | "up2",
+                    type as "menu" | "cancel" | "ok" | "pageup" | "pagedown" | "up" | "down" | "down2" | "up2",
                 );
                 this._buttons.push(button);
                 this.addInnerChild(button);
@@ -4965,10 +4744,7 @@ class Window_NumberInput extends Window_Selectable {
 
     processOk(): void {
         this.playOkSound();
-        $gameVariables.setValue(
-            $gameMessage.numInputVariableId(),
-            this._number,
-        );
+        $gameVariables.setValue($gameMessage.numInputVariableId(), this._number);
         this._messageWindow.terminateMessage();
         this.updateInputData();
         this.deactivate();
@@ -5260,8 +5036,7 @@ class Window_Message extends Window_Base {
         this._positionType = $gameMessage.positionType();
         this.y = (this._positionType * (Graphics.boxHeight - this.height)) / 2;
         if (goldWindow) {
-            goldWindow.y =
-                this.y > 0 ? 0 : Graphics.boxHeight - goldWindow.height;
+            goldWindow.y = this.y > 0 ? 0 : Graphics.boxHeight - goldWindow.height;
         }
     }
 
@@ -5323,11 +5098,7 @@ class Window_Message extends Window_Base {
     }
 
     isAnySubWindowActive(): boolean {
-        return (
-            this._choiceListWindow!.active ||
-            this._numberInputWindow!.active ||
-            this._eventItemWindow!.active
-        );
+        return this._choiceListWindow!.active || this._numberInputWindow!.active || this._eventItemWindow!.active;
     }
 
     updateMessage(): boolean {
@@ -5406,26 +5177,15 @@ class Window_Message extends Window_Base {
     }
 
     isTriggered(): boolean {
-        return (
-            Input.isRepeated("ok") ||
-            Input.isRepeated("cancel") ||
-            TouchInput.isRepeated()
-        );
+        return Input.isRepeated("ok") || Input.isRepeated("cancel") || TouchInput.isRepeated();
     }
 
     doesContinue(): boolean {
-        return (
-            $gameMessage.hasText() &&
-            !$gameMessage.scrollMode() &&
-            !this.areSettingsChanged()
-        );
+        return $gameMessage.hasText() && !$gameMessage.scrollMode() && !this.areSettingsChanged();
     }
 
     areSettingsChanged(): boolean {
-        return (
-            this._background !== $gameMessage.background() ||
-            this._positionType !== $gameMessage.positionType()
-        );
+        return this._background !== $gameMessage.background() || this._positionType !== $gameMessage.positionType();
     }
 
     updateShowFast(): void {
@@ -5491,16 +5251,11 @@ class Window_Message extends Window_Base {
     }
 
     needsNewPage(textState: RMMZ.TextState): boolean {
-        return (
-            !this.isEndOfText(textState) &&
-            textState.y + textState.height > this.contents.height
-        );
+        return !this.isEndOfText(textState) && textState.y + textState.height > this.contents.height;
     }
 
     processEscapeCharacter(
-        code:
-            | ("$" | "." | "|" | "!" | ">" | "<" | "^")
-            | ("C" | "I" | "PX" | "PY" | "FS" | "{" | "}"),
+        code: ("$" | "." | "|" | "!" | ">" | "<" | "^") | ("C" | "I" | "PX" | "PY" | "FS" | "{" | "}"),
         textState: RMMZ.TextState,
     ): void {
         switch (code) {
@@ -5652,11 +5407,7 @@ class Window_ScrollText extends Window_Base {
         if ($gameMessage.scrollNoFast()) {
             return false;
         } else {
-            return (
-                Input.isPressed("ok") ||
-                Input.isPressed("shift") ||
-                TouchInput.isPressed()
-            );
+            return Input.isPressed("ok") || Input.isPressed("shift") || TouchInput.isPressed();
         }
     }
 
@@ -5732,14 +5483,7 @@ class Window_MapName extends Window_Base {
         const color2 = ColorManager.dimColor2();
         const half = width / 2;
         this.contents.gradientFillRect(x, y, half, height, color2, color1);
-        this.contents.gradientFillRect(
-            x + half,
-            y,
-            half,
-            height,
-            color1,
-            color2,
-        );
+        this.contents.gradientFillRect(x + half, y, half, height, color1, color2);
     }
 }
 
@@ -5806,9 +5550,7 @@ class Window_BattleLog extends Window_Base {
         | "action"
         | "effect"
         | "movement" {
-        return (
-            this._waitCount > 0 || this._waitMode || this._methods.length > 0
-        );
+        return this._waitCount > 0 || this._waitMode || this._methods.length > 0;
     }
 
     update(): void {
@@ -5855,14 +5597,8 @@ class Window_BattleLog extends Window_Base {
     callNextMethod(): void {
         if (this._methods.length > 0) {
             const method = this._methods.shift();
-            if (
-                method!.name &&
-                (this[method!.name] as (...args: unknown[]) => unknown)
-            ) {
-                (this[method!.name] as (...args: unknown[]) => unknown).apply(
-                    this,
-                    method!.params,
-                );
+            if (method!.name && (this[method!.name] as (...args: unknown[]) => unknown)) {
+                (this[method!.name] as (...args: unknown[]) => unknown).apply(this, method!.params);
             } else {
                 throw new Error("Method not found: " + method!.name);
             }
@@ -5870,26 +5606,14 @@ class Window_BattleLog extends Window_Base {
     }
 
     isFastForward(): boolean {
-        return (
-            Input.isLongPressed("ok") ||
-            Input.isPressed("shift") ||
-            TouchInput.isLongPressed()
-        );
+        return Input.isLongPressed("ok") || Input.isPressed("shift") || TouchInput.isLongPressed();
     }
 
-    push<
-        K extends RMMZ.MethodName<Omit<Window_BattleLog, "_methods" | "push">>,
-    >(
+    push<K extends RMMZ.MethodName<Omit<Window_BattleLog, "_methods" | "push">>>(
         methodName: K,
-        ...params: Window_BattleLog[K] extends (...args: infer P) => any
-            ? P
-            : never
+        ...params: Window_BattleLog[K] extends (...args: infer P) => any ? P : never
     ): void;
-    push(
-        methodName: RMMZ.MethodName<
-            Omit<Window_BattleLog, "_methods" | "push">
-        >,
-    ): void {
+    push(methodName: RMMZ.MethodName<Omit<Window_BattleLog, "_methods" | "push">>): void {
         const methodArgs = Array.prototype.slice.call(arguments, 1);
         this._methods.push({ name: methodName, params: methodArgs });
     }
@@ -5985,10 +5709,7 @@ class Window_BattleLog extends Window_Base {
         target.performReflection();
     }
 
-    performSubstitute(
-        substitute: RMMZ.ActionTarget,
-        target: RMMZ.ActionTarget,
-    ): void {
+    performSubstitute(substitute: RMMZ.ActionTarget, target: RMMZ.ActionTarget): void {
         substitute.performSubstitute(target);
     }
 
@@ -6008,10 +5729,7 @@ class Window_BattleLog extends Window_Base {
         }
     }
 
-    showAttackAnimation(
-        subject: RMMZ.ActionTarget,
-        targets: RMMZ.ActionTarget[],
-    ): void {
+    showAttackAnimation(subject: RMMZ.ActionTarget, targets: RMMZ.ActionTarget[]): void {
         if (subject.isActor()) {
             this.showActorAttackAnimation(subject, targets);
         } else {
@@ -6057,13 +5775,7 @@ class Window_BattleLog extends Window_Base {
         const color = this.backColor();
         this.contentsBack.clear();
         this.contentsBack.paintOpacity = this.backPaintOpacity();
-        this.contentsBack.fillRect(
-            rect.x,
-            rect.y,
-            rect.width,
-            rect.height,
-            color,
-        );
+        this.contentsBack.fillRect(rect.x, rect.y, rect.width, rect.height, color);
         this.contentsBack.paintOpacity = 255;
     }
 
@@ -6100,11 +5812,7 @@ class Window_BattleLog extends Window_Base {
         this.push("wait");
     }
 
-    startAction(
-        subject: RMMZ.ActionTarget,
-        action: Game_Action,
-        targets: RMMZ.ActionTarget[],
-    ): void {
+    startAction(subject: RMMZ.ActionTarget, action: Game_Action, targets: RMMZ.ActionTarget[]): void {
         const item = action.item();
         this.push("performActionStart", subject, action);
         this.push("waitForMovement");
@@ -6145,11 +5853,7 @@ class Window_BattleLog extends Window_Base {
         }
     }
 
-    displayItemMessage(
-        fmt: string,
-        subject: RMMZ.ActionTarget,
-        item: RMMZ.DatabaseItem,
-    ): void {
+    displayItemMessage(fmt: string, subject: RMMZ.ActionTarget, item: RMMZ.DatabaseItem): void {
         if (fmt) {
             this.push("addText", fmt.format(subject.name(), item.name));
         }
@@ -6165,20 +5869,14 @@ class Window_BattleLog extends Window_Base {
         this.push("addText", TextManager.magicReflection.format(target.name()));
     }
 
-    displaySubstitute(
-        substitute: RMMZ.ActionTarget,
-        target: RMMZ.ActionTarget,
-    ): void {
+    displaySubstitute(substitute: RMMZ.ActionTarget, target: RMMZ.ActionTarget): void {
         const substName = substitute.name();
         const text = TextManager.substitute.format(substName, target.name());
         this.push("performSubstitute", substitute, target);
         this.push("addText", text);
     }
 
-    displayActionResults(
-        subject: RMMZ.ActionTarget,
-        target: RMMZ.ActionTarget,
-    ): void {
+    displayActionResults(subject: RMMZ.ActionTarget, target: RMMZ.ActionTarget): void {
         if (target.result().used) {
             this.push("pushBaseLine");
             this.displayCritical(target);
@@ -6194,10 +5892,7 @@ class Window_BattleLog extends Window_Base {
 
     displayFailure(target: RMMZ.ActionTarget): void {
         if (target.result().isHit() && !target.result().success) {
-            this.push(
-                "addText",
-                TextManager.actionFailure.format(target.name()),
-            );
+            this.push("addText", TextManager.actionFailure.format(target.name()));
         }
     }
 
@@ -6304,9 +5999,7 @@ class Window_BattleLog extends Window_Base {
         const result = target.result();
         const states = result.addedStateObjects();
         for (const state of states) {
-            const stateText = target.isActor()
-                ? state.message1
-                : state.message2;
+            const stateText = target.isActor() ? state.message1 : state.message2;
             if (state.id === target.deathStateId()) {
                 this.push("performCollapse", target);
             }
@@ -6338,11 +6031,7 @@ class Window_BattleLog extends Window_Base {
         this.displayBuffs(target, result.removedBuffs, TextManager.buffRemove);
     }
 
-    displayBuffs(
-        target: RMMZ.ActionTarget,
-        buffs: RMMZ.ParamID[],
-        fmt: string,
-    ): void {
+    displayBuffs(target: RMMZ.ActionTarget, buffs: RMMZ.ParamID[], fmt: string): void {
         for (const paramId of buffs) {
             const text = fmt.format(target.name(), TextManager.param(paramId));
             this.push("popBaseLine");
@@ -6364,14 +6053,10 @@ class Window_BattleLog extends Window_Base {
             fmt = isActor ? TextManager.actorDamage : TextManager.enemyDamage;
             return fmt.format(target.name(), damage);
         } else if (damage < 0) {
-            fmt = isActor
-                ? TextManager.actorRecovery
-                : TextManager.enemyRecovery;
+            fmt = isActor ? TextManager.actorRecovery : TextManager.enemyRecovery;
             return fmt.format(target.name(), TextManager.hp, -damage);
         } else {
-            fmt = isActor
-                ? TextManager.actorNoDamage
-                : TextManager.enemyNoDamage;
+            fmt = isActor ? TextManager.actorNoDamage : TextManager.enemyNoDamage;
             return fmt.format(target.name());
         }
     }
@@ -6389,9 +6074,7 @@ class Window_BattleLog extends Window_Base {
             fmt = isActor ? TextManager.actorLoss : TextManager.enemyLoss;
             return fmt.format(target.name(), TextManager.mp, damage);
         } else if (damage < 0) {
-            fmt = isActor
-                ? TextManager.actorRecovery
-                : TextManager.enemyRecovery;
+            fmt = isActor ? TextManager.actorRecovery : TextManager.enemyRecovery;
             return fmt.format(target.name(), TextManager.mp, -damage);
         } else {
             return "";
@@ -6434,11 +6117,7 @@ class Window_PartyCommand extends Window_Command {
 
     makeCommandList(): void {
         this.addCommand(TextManager.fight, "fight");
-        this.addCommand(
-            TextManager.escape,
-            "escape",
-            BattleManager.canEscape(),
-        );
+        this.addCommand(TextManager.escape, "escape", BattleManager.canEscape());
     }
 
     setup(): void {
@@ -6998,10 +6677,7 @@ class Window_DebugRange extends Window_Selectable {
     }
 
     isCancelTriggered(): boolean {
-        return (
-            Window_Selectable.prototype.isCancelTriggered() ||
-            Input.isTriggered("debug")
-        );
+        return Window_Selectable.prototype.isCancelTriggered() || Input.isTriggered("debug");
     }
 
     processCancel(): void {
@@ -7053,13 +6729,7 @@ class Window_DebugEdit extends Window_Selectable {
         rect.x += idWidth;
         rect.width -= idWidth + statusWidth;
         this.drawText(name, rect.x, rect.y, rect.width);
-        this.drawText(
-            status,
-            rect.x + rect.width,
-            rect.y,
-            statusWidth,
-            "right",
-        );
+        this.drawText(status, rect.x + rect.width, rect.y, statusWidth, "right");
     }
 
     itemName(dataId: RMMZ.SwitchID | RMMZ.VariableID): string {

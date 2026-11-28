@@ -121,9 +121,7 @@ const pluginName = 'OpenMZCompatibilityProbe';
 function waitForGame<T>(game: GameWindow, condition: () => T, stage: string) {
   return vi.waitUntil(
     () => {
-      const error = game.document
-        .querySelector('#errorPrinter')
-        ?.textContent?.trim();
+      const error = game.document.querySelector('#errorPrinter')?.textContent?.trim();
       if (error) {
         throw new Error(error);
       }
@@ -138,11 +136,7 @@ function waitForScene<Name extends keyof Scenes>(game: GameWindow, name: Name) {
     game,
     () => {
       const scene = game.SceneManager?._scene;
-      if (
-        scene?.constructor.name === name &&
-        scene.isStarted() &&
-        !scene.isBusy()
-      ) {
+      if (scene?.constructor.name === name && scene.isStarted() && !scene.isBusy()) {
         return scene as Scenes[Name];
       }
     },
@@ -154,26 +148,17 @@ function eventCommand(code: number, ...parameters: unknown[]) {
   return { code, indent: 0, parameters };
 }
 
-function runEventCommands(
-  game: GameWindow,
-  ...commands: ReturnType<typeof eventCommand>[]
-) {
+function runEventCommands(game: GameWindow, ...commands: ReturnType<typeof eventCommand>[]) {
   const interpreter = new game.Game_Interpreter();
   interpreter.setup([...commands, eventCommand(0)]);
   interpreter.update();
 }
 
-async function clickSprite(
-  game: GameWindow,
-  iframe: HTMLIFrameElement,
-  sprite: ClickableSprite,
-) {
+async function clickSprite(game: GameWindow, iframe: HTMLIFrameElement, sprite: ClickableSprite) {
   const canvas = game.document.querySelector<HTMLCanvasElement>('#gameCanvas');
   assert(canvas);
   canvas.dataset.testid = 'game-canvas';
-  const center = sprite.toGlobal(
-    new game.PIXI.Point(sprite.width / 2, sprite.height / 2),
-  );
+  const center = sprite.toGlobal(new game.PIXI.Point(sprite.width / 2, sprite.height / 2));
   const bounds = canvas.getBoundingClientRect();
   const frame = page.frameLocator(page.elementLocator(iframe));
   // The transparent game video sits above the canvas. Input is handled on document.
@@ -195,8 +180,7 @@ async function openGame({ engine, pixiVersion }: (typeof engines)[number]) {
   const iframe = document.createElement('iframe');
   iframe.title = `${engine} test game`;
   iframe.src = `/__plugin-compat__/${engine}/index.html`;
-  iframe.style.cssText =
-    'position:fixed;inset:0;width:100%;height:100%;border:0';
+  iframe.style.cssText = 'position:fixed;inset:0;width:100%;height:100%;border:0';
   document.body.append(iframe);
   onTestFinished(() => iframe.remove());
   iframe.focus();
@@ -216,20 +200,14 @@ test.each(engines)(
     expect(game.PluginManager.parameters(pluginName).stepVariable).toBe('2');
 
     const player = game.$gamePlayer;
-    const direction = [2, 4, 6, 8].find((direction) =>
-      player.canPass(player.x, player.y, direction),
-    );
+    const direction = [2, 4, 6, 8].find((direction) => player.canPass(player.x, player.y, direction));
     assert(direction !== undefined);
     const steps = game.$gameVariables.value(2);
     const position = [player.x, player.y];
     player.moveStraight(direction);
     expect([player.x, player.y]).not.toEqual(position);
     expect(game.$gameVariables.value(2)).toBe(steps + 1);
-    await waitForGame(
-      game,
-      () => !player.isMoving(),
-      'player to finish moving',
-    );
+    await waitForGame(game, () => !player.isMoving(), 'player to finish moving');
 
     expect(game.$gameSwitches.value(1)).toBe(false);
     runEventCommands(
@@ -260,9 +238,7 @@ test.each(engines)(
         commonEventId: String(commonEventId),
       }),
     );
-    const picture = map._spriteset._pictureContainer.children.find(
-      (sprite) => sprite._pictureId === pictureId,
-    );
+    const picture = map._spriteset._pictureContainer.children.find((sprite) => sprite._pictureId === pictureId);
     assert(picture);
     const { width, height, context } = await waitForGame(
       game,
@@ -273,43 +249,24 @@ test.each(engines)(
       'TextPicture to create a bitmap',
     );
     const pixels = context.getImageData(0, 0, width, height).data;
-    expect(pixels.some((value, index) => index % 4 === 3 && value > 0)).toBe(
-      true,
-    );
+    expect(pixels.some((value, index) => index % 4 === 3 && value > 0)).toBe(true);
 
     expect(game.$gameSwitches.value(2)).toBe(false);
     await clickSprite(game, iframe, picture);
-    await waitForGame(
-      game,
-      () => game.$gameSwitches.value(2),
-      'ButtonPicture to run its common event',
-    );
+    await waitForGame(game, () => game.$gameSwitches.value(2), 'ButtonPicture to run its common event');
 
-    const menuButton = await waitForGame(
-      game,
-      () => map._menuButton?.visible && map._menuButton,
-      'map menu button',
-    );
+    const menuButton = await waitForGame(game, () => map._menuButton?.visible && map._menuButton, 'map menu button');
     await clickSprite(game, iframe, menuButton);
     const menu = await waitForScene(game, 'Scene_Menu');
-    await waitForGame(
-      game,
-      () => menu._commandWindow.isOpen(),
-      'menu command window',
-    );
+    await waitForGame(game, () => menu._commandWindow.isOpen(), 'menu command window');
     expect(menu._commandWindow.maxCols()).toBe(4);
     expect(menu._commandWindow.width).toBe(game.Graphics.boxWidth);
-    expect(menu._statusWindow.y).toBe(
-      menu._commandWindow.y + menu._commandWindow.height,
-    );
+    expect(menu._statusWindow.y).toBe(menu._commandWindow.y + menu._commandWindow.height);
   },
   30_000,
 );
 
-async function checkSavefileLayout(
-  game: GameWindow,
-  sceneName: 'Scene_Save' | 'Scene_Load',
-) {
+async function checkSavefileLayout(game: GameWindow, sceneName: 'Scene_Save' | 'Scene_Load') {
   const scene = await waitForScene(game, sceneName);
   const list = scene._listWindow;
   const status = list.mzkp_statusWindow;
@@ -323,11 +280,7 @@ async function checkSavefileLayout(
 
   const previousX = status.worldTransform.tx;
   status.position.x += 8;
-  await waitForGame(
-    game,
-    () => status.worldTransform.tx === previousX + 8,
-    'savefile window transform',
-  );
+  await waitForGame(game, () => status.worldTransform.tx === previousX + 8, 'savefile window transform');
 }
 
 test.each(engines)(
@@ -349,10 +302,7 @@ test.each(engines)(
   async (engine) => {
     const { game } = await openGame(engine);
 
-    const LegacySprite = function LegacySprite(
-      this: LegacySprite,
-      bitmap: GameBitmap,
-    ) {
+    const LegacySprite = function LegacySprite(this: LegacySprite, bitmap: GameBitmap) {
       game.Sprite.prototype.initialize.call(this, bitmap);
     } as unknown as {
       new (bitmap: GameBitmap): LegacySprite;
@@ -390,11 +340,7 @@ test.each(engines)(
     expect(sprite.getLocalBounds().width).toBe(4);
     expect(sprite.getLocalBounds().x).toBe(-2);
     sprite.position.x += 8;
-    await waitForGame(
-      game,
-      () => sprite.worldTransform.tx === 88,
-      'legacy sprite transform',
-    );
+    await waitForGame(game, () => sprite.worldTransform.tx === 88, 'legacy sprite transform');
 
     const snapshot = game.Bitmap.snap(scene);
     try {

@@ -2,14 +2,8 @@ import { defineCommand } from 'citty';
 import { buildPlugin, buildPlugins } from './plugins.ts';
 import { buildRuntime } from './runtime.ts';
 
-function logRuntime({
-  metadata,
-  files,
-  outDir,
-}: Awaited<ReturnType<typeof buildRuntime>>) {
-  console.log(
-    `Built OpenMZ ${metadata.version}: ${files.length} runtime files in ${outDir}`,
-  );
+function logRuntime({ metadata, files, outDir }: Awaited<ReturnType<typeof buildRuntime>>) {
+  console.log(`Built OpenMZ ${metadata.version}: ${files.length} runtime files in ${outDir}`);
 }
 
 function logPlugins(files: string[]) {
@@ -26,10 +20,7 @@ export const build = defineCommand({
     all: defineCommand({
       meta: { hidden: true },
       async run() {
-        const [runtime, plugins] = await Promise.all([
-          buildRuntime(),
-          buildPlugins(),
-        ]);
+        const [runtime, plugins] = await Promise.all([buildRuntime(), buildPlugins()]);
         logRuntime(runtime);
         logPlugins(plugins);
       },
@@ -53,9 +44,7 @@ export const build = defineCommand({
         },
       },
       async run({ args }) {
-        logPlugins(
-          args.name ? [await buildPlugin(args.name)] : await buildPlugins(),
-        );
+        logPlugins(args.name ? [await buildPlugin(args.name)] : await buildPlugins());
       },
     }),
   },

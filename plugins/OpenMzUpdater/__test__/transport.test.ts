@@ -17,9 +17,7 @@ async function startServer(t: TestContext, server: import('node:http').Server) {
     server.once('error', reject);
     server.listen(0, '127.0.0.1', resolve);
   });
-  t.onTestFinished(
-    () => new Promise<void>((resolve) => server.close(() => resolve())),
-  );
+  t.onTestFinished(() => new Promise<void>((resolve) => server.close(() => resolve())));
   return `http://127.0.0.1:${(server.address() as import('node:net').AddressInfo).port}`;
 }
 
@@ -33,16 +31,14 @@ test('refuses HTTP redirects to file:// URLs', async (t) => {
 
   await assert.rejects(
     fetchBuffer(require, `${origin}/manifest.json`),
-    (error: unknown) =>
-      isUpdaterError(error) && error.code === 'UNSAFE_REDIRECT',
+    (error: unknown) => isUpdaterError(error) && error.code === 'UNSAFE_REDIRECT',
   );
 });
 
 test('refuses unsupported protocols', async () => {
   await assert.rejects(
     fetchBuffer(require, 'ftp://example.com/manifest.json'),
-    (error: unknown) =>
-      isUpdaterError(error) && error.code === 'UNSAFE_PROTOCOL',
+    (error: unknown) => isUpdaterError(error) && error.code === 'UNSAFE_PROTOCOL',
   );
 });
 
@@ -63,13 +59,11 @@ test('enforces maxBytes for both HTTP responses and local files', async (t) => {
 
   await assert.rejects(
     fetchBuffer(require, `${origin}/sized`, { maxBytes: 5 }),
-    (error: unknown) =>
-      isUpdaterError(error) && error.code === 'RESPONSE_TOO_LARGE',
+    (error: unknown) => isUpdaterError(error) && error.code === 'RESPONSE_TOO_LARGE',
   );
   await assert.rejects(
     fetchBuffer(require, `${origin}/chunked`, { maxBytes: 5 }),
-    (error: unknown) =>
-      isUpdaterError(error) && error.code === 'RESPONSE_TOO_LARGE',
+    (error: unknown) => isUpdaterError(error) && error.code === 'RESPONSE_TOO_LARGE',
   );
 
   const dir = await mkdtemp(join(tmpdir(), 'openmz-transport-'));
@@ -79,8 +73,7 @@ test('enforces maxBytes for both HTTP responses and local files', async (t) => {
 
   await assert.rejects(
     fetchBuffer(require, pathToFileURL(file).href, { maxBytes: 8 }),
-    (error: unknown) =>
-      isUpdaterError(error) && error.code === 'RESPONSE_TOO_LARGE',
+    (error: unknown) => isUpdaterError(error) && error.code === 'RESPONSE_TOO_LARGE',
   );
 });
 
@@ -105,20 +98,17 @@ test('enforces redirect limit, idle timeout, incomplete downloads, and AbortSign
 
   await assert.rejects(
     fetchBuffer(require, `${origin}/loop`, { maxRedirects: 2 }),
-    (error: unknown) =>
-      isUpdaterError(error) && error.code === 'TOO_MANY_REDIRECTS',
+    (error: unknown) => isUpdaterError(error) && error.code === 'TOO_MANY_REDIRECTS',
   );
 
   await assert.rejects(
     fetchBuffer(require, `${origin}/slow`, { timeoutMs: 50 }),
-    (error: unknown) =>
-      isUpdaterError(error) && error.code === 'NETWORK_TIMEOUT',
+    (error: unknown) => isUpdaterError(error) && error.code === 'NETWORK_TIMEOUT',
   );
 
   await assert.rejects(
     fetchBuffer(require, `${origin}/truncated`),
-    (error: unknown) =>
-      isUpdaterError(error) && error.code === 'INCOMPLETE_DOWNLOAD',
+    (error: unknown) => isUpdaterError(error) && error.code === 'INCOMPLETE_DOWNLOAD',
   );
 
   const controller = new AbortController();

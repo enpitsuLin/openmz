@@ -40,10 +40,7 @@ function unsupported(node: SgNode, message: string, filename: string): never {
 }
 
 function superProperty(node: SgNode) {
-  return (
-    node.kind() === 'member_expression' &&
-    node.field('object')?.kind() === 'super'
-  );
+  return node.kind() === 'member_expression' && node.field('object')?.kind() === 'super';
 }
 
 function rewriteBody(body: SgNode, context: ClassContext) {
@@ -65,14 +62,9 @@ function rewriteBody(body: SgNode, context: ClassContext) {
         if (
           !isConstructor ||
           node.parent()!.kind() !== 'expression_statement' ||
-          node.parent()!.parent()!.range().start.index !==
-            body.range().start.index
+          node.parent()!.parent()!.range().start.index !== body.range().start.index
         ) {
-          unsupported(
-            node,
-            'Expected a standalone super() in the constructor body',
-            filename,
-          );
+          unsupported(node, 'Expected a standalone super() in the constructor body', filename);
         }
         const args = visit(node.field('arguments')!).slice(1, -1);
         return `Object.getPrototypeOf(${name}).call(this${args.trim() ? `, ${args}` : ''})`;
@@ -82,10 +74,7 @@ function rewriteBody(body: SgNode, context: ClassContext) {
         return `${readSuper(callee)}.call(${receiver}${args.trim() ? `, ${args}` : ''})`;
       }
     }
-    if (
-      node.kind() === 'assignment_expression' &&
-      superProperty(node.field('left')!)
-    ) {
+    if (node.kind() === 'assignment_expression' && superProperty(node.field('left')!)) {
       const property = node.field('left')!.field('property')!.text();
       context.needsSetSuper = true;
       return `__openmzSetSuper(${base}, ${JSON.stringify(property)}, ${visit(node.field('right')!)}, ${receiver})`;
@@ -105,16 +94,11 @@ function rewriteBody(body: SgNode, context: ClassContext) {
     return edits.length ? node.commitEdits(edits) : node.text();
   }
 
-  if (!isConstructor && !body.find({ rule: { kind: 'super' } }))
-    return body.text();
+  if (!isConstructor && !body.find({ rule: { kind: 'super' } })) return body.text();
   return visit(body);
 }
 
-function renameClassReferences(
-  node: SgNode,
-  name: string,
-  replacement: string,
-) {
+function renameClassReferences(node: SgNode, name: string, replacement: string) {
   const edits: Edit[] = node
     .field('body')!
     .findAll({
@@ -127,13 +111,7 @@ function renameClassReferences(
       },
     })
     .filter((reference) => reference.text() === name)
-    .map((reference) =>
-      reference.replace(
-        reference.kind() === 'identifier'
-          ? replacement
-          : `${name}: ${replacement}`,
-      ),
-    );
+    .map((reference) => reference.replace(reference.kind() === 'identifier' ? replacement : `${name}: ${replacement}`));
   if (!edits.length) return node;
   return parse(Lang.JavaScript, `(${node.commitEdits(edits)})`)
     .root()
@@ -143,19 +121,12 @@ function renameClassReferences(
 function convertClass(
   node: SgNode,
   filename: string,
-  {
-    name,
-    constructorName = name,
-    displayName = constructorName,
-    expression = false,
-  }: ClassOptions,
+  { name, constructorName = name, displayName = constructorName, expression = false }: ClassOptions,
 ) {
   const constructorHead = expression
     ? `const ${name} = function${constructorName ? ` ${constructorName}` : ''}`
     : `function ${name}`;
-  const heritage = node
-    .children()
-    .find((child) => child.kind() === 'class_heritage');
+  const heritage = node.children().find((child) => child.kind() === 'class_heritage');
   const parent = heritage
     ?.children()
     .find((child) => child.isNamed())
@@ -178,15 +149,8 @@ function convertClass(
     const prefix = comments.length ? `${comments.join('\n')}\n` : '';
     comments = [];
     if (member.kind() === 'field_definition') {
-      if (
-        !hasToken(member, 'static') ||
-        member.field('property')!.kind() !== 'property_identifier'
-      ) {
-        unsupported(
-          member,
-          'Only named static fields are used by the engine',
-          filename,
-        );
+      if (!hasToken(member, 'static') || member.field('property')!.kind() !== 'property_identifier') {
+        unsupported(member, 'Only named static fields are used by the engine', filename);
       }
       const property = JSON.stringify(member.field('property')!.text());
       const value = member.field('value')?.text() ?? 'undefined';
@@ -195,10 +159,7 @@ function convertClass(
       );
       continue;
     }
-    if (
-      member.kind() !== 'method_definition' ||
-      member.field('name')!.kind() !== 'property_identifier'
-    ) {
+    if (member.kind() !== 'method_definition' || member.field('name')!.kind() !== 'property_identifier') {
       unsupported(member, 'Unsupported class member', filename);
     }
     const methodName = member.field('name')!.text();
@@ -211,9 +172,7 @@ function convertClass(
       filename,
       needsSetSuper: false,
     };
-    const body = parent
-      ? rewriteBody(member.field('body')!, context)
-      : member.field('body')!.text();
+    const body = parent ? rewriteBody(member.field('body')!, context) : member.field('body')!.text();
     needsSetSuper ||= context.needsSetSuper;
     const parameters = member.field('parameters')!.text();
     if (isConstructor) {
@@ -224,11 +183,7 @@ function convertClass(
     const async = hasToken(member, 'async') ? 'async ' : '';
     const generator = hasToken(member, '*') ? '*' : '';
     const fn = `${async}function${generator}${parameters} ${body}`;
-    const accessor = hasToken(member, 'get')
-      ? 'get'
-      : hasToken(member, 'set')
-        ? 'set'
-        : null;
+    const accessor = hasToken(member, 'get') ? 'get' : hasToken(member, 'set') ? 'set' : null;
     if (accessor) {
       methods.push(
         `${prefix}Object.defineProperty(${target}, ${JSON.stringify(methodName)}, {\n    ${accessor}: ${fn},\n    configurable: true\n});`,
@@ -238,9 +193,7 @@ function convertClass(
     }
   }
   if (!constructor) {
-    const body = parent
-      ? `return Object.getPrototypeOf(${name}).apply(this, arguments);`
-      : '';
+    const body = parent ? `return Object.getPrototypeOf(${name}).apply(this, arguments);` : '';
     constructor = `${constructorHead}() { ${body} }${expression ? ';' : ''}`;
   }
   const output = [constructor];
@@ -258,15 +211,10 @@ function convertClass(
   return { text: output.join('\n\n'), needsSetSuper };
 }
 
-export function transformClasses(
-  source: string,
-  filename: string = '<source>',
-) {
+export function transformClasses(source: string, filename: string = '<source>') {
   const root = parse(Lang.JavaScript, source).root();
   const classes = root.findAll({ rule: classRule });
-  const identifiers = new Set(
-    root.findAll({ rule: { kind: 'identifier' } }).map((node) => node.text()),
-  );
+  const identifiers = new Set(root.findAll({ rule: { kind: 'identifier' } }).map((node) => node.text()));
   const stem = filename
     .split(/[\\/]/)
     .pop()!
@@ -275,15 +223,7 @@ export function transformClasses(
   let sequence = 0;
   let needsSetSuper = false;
   const edits: Edit[] = classes.map((node) => {
-    if (
-      node
-        .ancestors()
-        .some(
-          (ancestor) =>
-            ancestor.kind() === 'class' ||
-            ancestor.kind() === 'class_declaration',
-        )
-    ) {
+    if (node.ancestors().some((ancestor) => ancestor.kind() === 'class' || ancestor.kind() === 'class_declaration')) {
       unsupported(node, 'Nested classes are not used by the engine', filename);
     }
     if (node.kind() === 'class_declaration') {
@@ -297,53 +237,24 @@ export function transformClasses(
     const statement = binding.parent()!;
     const variable = binding.kind() === 'variable_declarator';
     if (
-      !(
-        variable &&
-        ['variable_declaration', 'lexical_declaration'].includes(
-          String(statement.kind()),
-        )
-      ) &&
-      !(
-        binding.kind() === 'assignment_expression' &&
-        String(statement.kind()) === 'expression_statement'
-      )
+      !(variable && ['variable_declaration', 'lexical_declaration'].includes(String(statement.kind()))) &&
+      !(binding.kind() === 'assignment_expression' && String(statement.kind()) === 'expression_statement')
     ) {
-      unsupported(
-        node,
-        'Expected a standalone class assignment or variable declaration',
-        filename,
-      );
+      unsupported(node, 'Expected a standalone class assignment or variable declaration', filename);
     }
-    if (
-      variable &&
-      statement
-        .children()
-        .filter((child) => child.kind() === 'variable_declarator').length !== 1
-    ) {
-      unsupported(
-        node,
-        'Expected one class variable per declaration',
-        filename,
-      );
+    if (variable && statement.children().filter((child) => child.kind() === 'variable_declarator').length !== 1) {
+      unsupported(node, 'Expected one class variable per declaration', filename);
     }
     const originalName = node.field('name')?.text();
     const target = binding.field(variable ? 'name' : 'left')!;
-    const displayName =
-      originalName ?? (target.kind() === 'identifier' ? target.text() : null);
-    if (!displayName)
-      unsupported(
-        node,
-        'Expected a class name or an identifier assignment',
-        filename,
-      );
+    const displayName = originalName ?? (target.kind() === 'identifier' ? target.text() : null);
+    if (!displayName) unsupported(node, 'Expected a class name or an identifier assignment', filename);
     let name;
     do {
       name = `_openmz_${stem}_${++sequence}`;
     } while (identifiers.has(name));
     identifiers.add(name);
-    const renamed = originalName
-      ? renameClassReferences(node, originalName, name)
-      : node;
+    const renamed = originalName ? renameClassReferences(node, originalName, name) : node;
     const result = convertClass(renamed, filename, {
       name,
       constructorName: originalName ?? '',
@@ -381,48 +292,27 @@ export function restorePixiInitializers(source: string) {
       .field('body')!
       .children()
       .filter((child) => child.kind() === 'method_definition');
-    const constructor = methods.find(
-      (method) => method.field('name')!.text() === 'constructor',
-    );
-    const initialize = methods.find(
-      (method) => method.field('name')!.text() === 'initialize',
-    );
+    const constructor = methods.find((method) => method.field('name')!.text() === 'constructor');
+    const initialize = methods.find((method) => method.field('name')!.text() === 'initialize');
     if (!constructor || !initialize) continue;
     const body = constructor.field('body')!;
-    const statements = body
-      .children()
-      .filter((child) => child.isNamed() && child.kind() !== 'comment');
+    const statements = body.children().filter((child) => child.isNamed() && child.kind() !== 'comment');
     const hook = statements.at(-1);
-    const call = hook
-      ?.children()
-      .find((child) => child.kind() === 'call_expression');
+    const call = hook?.children().find((child) => child.kind() === 'call_expression');
     let callee = call?.field('function');
-    while (callee?.kind() === 'parenthesized_expression')
-      callee = callee.children().find((child) => child.isNamed());
+    while (callee?.kind() === 'parenthesized_expression') callee = callee.children().find((child) => child.isNamed());
     if (!callee?.matches('this.initialize')) {
-      unsupported(
-        constructor,
-        'Expected the Pixi constructor to end with this.initialize()',
-        'rmmz_core.js',
-      );
+      unsupported(constructor, 'Expected the Pixi constructor to end with this.initialize()', 'rmmz_core.js');
     }
-    const superEdits = body
-      .findAll({ rule: { pattern: 'super($$$ARGS)' } })
-      .map((call) => {
-        const args = call.field('arguments')!.text().slice(1, -1);
-        return call.replace(
-          `${parent}.call(this${args.trim() ? `, ${args}` : ''})`,
-        );
-      });
+    const superEdits = body.findAll({ rule: { pattern: 'super($$$ARGS)' } }).map((call) => {
+      const args = call.field('arguments')!.text().slice(1, -1);
+      return call.replace(`${parent}.call(this${args.trim() ? `, ${args}` : ''})`);
+    });
     // Move parent construction into the hook so legacy plugin objects are initialized in place.
-    const prefix = body
-      .commitEdits([...superEdits, hook!.replace('')])
-      .slice(1, -1);
+    const prefix = body.commitEdits([...superEdits, hook!.replace('')]).slice(1, -1);
     const initializeBody = initialize.field('body')!;
     edits.push(body.replace(`{\n        ${hook!.text()}\n    }`));
-    edits.push(
-      initializeBody.replace(`{${prefix}${initializeBody.text().slice(1)}`),
-    );
+    edits.push(initializeBody.replace(`{${prefix}${initializeBody.text().slice(1)}`));
   }
   return root.commitEdits(edits);
 }

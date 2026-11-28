@@ -29,9 +29,7 @@ export async function bundleScript(input: string, output: OutputOptions = {}) {
 export async function formatOutput(filename: string, source: string) {
   const { code, errors } = await format(filename, source, outputFormatOptions);
   if (errors.length) {
-    throw new Error(
-      `Failed to format ${filename}: ${errors.map((error) => error.message).join('; ')}`,
-    );
+    throw new Error(`Failed to format ${filename}: ${errors.map((error) => error.message).join('; ')}`);
   }
   return code;
 }

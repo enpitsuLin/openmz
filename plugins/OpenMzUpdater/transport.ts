@@ -1,18 +1,11 @@
 import type { Buffer } from 'node:buffer';
-import type {
-  DownloadCallback,
-  FetchOptions,
-  FetchResult,
-  NodeRequire,
-} from './types.ts';
+import type { DownloadCallback, FetchOptions, FetchResult, NodeRequire } from './types.ts';
 import { createUpdaterError } from './errors.ts';
 
 export const DEFAULT_MAX_REDIRECTS = 10;
 export const DEFAULT_REQUEST_TIMEOUT_MS = 30_000;
 
-type HttpResult =
-  | { location: string; buffer?: never }
-  | { buffer: Buffer; location?: never };
+type HttpResult = { location: string; buffer?: never } | { buffer: Buffer; location?: never };
 
 const HTTP_PROTOCOLS = new Set(['http:', 'https:']);
 
@@ -28,9 +21,7 @@ function throwIfAborted(signal?: AbortSignal) {
   }
 }
 
-function normalizeFetchOptions(
-  optionsOrCallback?: DownloadCallback | FetchOptions,
-): FetchOptions {
+function normalizeFetchOptions(optionsOrCallback?: DownloadCallback | FetchOptions): FetchOptions {
   if (typeof optionsOrCallback === 'function') {
     return { onData: optionsOrCallback };
   }
@@ -46,20 +37,13 @@ function httpGet(
   url: URL,
   options: Pick<FetchOptions, 'onData' | 'maxBytes' | 'timeoutMs' | 'signal'>,
 ): Promise<HttpResult> {
-  const {
-    onData,
-    maxBytes,
-    timeoutMs = DEFAULT_REQUEST_TIMEOUT_MS,
-    signal,
-  } = options;
+  const { onData, maxBytes, timeoutMs = DEFAULT_REQUEST_TIMEOUT_MS, signal } = options;
 
   return new Promise<HttpResult>((resolve, reject) => {
     throwIfAborted(signal);
 
     const { Buffer: NodeBuffer } = nodeRequire('buffer');
-    const transport = nodeRequire(
-      url.protocol.slice(0, -1) as 'http' | 'https',
-    );
+    const transport = nodeRequire(url.protocol.slice(0, -1) as 'http' | 'https');
     let settled = false;
 
     const cleanup = () => {
@@ -94,14 +78,10 @@ function httpGet(
 
         response.on('error', (error) => {
           fail(
-            createUpdaterError(
-              'INCOMPLETE_DOWNLOAD',
-              `Incomplete download: ${url.href}`,
-              {
-                cause: error,
-                details: { url: url.href, received, contentLength },
-              },
-            ),
+            createUpdaterError('INCOMPLETE_DOWNLOAD', `Incomplete download: ${url.href}`, {
+              cause: error,
+              details: { url: url.href, received, contentLength },
+            }),
           );
         });
 
@@ -155,22 +135,18 @@ function httpGet(
             succeed({ buffer: NodeBuffer.concat(chunks) });
           } else {
             fail(
-              createUpdaterError(
-                'INCOMPLETE_DOWNLOAD',
-                `Incomplete download: ${url.href}`,
-                { details: { url: url.href, received, contentLength } },
-              ),
+              createUpdaterError('INCOMPLETE_DOWNLOAD', `Incomplete download: ${url.href}`, {
+                details: { url: url.href, received, contentLength },
+              }),
             );
           }
         });
         response.on('close', () => {
           if (!settled && !response.complete) {
             fail(
-              createUpdaterError(
-                'INCOMPLETE_DOWNLOAD',
-                `Incomplete download: ${url.href}`,
-                { details: { url: url.href, received, contentLength } },
-              ),
+              createUpdaterError('INCOMPLETE_DOWNLOAD', `Incomplete download: ${url.href}`, {
+                details: { url: url.href, received, contentLength },
+              }),
             );
           }
         });
@@ -178,13 +154,9 @@ function httpGet(
     );
 
     const onAbort = () => {
-      const error = createUpdaterError(
-        'ABORTED',
-        `Request aborted: ${url.href}`,
-        {
-          cause: signal?.reason,
-        },
-      );
+      const error = createUpdaterError('ABORTED', `Request aborted: ${url.href}`, {
+        cause: signal?.reason,
+      });
       fail(error);
       request.destroy();
     };
@@ -193,22 +165,19 @@ function httpGet(
     request.on('error', (error) => {
       if ((error as NodeJS.ErrnoException).code === 'ECONNRESET') {
         fail(
-          createUpdaterError(
-            'INCOMPLETE_DOWNLOAD',
-            `Incomplete download: ${url.href}`,
-            { cause: error, details: { url: url.href } },
-          ),
+          createUpdaterError('INCOMPLETE_DOWNLOAD', `Incomplete download: ${url.href}`, {
+            cause: error,
+            details: { url: url.href },
+          }),
         );
         return;
       }
       fail(error);
     });
     request.setTimeout(timeoutMs, () => {
-      const error = createUpdaterError(
-        'NETWORK_TIMEOUT',
-        `Request timed out: ${url.href}`,
-        { details: { timeoutMs, url: url.href } },
-      );
+      const error = createUpdaterError('NETWORK_TIMEOUT', `Request timed out: ${url.href}`, {
+        details: { timeoutMs, url: url.href },
+      });
       fail(error);
       request.destroy();
     });
@@ -276,31 +245,25 @@ export async function fetchBuffer(
     throwIfAborted(options.signal);
     redirectChain.push(url.href);
     if (redirectChain.length > maxRedirects + 1) {
-      throw createUpdaterError(
-        'TOO_MANY_REDIRECTS',
-        `Too many redirects: ${url.href}`,
-        { details: { maxRedirects, redirectChain } },
-      );
+      throw createUpdaterError('TOO_MANY_REDIRECTS', `Too many redirects: ${url.href}`, {
+        details: { maxRedirects, redirectChain },
+      });
     }
 
     if (url.protocol === 'file:') {
       if (redirectChain.length > 1) {
-        throw createUpdaterError(
-          'UNSAFE_REDIRECT',
-          `Refusing redirect to local file URL: ${url.href}`,
-          { details: { redirectChain } },
-        );
+        throw createUpdaterError('UNSAFE_REDIRECT', `Refusing redirect to local file URL: ${url.href}`, {
+          details: { redirectChain },
+        });
       }
       const buffer = await readLocalFile(nodeRequire, url, options);
       return { buffer, finalUrl: url.href, redirectChain };
     }
 
     if (!isHttpProtocol(url.protocol)) {
-      throw createUpdaterError(
-        'UNSAFE_PROTOCOL',
-        `Unsupported protocol "${url.protocol}": ${url.href}`,
-        { details: { protocol: url.protocol, url: url.href } },
-      );
+      throw createUpdaterError('UNSAFE_PROTOCOL', `Unsupported protocol "${url.protocol}": ${url.href}`, {
+        details: { protocol: url.protocol, url: url.href },
+      });
     }
 
     const { location, buffer } = await httpGet(nodeRequire, url, options);

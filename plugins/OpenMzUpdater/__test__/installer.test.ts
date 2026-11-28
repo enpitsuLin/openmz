@@ -1,25 +1,12 @@
 import type { TestContext } from 'vitest';
 import assert from 'node:assert/strict';
 import * as fs from 'node:fs';
-import {
-  chmod,
-  mkdir,
-  mkdtemp,
-  readFile,
-  rm,
-  stat,
-  symlink,
-  writeFile,
-} from 'node:fs/promises';
+import { chmod, mkdir, mkdtemp, readFile, rm, stat, symlink, writeFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import * as path from 'node:path';
 import { test } from 'vitest';
 import { isUpdaterError } from '../errors.ts';
-import {
-  applyUpgradePlan,
-  formatBackupTimestamp,
-  planUpgrade,
-} from '../installer.ts';
+import { applyUpgradePlan, formatBackupTimestamp, planUpgrade } from '../installer.ts';
 
 async function createTempProject(t: TestContext) {
   const dir = await mkdtemp(joinPath(tmpdir(), 'openmz-installer-'));
@@ -41,25 +28,14 @@ test('planUpgrade rejects symlinked intermediate directories and symlinked targe
 
   await symlink(outside, path.join(projectRoot, 'js/libs'));
   assert.throws(
-    () =>
-      planUpgrade(fs, path, projectRoot, [
-        { relativePath: 'js/libs/pixi.js', content: Buffer.from('new') },
-      ]),
-    (error: unknown) =>
-      isUpdaterError(error) && error.code === 'UNSAFE_TARGET_PATH',
+    () => planUpgrade(fs, path, projectRoot, [{ relativePath: 'js/libs/pixi.js', content: Buffer.from('new') }]),
+    (error: unknown) => isUpdaterError(error) && error.code === 'UNSAFE_TARGET_PATH',
   );
 
-  await symlink(
-    path.join(outside, 'secret.js'),
-    path.join(projectRoot, 'js/main.js'),
-  );
+  await symlink(path.join(outside, 'secret.js'), path.join(projectRoot, 'js/main.js'));
   assert.throws(
-    () =>
-      planUpgrade(fs, path, projectRoot, [
-        { relativePath: 'js/main.js', content: Buffer.from('new') },
-      ]),
-    (error: unknown) =>
-      isUpdaterError(error) && error.code === 'UNSAFE_TARGET_PATH',
+    () => planUpgrade(fs, path, projectRoot, [{ relativePath: 'js/main.js', content: Buffer.from('new') }]),
+    (error: unknown) => isUpdaterError(error) && error.code === 'UNSAFE_TARGET_PATH',
   );
 });
 
@@ -69,17 +45,13 @@ test('applyUpgradePlan preserves file modes and creates unique backup directorie
   await writeFile(mainPath, 'v1');
   await chmod(mainPath, 0o640);
 
-  const plan1 = planUpgrade(fs, path, projectRoot, [
-    { relativePath: 'js/main.js', content: Buffer.from('v2') },
-  ]);
+  const plan1 = planUpgrade(fs, path, projectRoot, [{ relativePath: 'js/main.js', content: Buffer.from('v2') }]);
   const backup1 = applyUpgradePlan(fs, path, plan1);
   assert.equal(await readFile(mainPath, 'utf8'), 'v2');
   assert.equal((await stat(mainPath)).mode & 0o777, 0o640);
   assert.equal(await readFile(path.join(backup1, 'js/main.js'), 'utf8'), 'v1');
 
-  const plan2 = planUpgrade(fs, path, projectRoot, [
-    { relativePath: 'js/main.js', content: Buffer.from('v3') },
-  ]);
+  const plan2 = planUpgrade(fs, path, projectRoot, [{ relativePath: 'js/main.js', content: Buffer.from('v3') }]);
   const backup2 = applyUpgradePlan(fs, path, plan2);
   assert.notEqual(backup1, backup2);
   assert.equal(await readFile(path.join(backup2, 'js/main.js'), 'utf8'), 'v2');

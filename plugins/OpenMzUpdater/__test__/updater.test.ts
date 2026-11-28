@@ -1,9 +1,5 @@
 import type { TestContext } from 'vitest';
-import type {
-  ArchiveEntry,
-  ReleaseManifest,
-  RuntimeMetadata,
-} from '../../../shared/engine-release.ts';
+import type { ArchiveEntry, ReleaseManifest, RuntimeMetadata } from '../../../shared/engine-release.ts';
 import type { InstallOptions } from '../core.ts';
 import assert from 'node:assert/strict';
 import { createHash } from 'node:crypto';
@@ -18,17 +14,9 @@ import { runInNewContext } from 'node:vm';
 import { gzipSync } from 'node:zlib';
 import { afterAll, beforeAll, test } from 'vitest';
 import { buildRuntime } from '../../../scripts/commands/build/runtime.ts';
-import {
-  buildRelease,
-  createTarBuffer,
-} from '../../../scripts/commands/pack/artifacts.ts';
+import { buildRelease, createTarBuffer } from '../../../scripts/commands/pack/artifacts.ts';
 import { createManifestServer } from '../../../scripts/serve-manifest.ts';
-import {
-  checkForUpdate,
-  fetchBuffer,
-  installUpdate,
-  parseTarBuffer,
-} from '../core.ts';
+import { checkForUpdate, fetchBuffer, installUpdate, parseTarBuffer } from '../core.ts';
 import {
   compareVersions,
   coreScripts,
@@ -40,8 +28,7 @@ import {
 
 const require = createRequire(import.meta.url);
 const originalMain = 'original core';
-const originalConfig =
-  'var $plugins = [{"name":"OpenMzUpdater","status":true}];\n';
+const originalConfig = 'var $plugins = [{"name":"OpenMzUpdater","status":true}];\n';
 const metadata: RuntimeMetadata = {
   name: 'OpenMZ',
   version: '1.2.3',
@@ -58,10 +45,7 @@ beforeAll(async () => {
     version: metadata.version,
   });
   release = await buildRelease({ outDir: join(workspace, 'release'), runtime });
-  updaterSource = await readFile(
-    join(workspace, 'release/OpenMzUpdater.js'),
-    'utf8',
-  );
+  updaterSource = await readFile(join(workspace, 'release/OpenMzUpdater.js'), 'utf8');
 });
 afterAll(() => rm(workspace, { recursive: true, force: true }));
 
@@ -115,16 +99,10 @@ async function startServer(t: TestContext, server: import('node:http').Server) {
     server.once('error', reject);
     server.listen(0, '127.0.0.1', resolve);
   });
-  t.onTestFinished(
-    () => new Promise<void>((resolve) => server.close(() => resolve())),
-  );
+  t.onTestFinished(() => new Promise<void>((resolve) => server.close(() => resolve())));
   return `http://127.0.0.1:${(server.address() as import('node:net').AddressInfo).port}`;
 }
-async function install(
-  manifestUrl: string,
-  projectRoot: string,
-  options: Partial<InstallOptions> = {},
-) {
+async function install(manifestUrl: string, projectRoot: string, options: Partial<InstallOptions> = {}) {
   const update = await checkForUpdate({
     manifestUrl,
     projectRoot,
@@ -138,14 +116,8 @@ async function install(
   });
 }
 async function assertOriginalProject(projectRoot: string) {
-  assert.equal(
-    await readFile(join(projectRoot, 'js/main.js'), 'utf8'),
-    originalMain,
-  );
-  assert.equal(
-    await readFile(join(projectRoot, 'js/plugins.js'), 'utf8'),
-    originalConfig,
-  );
+  assert.equal(await readFile(join(projectRoot, 'js/main.js'), 'utf8'), originalMain);
+  assert.equal(await readFile(join(projectRoot, 'js/plugins.js'), 'utf8'), originalConfig);
 }
 
 test('compares release and prerelease versions without reinstalling equal build metadata', () => {
@@ -170,10 +142,7 @@ test('tar round trips sorted files, including GNU long paths', () => {
 
 test('installs the built runtime over HTTP, records its version and leaves plugins enabled', async (t) => {
   const { projectRoot } = await createProject(t);
-  const origin = await startServer(
-    t,
-    createManifestServer({ rootDir: join(workspace, 'release') }),
-  );
+  const origin = await startServer(t, createManifestServer({ rootDir: join(workspace, 'release') }));
   const phases: string[] = [];
   const downloads: [number, number][] = [];
   const update = await checkForUpdate({
@@ -192,27 +161,15 @@ test('installs the built runtime over HTTP, records its version and leaves plugi
   });
   assert.equal(result.version, release.manifest.version);
   assert.equal(result.requiresRestart, true);
-  assert.deepEqual(downloads.at(-1), [
-    release.manifest.archive.size,
-    release.manifest.archive.size,
-  ]);
+  assert.deepEqual(downloads.at(-1), [release.manifest.archive.size, release.manifest.archive.size]);
   assert.deepEqual(result.updatedFiles, release.includedFiles);
   assert.deepEqual(phases, ['download', 'verify', 'apply']);
   for (const path of release.includedFiles) {
-    assert.deepEqual(
-      await readFile(join(projectRoot, path)),
-      await readFile(join(runtime.outDir, path)),
-    );
+    assert.deepEqual(await readFile(join(projectRoot, path)), await readFile(join(runtime.outDir, path)));
   }
   const backup = join(projectRoot, result.backupRelativeDir);
-  assert.equal(
-    await readFile(join(backup, 'js/main.js'), 'utf8'),
-    originalMain,
-  );
-  assert.equal(
-    await readFile(join(projectRoot, 'js/plugins.js'), 'utf8'),
-    originalConfig,
-  );
+  assert.equal(await readFile(join(backup, 'js/main.js'), 'utf8'), originalMain);
+  assert.equal(await readFile(join(projectRoot, 'js/plugins.js'), 'utf8'), originalConfig);
   const next = await checkForUpdate({
     manifestUrl: `${origin}/manifest.json`,
     projectRoot,
@@ -224,10 +181,7 @@ test('installs the built runtime over HTTP, records its version and leaves plugi
 
 test('keeps a newer installation when the configured manifest points to an older release', async (t) => {
   const { projectRoot, outDir } = await createProject(t);
-  await writeFile(
-    join(projectRoot, statePath),
-    JSON.stringify({ ...metadata, version: '2.0.0' }),
-  );
+  await writeFile(join(projectRoot, statePath), JSON.stringify({ ...metadata, version: '2.0.0' }));
   const manifestUrl = await writeTestRelease(outDir);
   const update = await checkForUpdate({
     manifestUrl,
@@ -253,9 +207,7 @@ test('rejects damaged, protected and incomplete packages before writing project 
     [[entry('js/main.js')], {}, /Missing runtime file/],
     [
       runtimeEntries().map((file) =>
-        file.relativePath === statePath
-          ? entry(statePath, JSON.stringify({ ...metadata, version: '9.0.0' }))
-          : file,
+        file.relativePath === statePath ? entry(statePath, JSON.stringify({ ...metadata, version: '9.0.0' })) : file,
       ),
       {},
       /metadata does not match/,
@@ -278,8 +230,7 @@ test('resolves relative release assets against the tagged URL across a CDN redir
   const assetOrigin = await startServer(
     t,
     createServer((request, response) => {
-      if (request.url === '/signed/manifest')
-        response.end(JSON.stringify(manifest));
+      if (request.url === '/signed/manifest') response.end(JSON.stringify(manifest));
       else response.writeHead(403).end();
     }),
   );
@@ -288,66 +239,41 @@ test('resolves relative release assets against the tagged URL across a CDN redir
     t,
     createServer((request, response) => {
       visited.push(request.url);
-      if (request.url === latestPath)
-        response.writeHead(302, { Location: tagPath }).end();
-      else if (request.url === tagPath)
-        response
-          .writeHead(302, { Location: `${assetOrigin}/signed/manifest` })
-          .end();
-      else if (request.url === tagBase + manifest.archive.url)
-        response.end(bytes);
+      if (request.url === latestPath) response.writeHead(302, { Location: tagPath }).end();
+      else if (request.url === tagPath) response.writeHead(302, { Location: `${assetOrigin}/signed/manifest` }).end();
+      else if (request.url === tagBase + manifest.archive.url) response.end(bytes);
       else response.writeHead(404).end();
     }),
   );
   const manifestUrl = origin + latestPath;
   const fetched = await fetchBuffer(require, manifestUrl);
-  assert.deepEqual(fetched.redirectChain, [
-    manifestUrl,
-    origin + tagPath,
-    `${assetOrigin}/signed/manifest`,
-  ]);
+  assert.deepEqual(fetched.redirectChain, [manifestUrl, origin + tagPath, `${assetOrigin}/signed/manifest`]);
   visited.length = 0;
   await install(manifestUrl, projectRoot);
-  assert.deepEqual(visited, [
-    latestPath,
-    tagPath,
-    tagBase + manifest.archive.url,
-  ]);
+  assert.deepEqual(visited, [latestPath, tagPath, tagBase + manifest.archive.url]);
 });
 
 test('rolls back core files and version metadata if the final replacement fails', async (t) => {
   const { projectRoot, outDir } = await createProject(t);
   const installed = JSON.stringify({ ...metadata, version: '1.0.0' });
   await writeFile(join(projectRoot, statePath), installed);
-  const manifestUrl = await writeTestRelease(outDir, [
-    ...runtimeEntries(),
-    entry('js/nested/new.js'),
-  ]);
+  const manifestUrl = await writeTestRelease(outDir, [...runtimeEntries(), entry('js/nested/new.js')]);
   const fs = require('fs');
   const failingPath = join(fs.realpathSync(projectRoot), 'js/rmmz_windows.js');
   const nodeRequire = (name: string) =>
     name === 'fs'
       ? {
           ...fs,
-          renameSync(
-            source: import('node:fs').PathLike,
-            target: import('node:fs').PathLike,
-          ) {
+          renameSync(source: import('node:fs').PathLike, target: import('node:fs').PathLike) {
             if (target === failingPath) {
-              assert.equal(
-                fs.readFileSync(join(projectRoot, 'js/main.js'), 'utf8'),
-                'new core',
-              );
+              assert.equal(fs.readFileSync(join(projectRoot, 'js/main.js'), 'utf8'), 'new core');
               throw new Error('Simulated runtime replacement failure');
             }
             fs.renameSync(source, target);
           },
         }
       : require(name);
-  await assert.rejects(
-    install(manifestUrl, projectRoot, { nodeRequire }),
-    /Simulated runtime replacement failure/,
-  );
+  await assert.rejects(install(manifestUrl, projectRoot, { nodeRequire }), /Simulated runtime replacement failure/);
   await assertOriginalProject(projectRoot);
   assert.equal(await readFile(join(projectRoot, statePath), 'utf8'), installed);
   assert.equal(existsSync(join(projectRoot, 'js/nested')), false);

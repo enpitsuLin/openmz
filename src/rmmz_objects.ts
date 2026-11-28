@@ -13,14 +13,7 @@ class Game_Temp {
     declare _commonEventQueue: RMMZ.CommonEventID[];
     declare _animationQueue: RMMZ.AnimationRequest[];
     declare _balloonQueue: RMMZ.BalloonRequest[];
-    declare _lastActionData: [
-        RMMZ.SkillID,
-        RMMZ.ItemID,
-        RMMZ.ActorID,
-        RMMZ.EnemyID,
-        RMMZ.ActorID,
-        RMMZ.EnemyID,
-    ];
+    declare _lastActionData: [RMMZ.SkillID, RMMZ.ItemID, RMMZ.ActorID, RMMZ.EnemyID, RMMZ.ActorID, RMMZ.EnemyID];
 
     constructor(...args: any[]) {
         this.initialize(...args);
@@ -139,10 +132,7 @@ class Game_Temp {
         return this._animationQueue.shift();
     }
 
-    requestBalloon(
-        target: Game_Character,
-        balloonId: RMMZ.BalloonIconID,
-    ): void {
+    requestBalloon(target: Game_Character, balloonId: RMMZ.BalloonIconID): void {
         const request = { target: target, balloonId: balloonId };
         this._balloonQueue.push(request);
         if (target.startBalloon) {
@@ -660,11 +650,7 @@ class Game_Message {
         this._positionType = positionType;
     }
 
-    setChoices(
-        choices: string[],
-        defaultType: number,
-        cancelType: number,
-    ): void {
+    setChoices(choices: string[], defaultType: number, cancelType: number): void {
         this._choices = choices;
         this._choiceDefaultType = defaultType;
         this._choiceCancelType = cancelType;
@@ -722,12 +708,7 @@ class Game_Message {
     }
 
     isBusy(): boolean {
-        return (
-            this.hasText() ||
-            this.isChoice() ||
-            this.isNumberInput() ||
-            this.isItemChoice()
-        );
+        return this.hasText() || this.isChoice() || this.isNumberInput() || this.isItemChoice();
     }
 
     newPage(): void {
@@ -1062,11 +1043,7 @@ class Game_Screen {
         this._zoomScale = scale;
     }
 
-    changeWeather(
-        type: RMMZ.WeatherType,
-        power: number,
-        duration: number,
-    ): void {
+    changeWeather(type: RMMZ.WeatherType, power: number, duration: number): void {
         if (type !== "none" || duration === 0) {
             this._weatherType = type;
         }
@@ -1108,8 +1085,7 @@ class Game_Screen {
         if (this._toneDuration > 0) {
             const d = this._toneDuration;
             for (let i = 0; i < 4; i++) {
-                this._tone[i] =
-                    (this._tone[i] * (d - 1) + this._toneTarget[i]) / d;
+                this._tone[i] = (this._tone[i] * (d - 1) + this._toneTarget[i]) / d;
             }
             this._toneDuration--;
         }
@@ -1125,13 +1101,8 @@ class Game_Screen {
 
     updateShake(): void {
         if (this._shakeDuration > 0 || this._shake !== 0) {
-            const delta =
-                (this._shakePower * this._shakeSpeed * this._shakeDirection) /
-                10;
-            if (
-                this._shakeDuration <= 1 &&
-                this._shake * (this._shake + delta) < 0
-            ) {
+            const delta = (this._shakePower * this._shakeSpeed * this._shakeDirection) / 10;
+            if (this._shakeDuration <= 1 && this._shake * (this._shake + delta) < 0) {
                 this._shake = 0;
             } else {
                 this._shake += delta;
@@ -1211,11 +1182,7 @@ class Game_Screen {
         }
     }
 
-    tintPicture(
-        pictureId: RMMZ.PictureID,
-        tone: RMMZ.Color,
-        duration: number,
-    ): void {
+    tintPicture(pictureId: RMMZ.PictureID, tone: RMMZ.Color, duration: number): void {
         const picture = this.picture(pictureId);
         if (picture) {
             picture.tint(tone, duration);
@@ -1405,10 +1372,7 @@ class Game_Picture {
             this._y = this.applyEasing(this._y, this._targetY);
             this._scaleX = this.applyEasing(this._scaleX, this._targetScaleX);
             this._scaleY = this.applyEasing(this._scaleY, this._targetScaleY);
-            this._opacity = this.applyEasing(
-                this._opacity,
-                this._targetOpacity,
-            );
+            this._opacity = this.applyEasing(this._opacity, this._targetOpacity);
             this._duration--;
         }
     }
@@ -1417,8 +1381,7 @@ class Game_Picture {
         if (this._toneDuration > 0) {
             const d = this._toneDuration;
             for (let i = 0; i < 4; i++) {
-                this._tone![i] =
-                    (this._tone![i] * (d - 1) + this._toneTarget![i]) / d;
+                this._tone![i] = (this._tone![i] * (d - 1) + this._toneTarget![i]) / d;
             }
             this._toneDuration--;
         }
@@ -1804,9 +1767,7 @@ class Game_Action {
 
     isMagicSkill(): boolean {
         if (this.isSkill()) {
-            return $dataSystem.magicSkills.includes(
-                (this.item() as RMMZ.DataSkill).stypeId,
-            );
+            return $dataSystem.magicSkills.includes((this.item() as RMMZ.DataSkill).stypeId);
         } else {
             return false;
         }
@@ -1839,9 +1800,7 @@ class Game_Action {
     }
 
     isValid(): boolean | RMMZ.ActionItem {
-        return (
-            (this._forcing && this.item()) || this.subject().canUse(this.item())
-        );
+        return (this._forcing && this.item()) || this.subject().canUse(this.item());
     }
 
     speed(): number {
@@ -1870,9 +1829,7 @@ class Game_Action {
         return this.repeatTargets(targets);
     }
 
-    repeatTargets(
-        targets: (RMMZ.ActionTarget | null)[],
-    ): (Game_Actor | Game_Enemy)[] {
+    repeatTargets(targets: (RMMZ.ActionTarget | null)[]): (Game_Actor | Game_Enemy)[] {
         const repeatedTargets = [];
         const repeats = this.numRepeats();
         for (const target of targets) {
@@ -2028,28 +1985,15 @@ class Game_Action {
     }
 
     hasItemAnyValidEffects(target: RMMZ.ActionTarget): boolean {
-        return this.item().effects.some((effect) =>
-            this.testItemEffect(target, effect),
-        );
+        return this.item().effects.some((effect) => this.testItemEffect(target, effect));
     }
 
-    testItemEffect(
-        target: RMMZ.ActionTarget,
-        effect: RMMZ.ActionEffectBase,
-    ): boolean {
+    testItemEffect(target: RMMZ.ActionTarget, effect: RMMZ.ActionEffectBase): boolean {
         switch (effect.code) {
             case Game_Action.EFFECT_RECOVER_HP:
-                return (
-                    target.hp < target.mhp ||
-                    effect.value1 < 0 ||
-                    effect.value2 < 0
-                );
+                return target.hp < target.mhp || effect.value1 < 0 || effect.value2 < 0;
             case Game_Action.EFFECT_RECOVER_MP:
-                return (
-                    target.mp < target.mmp ||
-                    effect.value1 < 0 ||
-                    effect.value2 < 0
-                );
+                return target.mp < target.mmp || effect.value1 < 0 || effect.value2 < 0;
             case Game_Action.EFFECT_ADD_STATE:
                 return !target.isStateAffected(effect.dataId);
             case Game_Action.EFFECT_REMOVE_STATE:
@@ -2063,9 +2007,7 @@ class Game_Action {
             case Game_Action.EFFECT_REMOVE_DEBUFF:
                 return target.isDebuffAffected(effect.dataId);
             case Game_Action.EFFECT_LEARN_SKILL:
-                return (
-                    target.isActor() && !target.isLearnedSkill(effect.dataId)
-                );
+                return target.isActor() && !target.isLearnedSkill(effect.dataId);
             default:
                 return true;
         }
@@ -2107,9 +2049,7 @@ class Game_Action {
     }
 
     itemCri(target: RMMZ.ActionTarget): number {
-        return this.item().damage.critical
-            ? this.subject().cri * (1 - target.cev)
-            : 0;
+        return this.item().damage.critical ? this.subject().cri * (1 - target.cev) : 0;
     }
 
     apply(target: RMMZ.ActionTarget): void {
@@ -2177,23 +2117,15 @@ class Game_Action {
 
     calcElementRate(target: RMMZ.ActionTarget): number {
         if (this.item().damage.elementId < 0) {
-            return this.elementsMaxRate(
-                target,
-                this.subject().attackElements(),
-            );
+            return this.elementsMaxRate(target, this.subject().attackElements());
         } else {
             return target.elementRate(this.item().damage.elementId);
         }
     }
 
-    elementsMaxRate(
-        target: RMMZ.ActionTarget,
-        elements: RMMZ.DataID[],
-    ): number {
+    elementsMaxRate(target: RMMZ.ActionTarget, elements: RMMZ.DataID[]): number {
         if (elements.length > 0) {
-            const rates = elements.map((elementId) =>
-                target.elementRate(elementId),
-            );
+            const rates = elements.map((elementId) => target.elementRate(elementId));
             return Math.max(...rates);
         } else {
             return 1;
@@ -2205,9 +2137,7 @@ class Game_Action {
     }
 
     applyVariance(damage: number, variance: number): number {
-        const amp = Math.floor(
-            Math.max((Math.abs(damage) * variance) / 100, 0),
-        );
+        const amp = Math.floor(Math.max((Math.abs(damage) * variance) / 100, 0));
         const v = Math.randomInt(amp + 1) + Math.randomInt(amp + 1) - amp;
         return damage >= 0 ? damage + v : damage - v;
     }
@@ -2272,10 +2202,7 @@ class Game_Action {
         }
     }
 
-    applyItemEffect(
-        target: RMMZ.ActionTarget,
-        effect: RMMZ.ActionEffectBase,
-    ): void {
+    applyItemEffect(target: RMMZ.ActionTarget, effect: RMMZ.ActionEffectBase): void {
         switch (effect.code) {
             case Game_Action.EFFECT_RECOVER_HP:
                 this.itemEffectRecoverHp(target, effect);
@@ -2349,10 +2276,7 @@ class Game_Action {
         }
     }
 
-    itemEffectGainTp(
-        target: RMMZ.ActionTarget,
-        effect: RMMZ.ActionEffect<typeof Game_Action.EFFECT_GAIN_TP>,
-    ): void {
+    itemEffectGainTp(target: RMMZ.ActionTarget, effect: RMMZ.ActionEffect<typeof Game_Action.EFFECT_GAIN_TP>): void {
         let value = Math.floor(effect.value1);
         if (value !== 0) {
             target.gainTp(value);
@@ -2413,10 +2337,7 @@ class Game_Action {
         }
     }
 
-    itemEffectAddBuff(
-        target: RMMZ.ActionTarget,
-        effect: RMMZ.ActionEffect<typeof Game_Action.EFFECT_ADD_BUFF>,
-    ): void {
+    itemEffectAddBuff(target: RMMZ.ActionTarget, effect: RMMZ.ActionEffect<typeof Game_Action.EFFECT_ADD_BUFF>): void {
         target.addBuff(effect.dataId, effect.value1);
         this.makeSuccess(target);
     }
@@ -2425,8 +2346,7 @@ class Game_Action {
         target: RMMZ.ActionTarget,
         effect: RMMZ.ActionEffect<typeof Game_Action.EFFECT_ADD_DEBUFF>,
     ): void {
-        let chance =
-            target.debuffRate(effect.dataId) * this.lukEffectRate(target);
+        let chance = target.debuffRate(effect.dataId) * this.lukEffectRate(target);
         if (Math.random() < chance) {
             target.addDebuff(effect.dataId, effect.value1);
             this.makeSuccess(target);
@@ -2453,20 +2373,14 @@ class Game_Action {
         }
     }
 
-    itemEffectSpecial(
-        target: RMMZ.ActionTarget,
-        effect: RMMZ.ActionEffect<typeof Game_Action.EFFECT_SPECIAL>,
-    ): void {
+    itemEffectSpecial(target: RMMZ.ActionTarget, effect: RMMZ.ActionEffect<typeof Game_Action.EFFECT_SPECIAL>): void {
         if (effect.dataId === Game_Action.SPECIAL_EFFECT_ESCAPE) {
             target.escape();
             this.makeSuccess(target);
         }
     }
 
-    itemEffectGrow(
-        target: RMMZ.ActionTarget,
-        effect: RMMZ.ActionEffect<typeof Game_Action.EFFECT_GROW>,
-    ): void {
+    itemEffectGrow(target: RMMZ.ActionTarget, effect: RMMZ.ActionEffect<typeof Game_Action.EFFECT_GROW>): void {
         target.addParam(effect.dataId, Math.floor(effect.value1));
         this.makeSuccess(target);
     }
@@ -2481,10 +2395,7 @@ class Game_Action {
         }
     }
 
-    itemEffectCommonEvent(
-        _target: Game_Battler,
-        _effect: RMMZ.ActionEffectBase,
-    ): void {
+    itemEffectCommonEvent(_target: Game_Battler, _effect: RMMZ.ActionEffectBase): void {
         //
     }
 
@@ -2590,15 +2501,11 @@ class Game_ActionResult {
     }
 
     addedStateObjects(): RMMZ.DataState[] {
-        return this.addedStates.map(
-            (id) => $dataStates[id],
-        ) as RMMZ.DataState[];
+        return this.addedStates.map((id) => $dataStates[id]) as RMMZ.DataState[];
     }
 
     removedStateObjects(): RMMZ.DataState[] {
-        return this.removedStates.map(
-            (id) => $dataStates[id],
-        ) as RMMZ.DataState[];
+        return this.removedStates.map((id) => $dataStates[id]) as RMMZ.DataState[];
     }
 
     isStatusAffected(): boolean {
@@ -3024,9 +2931,7 @@ class Game_BattlerBase {
         const icons = [];
         for (let i = 0; i < this._buffs.length; i++) {
             if (this._buffs[i] !== 0) {
-                icons.push(
-                    this.buffIconIndex(this._buffs[i], i as RMMZ.ParamID),
-                );
+                icons.push(this.buffIconIndex(this._buffs[i], i as RMMZ.ParamID));
             }
         }
         return icons;
@@ -3034,15 +2939,9 @@ class Game_BattlerBase {
 
     buffIconIndex(buffLevel: number, paramId: RMMZ.ParamID): number {
         if (buffLevel > 0) {
-            return (
-                Game_BattlerBase.ICON_BUFF_START + (buffLevel - 1) * 8 + paramId
-            );
+            return Game_BattlerBase.ICON_BUFF_START + (buffLevel - 1) * 8 + paramId;
         } else if (buffLevel < 0) {
-            return (
-                Game_BattlerBase.ICON_DEBUFF_START +
-                (-buffLevel - 1) * 8 +
-                paramId
-            );
+            return Game_BattlerBase.ICON_DEBUFF_START + (-buffLevel - 1) * 8 + paramId;
         } else {
             return 0;
         }
@@ -3060,10 +2959,7 @@ class Game_BattlerBase {
     }
 
     allTraits(): RMMZ.Trait[] {
-        return this.traitObjects().reduce<RMMZ.Trait[]>(
-            (r, obj) => r.concat(obj.traits),
-            [],
-        );
+        return this.traitObjects().reduce<RMMZ.Trait[]>((r, obj) => r.concat(obj.traits), []);
     }
 
     traits(code: RMMZ.TraitType): RMMZ.Trait[] {
@@ -3071,23 +2967,15 @@ class Game_BattlerBase {
     }
 
     traitsWithId(code: RMMZ.TraitType, id: RMMZ.DataID): RMMZ.Trait[] {
-        return this.allTraits().filter(
-            (trait) => trait.code === code && trait.dataId === id,
-        );
+        return this.allTraits().filter((trait) => trait.code === code && trait.dataId === id);
     }
 
     traitsPi(code: RMMZ.TraitType, id: RMMZ.DataID): number {
-        return this.traitsWithId(code, id).reduce(
-            (r, trait) => r * trait.value,
-            1,
-        );
+        return this.traitsWithId(code, id).reduce((r, trait) => r * trait.value, 1);
     }
 
     traitsSum(code: RMMZ.TraitType, id: RMMZ.DataID): number {
-        return this.traitsWithId(code, id).reduce(
-            (r, trait) => r + trait.value,
-            0,
-        );
+        return this.traitsWithId(code, id).reduce((r, trait) => r + trait.value, 0);
     }
 
     traitsSumAll(code: RMMZ.TraitType): number {
@@ -3095,10 +2983,7 @@ class Game_BattlerBase {
     }
 
     traitsSet(code: RMMZ.TraitType): number[] {
-        return this.traits(code).reduce<number[]>(
-            (r, trait) => r.concat(trait.dataId),
-            [],
-        );
+        return this.traits(code).reduce<number[]>((r, trait) => r.concat(trait.dataId), []);
     }
 
     paramBase(_paramId: RMMZ.ParamID): number {
@@ -3134,10 +3019,7 @@ class Game_BattlerBase {
     }
 
     param(paramId: RMMZ.ParamID): number {
-        const value =
-            this.paramBasePlus(paramId) *
-            this.paramRate(paramId) *
-            this.paramBuffRate(paramId);
+        const value = this.paramBasePlus(paramId) * this.paramRate(paramId) * this.paramBuffRate(paramId);
         const maxValue = this.paramMax(paramId);
         const minValue = this.paramMin(paramId);
         return Math.round(value.clamp(minValue, maxValue));
@@ -3188,10 +3070,7 @@ class Game_BattlerBase {
     }
 
     attackTimesAdd(): number {
-        return Math.max(
-            this.traitsSumAll(Game_BattlerBase.TRAIT_ATTACK_TIMES),
-            0,
-        );
+        return Math.max(this.traitsSumAll(Game_BattlerBase.TRAIT_ATTACK_TIMES), 0);
     }
 
     attackSkillId(): number {
@@ -3204,9 +3083,7 @@ class Game_BattlerBase {
     }
 
     isSkillTypeSealed(stypeId: RMMZ.SkillType): boolean {
-        return this.traitsSet(Game_BattlerBase.TRAIT_STYPE_SEAL).includes(
-            stypeId,
-        );
+        return this.traitsSet(Game_BattlerBase.TRAIT_STYPE_SEAL).includes(stypeId);
     }
 
     addedSkills(): number[] {
@@ -3214,33 +3091,23 @@ class Game_BattlerBase {
     }
 
     isSkillSealed(skillId: RMMZ.SkillID): boolean {
-        return this.traitsSet(Game_BattlerBase.TRAIT_SKILL_SEAL).includes(
-            skillId,
-        );
+        return this.traitsSet(Game_BattlerBase.TRAIT_SKILL_SEAL).includes(skillId);
     }
 
     isEquipWtypeOk(wtypeId: RMMZ.WeaponType): boolean {
-        return this.traitsSet(Game_BattlerBase.TRAIT_EQUIP_WTYPE).includes(
-            wtypeId,
-        );
+        return this.traitsSet(Game_BattlerBase.TRAIT_EQUIP_WTYPE).includes(wtypeId);
     }
 
     isEquipAtypeOk(atypeId: RMMZ.ArmorType): boolean {
-        return this.traitsSet(Game_BattlerBase.TRAIT_EQUIP_ATYPE).includes(
-            atypeId,
-        );
+        return this.traitsSet(Game_BattlerBase.TRAIT_EQUIP_ATYPE).includes(atypeId);
     }
 
     isEquipTypeLocked(etypeId: RMMZ.ElementType): boolean {
-        return this.traitsSet(Game_BattlerBase.TRAIT_EQUIP_LOCK).includes(
-            etypeId,
-        );
+        return this.traitsSet(Game_BattlerBase.TRAIT_EQUIP_LOCK).includes(etypeId);
     }
 
     isEquipTypeSealed(etypeId: RMMZ.ElementType): boolean {
-        return this.traitsSet(Game_BattlerBase.TRAIT_EQUIP_SEAL).includes(
-            etypeId,
-        );
+        return this.traitsSet(Game_BattlerBase.TRAIT_EQUIP_SEAL).includes(etypeId);
     }
 
     slotType(): number {
@@ -3253,15 +3120,11 @@ class Game_BattlerBase {
     }
 
     actionPlusSet(): number[] {
-        return this.traits(Game_BattlerBase.TRAIT_ACTION_PLUS).map(
-            (trait) => trait.value,
-        );
+        return this.traits(Game_BattlerBase.TRAIT_ACTION_PLUS).map((trait) => trait.value);
     }
 
     specialFlag(flagId: RMMZ.DataID): boolean {
-        return this.traits(Game_BattlerBase.TRAIT_SPECIAL_FLAG).some(
-            (trait) => trait.dataId === flagId,
-        );
+        return this.traits(Game_BattlerBase.TRAIT_SPECIAL_FLAG).some((trait) => trait.dataId === flagId);
     }
 
     collapseType(): number {
@@ -3270,9 +3133,7 @@ class Game_BattlerBase {
     }
 
     partyAbility(abilityId: RMMZ.DataID): boolean {
-        return this.traits(Game_BattlerBase.TRAIT_PARTY_ABILITY).some(
-            (trait) => trait.dataId === abilityId,
-        );
+        return this.traits(Game_BattlerBase.TRAIT_PARTY_ABILITY).some((trait) => trait.dataId === abilityId);
     }
 
     isAutoBattle(): boolean {
@@ -3280,16 +3141,11 @@ class Game_BattlerBase {
     }
 
     isGuard(): boolean {
-        return (
-            this.specialFlag(Game_BattlerBase.FLAG_ID_GUARD) && this.canMove()
-        );
+        return this.specialFlag(Game_BattlerBase.FLAG_ID_GUARD) && this.canMove();
     }
 
     isSubstitute(): boolean {
-        return (
-            this.specialFlag(Game_BattlerBase.FLAG_ID_SUBSTITUTE) &&
-            this.canMove()
-        );
+        return this.specialFlag(Game_BattlerBase.FLAG_ID_SUBSTITUTE) && this.canMove();
     }
 
     isPreserveTp(): boolean {
@@ -3390,11 +3246,7 @@ class Game_BattlerBase {
     }
 
     isConfused(): boolean {
-        return (
-            this.isAppeared() &&
-            this.restriction() >= 1 &&
-            this.restriction() <= 3
-        );
+        return this.isAppeared() && this.restriction() >= 1 && this.restriction() <= 3;
     }
 
     confusionLevel(): number {
@@ -3481,10 +3333,7 @@ class Game_BattlerBase {
     }
 
     canPaySkillCost(skill: RMMZ.DataSkill): boolean {
-        return (
-            this._tp >= this.skillTpCost(skill) &&
-            this._mp >= this.skillMpCost(skill)
-        );
+        return this._tp >= this.skillTpCost(skill) && this._mp >= this.skillMpCost(skill);
     }
 
     paySkillCost(skill: RMMZ.DataSkill): void {
@@ -3530,9 +3379,7 @@ class Game_BattlerBase {
         }
     }
 
-    canEquip(
-        item: RMMZ.DatabaseItem,
-    ): item is RMMZ.DataWeapon | RMMZ.DataArmor {
+    canEquip(item: RMMZ.DatabaseItem): item is RMMZ.DataWeapon | RMMZ.DataArmor {
         if (!item) {
             return false;
         } else if (DataManager.isWeapon(item)) {
@@ -3545,17 +3392,11 @@ class Game_BattlerBase {
     }
 
     canEquipWeapon(item: RMMZ.DataWeapon): boolean {
-        return (
-            this.isEquipWtypeOk(item.wtypeId) &&
-            !this.isEquipTypeSealed(item.etypeId)
-        );
+        return this.isEquipWtypeOk(item.wtypeId) && !this.isEquipTypeSealed(item.etypeId);
     }
 
     canEquipArmor(item: RMMZ.DataArmor): boolean {
-        return (
-            this.isEquipAtypeOk(item.atypeId) &&
-            !this.isEquipTypeSealed(item.etypeId)
-        );
+        return this.isEquipAtypeOk(item.atypeId) && !this.isEquipTypeSealed(item.etypeId);
     }
 
     guardSkillId(): number {
@@ -3710,12 +3551,7 @@ class Game_Battler extends Game_BattlerBase {
 
     shouldPopupDamage(): boolean {
         const result = this._result;
-        return (
-            result.missed ||
-            result.evaded ||
-            result.hpAffected ||
-            result.mpDamage !== 0
-        );
+        return result.missed || result.evaded || result.hpAffected || result.mpDamage !== 0;
     }
 
     startWeaponAnimation(weaponImageId: RMMZ.DataID): void {
@@ -3822,11 +3658,7 @@ class Game_Battler extends Game_BattlerBase {
     }
 
     updateTpbAutoBattle(): void {
-        if (
-            this.isTpbCharged() &&
-            !this.isTpbTurnEnd() &&
-            this.isAutoBattle()
-        ) {
+        if (this.isTpbCharged() && !this.isTpbTurnEnd() && this.isAutoBattle()) {
             this.makeTpbActions();
         }
     }
@@ -3859,10 +3691,7 @@ class Game_Battler extends Game_BattlerBase {
     tpbRequiredCastTime(): number {
         const actions = this._actions.filter((action) => action.isValid());
         const items = actions.map((action) => action.item());
-        const delay = items.reduce(
-            (r, item) => r + Math.max(0, -item.speed),
-            0,
-        );
+        const delay = items.reduce((r, item) => r + Math.max(0, -item.speed), 0);
         return Math.sqrt(delay) / this.tpbSpeed();
     }
 
@@ -4040,10 +3869,7 @@ class Game_Battler extends Game_BattlerBase {
 
     removeStatesAuto(timing: RMMZ.AutoRemovalTiming): void {
         for (const state of this.states()) {
-            if (
-                this.isStateExpired(state.id) &&
-                state.autoRemovalTiming === timing
-            ) {
+            if (this.isStateExpired(state.id) && state.autoRemovalTiming === timing) {
                 this.removeState(state.id);
             }
         }
@@ -4059,10 +3885,7 @@ class Game_Battler extends Game_BattlerBase {
 
     removeStatesByDamage(): void {
         for (const state of this.states()) {
-            if (
-                state.removeByDamage &&
-                Math.randomInt(100) < state.chanceByDamage
-            ) {
+            if (state.removeByDamage && Math.randomInt(100) < state.chanceByDamage) {
                 this.removeState(state.id);
             }
         }
@@ -4070,10 +3893,7 @@ class Game_Battler extends Game_BattlerBase {
 
     makeActionTimes(): number {
         const actionPlusSet = this.actionPlusSet();
-        return actionPlusSet.reduce(
-            (r, p) => (Math.random() < p ? r + 1 : r),
-            1,
-        );
+        return actionPlusSet.reduce((r, p) => (Math.random() < p ? r + 1 : r), 1);
     }
 
     makeActions(): void {
@@ -4092,8 +3912,7 @@ class Game_Battler extends Game_BattlerBase {
     }
 
     makeSpeed(): void {
-        this._speed =
-            Math.min(...this._actions.map((action) => action.speed())) || 0;
+        this._speed = Math.min(...this._actions.map((action) => action.speed())) || 0;
     }
 
     currentAction(): Game_Action {
@@ -4108,10 +3927,7 @@ class Game_Battler extends Game_BattlerBase {
         this._lastTargetIndex = target ? target.index() : 0;
     }
 
-    forceAction(
-        skillId: RMMZ.SkillID,
-        targetIndex: RMMZ.ActorID | RMMZ.EnemyID,
-    ): void {
+    forceAction(skillId: RMMZ.SkillID, targetIndex: RMMZ.ActorID | RMMZ.EnemyID): void {
         this.clearActions();
         const action = new Game_Action(this, true);
         action.setSkill(skillId);
@@ -4490,10 +4306,7 @@ class Game_Actor extends Game_Battler {
         const acc_a = c.expParams[2];
         const acc_b = c.expParams[3];
         return Math.round(
-            (basis *
-                Math.pow(level - 1, 0.9 + acc_a / 250) *
-                level *
-                (level + 1)) /
+            (basis * Math.pow(level - 1, 0.9 + acc_a / 250) * level * (level + 1)) /
                 (6 + Math.pow(level, 2) / 50 / acc_b) +
                 (level - 1) * extra,
         );
@@ -4564,21 +4377,15 @@ class Game_Actor extends Game_Battler {
     }
 
     equips(): RMMZ.DataEquipment[] {
-        return this._equips.map((item) =>
-            item.object(),
-        ) as RMMZ.DataEquipment[];
+        return this._equips.map((item) => item.object()) as RMMZ.DataEquipment[];
     }
 
     weapons(): RMMZ.DataWeapon[] {
-        return this.equips().filter(
-            (item) => item && DataManager.isWeapon(item),
-        );
+        return this.equips().filter((item) => item && DataManager.isWeapon(item));
     }
 
     armors(): RMMZ.DataArmor[] {
-        return this.equips().filter(
-            (item) => item && DataManager.isArmor(item),
-        );
+        return this.equips().filter((item) => item && DataManager.isArmor(item));
     }
 
     hasWeapon(weapon: RMMZ.DataWeapon): boolean {
@@ -4590,16 +4397,10 @@ class Game_Actor extends Game_Battler {
     }
 
     isEquipChangeOk(slotId: RMMZ.EquipmentSlotID): boolean {
-        return (
-            !this.isEquipTypeLocked(this.equipSlots()[slotId]) &&
-            !this.isEquipTypeSealed(this.equipSlots()[slotId])
-        );
+        return !this.isEquipTypeLocked(this.equipSlots()[slotId]) && !this.isEquipTypeSealed(this.equipSlots()[slotId]);
     }
 
-    changeEquip(
-        slotId: RMMZ.EquipmentSlotID,
-        item: RMMZ.DataEquipment | null,
-    ): void {
+    changeEquip(slotId: RMMZ.EquipmentSlotID, item: RMMZ.DataEquipment | null): void {
         if (
             this.tradeItemWithParty(item, this.equips()[slotId]) &&
             (!item || this.equipSlots()[slotId] === item.etypeId)
@@ -4609,19 +4410,13 @@ class Game_Actor extends Game_Battler {
         }
     }
 
-    forceChangeEquip(
-        slotId: RMMZ.EquipmentSlotID,
-        item: RMMZ.DataEquipment | null,
-    ): void {
+    forceChangeEquip(slotId: RMMZ.EquipmentSlotID, item: RMMZ.DataEquipment | null): void {
         this._equips[slotId].setObject(item);
         this.releaseUnequippableItems(true);
         this.refresh();
     }
 
-    tradeItemWithParty(
-        newItem: RMMZ.DataEquipment | null,
-        oldItem: RMMZ.DataEquipment | null,
-    ): boolean {
+    tradeItemWithParty(newItem: RMMZ.DataEquipment | null, oldItem: RMMZ.DataEquipment | null): boolean {
         if (newItem && !$gameParty.hasItem(newItem as RMMZ.DatabaseItem)) {
             return false;
         } else {
@@ -4631,10 +4426,7 @@ class Game_Actor extends Game_Battler {
         }
     }
 
-    changeEquipById(
-        etypeId: RMMZ.EquipmentType,
-        itemId: RMMZ.WeaponID | RMMZ.ArmorID,
-    ): void {
+    changeEquipById(etypeId: RMMZ.EquipmentType, itemId: RMMZ.WeaponID | RMMZ.ArmorID): void {
         const slotId = etypeId - 1;
         if (this.equipSlots()[slotId] === 1) {
             this.changeEquip(slotId, $dataWeapons[itemId]);
@@ -4661,11 +4453,7 @@ class Game_Actor extends Game_Battler {
             let changed = false;
             for (let i = 0; i < equips.length; i++) {
                 const item = equips[i];
-                if (
-                    item &&
-                    (!this.canEquip(item as RMMZ.DatabaseItem) ||
-                        item.etypeId !== slots[i])
-                ) {
+                if (item && (!this.canEquip(item as RMMZ.DatabaseItem) || item.etypeId !== slots[i])) {
                     if (!forcing) {
                         this.tradeItemWithParty(null, item);
                     }
@@ -4700,9 +4488,7 @@ class Game_Actor extends Game_Battler {
 
     bestEquipItem(slotId: RMMZ.EquipmentSlotID): RMMZ.DataEquipment | null {
         const etypeId = this.equipSlots()[slotId];
-        const items = $gameParty
-            .equipItems()
-            .filter((item) => item.etypeId === etypeId && this.canEquip(item));
+        const items = $gameParty.equipItems().filter((item) => item.etypeId === etypeId && this.canEquip(item));
         let bestItem = null;
         let bestPerformance = -1000;
         for (let i = 0; i < items.length; i++) {
@@ -4897,11 +4683,7 @@ class Game_Actor extends Game_Battler {
     }
 
     displayLevelUp(newSkills: RMMZ.DataSkill[]): void {
-        const text = TextManager.levelUp.format(
-            this._name,
-            TextManager.level,
-            this._level,
-        );
+        const text = TextManager.levelUp.format(this._name, TextManager.level, this._level);
         $gameMessage.newPage();
         $gameMessage.add(text);
         for (const skill of newSkills) {
@@ -4910,15 +4692,12 @@ class Game_Actor extends Game_Battler {
     }
 
     gainExp(exp: number): void {
-        const newExp =
-            this.currentExp() + Math.round(exp * this.finalExpRate());
+        const newExp = this.currentExp() + Math.round(exp * this.finalExpRate());
         this.changeExp(newExp, this.shouldDisplayLevelUp());
     }
 
     finalExpRate(): number {
-        return (
-            this.exr * (this.isBattleMember() ? 1 : this.benchMembersExpRate())
-        );
+        return this.exr * (this.isBattleMember() ? 1 : this.benchMembersExpRate());
     }
 
     benchMembersExpRate(): 0 | 1 {
@@ -5256,9 +5035,7 @@ class Game_Actor extends Game_Battler {
     }
 
     testEscape(item: RMMZ.DataItem): boolean {
-        return item.effects.some(
-            (effect) => effect && effect.code === Game_Action.EFFECT_SPECIAL,
-        );
+        return item.effects.some((effect) => effect && effect.code === Game_Action.EFFECT_SPECIAL);
     }
 
     meetsUsableItemConditions(item: RMMZ.DataItem): boolean {
@@ -5378,10 +5155,7 @@ class Game_Enemy extends Game_Battler {
         return $gameParty.hasDropItemDouble() ? 2 : 1;
     }
 
-    itemObject(
-        kind: RMMZ.DropItemType,
-        dataId: RMMZ.DataID,
-    ): RMMZ.DataItem | RMMZ.DataWeapon | RMMZ.DataArmor | null {
+    itemObject(kind: RMMZ.DropItemType, dataId: RMMZ.DataID): RMMZ.DataItem | RMMZ.DataWeapon | RMMZ.DataArmor | null {
         if (kind === 1) {
             return $dataItems[dataId];
         } else if (kind === 2) {
@@ -5533,16 +5307,10 @@ class Game_Enemy extends Game_Battler {
     }
 
     isActionValid(action: RMMZ.EnemyAction): boolean {
-        return (
-            this.meetsCondition(action) &&
-            this.canUse($dataSkills[action.skillId])
-        );
+        return this.meetsCondition(action) && this.canUse($dataSkills[action.skillId]);
     }
 
-    selectAction(
-        actionList: RMMZ.EnemyAction[],
-        ratingZero: number,
-    ): RMMZ.EnemyAction | null | undefined {
+    selectAction(actionList: RMMZ.EnemyAction[], ratingZero: number): RMMZ.EnemyAction | null | undefined {
         const sum = actionList.reduce((r, a) => r + a.rating - ratingZero, 0);
         if (sum > 0) {
             let value = Math.randomInt(sum);
@@ -5562,18 +5330,14 @@ class Game_Enemy extends Game_Battler {
         const ratingZero = ratingMax - 3;
         actionList = actionList.filter((a) => a.rating > ratingZero);
         for (let i = 0; i < this.numActions(); i++) {
-            this.action(i).setEnemyAction(
-                this.selectAction(actionList, ratingZero),
-            );
+            this.action(i).setEnemyAction(this.selectAction(actionList, ratingZero));
         }
     }
 
     makeActions(): void {
         super.makeActions();
         if (this.numActions() > 0) {
-            const actionList = this.enemy().actions.filter((a) =>
-                this.isActionValid(a),
-            );
+            const actionList = this.enemy().actions.filter((a) => this.isActionValid(a));
             if (actionList.length > 0) {
                 this.selectAllActions(actionList);
             }
@@ -5865,9 +5629,7 @@ class Game_Party extends Game_Unit<Game_Actor> {
     }
 
     weapons(): RMMZ.DataWeapon[] {
-        return Object.keys(this._weapons).map(
-            (id) => $dataWeapons[Number(id)]!,
-        );
+        return Object.keys(this._weapons).map((id) => $dataWeapons[Number(id)]!);
     }
 
     armors(): RMMZ.DataArmor[] {
@@ -5882,9 +5644,7 @@ class Game_Party extends Game_Unit<Game_Actor> {
         return [...this.items(), ...this.equipItems()];
     }
 
-    itemContainer(
-        item: RMMZ.DatabaseItem | null,
-    ): Record<string, number> | null {
+    itemContainer(item: RMMZ.DatabaseItem | null): Record<string, number> | null {
         if (!item) {
             return null;
         } else if (DataManager.isItem(item)) {
@@ -6005,32 +5765,18 @@ class Game_Party extends Game_Unit<Game_Actor> {
         return container ? container[item!.id] || 0 : 0;
     }
 
-    maxItems(
-        _item: RMMZ.DataItem | RMMZ.DataWeapon | RMMZ.DataArmor | null,
-    ): number {
+    maxItems(_item: RMMZ.DataItem | RMMZ.DataWeapon | RMMZ.DataArmor | null): number {
         return 99;
     }
 
     hasMaxItems(item: RMMZ.DatabaseItem): boolean {
-        return (
-            this.numItems(item) >=
-            this.maxItems(
-                item! as
-                    | RMMZ.DataItem
-                    | RMMZ.DataWeapon
-                    | RMMZ.DataArmor
-                    | null,
-            )
-        );
+        return this.numItems(item) >= this.maxItems(item! as RMMZ.DataItem | RMMZ.DataWeapon | RMMZ.DataArmor | null);
     }
 
     hasItem(item: RMMZ.DatabaseItem, includeEquip?: boolean): boolean {
         if (this.numItems(item) > 0) {
             return true;
-        } else if (
-            includeEquip &&
-            this.isAnyMemberEquipped(item as RMMZ.DataEquipment)
-        ) {
+        } else if (includeEquip && this.isAnyMemberEquipped(item as RMMZ.DataEquipment)) {
             return true;
         } else {
             return false;
@@ -6041,33 +5787,20 @@ class Game_Party extends Game_Unit<Game_Actor> {
         return this.members().some((actor) => actor.equips().includes(item));
     }
 
-    gainItem(
-        item: RMMZ.DatabaseItem | null,
-        amount: number,
-        includeEquip?: boolean,
-    ): void {
+    gainItem(item: RMMZ.DatabaseItem | null, amount: number, includeEquip?: boolean): void {
         const container = this.itemContainer(item);
         if (container) {
             const lastNumber = this.numItems(item);
             const newNumber = lastNumber + amount;
             container[item!.id] = newNumber.clamp(
                 0,
-                this.maxItems(
-                    item! as
-                        | RMMZ.DataItem
-                        | RMMZ.DataWeapon
-                        | RMMZ.DataArmor
-                        | null,
-                ),
+                this.maxItems(item! as RMMZ.DataItem | RMMZ.DataWeapon | RMMZ.DataArmor | null),
             );
             if (container[item!.id] === 0) {
                 delete container[item!.id];
             }
             if (includeEquip && newNumber < 0) {
-                this.discardMembersEquip(
-                    item! as RMMZ.DataEquipment,
-                    -newNumber,
-                );
+                this.discardMembersEquip(item! as RMMZ.DataEquipment, -newNumber);
             }
             $gameMap.requestRefresh();
         }
@@ -6083,11 +5816,7 @@ class Game_Party extends Game_Unit<Game_Actor> {
         }
     }
 
-    loseItem(
-        item: RMMZ.DatabaseItem | null,
-        amount: number,
-        includeEquip?: boolean,
-    ): void {
+    loseItem(item: RMMZ.DatabaseItem | null, amount: number, includeEquip?: boolean): void {
         this.gainItem(item, -amount, includeEquip);
     }
 
@@ -6183,23 +5912,15 @@ class Game_Party extends Game_Unit<Game_Actor> {
     }
 
     charactersForSavefile(): [string, number][] {
-        return this.battleMembers().map((actor) => [
-            actor.characterName(),
-            actor.characterIndex(),
-        ]);
+        return this.battleMembers().map((actor) => [actor.characterName(), actor.characterIndex()]);
     }
 
     facesForSavefile(): [string, number][] {
-        return this.battleMembers().map((actor) => [
-            actor.faceName(),
-            actor.faceIndex(),
-        ]);
+        return this.battleMembers().map((actor) => [actor.faceName(), actor.faceIndex()]);
     }
 
     partyAbility(abilityId: RMMZ.DataID): boolean {
-        return this.battleMembers().some((actor) =>
-            actor.partyAbility(abilityId),
-        );
+        return this.battleMembers().some((actor) => actor.partyAbility(abilityId));
     }
 
     hasEncounterHalf(): boolean {
@@ -6382,9 +6103,7 @@ class Game_Troop extends Game_Unit<Game_Enemy> {
     }
 
     letterTable(): string[] {
-        return $gameSystem.isCJK()
-            ? Game_Troop.LETTER_TABLE_FULL
-            : Game_Troop.LETTER_TABLE_HALF;
+        return $gameSystem.isCJK() ? Game_Troop.LETTER_TABLE_FULL : Game_Troop.LETTER_TABLE_HALF;
     }
 
     enemyNames(): string[] {
@@ -6400,13 +6119,7 @@ class Game_Troop extends Game_Unit<Game_Enemy> {
 
     meetsConditions(page: RMMZ.DataTroopPage): boolean {
         const c = page.conditions;
-        if (
-            !c.turnEnding &&
-            !c.turnValid &&
-            !c.enemyValid &&
-            !c.actorValid &&
-            !c.switchValid
-        ) {
+        if (!c.turnEnding && !c.turnValid && !c.enemyValid && !c.actorValid && !c.switchValid) {
             return false; // Conditions not set
         }
         if (c.turnEnding) {
@@ -6481,9 +6194,7 @@ class Game_Troop extends Game_Unit<Game_Enemy> {
 
     goldTotal(): number {
         const members = this.deadMembers();
-        return (
-            members.reduce((r, enemy) => r + enemy.gold(), 0) * this.goldRate()
-        );
+        return members.reduce((r, enemy) => r + enemy.gold(), 0) * this.goldRate();
     }
 
     goldRate(): 1 | 2 {
@@ -6492,17 +6203,12 @@ class Game_Troop extends Game_Unit<Game_Enemy> {
 
     makeDropItems(): RMMZ.InventoryItem[] {
         const members = this.deadMembers();
-        return members.reduce<RMMZ.InventoryItem[]>(
-            (r, enemy) => r.concat(enemy.makeDropItems()),
-            [],
-        );
+        return members.reduce<RMMZ.InventoryItem[]>((r, enemy) => r.concat(enemy.makeDropItems()), []);
     }
 
     isTpbTurnEnd(): boolean {
         const members = this.members();
-        const turnMax = Math.max(
-            ...members.map((member) => member.turnCount()),
-        );
+        const turnMax = Math.max(...members.map((member) => member.turnCount()));
         return turnMax > this._turnCount;
     }
 }
@@ -6854,10 +6560,7 @@ class Game_Map {
     }
 
     adjustX(x: number): number {
-        if (
-            this.isLoopHorizontal() &&
-            x < this._displayX - (this.width() - this.screenTileX()) / 2
-        ) {
+        if (this.isLoopHorizontal() && x < this._displayX - (this.width() - this.screenTileX()) / 2) {
             return x - this._displayX + $dataMap.width;
         } else {
             return x - this._displayX;
@@ -6865,10 +6568,7 @@ class Game_Map {
     }
 
     adjustY(y: number): number {
-        if (
-            this.isLoopVertical() &&
-            y < this._displayY - (this.height() - this.screenTileY()) / 2
-        ) {
+        if (this.isLoopVertical() && y < this._displayY - (this.height() - this.screenTileY()) / 2) {
             return y - this._displayY + $dataMap.height;
         } else {
             return y - this._displayY;
@@ -7001,10 +6701,7 @@ class Game_Map {
             }
         } else if (this.height() >= this.screenTileY()) {
             const lastY = this._displayY;
-            this._displayY = Math.min(
-                this._displayY + distance,
-                this.height() - this.screenTileY(),
-            );
+            this._displayY = Math.min(this._displayY + distance, this.height() - this.screenTileY());
             this._parallaxY += this._displayY - lastY;
         }
     }
@@ -7032,10 +6729,7 @@ class Game_Map {
             }
         } else if (this.width() >= this.screenTileX()) {
             const lastX = this._displayX;
-            this._displayX = Math.min(
-                this._displayX + distance,
-                this.width() - this.screenTileX(),
-            );
+            this._displayX = Math.min(this._displayX + distance, this.width() - this.screenTileX());
             this._parallaxX += this._displayX - lastX;
         }
     }
@@ -7121,9 +6815,7 @@ class Game_Map {
 
     checkLayeredTilesFlags(x: number, y: number, bit: number): boolean {
         const flags = this.tilesetFlags();
-        return this.layeredTiles(x, y).some(
-            (tileId) => (flags[tileId] & bit) !== 0,
-        );
+        return this.layeredTiles(x, y).some((tileId) => (flags[tileId] & bit) !== 0);
     }
 
     isLadder(x: number, y: number): boolean {
@@ -7160,11 +6852,7 @@ class Game_Map {
         return this.isValid(x, y) ? this.tileId(x, y, 5) : 0;
     }
 
-    startScroll(
-        direction: RMMZ.Direction,
-        distance: number,
-        speed: number,
-    ): void {
+    startScroll(direction: RMMZ.Direction, distance: number, speed: number): void {
         this._scrollDirection = direction;
         this._scrollRest = distance;
         this._scrollSpeed = speed;
@@ -7248,21 +6936,12 @@ class Game_Map {
         this.refresh();
     }
 
-    changeBattleback(
-        battleback1Name: string | null,
-        battleback2Name: string | null,
-    ): void {
+    changeBattleback(battleback1Name: string | null, battleback2Name: string | null): void {
         this._battleback1Name = battleback1Name;
         this._battleback2Name = battleback2Name;
     }
 
-    changeParallax(
-        name: string,
-        loopX: boolean,
-        loopY: boolean,
-        sx: number,
-        sy: number,
-    ): void {
+    changeParallax(name: string, loopX: boolean, loopY: boolean, sx: number, sy: number): void {
         this._parallaxName = name;
         this._parallaxZero = ImageManager.isZeroParallax(this._parallaxName);
         if (this._parallaxLoopX && !loopX) {
@@ -7548,11 +7227,7 @@ class Game_CharacterBase {
     }
 
     jumpHeight(): number {
-        return (
-            (this._jumpPeak * this._jumpPeak -
-                Math.pow(Math.abs(this._jumpCount - this._jumpPeak), 2)) /
-            2
-        );
+        return (this._jumpPeak * this._jumpPeak - Math.pow(Math.abs(this._jumpCount - this._jumpPeak), 2)) / 2;
     }
 
     isStopping(): boolean {
@@ -7612,12 +7287,7 @@ class Game_CharacterBase {
         return true;
     }
 
-    canPassDiagonally(
-        x: number,
-        y: number,
-        horz: RMMZ.Direction,
-        vert: RMMZ.Direction,
-    ): boolean {
+    canPassDiagonally(x: number, y: number, horz: RMMZ.Direction, vert: RMMZ.Direction): boolean {
         const x2 = $gameMap.roundXWithDirection(x, horz);
         const y2 = $gameMap.roundYWithDirection(y, vert);
         if (this.canPass(x, y, vert) && this.canPass(x, y2, horz)) {
@@ -7637,9 +7307,7 @@ class Game_CharacterBase {
     }
 
     isCollidedWithCharacters(x: number, y: number): boolean {
-        return (
-            this.isCollidedWithEvents(x, y) || this.isCollidedWithVehicles(x, y)
-        );
+        return this.isCollidedWithEvents(x, y) || this.isCollidedWithVehicles(x, y);
     }
 
     isCollidedWithEvents(x: number, y: number): boolean {
@@ -7710,9 +7378,7 @@ class Game_CharacterBase {
 
     screenY(): number {
         const th = $gameMap.tileHeight();
-        return Math.floor(
-            this.scrolledY() * th + th - this.shiftY() - this.jumpHeight(),
-        );
+        return Math.floor(this.scrolledY() * th + th - this.shiftY() - this.jumpHeight());
     }
 
     screenZ(): number {
@@ -7747,10 +7413,8 @@ class Game_CharacterBase {
 
     updateJump(): void {
         this._jumpCount--;
-        this._realX =
-            (this._realX * this._jumpCount + this._x) / (this._jumpCount + 1.0);
-        this._realY =
-            (this._realY * this._jumpCount + this._y) / (this._jumpCount + 1.0);
+        this._realX = (this._realX * this._jumpCount + this._x) / (this._jumpCount + 1.0);
+        this._realY = (this._realY * this._jumpCount + this._y) / (this._jumpCount + 1.0);
         this.refreshBushDepth();
         if (this._jumpCount === 0) {
             this._realX = this._x = $gameMap.roundX(this._x);
@@ -7760,28 +7424,16 @@ class Game_CharacterBase {
 
     updateMove(): void {
         if (this._x < this._realX) {
-            this._realX = Math.max(
-                this._realX - this.distancePerFrame(),
-                this._x,
-            );
+            this._realX = Math.max(this._realX - this.distancePerFrame(), this._x);
         }
         if (this._x > this._realX) {
-            this._realX = Math.min(
-                this._realX + this.distancePerFrame(),
-                this._x,
-            );
+            this._realX = Math.min(this._realX + this.distancePerFrame(), this._x);
         }
         if (this._y < this._realY) {
-            this._realY = Math.max(
-                this._realY - this.distancePerFrame(),
-                this._y,
-            );
+            this._realY = Math.max(this._realY - this.distancePerFrame(), this._y);
         }
         if (this._y > this._realY) {
-            this._realY = Math.min(
-                this._realY + this.distancePerFrame(),
-                this._y,
-            );
+            this._realY = Math.min(this._realY + this.distancePerFrame(), this._y);
         }
         if (!this.isMoving()) {
             this.refreshBushDepth();
@@ -7837,12 +7489,7 @@ class Game_CharacterBase {
     }
 
     refreshBushDepth(): void {
-        if (
-            this.isNormalPriority() &&
-            !this.isObjectCharacter() &&
-            this.isOnBush() &&
-            !this.isJumping()
-        ) {
+        if (this.isNormalPriority() && !this.isObjectCharacter() && this.isOnBush() && !this.isJumping()) {
             if (!this.isMoving()) {
                 this._bushDepth = $gameMap.bushDepth();
             }
@@ -7935,20 +7582,12 @@ class Game_CharacterBase {
     }
 
     moveDiagonally(horz: RMMZ.Direction, vert: RMMZ.Direction): void {
-        this.setMovementSuccess(
-            this.canPassDiagonally(this._x, this._y, horz, vert),
-        );
+        this.setMovementSuccess(this.canPassDiagonally(this._x, this._y, horz, vert));
         if (this.isMovementSucceeded()) {
             this._x = $gameMap.roundXWithDirection(this._x, horz);
             this._y = $gameMap.roundYWithDirection(this._y, vert);
-            this._realX = $gameMap.xWithDirection(
-                this._x,
-                this.reverseDir(horz),
-            );
-            this._realY = $gameMap.yWithDirection(
-                this._y,
-                this.reverseDir(vert),
-            );
+            this._realX = $gameMap.xWithDirection(this._x, this.reverseDir(horz));
+            this._realY = $gameMap.yWithDirection(this._y, this.reverseDir(vert));
             this.increaseSteps();
         }
         if (this._direction === this.reverseDir(horz)) {
@@ -8537,9 +8176,7 @@ class Game_Character extends Game_CharacterBase {
     }
 
     turnRandom(): void {
-        this.setDirection(
-            (2 + Math.randomInt(4) * 2!) as RMMZ.Direction | undefined,
-        );
+        this.setDirection((2 + Math.randomInt(4) * 2!) as RMMZ.Direction | undefined);
     }
 
     swap(character: Game_Character): void {
@@ -8599,14 +8236,8 @@ class Game_Character extends Game_CharacterBase {
 
             for (let j = 0; j < 4; j++) {
                 const direction = 2 + j * 2;
-                const x2 = $gameMap.roundXWithDirection(
-                    x1,
-                    direction as RMMZ.Direction,
-                );
-                const y2 = $gameMap.roundYWithDirection(
-                    y1,
-                    direction as RMMZ.Direction,
-                );
+                const x2 = $gameMap.roundXWithDirection(x1, direction as RMMZ.Direction);
+                const y2 = $gameMap.roundYWithDirection(y1, direction as RMMZ.Direction);
                 const pos2 = y2 * mapWidth + x2;
 
                 if (closedList.includes(pos2)) {
@@ -8747,13 +8378,7 @@ class Game_Player extends Game_Character {
         return super.isStopping();
     }
 
-    reserveTransfer(
-        mapId: RMMZ.MapID,
-        x: number,
-        y: number,
-        d?: RMMZ.Direction,
-        fadeType?: number,
-    ): void {
+    reserveTransfer(mapId: RMMZ.MapID, x: number, y: number, d?: RMMZ.Direction, fadeType?: number): void {
         this._transferring = true;
         this._newMapId = mapId;
         this._newX = x;
@@ -8903,10 +8528,7 @@ class Game_Player extends Game_Character {
     }
 
     meetsEncounterConditions(encounter: RMMZ.DataEncounter): boolean {
-        return (
-            encounter.regionSet.length === 0 ||
-            encounter.regionSet.includes(this.regionId())
-        );
+        return encounter.regionSet.length === 0 || encounter.regionSet.includes(this.regionId());
     }
 
     executeEncounter(): boolean {
@@ -8925,18 +8547,10 @@ class Game_Player extends Game_Character {
         }
     }
 
-    startMapEvent(
-        x: number,
-        y: number,
-        triggers: number[],
-        normal: boolean,
-    ): void {
+    startMapEvent(x: number, y: number, triggers: number[], normal: boolean): void {
         if (!$gameMap.isEventRunning()) {
             for (const event of $gameMap.eventsXy(x, y)) {
-                if (
-                    event.isTriggerIn(triggers) &&
-                    event.isNormalPriority() === normal
-                ) {
+                if (event.isTriggerIn(triggers) && event.isNormalPriority() === normal) {
                     event.start();
                 }
             }
@@ -9004,13 +8618,8 @@ class Game_Player extends Game_Character {
         if (this.isMoving()) {
             return;
         }
-        if (
-            this.canMove() &&
-            !this.isInVehicle() &&
-            !$gameMap.isDashDisabled()
-        ) {
-            this._dashing =
-                this.isDashButtonPressed() || $gameTemp.isDestinationValid();
+        if (this.canMove() && !this.isInVehicle() && !$gameMap.isDashDisabled()) {
+            this._dashing = this.isDashButtonPressed() || $gameTemp.isDestinationValid();
         } else {
             this._dashing = false;
         }
@@ -9362,12 +8971,8 @@ class Game_Follower extends Game_Character {
     }
 
     refresh(): void {
-        const characterName = this.isVisible()
-            ? this.actor().characterName()
-            : "";
-        const characterIndex = this.isVisible()
-            ? this.actor().characterIndex()
-            : 0;
+        const characterName = this.isVisible() ? this.actor().characterName() : "";
+        const characterIndex = this.isVisible() ? this.actor().characterIndex() : 0;
         this.setImage(characterName, characterIndex);
     }
 
@@ -9521,9 +9126,7 @@ class Game_Followers {
     }
 
     areGathered(): boolean {
-        return this.visibleFollowers().every((follower) =>
-            follower.isGathered(),
-        );
+        return this.visibleFollowers().every((follower) => follower.isGathered());
     }
 
     isSomeoneCollided(x: number, y: number): boolean {
@@ -9835,10 +9438,7 @@ class Game_Event extends Game_Character {
     }
 
     isCollidedWithCharacters(x: number, y: number): boolean {
-        return (
-            super.isCollidedWithCharacters(x, y) ||
-            this.isCollidedWithPlayerCharacters(x, y)
-        );
+        return super.isCollidedWithCharacters(x, y) || this.isCollidedWithPlayerCharacters(x, y);
     }
 
     isCollidedWithEvents(x: number, y: number): boolean {
@@ -9876,11 +9476,7 @@ class Game_Event extends Game_Character {
     }
 
     updateSelfMovement(): void {
-        if (
-            !this._locked &&
-            this.isNearTheScreen() &&
-            this.checkStop(this.stopCountThreshold())
-        ) {
+        if (!this._locked && this.isNearTheScreen() && this.checkStop(this.stopCountThreshold())) {
             switch (this._moveType) {
                 case 1:
                     this.moveTypeRandom();
@@ -10011,11 +9607,7 @@ class Game_Event extends Game_Character {
             }
         }
         if (c.selfSwitchValid) {
-            const key: RMMZ.SelfSwitchID = [
-                this._mapId,
-                this._eventId,
-                c.selfSwitchCh,
-            ];
+            const key: RMMZ.SelfSwitchID = [this._mapId, this._eventId, c.selfSwitchCh];
             if ($gameSelfSwitches.value(key) !== true) {
                 return false;
             }
@@ -10345,8 +9937,7 @@ class Game_Interpreter {
         const command = this.currentCommand();
         if (command) {
             this._indent = command.indent;
-            const methodName = ("command" +
-                command.code) as `command${RMMZ.CommandCode}`;
+            const methodName = ("command" + command.code) as `command${RMMZ.CommandCode}`;
             if (typeof this[methodName] === "function") {
                 if (!this[methodName](command.parameters)) {
                     return false;
@@ -10382,12 +9973,8 @@ class Game_Interpreter {
         }
     }
 
-    currentCommand<T extends RMMZ.CommandCode>():
-        | RMMZ.ExtractDataCommand<T>
-        | undefined {
-        return this._list![this._index] as
-            | RMMZ.ExtractDataCommand<T>
-            | undefined;
+    currentCommand<T extends RMMZ.CommandCode>(): RMMZ.ExtractDataCommand<T> | undefined {
+        return this._list![this._index] as RMMZ.ExtractDataCommand<T> | undefined;
     }
 
     nextEventCode(): RMMZ.CommandCode {
@@ -10399,10 +9986,7 @@ class Game_Interpreter {
         }
     }
 
-    iterateActorId(
-        param: RMMZ.ActorID,
-        callback: (actor: Game_Actor) => void,
-    ): void {
+    iterateActorId(param: RMMZ.ActorID, callback: (actor: Game_Actor) => void): void {
         if (param === 0) {
             $gameParty.members().forEach(callback);
         } else {
@@ -10413,11 +9997,7 @@ class Game_Interpreter {
         }
     }
 
-    iterateActorEx(
-        param1: 0 | 1,
-        param2: RMMZ.ActorID | RMMZ.VariableID,
-        callback: (actor: Game_Actor) => void,
-    ): void {
+    iterateActorEx(param1: 0 | 1, param2: RMMZ.ActorID | RMMZ.VariableID, callback: (actor: Game_Actor) => void): void {
         if (param1 === 0) {
             this.iterateActorId(param2, callback);
         } else {
@@ -10425,10 +10005,7 @@ class Game_Interpreter {
         }
     }
 
-    iterateActorIndex(
-        param: number,
-        callback: (actor: Game_Actor) => void,
-    ): void {
+    iterateActorIndex(param: number, callback: (actor: Game_Actor) => void): void {
         if (param < 0) {
             $gameParty.members().forEach(callback);
         } else {
@@ -10439,10 +10016,7 @@ class Game_Interpreter {
         }
     }
 
-    iterateEnemyIndex(
-        param: number,
-        callback: (enemy: Game_Enemy) => void,
-    ): void {
+    iterateEnemyIndex(param: number, callback: (enemy: Game_Enemy) => void): void {
         if (param < 0) {
             $gameTroop.members().forEach(callback);
         } else {
@@ -10488,11 +10062,7 @@ class Game_Interpreter {
         return operation === 0 ? value : -value;
     }
 
-    changeHp(
-        target: RMMZ.ActionTarget,
-        value: number,
-        allowDeath: boolean,
-    ): void {
+    changeHp(target: RMMZ.ActionTarget, value: number, allowDeath: boolean): void {
         if (target.isAlive()) {
             if (!allowDeath && target.hp <= -value) {
                 value = 1 - target.hp;
@@ -10683,11 +10253,7 @@ class Game_Interpreter {
                 break;
             case 2: // Self Switch
                 if (this._eventId > 0) {
-                    const key: RMMZ.SelfSwitchID = [
-                        this._mapId,
-                        this._eventId,
-                        params[1],
-                    ];
+                    const key: RMMZ.SelfSwitchID = [this._mapId, this._eventId, params[1]];
                     result = $gameSelfSwitches.value(key) === (params[2] === 0);
                 }
                 break;
@@ -10766,10 +10332,7 @@ class Game_Interpreter {
                 result = $gameParty.hasItem($dataItems[params[1]]!);
                 break;
             case 9: // Weapon
-                result = $gameParty.hasItem(
-                    $dataWeapons[params[1]]!,
-                    params[2],
-                );
+                result = $gameParty.hasItem($dataWeapons[params[1]]!, params[2]);
                 break;
             case 10: // Armor
                 result = $gameParty.hasItem($dataArmors[params[1]]!, params[2]);
@@ -10978,9 +10541,7 @@ class Game_Interpreter {
                         default:
                             // Parameter
                             if (param2! >= 4 && param2! <= 11) {
-                                return actor.param(
-                                    (param2! - 4) as RMMZ.ParamID,
-                                );
+                                return actor.param((param2! - 4) as RMMZ.ParamID);
                             }
                     }
                 }
@@ -10998,9 +10559,7 @@ class Game_Interpreter {
                         default:
                             // Parameter
                             if (param2! >= 2 && param2! <= 9) {
-                                return enemy.param(
-                                    (param2! - 2) as RMMZ.ParamID,
-                                );
+                                return enemy.param((param2! - 2) as RMMZ.ParamID);
                             }
                     }
                 }
@@ -11055,11 +10614,7 @@ class Game_Interpreter {
         return 0;
     }
 
-    operateVariable(
-        variableId: RMMZ.VariableID,
-        operationType: RMMZ.VariableOperationType,
-        value: number,
-    ): void {
+    operateVariable(variableId: RMMZ.VariableID, operationType: RMMZ.VariableOperationType, value: number): void {
         try {
             const oldValue = $gameVariables.value(variableId);
             switch (operationType) {
@@ -11091,11 +10646,7 @@ class Game_Interpreter {
 
     command123(params: RMMZ.CommandParams<123>): boolean {
         if (this._eventId > 0) {
-            const key: RMMZ.SelfSwitchID = [
-                this._mapId,
-                this._eventId,
-                params[0],
-            ];
+            const key: RMMZ.SelfSwitchID = [this._mapId, this._eventId, params[0]];
             $gameSelfSwitches.setValue(key, params[1] === 0);
         }
         return true;

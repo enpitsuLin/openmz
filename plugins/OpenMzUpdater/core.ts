@@ -1,16 +1,6 @@
 import type { RuntimeMetadata } from '../../shared/engine-release.ts';
-import type {
-  InstallOptions,
-  InstallResult,
-  ProjectOptions,
-  UpdateCheck,
-} from './types.ts';
-import {
-  compareVersions,
-  isVersion,
-  runtimeFormat,
-  statePath,
-} from '../../shared/engine-release.ts';
+import type { InstallOptions, InstallResult, ProjectOptions, UpdateCheck } from './types.ts';
+import { compareVersions, isVersion, runtimeFormat, statePath } from '../../shared/engine-release.ts';
 import { createUpdaterError, isUpdaterError } from './errors.ts';
 import { applyUpgradePlan, planUpgrade } from './installer.ts';
 import { parseManifest } from './manifest.ts';
@@ -43,10 +33,7 @@ function resolveArchiveFilename(archiveUrl: string): string {
   return name || 'openmz-runtime.tar.gz';
 }
 
-export function readInstalledVersion({
-  projectRoot,
-  nodeRequire,
-}: ProjectOptions): RuntimeMetadata | null {
+export function readInstalledVersion({ projectRoot, nodeRequire }: ProjectOptions): RuntimeMetadata | null {
   const fs = nodeRequire('fs');
   const path = nodeRequire('path');
   let rawText: string;
@@ -61,30 +48,16 @@ export function readInstalledVersion({
   try {
     parsed = JSON.parse(rawText);
   } catch (cause) {
-    throw createUpdaterError(
-      'INVALID_INSTALLED_METADATA',
-      'Invalid installed OpenMZ version metadata.',
-      { cause },
-    );
+    throw createUpdaterError('INVALID_INSTALLED_METADATA', 'Invalid installed OpenMZ version metadata.', { cause });
   }
 
   if (typeof parsed !== 'object' || parsed === null || Array.isArray(parsed)) {
-    throw createUpdaterError(
-      'INVALID_INSTALLED_METADATA',
-      'Invalid installed OpenMZ version metadata.',
-    );
+    throw createUpdaterError('INVALID_INSTALLED_METADATA', 'Invalid installed OpenMZ version metadata.');
   }
 
   const metadata = parsed as RuntimeMetadata;
-  if (
-    metadata.name !== 'OpenMZ' ||
-    !isVersion(metadata.version) ||
-    metadata.format !== runtimeFormat
-  ) {
-    throw createUpdaterError(
-      'INVALID_INSTALLED_METADATA',
-      'Invalid installed OpenMZ version metadata.',
-    );
+  if (metadata.name !== 'OpenMZ' || !isVersion(metadata.version) || metadata.format !== runtimeFormat) {
+    throw createUpdaterError('INVALID_INSTALLED_METADATA', 'Invalid installed OpenMZ version metadata.');
   }
 
   return metadata;
@@ -108,8 +81,7 @@ export async function checkForUpdate({
   return {
     installed,
     manifest,
-    available:
-      !installed || compareVersions(manifest.version, installed.version) > 0,
+    available: !installed || compareVersions(manifest.version, installed.version) > 0,
   };
 }
 
@@ -167,11 +139,7 @@ export async function installUpdate({
   }
 
   await onProgress({ phase: 'verify' });
-  const { entries, metadata } = unpackAndValidatePackage(
-    nodeRequire,
-    buffer,
-    manifest,
-  );
+  const { entries, metadata } = unpackAndValidatePackage(nodeRequire, buffer, manifest);
 
   await onProgress({ phase: 'apply', total: entries.length });
   const plan = planUpgrade(fs, path, projectRoot, entries);

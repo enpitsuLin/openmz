@@ -58,11 +58,7 @@ class Sprite_Clickable extends Sprite {
     }
 
     isClickEnabled(): boolean {
-        for (
-            let sprite: import("pixi.js").Container | null = this;
-            sprite;
-            sprite = sprite.parent!
-        ) {
+        for (let sprite: import("pixi.js").Container | null = this; sprite; sprite = sprite.parent!) {
             if (!sprite.visible) {
                 return false;
             }
@@ -107,62 +103,20 @@ class Sprite_Clickable extends Sprite {
  * The sprite for displaying a button.
  */
 class Sprite_Button extends Sprite_Clickable {
-    declare _buttonType:
-        | "cancel"
-        | "pageup"
-        | "pagedown"
-        | "down"
-        | "up"
-        | "down2"
-        | "up2"
-        | "ok"
-        | "menu";
+    declare _buttonType: "cancel" | "pageup" | "pagedown" | "down" | "up" | "down2" | "up2" | "ok" | "menu";
     declare _clickHandler: (() => void) | null;
     declare _coldFrame: Rectangle | null;
     declare _hotFrame: Rectangle | null;
 
     constructor(
-        ...args: [
-            buttonType:
-                | "cancel"
-                | "pageup"
-                | "pagedown"
-                | "down"
-                | "up"
-                | "down2"
-                | "up2"
-                | "ok"
-                | "menu",
-        ]
+        ...args: [buttonType: "cancel" | "pageup" | "pagedown" | "down" | "up" | "down2" | "up2" | "ok" | "menu"]
     ) {
         super(...args);
     }
 
-    initialize(
-        buttonType:
-            | "cancel"
-            | "pageup"
-            | "pagedown"
-            | "down"
-            | "up"
-            | "down2"
-            | "up2"
-            | "ok"
-            | "menu",
-    ): void;
+    initialize(buttonType: "cancel" | "pageup" | "pagedown" | "down" | "up" | "down2" | "up2" | "ok" | "menu"): void;
     initialize(...args: any[]): void;
-    initialize(
-        buttonType:
-            | "cancel"
-            | "pageup"
-            | "pagedown"
-            | "down"
-            | "up"
-            | "down2"
-            | "up2"
-            | "ok"
-            | "menu",
-    ): void {
+    initialize(buttonType: "cancel" | "pageup" | "pagedown" | "down" | "up" | "down2" | "up2" | "ok" | "menu"): void {
         super.initialize();
 
         this._buttonType = buttonType;
@@ -256,10 +210,7 @@ class Sprite_Button extends Sprite_Clickable {
     }
 
     checkBitmap(): void {
-        if (
-            this.bitmap.isReady() &&
-            this.bitmap.width < this.blockWidth() * 11
-        ) {
+        if (this.bitmap.isReady() && this.bitmap.width < this.blockWidth() * 11) {
             // Probably MV image is used
             throw new Error("ButtonSet image is too small");
         }
@@ -765,9 +716,7 @@ class Sprite_Battler extends Sprite_Clickable {
  */
 class Sprite_Actor extends Sprite_Battler {
     declare _battlerName: string;
-    declare _motion:
-        | (typeof Sprite_Actor.MOTIONS)[RMMZ.BattlerMotionType]
-        | null;
+    declare _motion: (typeof Sprite_Actor.MOTIONS)[RMMZ.BattlerMotionType] | null;
     declare _motionCount: number;
     declare _pattern: number;
     declare _mainSprite: Sprite;
@@ -1593,12 +1542,7 @@ class Sprite_Animation extends PIXI.RenderContainer {
         if (this._targets.length > 0 && this._handle && this._handle.exists) {
             const gl = renderer.gl;
             const program = gl.getParameter(gl.CURRENT_PROGRAM);
-            const viewport = gl.getParameter(gl.VIEWPORT) as [
-                number,
-                number,
-                number,
-                number,
-            ];
+            const viewport = gl.getParameter(gl.VIEWPORT) as [number, number, number, number];
             this.setProjectionMatrix(renderer);
             this.setCameraMatrix();
             this.setViewport(renderer);
@@ -1827,12 +1771,7 @@ class Sprite_AnimationMV extends Sprite {
     }
 
     isReady(): boolean {
-        return (
-            this._bitmap1 &&
-            this._bitmap1.isReady() &&
-            this._bitmap2 &&
-            this._bitmap2.isReady()
-        );
+        return this._bitmap1 && this._bitmap1.isReady() && this._bitmap2 && this._bitmap2.isReady();
     }
 
     createCellSprites(): void {
@@ -1903,10 +1842,7 @@ class Sprite_AnimationMV extends Sprite {
     }
 
     currentFrameIndex(): number {
-        return (
-            this._animation.frames.length -
-            Math.floor((this._duration + this._rate - 1) / this._rate)
-        );
+        return this._animation.frames.length - Math.floor((this._duration + this._rate - 1) / this._rate);
     }
 
     updateAllCellSprites(frame: RMMZ.DataFrameMV): void {
@@ -2104,16 +2040,7 @@ class Sprite_Battleback extends TilingSprite {
 
     terrainBattleback1Name(
         type: RMMZ.TerrainBattlebackType,
-    ):
-        | "Wasteland"
-        | "DirtField"
-        | "Desert"
-        | "Lava1"
-        | "Lava2"
-        | "Snowfield"
-        | "Clouds"
-        | "PoisonSwamp"
-        | null {
+    ): "Wasteland" | "DirtField" | "Desert" | "Lava1" | "Lava2" | "Snowfield" | "Clouds" | "PoisonSwamp" | null {
         switch (type) {
             case 24:
             case 25:
@@ -2143,16 +2070,7 @@ class Sprite_Battleback extends TilingSprite {
 
     terrainBattleback2Name(
         type: RMMZ.TerrainBattlebackType,
-    ):
-        | "Wasteland"
-        | "Desert"
-        | "Snowfield"
-        | "Clouds"
-        | "PoisonSwamp"
-        | "Forest"
-        | "Cliff"
-        | "Lava"
-        | undefined {
+    ): "Wasteland" | "Desert" | "Snowfield" | "Clouds" | "PoisonSwamp" | "Forest" | "Cliff" | "Lava" | undefined {
         switch (type) {
             case 20:
             case 21:
@@ -2200,11 +2118,7 @@ class Sprite_Battleback extends TilingSprite {
     }
 
     autotileType(z: number): RMMZ.TerrainBattlebackType {
-        return $gameMap.autotileType(
-            $gamePlayer.x,
-            $gamePlayer.y,
-            z,
-        ) as RMMZ.TerrainBattlebackType;
+        return $gameMap.autotileType($gamePlayer.x, $gamePlayer.y, z) as RMMZ.TerrainBattlebackType;
     }
 }
 
@@ -2458,10 +2372,7 @@ class Sprite_Gauge extends Sprite {
         return $gameSystem.mainFontSize() - 6;
     }
 
-    setup(
-        battler: RMMZ.ActionTarget,
-        statusType: "time" | "hp" | "mp" | "tp",
-    ): void {
+    setup(battler: RMMZ.ActionTarget, statusType: "time" | "hp" | "mp" | "tp"): void {
         this._battler = battler;
         this._statusType = statusType;
         this._value = this.currentValue();
@@ -2504,8 +2415,7 @@ class Sprite_Gauge extends Sprite {
         if (this._duration > 0) {
             const d = this._duration;
             this._value = (this._value * (d - 1) + this._targetValue) / d;
-            this._maxValue =
-                (this._maxValue * (d - 1) + this._targetMaxValue) / d;
+            this._maxValue = (this._maxValue * (d - 1) + this._targetMaxValue) / d;
             this._duration--;
             this.redraw();
         }
@@ -2687,14 +2597,7 @@ class Sprite_Gauge extends Sprite {
         const color1 = this.gaugeColor1();
         const color2 = this.gaugeColor2();
         this.bitmap.fillRect(x, y, width, height, color0);
-        this.bitmap.gradientFillRect(
-            x + 1,
-            y + 1,
-            fillW,
-            fillH,
-            color1,
-            color2,
-        );
+        this.bitmap.gradientFillRect(x + 1, y + 1, fillW, fillH, color1, color2);
     }
 
     gaugeRate(): number {
@@ -3512,12 +3415,7 @@ class Spriteset_Base extends Sprite {
     createPictures(): void {
         const rect = this.pictureContainerRect();
         this._pictureContainer = new Sprite();
-        this._pictureContainer.setFrame(
-            rect.x,
-            rect.y,
-            rect.width,
-            rect.height,
-        );
+        this._pictureContainer.setFrame(rect.x, rect.y, rect.width, rect.height);
         for (let i = 1; i <= $gameScreen.maxPictures(); i++) {
             this._pictureContainer.addChild(new Sprite_Picture(i));
         }
@@ -3618,9 +3516,7 @@ class Spriteset_Base extends Sprite {
         this._animationSprites.push(sprite);
     }
 
-    isMVAnimation(
-        animation: RMMZ.DataAnimation | RMMZ.DataAnimationMV,
-    ): animation is RMMZ.DataAnimationMV {
+    isMVAnimation(animation: RMMZ.DataAnimation | RMMZ.DataAnimationMV): animation is RMMZ.DataAnimationMV {
         return !!(animation as RMMZ.DataAnimationMV).frames;
     }
 
@@ -3639,9 +3535,7 @@ class Spriteset_Base extends Sprite {
         return this._animationSprites[this._animationSprites.length - 1];
     }
 
-    isAnimationForEach(
-        animation: RMMZ.DataAnimation | RMMZ.DataAnimationMV,
-    ): boolean {
+    isAnimationForEach(animation: RMMZ.DataAnimation | RMMZ.DataAnimationMV): boolean {
         const mv = this.isMVAnimation(animation);
         return mv ? animation.position !== 3 : animation.displayType === 0;
     }
@@ -3829,9 +3723,7 @@ class Spriteset_Map extends Spriteset_Base {
     updateParallax(): void {
         if (this._parallaxName !== $gameMap.parallaxName()) {
             this._parallaxName = $gameMap.parallaxName();
-            this._parallax.bitmap = ImageManager.loadParallax(
-                this._parallaxName,
-            );
+            this._parallax.bitmap = ImageManager.loadParallax(this._parallaxName);
         }
         if (this._parallax.bitmap) {
             const bitmap = this._parallax.bitmap;
@@ -3906,9 +3798,7 @@ class Spriteset_Map extends Spriteset_Base {
     }
 
     findTargetSprite(target: Game_Character): Sprite_Character | undefined {
-        return this._characterSprites.find((sprite) =>
-            sprite.checkCharacter(target),
-        );
+        return this._characterSprites.find((sprite) => sprite.checkCharacter(target));
     }
 
     animationBaseDelay(): number {
@@ -4046,9 +3936,7 @@ class Spriteset_Battle extends Spriteset_Base {
     }
 
     findTargetSprite(target: RMMZ.ActionTarget): Sprite | undefined {
-        return this.battlerSprites().find((sprite) =>
-            sprite.checkBattler(target),
-        );
+        return this.battlerSprites().find((sprite) => sprite.checkBattler(target));
     }
 
     battlerSprites(): (Sprite_Actor | Sprite_Enemy)[] {

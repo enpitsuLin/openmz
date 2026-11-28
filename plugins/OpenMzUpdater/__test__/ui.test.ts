@@ -11,12 +11,7 @@ import { createHash } from 'node:crypto';
 import { test } from 'vitest';
 import { buildPlugin } from '../../../scripts/commands/build/plugins.ts';
 import { createTarBuffer } from '../../../scripts/commands/pack/artifacts.ts';
-import {
-  coreScripts,
-  manifestSchema,
-  runtimeFormat,
-  statePath,
-} from '../../../shared/engine-release.ts';
+import { coreScripts, manifestSchema, runtimeFormat, statePath } from '../../../shared/engine-release.ts';
 import { readFile } from 'node:fs/promises';
 import { resolvePluginName } from '../ui/env.ts';
 import { getUpdaterTexts, resolveUpdaterLocale } from '../ui/i18n.ts';
@@ -46,24 +41,15 @@ test('i18n resolves Chinese and English locales cleanly', () => {
 });
 
 test('resolvePluginName extracts decoded plugin names from script URLs', () => {
-  assert.equal(
-    resolvePluginName('file:///game/js/plugins/OpenMzUpdater.js'),
-    'OpenMzUpdater',
-  );
-  assert.equal(
-    resolvePluginName('file:///game/js/plugins/My%20Updater.js'),
-    'My Updater',
-  );
+  assert.equal(resolvePluginName('file:///game/js/plugins/OpenMzUpdater.js'), 'OpenMzUpdater');
+  assert.equal(resolvePluginName('file:///game/js/plugins/My%20Updater.js'), 'My Updater');
   assert.equal(resolvePluginName(''), 'OpenMzUpdater');
 });
 
 test('presenter formats progress snapshots and dialog views', () => {
   const texts = getUpdaterTexts('en');
 
-  const dlHalf = formatProgressSnapshot(
-    { phase: 'download', file: 'a.tar.gz', loaded: 5120, total: 10240 },
-    texts,
-  );
+  const dlHalf = formatProgressSnapshot({ phase: 'download', file: 'a.tar.gz', loaded: 5120, total: 10240 }, texts);
   assert.equal(dlHalf.progress, 0.4);
   assert.match(dlHalf.text, /5 \/ 10 KB/);
 
@@ -128,21 +114,10 @@ test('presenter formats progress snapshots and dialog views', () => {
 
 test('wrapTextLine wraps words, paths, and unbroken strings predictably', () => {
   const mono = (value: string) => value.length;
-  assert.deepEqual(wrapTextLine('alpha beta gamma', 10, mono), [
-    'alpha beta',
-    'gamma',
-  ]);
-  assert.deepEqual(wrapTextLine('js_backup/20260101/main.js', 12, mono), [
-    'js_backup/',
-    '20260101/',
-    'main.js',
-  ]);
+  assert.deepEqual(wrapTextLine('alpha beta gamma', 10, mono), ['alpha beta', 'gamma']);
+  assert.deepEqual(wrapTextLine('js_backup/20260101/main.js', 12, mono), ['js_backup/', '20260101/', 'main.js']);
   assert.deepEqual(wrapTextLine('abcdefghij', 4, mono), ['abcd', 'efgh', 'ij']);
-  assert.deepEqual(wrapMessageLines(['line1\r\nline2', 'line3'], 20, mono), [
-    'line1',
-    'line2',
-    'line3',
-  ]);
+  assert.deepEqual(wrapMessageLines(['line1\r\nline2', 'line3'], 20, mono), ['line1', 'line2', 'line3']);
 });
 
 test('Scene_Title ignores background checks while scene is changing and adapts confirm columns', async (t: TestContext) => {

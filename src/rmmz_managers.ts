@@ -142,16 +142,9 @@ class DataManager {
         xhr.send();
     }
 
-    static onXhrLoad(
-        xhr: XMLHttpRequest,
-        name: string,
-        src: string,
-        url: string,
-    ): void {
+    static onXhrLoad(xhr: XMLHttpRequest, name: string, src: string, url: string): void {
         if (xhr.status < 400) {
-            (window as unknown as Record<string, unknown>)[name] = JSON.parse(
-                xhr.responseText,
-            );
+            (window as unknown as Record<string, unknown>)[name] = JSON.parse(xhr.responseText);
             this.onLoad((window as unknown as Record<string, unknown>)[name]);
         } else {
             this.onXhrError(name, src, url);
@@ -166,11 +159,7 @@ class DataManager {
     static isDatabaseLoaded(): boolean {
         this.checkError();
         for (const databaseFile of this._databaseFiles) {
-            if (
-                !(window as unknown as Record<string, unknown>)[
-                    databaseFile.name
-                ]
-            ) {
+            if (!(window as unknown as Record<string, unknown>)[databaseFile.name]) {
                 return false;
             }
         }
@@ -210,9 +199,7 @@ class DataManager {
     }
 
     static isMapObject(object: unknown): object is RMMZ.DataMap {
-        return !!(
-            (object as RMMZ.DataMap).data && (object as RMMZ.DataMap).events
-        );
+        return !!((object as RMMZ.DataMap).data && (object as RMMZ.DataMap).events);
     }
 
     static extractArrayMetadata(array: unknown): void {
@@ -336,9 +323,7 @@ class DataManager {
         const globalInfo = this._globalInfo;
         const validInfo = globalInfo!.slice(1).filter((x) => x);
         const earliest = Math.min(...validInfo.map((x) => x!.timestamp));
-        const index = globalInfo!.findIndex(
-            (x) => x && x.timestamp === earliest,
-        );
+        const index = globalInfo!.findIndex((x) => x && x.timestamp === earliest);
         return index > 0 ? index : 0;
     }
 
@@ -376,9 +361,7 @@ class DataManager {
         return 20;
     }
 
-    static savefileInfo(
-        savefileId: number,
-    ): RMMZ.DataSaveInfo | null | undefined {
+    static savefileInfo(savefileId: number): RMMZ.DataSaveInfo | null | undefined {
         const globalInfo = this._globalInfo;
         return globalInfo![savefileId] ? globalInfo![savefileId] : null;
     }
@@ -585,11 +568,7 @@ class ConfigManager {
         this.seVolume = this.readVolume(config, "seVolume");
     }
 
-    static readFlag(
-        config: Partial<RMMZ.DataConfig>,
-        name: keyof RMMZ.DataConfig,
-        defaultValue: boolean,
-    ): boolean {
+    static readFlag(config: Partial<RMMZ.DataConfig>, name: keyof RMMZ.DataConfig, defaultValue: boolean): boolean {
         if (name in config) {
             return !!config[name];
         } else {
@@ -597,10 +576,7 @@ class ConfigManager {
         }
     }
 
-    static readVolume(
-        config: Partial<RMMZ.DataConfig>,
-        name: keyof RMMZ.DataConfig,
-    ): number {
+    static readVolume(config: Partial<RMMZ.DataConfig>, name: keyof RMMZ.DataConfig): number {
         if (name in config) {
             return Number(config[name]).clamp(0, 100);
         } else {
@@ -1275,11 +1251,7 @@ class AudioManager {
     }
 
     static isCurrentBgm(bgm: RMMZ.DataAudio): boolean | null {
-        return (
-            this._currentBgm &&
-            this._bgmBuffer &&
-            this._currentBgm.name === bgm.name
-        );
+        return this._currentBgm && this._bgmBuffer && this._currentBgm.name === bgm.name;
     }
 
     static updateBgmParameters(bgm: RMMZ.DataAudio | null): void {
@@ -1343,11 +1315,7 @@ class AudioManager {
     }
 
     static isCurrentBgs(bgs: RMMZ.DataAudio): boolean | null {
-        return (
-            this._currentBgs &&
-            this._bgsBuffer &&
-            this._currentBgs.name === bgs.name
-        );
+        return this._currentBgs && this._bgsBuffer && this._currentBgs.name === bgs.name;
     }
 
     static updateBgsParameters(bgs: RMMZ.DataAudio | null): void {
@@ -1413,11 +1381,7 @@ class AudioManager {
         if (this._meBuffer) {
             this._meBuffer.destroy();
             this._meBuffer = null;
-            if (
-                this._bgmBuffer &&
-                this._currentBgm &&
-                !this._bgmBuffer.isPlaying()
-            ) {
+            if (this._bgmBuffer && this._currentBgm && !this._bgmBuffer.isPlaying()) {
                 this._bgmBuffer.play(true, this._currentBgm.pos);
                 this._bgmBuffer.fadeIn(this._replayFadeTime);
             }
@@ -1427,9 +1391,7 @@ class AudioManager {
     static playSe(se: RMMZ.DataAudio): void {
         if (se.name) {
             // [Note] Do not play the same sound in the same frame.
-            const latestBuffers = this._seBuffers.filter(
-                (buffer) => buffer.frameCount === Graphics.frameCount,
-            );
+            const latestBuffers = this._seBuffers.filter((buffer) => buffer.frameCount === Graphics.frameCount);
             if (latestBuffers.find((buffer) => buffer.name === se.name)) {
                 return;
             }
@@ -1441,10 +1403,7 @@ class AudioManager {
         }
     }
 
-    static updateSeParameters(
-        buffer: WebAudio,
-        se: RMMZ.DataAudio | null,
-    ): void {
+    static updateSeParameters(buffer: WebAudio, se: RMMZ.DataAudio | null): void {
         this.updateBufferParameters(buffer, this._seVolume, se);
     }
 
@@ -1454,9 +1413,7 @@ class AudioManager {
                 buffer.destroy();
             }
         }
-        this._seBuffers = this._seBuffers.filter((buffer) =>
-            buffer.isPlaying(),
-        );
+        this._seBuffers = this._seBuffers.filter((buffer) => buffer.isPlaying());
     }
 
     static stopSe(): void {
@@ -1546,11 +1503,7 @@ class AudioManager {
         return buffer;
     }
 
-    static updateBufferParameters(
-        buffer: WebAudio | null,
-        configVolume: number,
-        audio: RMMZ.DataAudio | null,
-    ): void {
+    static updateBufferParameters(buffer: WebAudio | null, configVolume: number, audio: RMMZ.DataAudio | null): void {
         if (buffer && audio) {
             buffer.volume = (configVolume * (audio.volume || 0)) / 10000;
             buffer.pitch = (audio.pitch || 0) / 100;
@@ -1729,9 +1682,7 @@ class TextManager {
 
     static getter(method: string, param: number | string): PropertyDescriptor {
         return {
-            get: function (
-                this: Record<string, (param: number | string) => string>,
-            ) {
+            get: function (this: Record<string, (param: number | string) => string>) {
                 return this[method](param);
             },
             configurable: true,
@@ -2128,9 +2079,7 @@ class ColorManager {
         }
     }
 
-    static damageColor(
-        colorType: number,
-    ): "#ffffff" | "#b9ffb5" | "#ffff90" | "#80b0ff" | "#808080" {
+    static damageColor(colorType: number): "#ffffff" | "#b9ffb5" | "#ffff90" | "#80b0ff" | "#808080" {
         switch (colorType) {
             case 0: // HP damage
                 return "#ffffff";
@@ -2294,10 +2243,7 @@ class SceneManager {
         }
     }
 
-    static onError(
-        event: Pick<ErrorEvent, "message"> &
-            Partial<Pick<ErrorEvent, "filename" | "lineno">>,
-    ): void {
+    static onError(event: Pick<ErrorEvent, "message"> & Partial<Pick<ErrorEvent, "filename" | "lineno">>): void {
         console.error(event.message);
         console.error(event.filename, event.lineno);
         try {
@@ -2311,8 +2257,7 @@ class SceneManager {
 
     static onReject(event: PromiseRejectionEvent): void {
         // Catch uncaught exception in Promise
-        (event as PromiseRejectionEvent & { message: string }).message =
-            event.reason;
+        (event as PromiseRejectionEvent & { message: string }).message = event.reason;
         this.onError(event as PromiseRejectionEvent & { message: string });
     }
 
@@ -2450,9 +2395,7 @@ class SceneManager {
 
     static onSceneTerminate(): void {
         this._previousScene = this._scene;
-        this._previousClass = this._scene!.constructor as
-            | (new () => Scene_Base)
-            | null;
+        this._previousClass = this._scene!.constructor as (new () => Scene_Base) | null;
         Graphics.setStage(null);
     }
 
@@ -2657,8 +2600,7 @@ class BattleManager {
 
     static onEncounter(): void {
         this._preemptive = Math.random() < this.ratePreemptive();
-        this._surprise =
-            Math.random() < this.rateSurprise() && !this._preemptive;
+        this._surprise = Math.random() < this.rateSurprise() && !this._preemptive;
     }
 
     static ratePreemptive(): number {
@@ -2773,11 +2715,7 @@ class BattleManager {
         | "action"
         | "effect"
         | "movement" {
-        return (
-            $gameMessage.isBusy() ||
-            this._spriteset!.isBusy() ||
-            this._logWindow!.isBusy()
-        );
+        return $gameMessage.isBusy() || this._spriteset!.isBusy() || this._logWindow!.isBusy();
     }
 
     static updateTpbInput(): void {
@@ -3078,10 +3016,7 @@ class BattleManager {
         }
     }
 
-    static displayBattlerStatus(
-        battler: RMMZ.ActionTarget,
-        current: boolean,
-    ): void {
+    static displayBattlerStatus(battler: RMMZ.ActionTarget, current: boolean): void {
         this._logWindow!.displayAutoAffectedStatus(battler);
         if (current) {
             this._logWindow!.displayCurrentState(battler);
@@ -3151,10 +3086,7 @@ class BattleManager {
         }
     }
 
-    static invokeAction(
-        subject: RMMZ.ActionTarget,
-        target: RMMZ.ActionTarget,
-    ): void {
+    static invokeAction(subject: RMMZ.ActionTarget, target: RMMZ.ActionTarget): void {
         this._logWindow!.push("pushBaseLine");
         if (Math.random() < this._action!.itemCnt(target)) {
             this.invokeCounterAttack(subject, target);
@@ -3167,19 +3099,13 @@ class BattleManager {
         this._logWindow!.push("popBaseLine");
     }
 
-    static invokeNormalAction(
-        subject: RMMZ.ActionTarget,
-        target: RMMZ.ActionTarget,
-    ): void {
+    static invokeNormalAction(subject: RMMZ.ActionTarget, target: RMMZ.ActionTarget): void {
         const realTarget = this.applySubstitute(target);
         this._action!.apply(realTarget);
         this._logWindow!.displayActionResults(subject, realTarget);
     }
 
-    static invokeCounterAttack(
-        subject: RMMZ.ActionTarget,
-        target: RMMZ.ActionTarget,
-    ): void {
+    static invokeCounterAttack(subject: RMMZ.ActionTarget, target: RMMZ.ActionTarget): void {
         const action = new Game_Action(target);
         action.setAttack();
         action.apply(subject);
@@ -3187,10 +3113,7 @@ class BattleManager {
         this._logWindow!.displayActionResults(target, subject);
     }
 
-    static invokeMagicReflection(
-        subject: RMMZ.ActionTarget,
-        target: RMMZ.ActionTarget,
-    ): void {
+    static invokeMagicReflection(subject: RMMZ.ActionTarget, target: RMMZ.ActionTarget): void {
         this._action!._reflectionTarget = target;
         this._logWindow!.displayReflection(target);
         this._action!.apply(subject);
@@ -3199,9 +3122,7 @@ class BattleManager {
 
     static applySubstitute(target: RMMZ.ActionTarget): RMMZ.ActionTarget {
         if (this.checkSubstitute(target)) {
-            const substitute = target
-                .friendsUnit()
-                .substituteBattler(target as Game_Enemy & Game_Actor);
+            const substitute = target.friendsUnit().substituteBattler(target as Game_Enemy & Game_Actor);
             if (substitute) {
                 this._logWindow!.displaySubstitute(substitute, target);
                 return substitute;
@@ -3215,11 +3136,7 @@ class BattleManager {
     }
 
     static isActionForced(): boolean {
-        return (
-            !!this._actionForcedBattler &&
-            !$gameParty.isAllDead() &&
-            !$gameTroop.isAllDead()
-        );
+        return !!this._actionForcedBattler && !$gameParty.isAllDead() && !$gameTroop.isAllDead();
     }
 
     static forceAction(battler: RMMZ.ActionTarget): void {
@@ -3458,8 +3375,7 @@ class PluginManager {
 
     static _parameters: Record<string, Record<string, unknown>> = {};
 
-    static _commands: Record<string, (args: RMMZ.PluginParameters) => void> =
-        {};
+    static _commands: Record<string, (args: RMMZ.PluginParameters) => void> = {};
 
     static setup(plugins: RMMZ.DataPlugin[]): void {
         for (const plugin of plugins) {
@@ -3476,10 +3392,7 @@ class PluginManager {
         return this._parameters[name.toLowerCase()] || {};
     }
 
-    static setParameters(
-        name: string,
-        parameters: Record<string, unknown>,
-    ): void {
+    static setParameters(name: string, parameters: Record<string, unknown>): void {
         this._parameters[name.toLowerCase()] = parameters;
     }
 
@@ -3498,9 +3411,7 @@ class PluginManager {
     }
 
     static onError(e: Event | string): void {
-        this._errorUrls.push(
-            ((e as Event).target as HTMLScriptElement & { _url: string })._url,
-        );
+        this._errorUrls.push(((e as Event).target as HTMLScriptElement & { _url: string })._url);
     }
 
     static makeUrl(filename: string): string {
@@ -3527,12 +3438,7 @@ class PluginManager {
         this._commands[key] = func as (...args: unknown[]) => void;
     }
 
-    static callCommand(
-        self: unknown,
-        pluginName: string,
-        commandName: string,
-        args: RMMZ.PluginParameters,
-    ): void {
+    static callCommand(self: unknown, pluginName: string, commandName: string, args: RMMZ.PluginParameters): void {
         const key = pluginName + ":" + commandName;
         const func = this._commands[key];
         if (typeof func === "function") {

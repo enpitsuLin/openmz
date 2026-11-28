@@ -10,10 +10,7 @@ import { emitEngineSource } from '../../scripts/commands/build/emit-engine.ts';
 import { outputFormatOptions } from '../../scripts/commands/build/output.ts';
 import { buildPlugin } from '../../scripts/commands/build/plugins.ts';
 import { buildRuntime } from '../../scripts/commands/build/runtime.ts';
-import {
-  restorePixiInitializers,
-  transformClasses,
-} from '../../scripts/commands/build/transform-classes.ts';
+import { restorePixiInitializers, transformClasses } from '../../scripts/commands/build/transform-classes.ts';
 
 const root = await mkdtemp(join(tmpdir(), 'openmz-build-'));
 let runtime: Awaited<ReturnType<typeof buildRuntime>>;
@@ -29,11 +26,7 @@ beforeAll(async () => {
 });
 afterAll(() => rm(root, { recursive: true, force: true }));
 
-function load(
-  source: string,
-  globals: Record<string, any> = {},
-  transform: boolean = true,
-) {
+function load(source: string, globals: Record<string, any> = {}, transform: boolean = true) {
   const context = { ...globals };
   runInNewContext(transform ? transformClasses(source) : source, context);
   return context;
@@ -64,20 +57,14 @@ function assertPrototypeScript(source: string, filename: string) {
     0,
     filename,
   );
-  const strictDirectives = root
-    .findAll({ rule: { kind: 'expression_statement' } })
-    .filter((statement) => {
-      const text = statement
-        .children()
-        .find((node) => node.kind() === 'string')
-        ?.text();
-      return text === '"use strict"' || text === "'use strict'";
-    });
-  assert.equal(
-    strictDirectives.length,
-    0,
-    `${filename}: unexpected strict mode`,
-  );
+  const strictDirectives = root.findAll({ rule: { kind: 'expression_statement' } }).filter((statement) => {
+    const text = statement
+      .children()
+      .find((node) => node.kind() === 'string')
+      ?.text();
+    return text === '"use strict"' || text === "'use strict'";
+  });
+  assert.equal(strictDirectives.length, 0, `${filename}: unexpected strict mode`);
 }
 
 test('preserves super receivers, static fields, lexical this and native async plugin hooks', async () => {
@@ -112,9 +99,7 @@ test('preserves super receivers, static fields, lexical this and native async pl
   for (const transform of [false, true]) {
     const { Base, Child, Leaf } = load(source, {}, transform);
     const item = new Leaf(4);
-    assert(
-      item instanceof Leaf && item instanceof Child && item instanceof Base,
-    );
+    assert(item instanceof Leaf && item instanceof Child && item instanceof Base);
     assert.equal(item.constructor.name, 'Leaf');
     assert.equal(item.score, 10);
     item.score = 18;
@@ -167,17 +152,9 @@ test('erases TypeScript fields and preserves RPG Maker method names', () => {
 });
 
 test('preserves the real string formatter in the runtime', async () => {
-  const source = await readFile(
-    join(runtime.outDir, 'js/rmmz_core.js'),
-    'utf8',
-  );
-  const assignment = parseAst(Lang.JavaScript, source)
-    .root()
-    .find('String.prototype.format = $FN')!;
-  const result = runInNewContext(
-    `${assignment.text()};\n"Map%1.json".format(7);`,
-    {},
-  );
+  const source = await readFile(join(runtime.outDir, 'js/rmmz_core.js'), 'utf8');
+  const assignment = parseAst(Lang.JavaScript, source).root().find('String.prototype.format = $FN')!;
+  const result = runInNewContext(`${assignment.text()};\n"Map%1.json".format(7);`, {});
   assert.equal(result, 'Map7.json');
 });
 
@@ -193,11 +170,7 @@ test('emits flat functions with legacy non-strict global assignment behavior', (
   const transformed = transformClasses(source);
   const declarations = parseAst(Lang.JavaScript, transformed).root().children();
   assert(
-    declarations.some(
-      (node) =>
-        node.kind() === 'function_declaration' &&
-        node.field('name')!.text() === 'Example',
-    ),
+    declarations.some((node) => node.kind() === 'function_declaration' && node.field('name')!.text() === 'Example'),
   );
   const context = load(source);
   assert.equal(context.engineGlobal, null);
@@ -321,20 +294,13 @@ test('builds a complete prototype runtime without syntax downleveling or TypeScr
     assert.deepEqual(formatted.errors, []);
     assert.equal(source, formatted.code, `${file}: output is not formatted`);
     if (file === 'js/libs/pixi.js') {
-      assert(
-        source.startsWith(`/*! PixiJS v${runtime.metadata.pixiVersion} |`),
-      );
+      assert(source.startsWith(`/*! PixiJS v${runtime.metadata.pixiVersion} |`));
       const banner = source.slice(0, source.indexOf('*/'));
-      assert(
-        banner.includes(`Modified by OpenMZ v${runtime.metadata.version}`),
-      );
+      assert(banner.includes(`Modified by OpenMZ v${runtime.metadata.version}`));
     }
     if (file.startsWith('js/rmmz_')) {
       const original = await readFile(
-        new URL(
-          `../../src/${file.slice(3).replace(/\.js$/, '.ts')}`,
-          import.meta.url,
-        ),
+        new URL(`../../src/${file.slice(3).replace(/\.js$/, '.ts')}`, import.meta.url),
         'utf8',
       );
       assert.equal(source.split('\n')[0], original.split('\n')[0]);
@@ -342,33 +308,22 @@ test('builds a complete prototype runtime without syntax downleveling or TypeScr
     if (file === 'js/main.js') {
       const tree = assertModernScript(source, file);
       assert(
-        tree
-          .findAll({ rule: { kind: 'class_declaration' } })
-          .some((node) => node.field('name')?.text() === 'Main'),
+        tree.findAll({ rule: { kind: 'class_declaration' } }).some((node) => node.field('name')?.text() === 'Main'),
       );
       assert.equal(
         source,
         (
           await format(
             file,
-            emitEngineSource(
-              await readFile(
-                new URL('../../src/main.ts', import.meta.url),
-                'utf8',
-              ),
-            ),
+            emitEngineSource(await readFile(new URL('../../src/main.ts', import.meta.url), 'utf8')),
             outputFormatOptions,
           )
         ).code,
       );
-    } else if (file.startsWith('js/libs/') && file !== 'js/libs/pixi.js')
-      assertModernScript(source, file);
+    } else if (file.startsWith('js/libs/') && file !== 'js/libs/pixi.js') assertModernScript(source, file);
     else assertPrototypeScript(source, file);
   }
-  assert.deepEqual(
-    JSON.parse(await readFile(join(runtime.outDir, 'js/openmz.json'), 'utf8')),
-    runtime.metadata,
-  );
+  assert.deepEqual(JSON.parse(await readFile(join(runtime.outDir, 'js/openmz.json'), 'utf8')), runtime.metadata);
   assert.equal(runtime.metadata.version, '1.2.3');
   assert.equal(runtime.metadata.format, 'prototype');
 });
