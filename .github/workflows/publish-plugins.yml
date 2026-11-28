@@ -35,19 +35,20 @@ jobs:
           mkdir -p /tmp/plugins-dist
           cp plugins/*/dist/*.js /tmp/plugins-dist/
 
-          git config user.name "github-actions[bot]"
-          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-
           if git ls-remote --exit-code --heads origin plugins >/dev/null 2>&1; then
             git fetch origin plugins
-            git checkout -B plugins origin/plugins
+            git worktree add --detach /tmp/plugins-worktree origin/plugins
+            git -C /tmp/plugins-worktree checkout -B plugins
           else
-            git checkout --orphan plugins
-            git rm -rf --ignore-unmatch .
+            git worktree add --orphan -b plugins /tmp/plugins-worktree
           fi
 
+          cd /tmp/plugins-worktree
           find . -maxdepth 1 ! -name '.' ! -name '.git' -exec rm -rf {} +
           cp /tmp/plugins-dist/*.js .
+
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
 
           git add -A
           if git diff --cached --quiet; then
