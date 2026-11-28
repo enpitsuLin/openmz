@@ -12,10 +12,10 @@ import { readFile } from 'node:fs/promises';
 import { test } from 'vitest';
 import { coreScripts, manifestSchema, runtimeFormat, statePath } from '@openmz-internal/release-spec';
 import { createTarBuffer } from '@openmz-internal/release-spec/tar';
-import { buildUpdater } from '../scripts/build.ts';
-import { resolvePluginName } from '../src/ui/env.ts';
-import { resolveUpdaterLocale } from '../src/ui/i18n.ts';
-import { wrapMessageLines, wrapTextLine } from '../src/ui/presenter.ts';
+import { buildUpdater } from '../../scripts/build.ts';
+import { resolvePluginName } from '../../src/ui/env.ts';
+import { resolveUpdaterLocale } from '../../src/ui/i18n.ts';
+import { wrapMessageLines, wrapTextLine } from '../../src/ui/presenter.ts';
 
 const require = createRequire(import.meta.url);
 

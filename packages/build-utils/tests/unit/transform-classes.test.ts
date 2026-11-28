@@ -2,7 +2,7 @@ import assert from 'node:assert/strict';
 import { runInNewContext } from 'node:vm';
 import { test } from 'vitest';
 import { Lang, parse as parseAst } from '@ast-grep/napi';
-import { restorePixiInitializers, transformClasses } from '../src/transform-classes.ts';
+import { restorePixiInitializers, transformClasses } from '../../src/transform-classes.ts';
 
 function load(source: string, globals: Record<string, any> = {}, transform: boolean = true) {
   const context = { ...globals };

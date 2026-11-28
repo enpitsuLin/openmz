@@ -4,10 +4,10 @@ import { createRequire } from 'node:module';
 import { test } from 'vitest';
 import { manifestSchema, runtimeFormat } from '@openmz-internal/release-spec';
 import { createTarBuffer } from '@openmz-internal/release-spec/tar';
-import { isUpdaterError } from '../src/errors.ts';
-import { parseManifest } from '../src/manifest.ts';
-import { unpackAndValidatePackage, validateArchiveEntries } from '../src/package-validator.ts';
-import { parseTarBuffer } from '../src/tar.ts';
+import { isUpdaterError } from '../../src/errors.ts';
+import { parseManifest } from '../../src/manifest.ts';
+import { unpackAndValidatePackage, validateArchiveEntries } from '../../src/package-validator.ts';
+import { parseTarBuffer } from '../../src/tar.ts';
 
 const require = createRequire(import.meta.url);
 

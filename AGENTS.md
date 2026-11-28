@@ -13,9 +13,9 @@ RPG Maker MZ 核心引擎：使用 TypeScript class 与 PixiJS 8 维护，构建
   - `scripts/serve-manifest.ts`：提供本地更新源。
   - `tests/unit/`：引擎构建的 Vitest Node.js 测试。
   - `tests/plugin-compat/`：Vitest Browser + Playwright Chromium，对照原版和正式产物；`fixtures/` 包含可直接检出的最小游戏数据、自制 PNG、HTML 和 JavaScript 插件样本。
-- `packages/build-utils/`（`@openmz-internal/build-utils`）：内部公共包（直接导出 `.ts`），提供 ast-grep 类转原型、Pixi 初始化恢复、Rolldown 打包、Oxfmt 产物格式化与通用插件构建器，含 `__test__/` 单元测试。
+- `packages/build-utils/`（`@openmz-internal/build-utils`）：内部公共包（直接导出 `.ts`），提供 ast-grep 类转原型、Pixi 初始化恢复、Rolldown 打包、Oxfmt 产物格式化与通用插件构建器，含 `tests/unit/` 单元测试。
 - `packages/release-spec/`（`@openmz-internal/release-spec`）：内部公共包（直接导出 `.ts`），提供发布清单、版本比较、运行时格式与 tar 归档公共协议。
-- `plugins/`：独立插件子包集合，目录统一采用 kebab-case（构建产物输出为 RPG Maker 插件大驼峰命名），每个插件维护自己的 `package.json`、版本、构建脚本、`src/` 与 `__test__/`。
+- `plugins/`：独立插件子包集合，目录统一采用 kebab-case（构建产物输出为 RPG Maker 插件大驼峰命名），每个插件维护自己的 `package.json`、版本、构建脚本、`src/` 与 `tests/unit/`。
   - `plugins/openmz-updater/`（`@openmz-plugin/updater`）：更新器插件；`src/index.ts` 为 ESM 入口，`src/core.ts` 为安装逻辑，`src/ui.ts` 为标题界面，`scripts/build.ts` 构建输出 `dist/OpenMzUpdater.js`。游戏只安装构建后的 `OpenMzUpdater.js`。
 - `vendor/js/`：原版 MZ 参考，勿修改。`vendor/js/libs/` 提供未在 `packages/openmz/src/libs/` 覆盖的运行库。
 

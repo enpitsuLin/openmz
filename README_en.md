@@ -128,7 +128,8 @@ plugins/
     │   ├── tar.ts              # tar.gz extraction
     │   ├── errors.ts / types.ts # Error definitions & shared types
     │   └── ui.ts & ui/         # Title scene UI & i18n
-    └── __test__/               # Vitest unit tests
+    └── tests/
+        └── unit/               # Vitest unit tests
 ```
 
 Build individual plugins or run a local manifest server for testing:

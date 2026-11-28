@@ -7,8 +7,8 @@ import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { pathToFileURL } from 'node:url';
 import { test } from 'vitest';
-import { isUpdaterError } from '../src/errors.ts';
-import { fetchBuffer } from '../src/transport.ts';
+import { isUpdaterError } from '../../src/errors.ts';
+import { fetchBuffer } from '../../src/transport.ts';
 
 const require = createRequire(import.meta.url);
 

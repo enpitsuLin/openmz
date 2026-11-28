@@ -128,7 +128,8 @@ plugins/
     │   ├── tar.ts              # tar.gz 解包
     │   ├── errors.ts / types.ts # 错误类型与公共类型
     │   └── ui.ts & ui/         # 标题界面与多语言交互
-    └── __test__/               # Vitest 单元测试
+    └── tests/
+        └── unit/               # Vitest 单元测试
 ```
 
 单独构建插件或启动本地更新源进行联调：

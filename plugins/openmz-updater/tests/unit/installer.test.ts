@@ -5,8 +5,8 @@ import { chmod, mkdir, mkdtemp, readFile, rm, stat, symlink, writeFile } from 'n
 import { tmpdir } from 'node:os';
 import * as path from 'node:path';
 import { test } from 'vitest';
-import { isUpdaterError } from '../src/errors.ts';
-import { applyUpgradePlan, planUpgrade } from '../src/installer.ts';
+import { isUpdaterError } from '../../src/errors.ts';
+import { applyUpgradePlan, planUpgrade } from '../../src/installer.ts';
 
 async function createTempProject(t: TestContext) {
   const dir = await mkdtemp(joinPath(tmpdir(), 'openmz-installer-'));

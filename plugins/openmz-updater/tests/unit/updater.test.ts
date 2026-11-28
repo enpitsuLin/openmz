@@ -1,6 +1,6 @@
 import type { TestContext } from 'vitest';
 import type { ArchiveEntry, ReleaseManifest, RuntimeMetadata } from '@openmz-internal/release-spec';
-import type { InstallOptions } from '../src/core.ts';
+import type { InstallOptions } from '../../src/core.ts';
 import assert from 'node:assert/strict';
 import { createHash } from 'node:crypto';
 import { existsSync } from 'node:fs';
@@ -26,8 +26,8 @@ import { buildRuntime } from 'openmz/build';
 import { buildRelease } from 'openmz/pack';
 import { createManifestServer } from 'openmz/serve-manifest';
 import { afterAll, beforeAll, test } from 'vitest';
-import { buildUpdater } from '../scripts/build.ts';
-import { checkForUpdate, fetchBuffer, installUpdate, parseTarBuffer } from '../src/core.ts';
+import { buildUpdater } from '../../scripts/build.ts';
+import { checkForUpdate, fetchBuffer, installUpdate, parseTarBuffer } from '../../src/core.ts';
 
 const require = createRequire(import.meta.url);
 const originalMain = 'original core';
