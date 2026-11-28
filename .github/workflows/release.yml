@@ -37,7 +37,6 @@ jobs:
           esac >> "$GITHUB_OUTPUT"
       - uses: ./.github/actions/setup
       - run: pnpm --filter openmz run pack
-      - run: pnpm --filter './plugins/*' run build
       - uses: softprops/action-gh-release@v3
         with:
           tag_name: ${{ env.RELEASE_TAG }}
@@ -46,4 +45,3 @@ jobs:
           files: |
             packages/openmz/dist/release/openmz-core-*.tar.gz
             packages/openmz/dist/release/manifest.json
-            plugins/*/dist/*.js

@@ -1,0 +1,59 @@
+name: Publish Plugins
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - 'plugins/**'
+      - 'packages/openmz/src/**'
+      - 'packages/build-utils/**'
+      - 'packages/release-spec/**'
+      - 'package.json'
+      - 'pnpm-lock.yaml'
+      - '.github/workflows/publish-plugins.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: publish-plugins
+  cancel-in-progress: false
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - uses: ./.github/actions/setup
+      - run: pnpm --filter './plugins/*' run build
+      - name: Push built plugins to plugins branch
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p /tmp/plugins-dist
+          cp plugins/*/dist/*.js /tmp/plugins-dist/
+
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+
+          if git ls-remote --exit-code --heads origin plugins >/dev/null 2>&1; then
+            git fetch origin plugins
+            git checkout -B plugins origin/plugins
+          else
+            git checkout --orphan plugins
+            git rm -rf --ignore-unmatch .
+          fi
+
+          find . -maxdepth 1 ! -name '.' ! -name '.git' -exec rm -rf {} +
+          cp /tmp/plugins-dist/*.js .
+
+          git add -A
+          if git diff --cached --quiet; then
+            echo "No plugin build changes to publish."
+            exit 0
+          fi
+
+          git commit -m "chore(plugins): build plugins from ${GITHUB_SHA::7}"
+          git push origin plugins

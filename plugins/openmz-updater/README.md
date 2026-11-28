@@ -6,7 +6,7 @@ OpenMZ 官方更新器插件，用于在 NW.js 环境中安全检查、下载并
 
 ## 安装与使用
 
-1. 从 [GitHub Releases](https://github.com/enpitsuLin/openmz/releases) 的 `v*` 发布页下载 `OpenMzUpdater.js`（或自行构建 `dist/OpenMzUpdater.js`），放入 RPG Maker MZ 工程的 `js/plugins/` 目录。
+1. 从 [`plugins` 分支](https://github.com/enpitsuLin/openmz/tree/plugins) 下载 `OpenMzUpdater.js`（[直链](https://raw.githubusercontent.com/enpitsuLin/openmz/plugins/OpenMzUpdater.js)，或自行构建 `dist/OpenMzUpdater.js`），放入 RPG Maker MZ 工程的 `js/plugins/` 目录。
 2. 在插件管理器中启用 `OpenMzUpdater`，并将**更新清单地址**配置为：
    - 最新正式版：`https://github.com/enpitsuLin/openmz/releases/latest/download/manifest.json`
    - 指定版本：`https://github.com/enpitsuLin/openmz/releases/download/<tag>/manifest.json`
