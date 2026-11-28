@@ -66,7 +66,7 @@ Object.defineProperty(Array.prototype, "equals", {
  * @returns The array after remove.
  */
 Array.prototype.remove = function <T>(this: T[], element: T): T[] {
-    for (;;) {
+    for (; ;) {
         const index = this.indexOf(element);
         if (index >= 0) {
             this.splice(index, 1);
@@ -180,12 +180,11 @@ class Utils {
     static RPGMAKER_VERSION: string = "2.0.0";
 
     /**
- * Checks whether the current RPG Maker version is greater than or equal to
- * the given version.
- * @param version - The "x.x.x" format string to compare.
- * @returns True if the current version is greater than or equal
-to the given version.
- */
+     * Checks whether the current RPG Maker version is greater than or equal to
+     * the given version.
+     * @param version - The "x.x.x" format string to compare.
+     * @returns True if the current version is greater than or equal to the given version.
+    */
     static checkRMVersion(version: string): boolean {
         const array1 = this.RPGMAKER_VERSION.split(".");
         const array2 = String(version).split(".");
@@ -1075,7 +1074,7 @@ class Point extends PIXI.Point {
 
     initialize?(x?: number, y?: number): void;
     initialize?(...args: any[]): void;
-    initialize?(): void {}
+    initialize?(): void { }
 }
 
 /**
@@ -1093,7 +1092,7 @@ class Rectangle extends PIXI.Rectangle {
 
     initialize?(x?: number, y?: number, width?: number, height?: number): void;
     initialize?(...args: any[]): void;
-    initialize?(): void {}
+    initialize?(): void { }
 }
 
 /**
@@ -4444,7 +4443,7 @@ class Stage extends PIXI.Container {
     // Scene_Base delegates to this hook during initialization.
     initialize(): void;
     initialize(...args: any[]): void;
-    initialize(): void {}
+    initialize(): void { }
 
     /**
      * Destroys the stage.
