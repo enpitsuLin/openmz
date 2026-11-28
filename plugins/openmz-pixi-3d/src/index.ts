@@ -5,5 +5,12 @@
  * Enable this plugin above any plugin that uses PIXI3D.
  * Requires OpenMZ with PixiJS 8.23.0 or later and a WebGL2 renderer.
  */
+/*:zh
+ * @target MZ
+ * @plugindesc 在 OpenMZ 中将 PixiJS 3D 暴露为全局变量 PIXI3D。
+ * @help
+ * 在插件管理器中启用本插件，并将它排在使用 PIXI3D 的插件之前。
+ * 需要使用 PixiJS 8.23.0 或更高版本的 OpenMZ，以及 WebGL2 渲染器。
+ */
 
 export * from '@pixi/3d';
