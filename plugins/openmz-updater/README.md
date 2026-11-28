@@ -10,7 +10,7 @@ OpenMZ 官方更新器插件，用于在 NW.js 环境中安全检查、下载并
 2. 在插件管理器中启用 `OpenMzUpdater`，并将**更新清单地址**配置为：
    - 最新正式版：`https://github.com/enpitsuLin/openmz/releases/latest/download/manifest.json`
    - 指定版本：`https://github.com/enpitsuLin/openmz/releases/download/<tag>/manifest.json`
-3. 在 NW.js 中启动游戏，首次进入标题画面时将在后台检查版本并提示更新，安装完成后重启生效。
+3. 在 RPG Maker MZ 编辑器中点击「测试游戏」。首次进入标题画面时，插件会在后台检查版本，发现新版本时会提示安装。安装完成后，重启游戏即可生效。
 
 ## 安全保障
 

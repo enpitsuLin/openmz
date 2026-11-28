@@ -28,7 +28,7 @@ RPG Maker MZ core engine maintained with TypeScript `class` syntax and PixiJS 8,
 2. Enable `OpenMzUpdater` in the Plugin Manager and set **Manifest URL** to:
    - Latest release: `https://github.com/enpitsuLin/openmz/releases/latest/download/manifest.json`
    - Pinned release: `https://github.com/enpitsuLin/openmz/releases/download/<tag>/manifest.json`
-3. Launch the game in NW.js. When the title scene first opens, the updater checks for updates in the background and prompts to install. Restart after installation completes.
+3. Start a playtest from the RPG Maker MZ editor. When the title screen first opens, the plugin checks for updates in the background and prompts you to install if a newer version is available. Restart the game after installation to apply the update.
 
 See the [OpenMzUpdater documentation](./plugins/openmz-updater/README_en.md) for safety guarantees, backup restoration, and the release manifest schema.
 

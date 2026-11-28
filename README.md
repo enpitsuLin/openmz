@@ -28,7 +28,7 @@
 2. 在插件管理器中启用 `OpenMzUpdater`，将**更新清单地址**设为：
    - 最新正式版：`https://github.com/enpitsuLin/openmz/releases/latest/download/manifest.json`
    - 指定版本：`https://github.com/enpitsuLin/openmz/releases/download/<tag>/manifest.json`
-3. 在 NW.js 中启动游戏，首次进入标题画面时将自动检查并提示更新，安装完成后重启生效。
+3. 在 RPG Maker MZ 编辑器中点击「测试游戏」。首次进入标题画面时，插件会在后台检查版本，发现新版本时会提示安装。安装完成后，重启游戏即可生效。
 
 更多安全机制、备份恢复与清单协议说明，见 [OpenMzUpdater 文档](./plugins/openmz-updater/README.md)。
 
