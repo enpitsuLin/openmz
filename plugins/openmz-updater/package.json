@@ -1,6 +1,6 @@
 {
   "name": "@openmz-plugin/updater",
-  "version": "1.0.0-beta",
+  "version": "1.0.0-beta.1",
   "description": "RPG Maker MZ plugin that checks for OpenMZ updates and installs the prototype runtime.",
   "private": true,
   "type": "module",
