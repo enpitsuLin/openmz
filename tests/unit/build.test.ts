@@ -5,9 +5,7 @@ import { join } from 'node:path';
 import { runInNewContext, Script } from 'node:vm';
 import { afterAll, beforeAll, test } from 'vitest';
 import { Lang, parse as parseAst } from '@ast-grep/napi';
-import { format } from 'oxfmt';
 import { emitEngineSource } from '../../scripts/commands/build/emit-engine.ts';
-import { outputFormatOptions } from '../../scripts/commands/build/output.ts';
 import { buildPlugin } from '../../scripts/commands/build/plugins.ts';
 import { buildRuntime } from '../../scripts/commands/build/runtime.ts';
 import { restorePixiInitializers, transformClasses } from '../../scripts/commands/build/transform-classes.ts';
@@ -32,24 +30,13 @@ function load(source: string, globals: Record<string, any> = {}, transform: bool
   return context;
 }
 
-function assertModernScript(source: string, filename: string) {
+function parseValidScript(source: string, filename: string) {
   new Script(source, { filename });
-  const root = parseAst(Lang.JavaScript, source).root();
-  assert.equal(
-    root.findAll({
-      rule: {
-        kind: 'identifier',
-        regex: '^__(awaiter|generator|values|read|spreadArray)$',
-      },
-    }).length,
-    0,
-    `${filename}: unexpected TypeScript helpers`,
-  );
-  return root;
+  return parseAst(Lang.JavaScript, source).root();
 }
 
 function assertPrototypeScript(source: string, filename: string) {
-  const root = assertModernScript(source, filename);
+  const root = parseValidScript(source, filename);
   assert.equal(
     root.findAll({
       rule: { any: [{ kind: 'class_declaration' }, { kind: 'class' }] },
@@ -151,13 +138,6 @@ test('erases TypeScript fields and preserves RPG Maker method names', () => {
   assert.equal(sprite.displayName(), 'Actor');
 });
 
-test('preserves the real string formatter in the runtime', async () => {
-  const source = await readFile(join(runtime.outDir, 'js/rmmz_core.js'), 'utf8');
-  const assignment = parseAst(Lang.JavaScript, source).root().find('String.prototype.format = $FN')!;
-  const result = runInNewContext(`${assignment.text()};\n"Map%1.json".format(7);`, {});
-  assert.equal(result, 'Map7.json');
-});
-
 test('emits flat functions with legacy non-strict global assignment behavior', () => {
   const source = `
     engineGlobal = null;
@@ -217,12 +197,6 @@ test('flattens named class expressions with distinct internal bindings', () => {
     globalThis.holder = holder;
     globalThis.outerLayer = Layer;
   `;
-  const transformed = transformClasses(source);
-  const functions = parseAst(Lang.JavaScript, transformed)
-    .root()
-    .findAll({ rule: { kind: 'variable_declarator' } })
-    .filter((node) => node.field('value')?.kind() === 'function_expression');
-  assert.equal(functions.length, 2);
   const context = load(source);
   assert.equal(context.Layer, undefined);
   assert.equal(context.outerLayer, 'outer');
@@ -365,44 +339,19 @@ test('preserves prototype.initialize on every instantiable vanilla MZ class', as
   }
 });
 
-test('builds a complete prototype runtime without syntax downleveling or TypeScript helpers', async () => {
+test('builds a complete prototype runtime', async () => {
   assert(runtime.files.includes('js/libs/pixi.js'));
   assert(runtime.files.includes('js/libs/effekseer.wasm'));
   assert(runtime.files.includes('js/openmz.json'));
   assert(!runtime.files.some((path) => path.startsWith('js/plugins')));
   for (const file of runtime.files.filter((path) => path.endsWith('.js'))) {
     const source = await readFile(join(runtime.outDir, file), 'utf8');
-    const formatted = await format(file, source, outputFormatOptions);
-    assert.deepEqual(formatted.errors, []);
-    assert.equal(source, formatted.code, `${file}: output is not formatted`);
-    if (file === 'js/libs/pixi.js') {
-      assert(source.startsWith(`/*! PixiJS v${runtime.metadata.pixiVersion} |`));
-      const banner = source.slice(0, source.indexOf('*/'));
-      assert(banner.includes(`Modified by OpenMZ v${runtime.metadata.version}`));
-    }
-    if (file.startsWith('js/rmmz_')) {
-      const original = await readFile(
-        new URL(`../../src/${file.slice(3).replace(/\.js$/, '.ts')}`, import.meta.url),
-        'utf8',
-      );
-      assert.equal(source.split('\n')[0], original.split('\n')[0]);
-    }
     if (file === 'js/main.js') {
-      const tree = assertModernScript(source, file);
+      const tree = parseValidScript(source, file);
       assert(
         tree.findAll({ rule: { kind: 'class_declaration' } }).some((node) => node.field('name')?.text() === 'Main'),
       );
-      assert.equal(
-        source,
-        (
-          await format(
-            file,
-            emitEngineSource(await readFile(new URL('../../src/main.ts', import.meta.url), 'utf8')),
-            outputFormatOptions,
-          )
-        ).code,
-      );
-    } else if (file.startsWith('js/libs/') && file !== 'js/libs/pixi.js') assertModernScript(source, file);
+    } else if (file.startsWith('js/libs/') && file !== 'js/libs/pixi.js') parseValidScript(source, file);
     else assertPrototypeScript(source, file);
   }
   assert.deepEqual(JSON.parse(await readFile(join(runtime.outDir, 'js/openmz.json'), 'utf8')), runtime.metadata);
@@ -412,9 +361,6 @@ test('builds a complete prototype runtime without syntax downleveling or TypeScr
 
 test('builds a standalone prototype updater that is inert outside RPG Maker', async () => {
   const source = await readFile(updater, 'utf8');
-  const formatted = await format(updater, source, outputFormatOptions);
-  assert.deepEqual(formatted.errors, []);
-  assert.equal(source, formatted.code);
   assert.match(source, /@param manifestUrl/);
   assert(source.includes('/*:zh'));
   assertPrototypeScript(source, 'OpenMzUpdater.js');

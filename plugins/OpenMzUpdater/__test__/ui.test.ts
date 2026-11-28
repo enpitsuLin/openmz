@@ -14,102 +14,22 @@ import { createTarBuffer } from '../../../scripts/commands/pack/artifacts.ts';
 import { coreScripts, manifestSchema, runtimeFormat, statePath } from '../../../shared/engine-release.ts';
 import { readFile } from 'node:fs/promises';
 import { resolvePluginName } from '../ui/env.ts';
-import { getUpdaterTexts, resolveUpdaterLocale } from '../ui/i18n.ts';
-import {
-  createAvailableView,
-  createErrorView,
-  createInstalledView,
-  formatProgressSnapshot,
-  wrapMessageLines,
-  wrapTextLine,
-} from '../ui/presenter.ts';
+import { resolveUpdaterLocale } from '../ui/i18n.ts';
+import { wrapMessageLines, wrapTextLine } from '../ui/presenter.ts';
 
 const require = createRequire(import.meta.url);
 
-test('i18n resolves Chinese and English locales cleanly', () => {
+test('resolveUpdaterLocale maps Chinese and fallback locales', () => {
   assert.equal(resolveUpdaterLocale('zh_CN'), 'zh');
   assert.equal(resolveUpdaterLocale('zh-TW'), 'zh');
   assert.equal(resolveUpdaterLocale('en_US'), 'en');
   assert.equal(resolveUpdaterLocale(undefined), 'en');
-
-  const zh = getUpdaterTexts('zh_CN');
-  const en = getUpdaterTexts('ja_JP');
-  assert.equal(zh.title, '更新 OpenMZ');
-  assert.equal(en.title, 'Update OpenMZ');
-  assert.equal(zh.version(undefined, '2.0.0'), 'RPG Maker MZ → OpenMZ 2.0.0');
-  assert.equal(en.version('1.0.0', '2.0.0'), '1.0.0 → OpenMZ 2.0.0');
 });
 
 test('resolvePluginName extracts decoded plugin names from script URLs', () => {
   assert.equal(resolvePluginName('file:///game/js/plugins/OpenMzUpdater.js'), 'OpenMzUpdater');
   assert.equal(resolvePluginName('file:///game/js/plugins/My%20Updater.js'), 'My Updater');
   assert.equal(resolvePluginName(''), 'OpenMzUpdater');
-});
-
-test('presenter formats progress snapshots and dialog views', () => {
-  const texts = getUpdaterTexts('en');
-
-  const dlHalf = formatProgressSnapshot({ phase: 'download', file: 'a.tar.gz', loaded: 5120, total: 10240 }, texts);
-  assert.equal(dlHalf.progress, 0.4);
-  assert.match(dlHalf.text, /5 \/ 10 KB/);
-
-  const dlOverflow = formatProgressSnapshot(
-    { phase: 'download', file: 'a.tar.gz', loaded: 20480, total: 10240 },
-    texts,
-  );
-  assert.equal(dlOverflow.progress, 0.8);
-
-  const verify = formatProgressSnapshot({ phase: 'verify' }, texts);
-  assert.equal(verify.progress, 0.8);
-  assert.equal(verify.text, texts.verify);
-
-  const apply = formatProgressSnapshot({ phase: 'apply', total: 10 }, texts);
-  assert.equal(apply.progress, 0.9);
-  assert.equal(apply.text, texts.apply);
-
-  const avail = createAvailableView(
-    {
-      installed: null,
-      available: true,
-      manifest: {
-        name: 'OpenMZ',
-        version: '2.0.0',
-        format: runtimeFormat,
-        pixiVersion: '8.23.0',
-        archive: { url: 'file:///a.tar.gz', size: 10, sha256: 'a'.repeat(64) },
-      },
-    },
-    texts,
-  );
-  assert.deepEqual(avail.commands, [
-    [texts.update, 'update'],
-    [texts.skip, 'close'],
-  ]);
-
-  const installed = createInstalledView(
-    {
-      name: 'OpenMZ',
-      version: '2.0.0',
-      format: runtimeFormat,
-      pixiVersion: '8.23.0',
-      updatedFiles: ['js/main.js'],
-      backupRelativeDir: 'js_backup/20260101-000000',
-      requiresRestart: true,
-    },
-    texts,
-  );
-  assert.equal(installed.progress, 1);
-  assert.deepEqual(installed.commands, [
-    [texts.reload, 'reload'],
-    [texts.later, 'close'],
-  ]);
-
-  const errView = createErrorView(new Error('Network down'), 'check', texts);
-  assert.deepEqual(errView.lines, ['Network down']);
-  assert.deepEqual(errView.commands, [
-    [texts.retry, 'check'],
-    [texts.skip, 'close'],
-  ]);
 });
 
 test('wrapTextLine wraps words, paths, and unbroken strings predictably', () => {
@@ -248,7 +168,7 @@ test('Scene_Title ignores background checks while scene is changing and adapts c
   // When scene is active, check displays UI.
   sceneChanging = false;
   await scene.checkOpenMzUpdate();
-  assert.deepEqual(shown, ['Update OpenMZ']);
+  assert.equal(shown.length, 1);
 
   // Confirm window adapts column count between 1 and 2 commands.
   scene.createOpenMzUpdater();

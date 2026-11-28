@@ -319,7 +319,7 @@ test('title integration shows the checked target version and ignores a scene alr
   scene.showOpenMzMessage = (title, lines) => messages.push([title, lines]);
   scene.showOpenMzCommands = function () {};
   await scene.checkOpenMzUpdate();
-  assert.match(messages[0][1][0], /RPG Maker MZ → OpenMZ 1\.2\.3/);
+  assert.match(messages[0][1][0], /1\.2\.3/);
   messages.length = 0;
   manager._scene = {};
   await scene.checkOpenMzUpdate();

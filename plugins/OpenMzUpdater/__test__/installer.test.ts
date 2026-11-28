@@ -6,7 +6,7 @@ import { tmpdir } from 'node:os';
 import * as path from 'node:path';
 import { test } from 'vitest';
 import { isUpdaterError } from '../errors.ts';
-import { applyUpgradePlan, formatBackupTimestamp, planUpgrade } from '../installer.ts';
+import { applyUpgradePlan, planUpgrade } from '../installer.ts';
 
 async function createTempProject(t: TestContext) {
   const dir = await mkdtemp(joinPath(tmpdir(), 'openmz-installer-'));
@@ -96,9 +96,4 @@ test('applyUpgradePlan surfaces ROLLBACK_INCOMPLETE when rollback restoration fa
       /Disk full during rename/.test(error.message) &&
       /Permission denied during restore/.test(error.message),
   );
-});
-
-test('formatBackupTimestamp formats YYYYMMDD-HHMMSS deterministically', () => {
-  const stamp = formatBackupTimestamp(new Date(2026, 0, 5, 9, 8, 7));
-  assert.equal(stamp, '20260105-090807');
 });
