@@ -1,6 +1,6 @@
 {
   "name": "@openmz-plugin/pixi-3d",
-  "version": "2.0.0-beta.3",
+  "version": "2.0.0-beta.4",
   "description": "Exposes PixiJS 3D as PIXI3D for OpenMZ plugins.",
   "private": true,
   "type": "module",
