@@ -24,7 +24,7 @@ RPG Maker MZ core engine maintained with TypeScript `class` syntax and PixiJS 8,
 
 #### Option 1: Install via Updater Plugin (Recommended)
 
-1. Download `OpenMzUpdater.js` from a `v*` release on [GitHub Releases](https://github.com/enpitsuLin/openmz/releases) and place it in your project's `js/plugins/` directory.
+1. Download `OpenMzUpdater.js` from the [`plugins` branch](https://github.com/enpitsuLin/openmz/tree/plugins) (direct link: [`OpenMzUpdater.js`](https://raw.githubusercontent.com/enpitsuLin/openmz/plugins/OpenMzUpdater.js)) and place it in your project's `js/plugins/` directory.
 2. Enable `OpenMzUpdater` in the Plugin Manager and set **Manifest URL** to:
    - Latest release: `https://github.com/enpitsuLin/openmz/releases/latest/download/manifest.json`
    - Pinned release: `https://github.com/enpitsuLin/openmz/releases/download/<tag>/manifest.json`
@@ -74,9 +74,11 @@ See the [Development & Release Guide](./docs/development_en.md) for package-scop
 ├── packages/
 │   ├── openmz/           # Core engine source, build/pack scripts, and tests
 │   ├── build-utils/      # Internal utilities: AST prototype transform, Rolldown bundling & formatting
+│   ├── plugin-utils/     # Internal utilities: plugin runtime environment & version preflight
 │   └── release-spec/     # Internal spec: release manifest, semver, and tar archive protocol
-├── plugins/
-│   └── openmz-updater/   # Updater plugin package (emits dist/OpenMzUpdater.js)
+├── plugins/              # Standalone plugin packages (built outputs published to the plugins branch)
+│   ├── openmz-updater/   # Updater plugin package (emits dist/OpenMzUpdater.js)
+│   └── openmz-pixi-3d/   # PixiJS 3D global plugin package (emits dist/OpenMzPixi3D.js)
 └── vendor/js/            # Vanilla RPG Maker MZ reference and default libs (read-only)
 ```
 

@@ -24,7 +24,7 @@
 
 #### 方式一：使用更新器插件（推荐）
 
-1. 从 [GitHub Releases](https://github.com/enpitsuLin/openmz/releases) 的 `v*` 发布页下载 `OpenMzUpdater.js`，放入工程的 `js/plugins/` 目录。
+1. 从 [`plugins` 分支](https://github.com/enpitsuLin/openmz/tree/plugins)下载 `OpenMzUpdater.js`（直链：[`OpenMzUpdater.js`](https://raw.githubusercontent.com/enpitsuLin/openmz/plugins/OpenMzUpdater.js)），放入工程的 `js/plugins/` 目录。
 2. 在插件管理器中启用 `OpenMzUpdater`，将**更新清单地址**设为：
    - 最新正式版：`https://github.com/enpitsuLin/openmz/releases/latest/download/manifest.json`
    - 指定版本：`https://github.com/enpitsuLin/openmz/releases/download/<tag>/manifest.json`
@@ -74,9 +74,11 @@ pnpm build
 ├── packages/
 │   ├── openmz/           # 核心引擎源码、构建/打包脚本与测试
 │   ├── build-utils/      # 内部工具：AST 原型转换、Rolldown 打包与格式化
+│   ├── plugin-utils/     # 内部工具：插件运行时环境与版本预检
 │   └── release-spec/     # 内部协议：发布清单、版本比较与 tar 归档
-├── plugins/
-│   └── openmz-updater/   # 更新器插件子包（输出 dist/OpenMzUpdater.js）
+├── plugins/              # 独立插件子包（构建产物持续发布至 plugins 分支）
+│   ├── openmz-updater/   # 更新器插件子包（输出 dist/OpenMzUpdater.js）
+│   └── openmz-pixi-3d/   # PixiJS 3D 暴露插件子包（输出 dist/OpenMzPixi3D.js）
 └── vendor/js/            # 原版 RPG Maker MZ 参考与默认运行库（只读）
 ```
 
