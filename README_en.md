@@ -14,7 +14,7 @@ RPG Maker MZ core engine maintained with TypeScript `class` syntax and PixiJS 8,
 ## Highlights
 
 - **Modern TypeScript Source**: Core engine authored with TypeScript `class` declarations and full database, save, event, and host type definitions.
-- **PixiJS 8 Rendering Core**: Bundles PixiJS 8 from npm into a prototype-based global `PIXI`, upgrading the renderer while staying compatible with legacy plugins.
+- **PixiJS 8 Rendering Core**: Bundles PixiJS 8 from npm into a prototype-based global `PIXI`.
 - **Legacy Plugin Compatibility**: Transforms classes into flat constructor functions and prototype methods via ast-grep without ES5 downleveling, supporting `prototype` overrides and `initialize` chaining.
 - **Decoupled Plugin Workspace**: Organizes core engine and plugins in a pnpm workspace, shipping [`OpenMzUpdater`](./plugins/openmz-updater/README_en.md) for safe NW.js updates with verification, backups, and automatic rollback.
 
@@ -82,6 +82,7 @@ See the [Development & Release Guide](./docs/development_en.md) for package-scop
 
 ## Documentation
 
+- [Plugin Compatibility & PixiJS Migration](./docs/plugin-compatibility_en.md)
 - [Build Pipeline & Transformation Rules](./docs/architecture_en.md)
 - [OpenMzUpdater Plugin](./plugins/openmz-updater/README_en.md)
 - [Development, Testing & Release Guide](./docs/development_en.md)

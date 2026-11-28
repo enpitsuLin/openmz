@@ -14,8 +14,8 @@
 ## 核心特性
 
 - **现代 TypeScript 源码**：引擎以 TypeScript `class` 编写，自带完整的数据库、存档、事件与宿主类型声明。
-- **PixiJS 8 渲染内核**：从 npm 打包 PixiJS 8 并转为原型式全局 `PIXI`，升级渲染能力的同时兼容既有插件。
-- **传统插件兼容**：通过 ast-grep 将类转为平铺函数与原型方法，保留现代 JS 语法，完整支持 `prototype` 覆写与 `initialize` 链式扩展。
+- **PixiJS 8 渲染内核**：从 npm 打包 PixiJS 8 并转为原型式全局 `PIXI`。
+- **传统插件兼容**：支持引擎的 `prototype` 覆写与 `initialize` 链式扩展。直接调用 PixiJS 的插件可参阅下方的兼容性文档。
 - **独立插件子包**：采用 pnpm workspace 解耦核心引擎与插件，配套 [`OpenMzUpdater`](./plugins/openmz-updater/README.md) 支持在 NW.js 中安全校验、备份与自动回滚更新。
 
 ## 快速开始
@@ -82,6 +82,7 @@ pnpm build
 
 ## 更多文档
 
+- [插件兼容性与 PixiJS 迁移](./docs/plugin-compatibility.md)
 - [构建原理与转换规则](./docs/architecture.md)
 - [OpenMzUpdater 更新器插件](./plugins/openmz-updater/README.md)
 - [开发、测试与发布指南](./docs/development.md)
