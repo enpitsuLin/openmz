@@ -27,18 +27,7 @@ jobs:
         with:
           ref: refs/tags/${{ env.RELEASE_TAG }}
           persist-credentials: false
-      - uses: pnpm/action-setup@v6
-      - uses: actions/setup-node@v7
-        with:
-          node-version: '24'
-          cache: pnpm
-      - run: pnpm install --frozen-lockfile
-      - run: pnpm lint
-      - run: pnpm format:check
-      - run: pnpm --filter openmz... --if-present run typecheck
-      - run: pnpm --filter openmz... --if-present run test:unit
-      - run: pnpm --filter openmz exec playwright install --with-deps chromium
-      - run: pnpm --filter openmz run test:plugin-compat
+      - uses: ./.github/actions/setup
       - run: pnpm --filter openmz run pack
       - uses: softprops/action-gh-release@v3
         with:

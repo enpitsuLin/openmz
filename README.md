@@ -184,8 +184,9 @@ pnpm --filter openmz exec playwright install chromium
 ### 代码规范与发布流程
 
 - **代码风格**：由 `.oxlintrc.json` 与 `.oxfmtrc.json` 统一约束。引擎源码（`packages/openmz/src/*.ts`）保留四空格缩进与双引号，内部包、工具链、插件与测试代码采用双空格缩进与单引号；`vendor/`、兼容性夹具与各包 `dist/` 不参与源码检查与 CLI 格式化。
-- **核心自动化发布**：推送 `v*` 标签（或手动触发 [Release OpenMZ Core 工作流](./.github/workflows/release-core.yml)）后，GitHub Actions 会自动验证并执行 `pnpm --filter openmz run pack`，将核心压缩包与 `manifest.json` 上传至 GitHub Release。
-- **插件独立发布**：推送 `plugin/<插件目录>@v<版本>` 标签（例如 `plugin/openmz-updater@v1.0.0`，或手动触发 [Release Plugin 工作流](./.github/workflows/release-plugin.yml)）后，GitHub Actions 会校验对应插件 `package.json` 版本、运行测试并构建，将 `plugins/<插件目录>/dist/*.js` 发布为独立的 GitHub Release。
+- **持续集成（CI）**：推送或发起 PR 至 `main` 时触发 [CI 工作流](./.github/workflows/ci.yml)，并行执行 `lint`、`format:check`、`typecheck`、`test:unit`、`build` 以及 Playwright Chromium 插件兼容性测试。
+- **核心发布（CD）**：推送 `v*` 标签（或手动触发 [Release OpenMZ Core 工作流](./.github/workflows/release-core.yml)）后，GitHub Actions 执行 `pnpm --filter openmz run pack`，将核心压缩包与 `manifest.json` 上传至 GitHub Release。
+- **插件独立发布（CD）**：推送 `plugin/<插件目录>@v<版本>` 标签（例如 `plugin/openmz-updater@v1.0.0`，或手动触发 [Release Plugin 工作流](./.github/workflows/release-plugin.yml)）后，GitHub Actions 校验对应插件 `package.json` 版本并构建，将 `plugins/<插件目录>/dist/*.js` 发布为独立的 GitHub Release。
 
 ## 目录结构
 

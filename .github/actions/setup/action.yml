@@ -1,0 +1,13 @@
+name: Setup Workspace
+description: Install pnpm, Node.js 24, and workspace dependencies
+
+runs:
+  using: composite
+  steps:
+    - uses: pnpm/action-setup@v6
+    - uses: actions/setup-node@v7
+      with:
+        node-version: '24'
+        cache: pnpm
+    - shell: bash
+      run: pnpm install --frozen-lockfile

@@ -184,8 +184,9 @@ pnpm --filter openmz exec playwright install chromium
 ### Code Style & Release Workflow
 
 - **Formatting & Linting**: Configured in `.oxlintrc.json` and `.oxfmtrc.json`. Engine sources (`packages/openmz/src/*.ts`) use 4-space indentation and double quotes; internal packages, tooling, plugins, and tests use 2-space indentation and single quotes. `vendor/`, compatibility fixtures, and `dist/` directories are excluded from source linting and CLI formatting.
-- **Core Automated Releases**: Pushing a `v*` tag (or manually triggering [Release OpenMZ Core](./.github/workflows/release-core.yml)) validates the core engine, runs `pnpm --filter openmz run pack`, and publishes the core archive and `manifest.json` to GitHub Releases.
-- **Independent Plugin Releases**: Pushing a `plugin/<dir>@v<version>` tag (for example `plugin/openmz-updater@v1.0.0`, or manually triggering [Release Plugin](./.github/workflows/release-plugin.yml)) verifies the plugin's `package.json` version, runs its tests and build, and publishes `plugins/<dir>/dist/*.js` as an independent GitHub Release.
+- **Continuous Integration (CI)**: Pushes and pull requests targeting `main` trigger the [CI workflow](./.github/workflows/ci.yml), running `lint`, `format:check`, `typecheck`, `test:unit`, and `build` in parallel with the Playwright Chromium plugin compatibility suite.
+- **Core Releases (CD)**: Pushing a `v*` tag (or manually triggering [Release OpenMZ Core](./.github/workflows/release-core.yml)) runs `pnpm --filter openmz run pack` and publishes the core archive and `manifest.json` to GitHub Releases.
+- **Independent Plugin Releases (CD)**: Pushing a `plugin/<dir>@v<version>` tag (for example `plugin/openmz-updater@v1.0.0`, or manually triggering [Release Plugin](./.github/workflows/release-plugin.yml)) verifies the plugin's `package.json` version, builds the plugin, and publishes `plugins/<dir>/dist/*.js` as an independent GitHub Release.
 
 ## Project Structure
 

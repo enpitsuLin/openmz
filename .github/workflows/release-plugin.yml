@@ -49,16 +49,7 @@ jobs:
           fi
           echo "dir=$PLUGIN_DIR" >> "$GITHUB_OUTPUT"
           echo "version=$PLUGIN_VERSION" >> "$GITHUB_OUTPUT"
-      - uses: pnpm/action-setup@v6
-      - uses: actions/setup-node@v7
-        with:
-          node-version: '24'
-          cache: pnpm
-      - run: pnpm install --frozen-lockfile
-      - run: pnpm lint
-      - run: pnpm format:check
-      - run: pnpm --filter "./plugins/${{ steps.plugin.outputs.dir }}" --if-present run typecheck
-      - run: pnpm --filter "./plugins/${{ steps.plugin.outputs.dir }}" --if-present run test
+      - uses: ./.github/actions/setup
       - run: pnpm --filter "./plugins/${{ steps.plugin.outputs.dir }}" run build
       - uses: softprops/action-gh-release@v3
         with:
