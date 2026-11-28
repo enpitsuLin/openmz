@@ -83,6 +83,55 @@ var PIXI3D = (function (exports, pixi_js) {
     if (!(flags & 1)) __defProp(target, Symbol.toStringTag, { value: 'Module' });
     return flags & 2 ? target : Object.preventExtensions(target);
   };
+  // ../../packages/plugin-utils/src/runtime.ts
+  const REQUIRED_ENGINE_NAME = 'OPENMZ';
+  const DEFAULT_PLUGIN_NAME = 'This plugin';
+  const DEFAULT_MIN_ENGINE_VERSION = '2.0.0';
+  function parseVersion(version) {
+    if (typeof version !== 'string') return null;
+    const match = /^(\d+)\.(\d+)(?:\.(\d+))?/.exec(version.trim());
+    if (!match) return null;
+    return [Number(match[1]), Number(match[2]), Number(match[3] ?? 0)];
+  }
+  function compareVersions(a, b) {
+    for (let i = 0; i < 3; i++) {
+      if (a[i] > b[i]) return 1;
+      if (a[i] < b[i]) return -1;
+    }
+    return 0;
+  }
+  function formatDetectedEngine(utils) {
+    const name = typeof utils?.RPGMAKER_NAME === 'string' && utils.RPGMAKER_NAME ? utils.RPGMAKER_NAME : 'unknown';
+    const version = typeof utils?.RPGMAKER_VERSION === 'string' && utils.RPGMAKER_VERSION ? utils.RPGMAKER_VERSION : '';
+    return version ? `${name} ${version}` : name;
+  }
+  /**
+   * Verifies that the current runtime is OpenMZ and meets the required engine version.
+   */
+  function assertOpenMzRuntime(options = {}) {
+    const {
+      pluginName = DEFAULT_PLUGIN_NAME,
+      minEngineVersion = DEFAULT_MIN_ENGINE_VERSION,
+      runtime = globalThis,
+    } = options;
+    const utils = runtime.Utils;
+    if (utils?.RPGMAKER_NAME !== REQUIRED_ENGINE_NAME)
+      throw new Error(
+        `${pluginName} requires OpenMZ ${minEngineVersion} or later (detected ${formatDetectedEngine(utils)}).`,
+      );
+    const engineVersion = parseVersion(utils.RPGMAKER_VERSION);
+    const requiredEngineVersion = parseVersion(minEngineVersion);
+    if (!requiredEngineVersion) throw new Error(`Invalid minEngineVersion: ${minEngineVersion}`);
+    if (!engineVersion || compareVersions(engineVersion, requiredEngineVersion) < 0)
+      throw new Error(
+        `${pluginName} requires OpenMZ ${minEngineVersion} or later (detected ${formatDetectedEngine(utils)}).`,
+      );
+  }
+  // src/preflight.ts
+  assertOpenMzRuntime({
+    pluginName: 'OpenMzPixi3D',
+    minEngineVersion: '2.0.0',
+  });
   // ../../node_modules/.pnpm/@pixi+3d@0.1.0_pixi.js@8.23.0/node_modules/@pixi/3d/dist/animation/Animation.mjs
   /**
    * A named set of keyframe tracks, holding no playback state
