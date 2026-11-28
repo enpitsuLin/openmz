@@ -1,6 +1,6 @@
 {
   "name": "openmz",
-  "version": "2.0.0-beta.1",
+  "version": "2.0.0-beta.2",
   "description": "RPG Maker MZ engine with ES6 class sources and a prototype-based runtime.",
   "private": true,
   "type": "module",
