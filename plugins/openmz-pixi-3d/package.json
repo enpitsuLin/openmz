@@ -1,0 +1,19 @@
+{
+  "name": "@openmz-plugin/pixi-3d",
+  "version": "2.0.0-beta.2",
+  "description": "Exposes PixiJS 3D as PIXI3D for OpenMZ plugins.",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "build": "node scripts/build.ts",
+    "typecheck": "tsc --noEmit"
+  },
+  "license": "MIT",
+  "dependencies": {
+    "@pixi/3d": "0.1.0",
+    "pixi.js": "catalog:"
+  },
+  "devDependencies": {
+    "@openmz-internal/build-utils": "workspace:*"
+  }
+}

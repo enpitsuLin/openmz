@@ -1,4 +1,4 @@
-import type { OutputChunk, OutputOptions } from 'rolldown';
+import type { InputOptions, OutputChunk, OutputOptions } from 'rolldown';
 import { resolve } from 'node:path';
 import { format } from 'oxfmt';
 import { rolldown } from 'rolldown';
@@ -6,10 +6,13 @@ import formatOptions from '../../../.oxfmtrc.json' with { type: 'json' };
 
 export const outputFormatOptions = { ...formatOptions, printWidth: 120 };
 
-export async function bundleScript(input: string, output: OutputOptions = {}) {
+export type BundleScriptOptions = OutputOptions & Pick<InputOptions, 'external'>;
+
+export async function bundleScript(input: string, { external, ...output }: BundleScriptOptions = {}) {
   const bundle = await rolldown({
     input: resolve(input),
     platform: 'browser',
+    external,
   });
   try {
     const result = await bundle.generate({

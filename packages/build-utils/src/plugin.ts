@@ -1,3 +1,4 @@
+import type { BundleScriptOptions } from './output.ts';
 import { mkdir, readFile, writeFile } from 'node:fs/promises';
 import { basename, dirname, resolve } from 'node:path';
 import { Lang, parse } from '@ast-grep/napi';
@@ -8,9 +9,10 @@ export interface BuildPluginOptions {
   entry: string;
   outFile: string;
   transformPrototype?: boolean;
+  bundleOptions?: BundleScriptOptions;
 }
 
-export async function buildPlugin({ entry, outFile, transformPrototype = true }: BuildPluginOptions) {
+export async function buildPlugin({ entry, outFile, transformPrototype = true, bundleOptions }: BuildPluginOptions) {
   const entryPath = resolve(entry);
   const file = resolve(outFile);
   const filename = basename(file);
@@ -21,7 +23,7 @@ export async function buildPlugin({ entry, outFile, transformPrototype = true }:
     .filter((node) => node.kind() === 'comment' && node.text().startsWith('/*:'))
     .map((node) => node.text())
     .join('\n');
-  const bundled = await bundleScript(entryPath);
+  const bundled = await bundleScript(entryPath, bundleOptions);
   const body = transformPrototype ? transformClasses(bundled, filename) : bundled;
   const combined = header ? `${header}\n${body}` : body;
   await mkdir(dirname(file), { recursive: true });

@@ -46,7 +46,7 @@ Configured in `.oxlintrc.json` and `.oxfmtrc.json`:
 
 ## CI & Release Workflow
 
-Run `pnpm release` from a clean working tree, then select and confirm the version. The command bumps the core and updater to the same version in one commit and pushes both `v<version>` and `plugin/openmz-updater@v<version>` tags to `origin` in one operation to trigger the release workflows below.
+Run `pnpm release` from a clean working tree, then select and confirm the version. The command bumps the core, updater, and OpenMzPixi3D to the same version in one commit. It pushes `v<version>`, `plugin/openmz-updater@v<version>`, and `plugin/openmz-pixi-3d@v<version>` to `origin` in one operation to trigger the release workflows below.
 
 - **Continuous Integration (CI)**: Pushes and pull requests targeting `main` trigger the [CI workflow](../.github/workflows/ci.yml), running `lint`, `format:check`, `typecheck`, `test:unit`, and `build` in parallel with the Playwright Chromium plugin compatibility suite.
 - **Core Releases (CD)**: Pushing a `v*` tag (or manually triggering [Release OpenMZ Core](../.github/workflows/release-core.yml)) runs `pnpm --filter openmz run pack` and publishes the core archive and `manifest.json` to GitHub Releases.

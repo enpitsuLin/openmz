@@ -1,7 +1,8 @@
 import { execFileSync } from 'node:child_process';
 import { versionBump, versionBumpInfo, type VersionBumpRelease } from 'bumpp';
 
-const files = ['packages/openmz/package.json', 'plugins/openmz-updater/package.json'];
+const plugins = ['openmz-updater', 'openmz-pixi-3d'];
+const files = ['packages/openmz/package.json', ...plugins.map((plugin) => `plugins/${plugin}/package.json`)];
 
 function readGit(args: string[], input?: string) {
   return execFileSync('git', args, { encoding: 'utf8', input }).trim();
@@ -18,7 +19,7 @@ if (newVersion === currentVersion) {
   process.exit(0);
 }
 
-const tags = [`v${newVersion}`, `plugin/openmz-updater@v${newVersion}`];
+const tags = [`v${newVersion}`, ...plugins.map((plugin) => `plugin/${plugin}@v${newVersion}`)];
 const refs = tags.map((tag) => `refs/tags/${tag}`);
 if (readGit(['tag', '--list', ...tags]) || readGit(['ls-remote', '--refs', '--tags', 'origin', ...refs])) {
   throw new Error(`A release tag already exists for ${newVersion}.`);
