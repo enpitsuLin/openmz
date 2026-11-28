@@ -41,7 +41,7 @@ RPG Maker MZ 核心引擎：使用 TypeScript class 与 PixiJS 8 维护，构建
 6. 插件兼容性以 `packages/openmz/dist/runtime/` 为准。构建时让 `Sprite`、`TilingSprite`、`Window`、`Stage` 的 initialize 在现有 this 上执行 Pixi 父构造；普通 new 也必须只初始化一次。
 7. `main.ts` 擦除类型后保留 `class Main`，与其他文本产物一起统一格式化。其余引擎、PixiJS 和需要兼容原版的插件类转换为平铺的函数与原型定义，不为单个类创建 IIFE 或注入严格模式。Rolldown 命名空间外壳保留，strict 设为 false。保留原生 async/await、箭头函数、可选链、解构与迭代，不做 ES5 降级。
 8. 更新清单从 schemaVersion 1 开始，格式为 prototype。版本记录在 js/openmz.json；更新器不得安装 TypeScript 源码或改写工程插件配置。
-9. CI 与 CD 分离：推送或 PR 到 `main` 触发 `.github/workflows/ci.yml`（并行执行静态检查/单测/构建与 Chromium 插件兼容性测试）；推送 `v*` 触发 `.github/workflows/release-core.yml`（仅打包发布核心压缩包与清单）；推送 `plugin/<插件目录>@v<版本>` 触发 `.github/workflows/release-plugin.yml`（校验对应插件 `package.json` 版本并独立构建发布该插件产物）。
+9. CI 与 CD 分离。推送或 PR 到 `main` 触发 `.github/workflows/ci.yml`，并行执行静态检查、单测、构建与 Chromium 插件兼容性测试。`pnpm release` 同步核心和 `plugins/` 下各包的版本，只推送一个 `v<版本>` 标签。`.github/workflows/release.yml` 将核心压缩包、清单与所有插件产物上传到同一个 GitHub Release。
 10. 不手改 dist，不维护第二份原型式源码。新增引擎语法时扩展转换与相关单元测试，并检查真实插件场景。
 11. 使用 Oxlint 与 Oxfmt，不再临时运行 Prettier。引擎源码（`packages/openmz/src/*.ts`）保留四空格、双引号；工具、内部包与插件代码保留双空格、单引号。vendor、兼容性夹具与生成目录不参与 CLI 格式化；构建通过 Oxfmt API 按基础配置并使用 printWidth 120 格式化文本产物，WASM 按字节复制。
 12. Oxlint 对引擎大写全局声明保留跨文件引用例外，局部未用变量继续由 TypeScript 检查。事件脚本的 eval、文本控制码正则和祖先遍历中的 this 游标是明确允许的引擎机制。

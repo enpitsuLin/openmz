@@ -6,7 +6,7 @@ Official updater plugin for OpenMZ that checks, downloads, verifies, and install
 
 ## Installation & Usage
 
-1. Download `OpenMzUpdater.js` from a `plugin/openmz-updater@v*` release on [GitHub Releases](https://github.com/enpitsuLin/openmz/releases) (or build `dist/OpenMzUpdater.js` from source) and copy it into your RPG Maker MZ project's `js/plugins/` directory.
+1. Download `OpenMzUpdater.js` from a `v*` release on [GitHub Releases](https://github.com/enpitsuLin/openmz/releases) (or build `dist/OpenMzUpdater.js` from source) and copy it into your RPG Maker MZ project's `js/plugins/` directory.
 2. Enable `OpenMzUpdater` in the Plugin Manager and configure **Manifest URL**:
    - Latest release: `https://github.com/enpitsuLin/openmz/releases/latest/download/manifest.json`
    - Pinned release: `https://github.com/enpitsuLin/openmz/releases/download/<tag>/manifest.json`

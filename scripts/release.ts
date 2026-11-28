@@ -1,11 +1,11 @@
 import { execFileSync } from 'node:child_process';
+import { globSync } from 'node:fs';
 import { versionBump, versionBumpInfo, type VersionBumpRelease } from 'bumpp';
 
-const plugins = ['openmz-updater', 'openmz-pixi-3d'];
-const files = ['packages/openmz/package.json', ...plugins.map((plugin) => `plugins/${plugin}/package.json`)];
+const files = ['packages/openmz/package.json', ...globSync('plugins/*/package.json').sort()];
 
-function readGit(args: string[], input?: string) {
-  return execFileSync('git', args, { encoding: 'utf8', input }).trim();
+function readGit(args: string[]) {
+  return execFileSync('git', args, { encoding: 'utf8' }).trim();
 }
 
 if (readGit(['status', '--porcelain'])) {
@@ -19,9 +19,9 @@ if (newVersion === currentVersion) {
   process.exit(0);
 }
 
-const tags = [`v${newVersion}`, ...plugins.map((plugin) => `plugin/${plugin}@v${newVersion}`)];
-const refs = tags.map((tag) => `refs/tags/${tag}`);
-if (readGit(['tag', '--list', ...tags]) || readGit(['ls-remote', '--refs', '--tags', 'origin', ...refs])) {
+const tag = `v${newVersion}`;
+const ref = `refs/tags/${tag}`;
+if (readGit(['tag', '--list', tag]) || readGit(['ls-remote', '--refs', '--tags', 'origin', ref])) {
   throw new Error(`A release tag already exists for ${newVersion}.`);
 }
 
@@ -34,14 +34,5 @@ await versionBump({
   push: false,
 });
 
-const commit = readGit(['rev-parse', 'HEAD']);
-const tagger = readGit(['var', 'GIT_COMMITTER_IDENT']);
-const updates = tags.map((tag) => {
-  const object = readGit(
-    ['mktag'],
-    `object ${commit}\ntype commit\ntag ${tag}\ntagger ${tagger}\n\nRelease v${newVersion}\n`,
-  );
-  return `create refs/tags/${tag} ${object}\n`;
-});
-readGit(['update-ref', '--stdin'], updates.join(''));
-execFileSync('git', ['push', '--atomic', 'origin', ...refs], { stdio: 'inherit' });
+execFileSync('git', ['tag', '-a', tag, '-m', `Release ${tag}`], { stdio: 'inherit' });
+execFileSync('git', ['push', '--no-follow-tags', 'origin', ref], { stdio: 'inherit' });

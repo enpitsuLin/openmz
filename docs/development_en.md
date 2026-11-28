@@ -46,8 +46,7 @@ Configured in `.oxlintrc.json` and `.oxfmtrc.json`:
 
 ## CI & Release Workflow
 
-Run `pnpm release` from a clean working tree, then select and confirm the version. The command bumps the core, updater, and OpenMzPixi3D to the same version in one commit. It pushes `v<version>`, `plugin/openmz-updater@v<version>`, and `plugin/openmz-pixi-3d@v<version>` to `origin` in one operation to trigger the release workflows below.
+Run `pnpm release` from a clean working tree, then select and confirm the version. The command bumps the core and every package under `plugins/` to the same version in one commit and pushes a single `v<version>` tag to `origin`.
 
 - **Continuous Integration (CI)**: Pushes and pull requests targeting `main` trigger the [CI workflow](../.github/workflows/ci.yml), running `lint`, `format:check`, `typecheck`, `test:unit`, and `build` in parallel with the Playwright Chromium plugin compatibility suite.
-- **Core Releases (CD)**: Pushing a `v*` tag (or manually triggering [Release OpenMZ Core](../.github/workflows/release-core.yml)) runs `pnpm --filter openmz run pack` and publishes the core archive and `manifest.json` to GitHub Releases.
-- **Independent Plugin Releases (CD)**: Pushing a `plugin/<dir>@v<version>` tag (for example `plugin/openmz-updater@v1.0.0`, or manually triggering [Release Plugin](../.github/workflows/release-plugin.yml)) verifies the plugin's `package.json` version, builds the plugin, and publishes `plugins/<dir>/dist/*.js` as an independent GitHub Release.
+- **Releases (CD)**. Pushing a `v*` tag or manually starting a release for an existing tag builds the core and all plugins. The workflow uploads the core archive, `manifest.json`, and each plugin's `dist/*.js` to the same GitHub Release. [Release OpenMZ workflow](../.github/workflows/release.yml)

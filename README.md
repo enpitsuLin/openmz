@@ -24,7 +24,7 @@
 
 #### 方式一：使用更新器插件（推荐）
 
-1. 从 [GitHub Releases](https://github.com/enpitsuLin/openmz/releases) 的 `plugin/openmz-updater@v*` 发布页下载 `OpenMzUpdater.js`，放入工程的 `js/plugins/` 目录。
+1. 从 [GitHub Releases](https://github.com/enpitsuLin/openmz/releases) 的 `v*` 发布页下载 `OpenMzUpdater.js`，放入工程的 `js/plugins/` 目录。
 2. 在插件管理器中启用 `OpenMzUpdater`，将**更新清单地址**设为：
    - 最新正式版：`https://github.com/enpitsuLin/openmz/releases/latest/download/manifest.json`
    - 指定版本：`https://github.com/enpitsuLin/openmz/releases/download/<tag>/manifest.json`
