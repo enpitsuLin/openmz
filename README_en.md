@@ -54,6 +54,8 @@ Main build outputs:
 - `packages/openmz/dist/release/`: Core release archive and `manifest.json` generated via `pnpm --filter openmz run pack`
 - `plugins/<plugin-dir>/dist/*.js`: Standalone installable scripts built by each plugin package
 
+Open the [experimental HD-2D example](./examples/hd2d/README.md) directly in RPG Maker MZ.
+
 ## Development & Testing
 
 | Command                             | Description                                       |

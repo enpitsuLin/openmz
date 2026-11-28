@@ -10,7 +10,7 @@
   },
   "license": "MIT",
   "dependencies": {
-    "@pixi/3d": "0.1.0",
+    "@pixi/3d": "catalog:",
     "pixi.js": "catalog:"
   },
   "devDependencies": {

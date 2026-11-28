@@ -2,13 +2,18 @@ packages:
   - 'packages/*'
   - 'plugins/*'
 
+patchedDependencies:
+  '@pixi/3d@0.1.0': patches/@pixi__3d@0.1.0.patch
+
 catalog:
   '@ast-grep/napi': ^0.51.3
+  '@pixi/3d': 0.1.0
   '@types/node': ^24.19.4
   '@types/nw.js': ^0.13.21
   '@vitest/browser-playwright': ^5.1.1
   bumpp: ^12.3.0
   citty: ^0.2.2
+  lil-gui: ^0.21.0
   oxfmt: ^0.80.0
   oxlint: ^1.95.0
   pixi.js: 8.23.0

@@ -1,0 +1,20 @@
+{
+  "name": "@openmz-plugin/hd2d-debug",
+  "version": "2.0.0-beta.4",
+  "description": "[Experimental] Adds scene tuning, an orbit camera and collision overlays to Hd2d.",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "build": "node scripts/build.ts",
+    "typecheck": "tsc --noEmit"
+  },
+  "license": "MIT",
+  "devDependencies": {
+    "@openmz-plugin/hd2d": "workspace:*",
+    "@openmz-plugin/pixel-movement": "workspace:*",
+    "@pixi/3d": "catalog:",
+    "lil-gui": "catalog:",
+    "pixi.js": "catalog:",
+    "@openmz-internal/build-utils": "workspace:*"
+  }
+}

@@ -49,4 +49,4 @@ Configured in `.oxlintrc.json` and `.oxfmtrc.json`:
 Run `pnpm release` from a clean working tree, then select and confirm the version. The command bumps the core and every package under `plugins/` to the same version in one commit and pushes a single `v<version>` tag to `origin`.
 
 - **Continuous Integration (CI)**: Pushes and pull requests targeting `main` trigger the [CI workflow](../.github/workflows/ci.yml), running `lint`, `format:check`, `typecheck`, `test:unit`, and `build` in parallel with the Playwright Chromium plugin compatibility suite.
-- **Releases (CD)**. Pushing a `v*` tag or manually starting a release for an existing tag builds the core and all plugins. The workflow uploads the core archive, `manifest.json`, and each plugin's `dist/*.js` to the same GitHub Release. [Release OpenMZ workflow](../.github/workflows/release.yml)
+- **Releases (CD)**. Pushing a `v*` tag or manually starting a release for an existing tag uploads the core archive, `manifest.json`, `OpenMzUpdater.js`, and `OpenMzPixi3D.js` to the same GitHub Release. [Release OpenMZ workflow](../.github/workflows/release.yml)

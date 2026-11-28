@@ -1,0 +1,12 @@
+{
+  "name": "hd2d",
+  "main": "index.html",
+  "chromium-args": "--force-color-profile=srgb",
+  "window": {
+    "title": "HD-2D",
+    "width": 1280,
+    "height": 720,
+    "position": "center",
+    "icon": "icon/icon.png"
+  }
+}

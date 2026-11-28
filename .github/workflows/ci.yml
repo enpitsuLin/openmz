@@ -36,3 +36,4 @@ jobs:
       - uses: ./.github/actions/setup
       - run: pnpm --filter openmz exec playwright install --with-deps chromium
       - run: pnpm --filter openmz run test:plugin-compat
+      - run: pnpm --filter openmz run test:hd2d

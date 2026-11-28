@@ -1,0 +1,26 @@
+{
+  "name": "@openmz-plugin/hd2d",
+  "version": "2.0.0-beta.4",
+  "description": "[Experimental] Renders RPG Maker MZ maps as HD-2D scenes.",
+  "private": true,
+  "type": "module",
+  "exports": {
+    "./camera": "./src/scene/camera.ts",
+    "./constants": "./src/constants.ts",
+    "./dust": "./src/scene/dust.ts",
+    "./fog": "./src/scene/fog.ts",
+    "./post-processing": "./src/scene/postProcessing.ts",
+    "./spriteset": "./src/sprites/Spriteset_Hd2d.ts"
+  },
+  "scripts": {
+    "build": "node scripts/build.ts",
+    "typecheck": "tsc --noEmit"
+  },
+  "license": "MIT",
+  "devDependencies": {
+    "@openmz-plugin/pixel-movement": "workspace:*",
+    "@pixi/3d": "catalog:",
+    "pixi.js": "catalog:",
+    "@openmz-internal/build-utils": "workspace:*"
+  }
+}

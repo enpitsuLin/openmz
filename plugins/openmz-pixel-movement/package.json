@@ -1,0 +1,19 @@
+{
+  "name": "@openmz-plugin/pixel-movement",
+  "version": "2.0.0-beta.4",
+  "description": "[Experimental] Adds free eight-direction movement, collision and follower trails.",
+  "private": true,
+  "type": "module",
+  "exports": {
+    "./collision": "./src/collision.ts"
+  },
+  "scripts": {
+    "build": "node scripts/build.ts",
+    "typecheck": "tsc --noEmit"
+  },
+  "license": "MIT",
+  "devDependencies": {
+    "pixi.js": "catalog:",
+    "@openmz-internal/build-utils": "workspace:*"
+  }
+}

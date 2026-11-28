@@ -54,6 +54,8 @@ pnpm build
 - `packages/openmz/dist/release/`：执行 `pnpm --filter openmz run pack` 生成的发布压缩包与 `manifest.json`
 - `plugins/<plugin-dir>/dist/*.js`：各插件子包独立构建的可安装插件脚本
 
+可在 RPG Maker MZ 中直接打开 [实验性 HD-2D 示例工程](./examples/hd2d/README.md)。
+
 ## 开发与测试
 
 | 命令                                | 说明                          |

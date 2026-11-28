@@ -27,6 +27,7 @@
     "**/dist/**",
     "vendor/**",
     "packages/openmz/tests/plugin-compat/fixtures/**",
+    "examples/hd2d/js/**",
     ".agents/**",
     ".codemod/**",
     ".planning/**"

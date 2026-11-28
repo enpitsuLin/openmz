@@ -14,9 +14,10 @@
     "build": "node scripts/cli.ts build",
     "pack": "node scripts/cli.ts pack",
     "serve:manifest": "node scripts/serve-manifest.ts",
-    "test": "pnpm test:unit && pnpm test:plugin-compat",
+    "test": "pnpm test:unit && pnpm test:plugin-compat && pnpm test:hd2d",
     "test:unit": "vitest run --config vitest.config.ts",
     "test:plugin-compat": "vitest run --config vitest.compat.config.ts",
+    "test:hd2d": "node --test tests/hd2d/hd2d.test.ts",
     "typecheck": "tsc --noEmit"
   },
   "license": "MIT",
