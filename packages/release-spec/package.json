@@ -1,0 +1,13 @@
+{
+  "name": "@openmz-internal/release-spec",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "exports": {
+    ".": "./src/index.ts",
+    "./tar": "./src/tar.ts"
+  },
+  "scripts": {
+    "typecheck": "tsc --noEmit"
+  }
+}

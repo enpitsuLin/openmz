@@ -1,21 +1,8 @@
 {
+  "extends": "./tsconfig.base.json",
   "compilerOptions": {
-    "target": "ESNext",
-    "lib": ["ES2023", "DOM", "DOM.Iterable", "DOM.AsyncIterable"],
-    "moduleDetection": "legacy",
-    "module": "preserve",
-    "moduleResolution": "bundler",
-    "resolveJsonModule": true,
-    "allowImportingTsExtensions": true,
-    "strict": true,
-    "types": ["node", "nw.js"],
-    "noUnusedLocals": true,
-    "esModuleInterop": true,
-    "isolatedModules": true,
-    "verbatimModuleSyntax": true,
-    "erasableSyntaxOnly": true,
-    "skipLibCheck": true,
-    "noEmit": true
+    "lib": ["ES2024"],
+    "types": ["node"]
   },
-  "include": ["src", "scripts/**/*.ts", "plugins/**/*.ts", "shared/**/*.ts", "tests/**/*.ts", "vitest.config.ts"]
+  "include": ["vitest.config.ts"]
 }

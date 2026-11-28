@@ -181,46 +181,122 @@ settings:
   autoInstallPeers: true
   excludeLinksFromLockfile: false
 
+catalogs:
+  default:
+    '@ast-grep/napi':
+      specifier: ^0.51.3
+      version: 0.51.3
+    '@types/node':
+      specifier: ^24.19.4
+      version: 24.19.4
+    '@types/nw.js':
+      specifier: ^0.13.21
+      version: 0.13.21
+    '@vitest/browser-playwright':
+      specifier: ^5.1.1
+      version: 5.1.1
+    citty:
+      specifier: ^0.2.2
+      version: 0.2.2
+    oxfmt:
+      specifier: ^0.80.0
+      version: 0.80.0
+    oxlint:
+      specifier: ^1.95.0
+      version: 1.95.0
+    pixi.js:
+      specifier: 8.23.0
+      version: 8.23.0
+    playwright:
+      specifier: ^1.65.1
+      version: 1.65.1
+    rolldown:
+      specifier: ^1.3.3
+      version: 1.3.3
+    typescript:
+      specifier: ^6.0.3
+      version: 6.0.3
+    vitest:
+      specifier: ^5.1.1
+      version: 5.1.1
+
 importers:
 
   .:
     devDependencies:
-      '@ast-grep/napi':
-        specifier: ^0.51.3
-        version: 0.51.3
       '@types/node':
-        specifier: ^24.19.4
+        specifier: 'catalog:'
         version: 24.19.4
       '@types/nw.js':
-        specifier: ^0.13.21
+        specifier: 'catalog:'
         version: 0.13.21
-      '@vitest/browser-playwright':
-        specifier: ^5.1.1
-        version: 5.1.1(playwright@1.65.1)(vite@8.3.8(@types/node@24.19.4))(vitest@5.1.1)
-      citty:
-        specifier: ^0.2.2
-        version: 0.2.2
       oxfmt:
-        specifier: ^0.80.0
+        specifier: 'catalog:'
         version: 0.80.0
       oxlint:
-        specifier: ^1.95.0
+        specifier: 'catalog:'
         version: 1.95.0
-      pixi.js:
-        specifier: 8.23.0
-        version: 8.23.0
-      playwright:
-        specifier: ^1.65.1
-        version: 1.65.1
-      rolldown:
-        specifier: ^1.3.3
-        version: 1.3.3
       typescript:
-        specifier: ^6.0.3
+        specifier: 'catalog:'
         version: 6.0.3
       vitest:
-        specifier: ^5.1.1
+        specifier: 'catalog:'
         version: 5.1.1(@types/node@24.19.4)(@vitest/browser-playwright@5.1.1)(@vitest/ui@5.1.1)(vite@8.3.8(@types/node@24.19.4))
+
+  packages/build-utils:
+    dependencies:
+      '@ast-grep/napi':
+        specifier: 'catalog:'
+        version: 0.51.3
+      oxfmt:
+        specifier: 'catalog:'
+        version: 0.80.0
+      rolldown:
+        specifier: 'catalog:'
+        version: 1.3.3
+
+  packages/openmz:
+    dependencies:
+      pixi.js:
+        specifier: 'catalog:'
+        version: 8.23.0
+    devDependencies:
+      '@ast-grep/napi':
+        specifier: 'catalog:'
+        version: 0.51.3
+      '@openmz-internal/build-utils':
+        specifier: workspace:*
+        version: link:../build-utils
+      '@openmz-internal/release-spec':
+        specifier: workspace:*
+        version: link:../release-spec
+      '@vitest/browser-playwright':
+        specifier: 'catalog:'
+        version: 5.1.1(playwright@1.65.1)(vite@8.3.8(@types/node@24.19.4))(vitest@5.1.1)
+      citty:
+        specifier: 'catalog:'
+        version: 0.2.2
+      playwright:
+        specifier: 'catalog:'
+        version: 1.65.1
+
+  packages/release-spec: {}
+
+  plugins/openmz-updater:
+    dependencies:
+      '@openmz-internal/release-spec':
+        specifier: workspace:*
+        version: link:../../packages/release-spec
+    devDependencies:
+      '@ast-grep/napi':
+        specifier: 'catalog:'
+        version: 0.51.3
+      '@openmz-internal/build-utils':
+        specifier: workspace:*
+        version: link:../../packages/build-utils
+      openmz:
+        specifier: workspace:*
+        version: link:../../packages/openmz
 
 packages:
 

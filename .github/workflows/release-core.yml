@@ -1,0 +1,49 @@
+name: Release OpenMZ Core
+
+on:
+  push:
+    tags:
+      - 'v*'
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: Existing release tag (for example, v2.0.0)
+        required: true
+        type: string
+
+permissions:
+  contents: write
+
+concurrency:
+  group: release-core-${{ inputs.tag || github.ref_name }}
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    env:
+      RELEASE_TAG: ${{ inputs.tag || github.ref_name }}
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          ref: refs/tags/${{ env.RELEASE_TAG }}
+          persist-credentials: false
+      - uses: pnpm/action-setup@v6
+      - uses: actions/setup-node@v7
+        with:
+          node-version: '24'
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm lint
+      - run: pnpm format:check
+      - run: pnpm --filter openmz... --if-present run typecheck
+      - run: pnpm --filter openmz... --if-present run test:unit
+      - run: pnpm --filter openmz exec playwright install --with-deps chromium
+      - run: pnpm --filter openmz run test:plugin-compat
+      - run: pnpm --filter openmz run pack
+      - uses: softprops/action-gh-release@v3
+        with:
+          tag_name: ${{ env.RELEASE_TAG }}
+          fail_on_unmatched_files: true
+          files: |
+            packages/openmz/dist/release/openmz-core-*.tar.gz
+            packages/openmz/dist/release/manifest.json

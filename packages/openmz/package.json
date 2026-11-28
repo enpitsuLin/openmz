@@ -1,0 +1,34 @@
+{
+  "name": "openmz",
+  "version": "2.0.0-rc.0",
+  "description": "RPG Maker MZ engine with ES6 class sources and a prototype-based runtime.",
+  "private": true,
+  "type": "module",
+  "exports": {
+    "./build": "./scripts/commands/build/runtime.ts",
+    "./pack": "./scripts/commands/pack/artifacts.ts",
+    "./serve-manifest": "./scripts/serve-manifest.ts"
+  },
+  "scripts": {
+    "cli": "node scripts/cli.ts",
+    "build": "node scripts/cli.ts build",
+    "pack": "node scripts/cli.ts pack",
+    "serve:manifest": "node scripts/serve-manifest.ts",
+    "test": "pnpm test:unit && pnpm test:plugin-compat",
+    "test:unit": "vitest run --config vitest.config.ts",
+    "test:plugin-compat": "vitest run --config vitest.compat.config.ts",
+    "typecheck": "tsc --noEmit"
+  },
+  "license": "MIT",
+  "dependencies": {
+    "pixi.js": "catalog:"
+  },
+  "devDependencies": {
+    "@ast-grep/napi": "catalog:",
+    "@openmz-internal/build-utils": "workspace:*",
+    "@openmz-internal/release-spec": "workspace:*",
+    "@vitest/browser-playwright": "catalog:",
+    "citty": "catalog:",
+    "playwright": "catalog:"
+  }
+}

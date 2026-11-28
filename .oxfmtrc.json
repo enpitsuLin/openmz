@@ -4,9 +4,9 @@
   "singleQuote": true,
   "sortPackageJson": false,
   "ignorePatterns": [
-    "dist/**",
+    "**/dist/**",
     "vendor/**",
-    "tests/plugin-compat/fixtures/**",
+    "packages/openmz/tests/plugin-compat/fixtures/**",
     ".agents/**",
     ".codemod/**",
     ".planning/**",
@@ -14,7 +14,7 @@
   ],
   "overrides": [
     {
-      "files": ["src/*.ts"],
+      "files": ["packages/openmz/src/*.ts"],
       "options": { "tabWidth": 4, "singleQuote": false }
     }
   ]

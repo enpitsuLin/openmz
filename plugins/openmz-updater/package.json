@@ -1,0 +1,22 @@
+{
+  "name": "@openmz-plugin/updater",
+  "version": "1.0.0",
+  "description": "RPG Maker MZ plugin that checks for OpenMZ updates and installs the prototype runtime.",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "build": "node scripts/build.ts",
+    "test": "vitest run",
+    "test:unit": "vitest run",
+    "typecheck": "tsc --noEmit"
+  },
+  "license": "MIT",
+  "dependencies": {
+    "@openmz-internal/release-spec": "workspace:*"
+  },
+  "devDependencies": {
+    "@ast-grep/napi": "catalog:",
+    "@openmz-internal/build-utils": "workspace:*",
+    "openmz": "workspace:*"
+  }
+}

@@ -1,0 +1,17 @@
+packages:
+  - 'packages/*'
+  - 'plugins/*'
+
+catalog:
+  '@ast-grep/napi': ^0.51.3
+  '@types/node': ^24.19.4
+  '@types/nw.js': ^0.13.21
+  '@vitest/browser-playwright': ^5.1.1
+  citty: ^0.2.2
+  oxfmt: ^0.80.0
+  oxlint: ^1.95.0
+  pixi.js: 8.23.0
+  playwright: ^1.65.1
+  rolldown: ^1.3.3
+  typescript: ^6.0.3
+  vitest: ^5.1.1

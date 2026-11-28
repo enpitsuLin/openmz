@@ -1,0 +1,15 @@
+{
+  "extends": "../../tsconfig.base.json",
+  "compilerOptions": {
+    "lib": ["ES2023", "DOM", "DOM.Iterable"],
+    "moduleDetection": "legacy",
+    "types": ["node", "nw.js"]
+  },
+  "include": [
+    "src/**/*.ts",
+    "scripts/**/*.ts",
+    "__test__/**/*.ts",
+    "vitest.config.ts",
+    "../../packages/openmz/src/*.ts"
+  ]
+}

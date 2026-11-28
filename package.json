@@ -1,22 +1,17 @@
 {
-  "name": "openmz",
-  "version": "2.0.0-rc.0",
-  "description": "RPG Maker MZ engine with ES6 class sources and a prototype-based runtime.",
-  "main": "index.js",
+  "name": "openmz-workspace",
+  "private": true,
+  "description": "OpenMZ monorepo containing the core engine, internal build/release tools, and official plugins.",
   "scripts": {
-    "openmz": "node scripts/cli.ts",
-    "build": "node scripts/cli.ts build",
-    "serve:manifest": "node scripts/serve-manifest.ts",
+    "build": "pnpm -r --if-present run build",
     "lint": "oxlint --deny-warnings",
     "lint:fix": "oxlint --fix --deny-warnings",
     "format": "oxfmt --write",
     "format:check": "oxfmt --check",
-    "typecheck": "tsc --noEmit",
+    "typecheck": "tsc --noEmit && pnpm -r --if-present run typecheck",
     "test": "vitest run",
-    "test:unit": "vitest run --project unit",
-    "test:plugin-compat": "vitest run --project plugin-compat"
+    "test:unit": "pnpm -r --if-present run test:unit"
   },
-  "keywords": [],
   "author": "enpitsulin <enpitsulin@gmail.com>",
   "license": "MIT",
   "packageManager": "pnpm@12.23.0",
@@ -25,17 +20,11 @@
   },
   "type": "module",
   "devDependencies": {
-    "@ast-grep/napi": "^0.51.3",
-    "@types/node": "^24.19.4",
-    "@types/nw.js": "^0.13.21",
-    "@vitest/browser-playwright": "^5.1.1",
-    "citty": "^0.2.2",
-    "oxfmt": "^0.80.0",
-    "oxlint": "^1.95.0",
-    "pixi.js": "8.23.0",
-    "playwright": "^1.65.1",
-    "rolldown": "^1.3.3",
-    "typescript": "^6.0.3",
-    "vitest": "^5.1.1"
+    "@types/node": "catalog:",
+    "@types/nw.js": "catalog:",
+    "oxfmt": "catalog:",
+    "oxlint": "catalog:",
+    "typescript": "catalog:",
+    "vitest": "catalog:"
   }
 }
