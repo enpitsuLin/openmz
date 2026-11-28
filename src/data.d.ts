@@ -33,29 +33,9 @@ declare namespace RMMZ {
         f: number;
     }
 
-    interface TextState {
-        text: string;
-        index: number;
-        x: number;
-        y: number;
-        width: number;
-        height: number;
-        startX: number;
-        startY: number;
-        rtl: boolean;
-        buffer: string;
-        drawing: boolean;
-        outputWidth: number;
-        outputHeight: number;
-    }
-
     type DamageDigitSprite = Sprite & { dx: number; dy: number; ry: number };
     type UpdateableChild = import("pixi.js").ContainerChild & {
         update?: () => void;
-    };
-    type TilemapChild = import("pixi.js").ContainerChild & {
-        z: number;
-        spriteId: number;
     };
 
     export type MethodName<T> = Extract<
@@ -116,10 +96,11 @@ declare namespace RMMZ {
         id: DataID;
         name: string;
     }
-    export interface DataBase extends DataBaseBase {
+    export interface NotedData {
         note: string;
         meta?: Meta;
     }
+    export interface DataBase extends DataBaseBase, NotedData {}
     export type DataClassID = "item" | "skill" | "weapon" | "armor";
     export interface DataItemBase extends DataBase {
         description: string;
@@ -438,6 +419,7 @@ declare namespace RMMZ {
         position: number;
     }
     export type AnimationTarget = (Game_Character | Game_Battler) & {
+        isActor?: () => boolean;
         startAnimation?: () => void;
         endAnimation?: () => void;
     };
@@ -1331,10 +1313,11 @@ declare namespace RMMZ {
         messages: Messages;
     }
 
+    export type SaveFileImage = [name: string, index: number];
     export interface SaveFileInfo {
         title: string;
-        characters: [string, number][];
-        faces: [string, number][];
+        characters: SaveFileImage[];
+        faces: SaveFileImage[];
         playtime: string;
         timestamp: number;
     }

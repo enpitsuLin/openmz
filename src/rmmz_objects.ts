@@ -8,12 +8,12 @@ class Game_Temp {
     declare _destinationX: number | null;
     declare _destinationY: number | null;
     declare _touchTarget: Game_Battler | null;
-    declare _touchState: "" | "select" | "click";
+    declare _touchState: Game_Temp.TouchState;
     declare _needsBattleRefresh: boolean;
     declare _commonEventQueue: RMMZ.CommonEventID[];
     declare _animationQueue: RMMZ.AnimationRequest[];
     declare _balloonQueue: RMMZ.BalloonRequest[];
-    declare _lastActionData: [RMMZ.SkillID, RMMZ.ItemID, RMMZ.ActorID, RMMZ.EnemyID, RMMZ.ActorID, RMMZ.EnemyID];
+    declare _lastActionData: Game_Temp.LastActionData;
 
     constructor(...args: any[]) {
         this.initialize(...args);
@@ -175,6 +175,19 @@ class Game_Temp {
     setLastTargetEnemyIndex(enemyIndex: RMMZ.EnemyID): void {
         this.setLastActionData(5, enemyIndex);
     }
+}
+
+declare namespace Game_Temp {
+    export type TouchState = "" | "select" | "click";
+
+    export type LastActionData = [
+        skill: RMMZ.SkillID,
+        item: RMMZ.ItemID,
+        subjectActor: RMMZ.ActorID,
+        subjectEnemy: RMMZ.EnemyID,
+        targetActor: RMMZ.ActorID,
+        targetEnemy: RMMZ.EnemyID,
+    ];
 }
 
 /**
@@ -527,7 +540,7 @@ class Game_Message {
     declare _scrollMode: boolean;
     declare _scrollSpeed: number;
     declare _scrollNoFast: boolean;
-    declare _choiceCallback: ((chosen: number) => void) | null;
+    declare _choiceCallback: Game_Message.ChoiceCallback | null;
 
     constructor(...args: any[]) {
         this.initialize(...args);
@@ -680,7 +693,7 @@ class Game_Message {
         this._scrollNoFast = noFast;
     }
 
-    setChoiceCallback(callback: (chosen: number) => void): void {
+    setChoiceCallback(callback: Game_Message.ChoiceCallback): void {
         this._choiceCallback = callback;
     }
 
@@ -724,6 +737,10 @@ class Game_Message {
     isRTL(): boolean {
         return Utils.containsArabic(this.allText());
     }
+}
+
+declare namespace Game_Message {
+    export type ChoiceCallback = (chosen: number) => void;
 }
 
 /**
@@ -2951,9 +2968,7 @@ class Game_BattlerBase {
         return this.stateIcons().concat(this.buffIcons());
     }
 
-    traitObjects(): {
-        traits: RMMZ.Trait[];
-    }[] {
+    traitObjects(): Game_BattlerBase.TraitObject[] {
         // Returns an array of the all objects having traits. States only here.
         return this.states();
     }
@@ -3409,6 +3424,12 @@ class Game_BattlerBase {
 
     canGuard(): boolean {
         return this.canUse($dataSkills[this.guardSkillId()]);
+    }
+}
+
+declare namespace Game_BattlerBase {
+    export interface TraitObject {
+        traits: RMMZ.Trait[];
     }
 }
 
@@ -4584,9 +4605,7 @@ class Game_Actor extends Game_Battler {
         return this.skills().filter((skill) => this.canUse(skill));
     }
 
-    traitObjects(): {
-        traits: RMMZ.Trait[];
-    }[] {
+    traitObjects(): Game_BattlerBase.TraitObject[] {
         const objects = super.traitObjects();
         objects.push(this.actor(), this.currentClass());
         for (const item of this.equips()) {
@@ -5122,9 +5141,7 @@ class Game_Enemy extends Game_Battler {
         return $dataEnemies[this._enemyId]!;
     }
 
-    traitObjects(): {
-        traits: RMMZ.Trait[];
-    }[] {
+    traitObjects(): Game_BattlerBase.TraitObject[] {
         return super.traitObjects().concat(this.enemy());
     }
 
@@ -5911,11 +5928,11 @@ class Game_Party extends Game_Unit<Game_Actor> {
         $gamePlayer.refresh();
     }
 
-    charactersForSavefile(): [string, number][] {
+    charactersForSavefile(): RMMZ.SaveFileImage[] {
         return this.battleMembers().map((actor) => [actor.characterName(), actor.characterIndex()]);
     }
 
-    facesForSavefile(): [string, number][] {
+    facesForSavefile(): RMMZ.SaveFileImage[] {
         return this.battleMembers().map((actor) => [actor.faceName(), actor.faceIndex()]);
     }
 

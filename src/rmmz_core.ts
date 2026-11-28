@@ -426,7 +426,7 @@ class Graphics {
     declare static _defaultScale: number;
     declare static _realScale: number;
     declare static _errorPrinter: HTMLDivElement | null;
-    declare static _tickHandler: ((deltaTime: number) => void) | null;
+    declare static _tickHandler: Graphics.TickHandler | null;
     declare static _canvas: HTMLCanvasElement | null;
     declare static _fpsCounter: Graphics.FPSCounter | null;
     declare static _loadingSpinner: HTMLDivElement | null;
@@ -507,7 +507,7 @@ class Graphics {
      * Register a handler for tick events.
      * @param handler - The listener function to be added for updates.
      */
-    static setTickHandler(handler: (deltaTime: number) => void): void {
+    static setTickHandler(handler: Graphics.TickHandler): void {
         this._tickHandler = handler;
     }
 
@@ -973,6 +973,12 @@ is pressed.
     }
 }
 
+declare namespace Graphics {
+    export type FPSCounter = GraphicsFPSCounter;
+
+    export type TickHandler = (deltaTime: number) => void;
+}
+
 /**
  * This is based on Darsain's FPSMeter which is under the MIT license.
  * The original can be found at https://github.com/Darsain/fpsmeter.
@@ -1093,7 +1099,7 @@ class Bitmap {
     declare _url: string;
     declare _paintOpacity: number;
     declare _smooth: boolean;
-    declare _loadListeners: Array<(bitmap: Bitmap) => void>;
+    declare _loadListeners: Array<Bitmap.LoadListener>;
     declare _loadingState: string;
     declare fontFace: string;
     declare fontSize: number;
@@ -1564,7 +1570,7 @@ class Bitmap {
      * Adds a callback function that will be called when the bitmap is loaded.
      * @param listner - The callback function.
      */
-    addLoadListener(listner: (bitmap: Bitmap) => void): void {
+    addLoadListener(listner: Bitmap.LoadListener): void {
         if (!this.isReady()) {
             this._loadListeners.push(listner);
         } else {
@@ -1693,6 +1699,10 @@ class Bitmap {
     _onError(): void {
         this._loadingState = "error";
     }
+}
+
+declare namespace Bitmap {
+    export type LoadListener = (bitmap: Bitmap) => void;
 }
 
 /**
@@ -1901,7 +1911,7 @@ class Sprite extends PIXI.Sprite {
      * Gets the blend color for the sprite.
      * @returns The blend color [r, g, b, a].
      */
-    getBlendColor(): [number, number, number, number] {
+    getBlendColor(): RMMZ.Color {
         return this._blendColor.clone();
     }
 
@@ -1923,7 +1933,7 @@ class Sprite extends PIXI.Sprite {
      * Gets the color tone for the sprite.
      * @returns The color tone [r, g, b, gray].
      */
-    getColorTone(): [number, number, number, number] {
+    getColorTone(): RMMZ.Tone {
         return this._colorTone.clone();
     }
 
@@ -2504,19 +2514,13 @@ class Tilemap extends PIXI.Container {
     }
 
     _sortChildren(): void {
-        const sorted = this.children
-            .slice()
-            .sort(
-                this._compareChildOrder as
-                    | ((a: import("pixi.js").ContainerChild, b: import("pixi.js").ContainerChild) => number)
-                    | undefined,
-            );
+        const sorted = this.children.slice().sort(this._compareChildOrder as Tilemap.ChildComparator | undefined);
         for (let i = 0; i < sorted.length; i++) {
             sorted[i].zIndex = i;
         }
     }
 
-    _compareChildOrder(a: RMMZ.TilemapChild, b: RMMZ.TilemapChild): number {
+    _compareChildOrder(a: Tilemap.Child, b: Tilemap.Child): number {
         if (a.z !== b.z) {
             return a.z - b.z;
         } else if (a.y !== b.y) {
@@ -2793,10 +2797,22 @@ class Tilemap extends PIXI.Container {
     }
 }
 
+declare namespace Tilemap {
+    export type Layer = TilemapLayer;
+    export type CombinedLayer = TilemapCombinedLayer;
+
+    export type Child = import("pixi.js").ContainerChild & {
+        z: number;
+        spriteId: number;
+    };
+
+    export type ChildComparator = (a: import("pixi.js").ContainerChild, b: import("pixi.js").ContainerChild) => number;
+}
+
 // Internal classes
 
 class TilemapLayer extends PIXI.Mesh<import("pixi.js").Geometry, import("pixi.js").Shader> {
-    declare _elements: Array<[number, number, number, number, number, number, number]>;
+    declare _elements: Array<TilemapLayer.Element>;
     declare _indexArray: Uint16Array;
     declare _vertexArray: Float32Array;
     declare _needsVertexUpdate: boolean;
@@ -2954,6 +2970,18 @@ class TilemapLayer extends PIXI.Mesh<import("pixi.js").Geometry, import("pixi.js
         }
         this.geometry.getBuffer("aPosition").setDataWithSize(vertexArray, required, true);
     }
+}
+
+declare namespace TilemapLayer {
+    export type Element = [
+        setNumber: number,
+        sx: number,
+        sy: number,
+        dx: number,
+        dy: number,
+        width: number,
+        height: number,
+    ];
 }
 Tilemap.Layer = TilemapLayer;
 
@@ -4043,12 +4071,7 @@ class Weather extends PIXI.Container {
 
     declare _width: number;
     declare _height: number;
-    declare _sprites: Array<
-        Sprite & {
-            ax: number;
-            ay: number;
-        }
-    >;
+    declare _sprites: Weather.ParticleSprite[];
     declare type: string;
     declare power: number;
     declare _rainBitmap: Bitmap;
@@ -4146,12 +4169,7 @@ class Weather extends PIXI.Container {
         this.removeChild(this._sprites.pop()!);
     }
 
-    _updateSprite(
-        sprite: Sprite & {
-            ax: number;
-            ay: number;
-        },
-    ): void {
+    _updateSprite(sprite: Weather.ParticleSprite): void {
         switch (this.type) {
             case "rain":
                 this._updateRainSprite(sprite);
@@ -4168,12 +4186,7 @@ class Weather extends PIXI.Container {
         }
     }
 
-    _updateRainSprite(
-        sprite: Sprite & {
-            ax: number;
-            ay: number;
-        },
-    ): void {
+    _updateRainSprite(sprite: Weather.ParticleSprite): void {
         sprite.bitmap = this._rainBitmap;
         sprite.rotation = Math.PI / 16;
         sprite.ax -= 6 * Math.sin(sprite.rotation);
@@ -4181,12 +4194,7 @@ class Weather extends PIXI.Container {
         sprite.opacity -= 6;
     }
 
-    _updateStormSprite(
-        sprite: Sprite & {
-            ax: number;
-            ay: number;
-        },
-    ): void {
+    _updateStormSprite(sprite: Weather.ParticleSprite): void {
         sprite.bitmap = this._stormBitmap;
         sprite.rotation = Math.PI / 8;
         sprite.ax -= 8 * Math.sin(sprite.rotation);
@@ -4194,12 +4202,7 @@ class Weather extends PIXI.Container {
         sprite.opacity -= 8;
     }
 
-    _updateSnowSprite(
-        sprite: Sprite & {
-            ax: number;
-            ay: number;
-        },
-    ): void {
+    _updateSnowSprite(sprite: Weather.ParticleSprite): void {
         sprite.bitmap = this._snowBitmap;
         sprite.rotation = Math.PI / 16;
         sprite.ax -= 3 * Math.sin(sprite.rotation);
@@ -4207,15 +4210,17 @@ class Weather extends PIXI.Container {
         sprite.opacity -= 3;
     }
 
-    _rebornSprite(
-        sprite: Sprite & {
-            ax: number;
-            ay: number;
-        },
-    ): void {
+    _rebornSprite(sprite: Weather.ParticleSprite): void {
         sprite.ax = Math.randomInt(Graphics.width + 100) - 100 + this.origin.x;
         sprite.ay = Math.randomInt(Graphics.height + 200) - 200 + this.origin.y;
         sprite.opacity = 160 + Math.randomInt(60);
+    }
+}
+
+declare namespace Weather {
+    export interface ParticleSprite extends Sprite {
+        ax: number;
+        ay: number;
     }
 }
 
@@ -5720,24 +5725,8 @@ class TouchInput {
     declare static _screenPressed: boolean;
     declare static _pressedTime: number;
     declare static _clicked: boolean;
-    declare static _newState: {
-        triggered: boolean;
-        cancelled: boolean;
-        moved: boolean;
-        hovered: boolean;
-        released: boolean;
-        wheelX: number;
-        wheelY: number;
-    };
-    declare static _currentState: {
-        triggered: boolean;
-        cancelled: boolean;
-        moved: boolean;
-        hovered: boolean;
-        released: boolean;
-        wheelX: number;
-        wheelY: number;
-    };
+    declare static _newState: TouchInput.State;
+    declare static _currentState: TouchInput.State;
     declare static _x: number;
     declare static _y: number;
     declare static _triggerX: number;
@@ -5920,15 +5909,7 @@ class TouchInput {
         return this._date;
     }
 
-    static _createNewState(): {
-        triggered: boolean;
-        cancelled: boolean;
-        moved: boolean;
-        hovered: boolean;
-        released: boolean;
-        wheelX: number;
-        wheelY: number;
-    } {
+    static _createNewState(): TouchInput.State {
         return {
             triggered: false,
             cancelled: false,
@@ -6095,6 +6076,18 @@ class TouchInput {
         this._newState.released = true;
         this._x = x;
         this._y = y;
+    }
+}
+
+declare namespace TouchInput {
+    export interface State {
+        triggered: boolean;
+        cancelled: boolean;
+        moved: boolean;
+        hovered: boolean;
+        released: boolean;
+        wheelX: number;
+        wheelY: number;
     }
 }
 

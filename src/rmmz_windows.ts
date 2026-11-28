@@ -231,10 +231,7 @@ class Window_Base extends RmmzWindow {
         return textState.outputWidth;
     }
 
-    textSizeEx(text: string): {
-        width: number;
-        height: number;
-    } {
+    textSizeEx(text: string): Window_Base.TextSize {
         this.resetFontSettings();
         const textState = this.createTextState(text, 0, 0, 0);
         textState.drawing = false;
@@ -242,9 +239,9 @@ class Window_Base extends RmmzWindow {
         return { width: textState.outputWidth, height: textState.outputHeight };
     }
 
-    createTextState(text: string, x: number, y: number, width: number): RMMZ.TextState {
+    createTextState(text: string, x: number, y: number, width: number): Window_Base.TextState {
         const rtl = Utils.containsArabic(text);
-        const textState = {} as RMMZ.TextState;
+        const textState = {} as Window_Base.TextState;
         textState.text = this.convertEscapeCharacters(text);
         textState.index = 0;
         textState.x = rtl ? x + width : x;
@@ -261,14 +258,14 @@ class Window_Base extends RmmzWindow {
         return textState;
     }
 
-    processAllText(textState: RMMZ.TextState): void {
+    processAllText(textState: Window_Base.TextState): void {
         while (textState.index < textState.text.length) {
             this.processCharacter(textState);
         }
         this.flushTextState(textState);
     }
 
-    flushTextState(textState: RMMZ.TextState): void {
+    flushTextState(textState: Window_Base.TextState): void {
         const text = textState.buffer;
         const rtl = textState.rtl;
         const width = this.textWidth(text);
@@ -315,7 +312,7 @@ class Window_Base extends RmmzWindow {
         return actor ? actor.name() : "";
     }
 
-    processCharacter(textState: RMMZ.TextState): void {
+    processCharacter(textState: Window_Base.TextState): void {
         const c = textState.text[textState.index++];
         if (c.charCodeAt(0) < 0x20) {
             this.flushTextState(textState);
@@ -325,7 +322,7 @@ class Window_Base extends RmmzWindow {
         }
     }
 
-    processControlCharacter(textState: RMMZ.TextState, c: string): void {
+    processControlCharacter(textState: Window_Base.TextState, c: string): void {
         if (c === "\n") {
             this.processNewLine(textState);
         }
@@ -335,13 +332,13 @@ class Window_Base extends RmmzWindow {
         }
     }
 
-    processNewLine(textState: RMMZ.TextState): void {
+    processNewLine(textState: Window_Base.TextState): void {
         textState.x = textState.startX;
         textState.y += textState.height;
         textState.height = this.calcTextHeight(textState);
     }
 
-    obtainEscapeCode(textState: RMMZ.TextState): string {
+    obtainEscapeCode(textState: Window_Base.TextState): string {
         const regExp = /^[$.|^!><{}\\]|^[A-Z]+/i;
         const arr = regExp.exec(textState.text.slice(textState.index));
         if (arr) {
@@ -352,7 +349,7 @@ class Window_Base extends RmmzWindow {
         }
     }
 
-    obtainEscapeParam(textState: RMMZ.TextState): number | "" {
+    obtainEscapeParam(textState: Window_Base.TextState): number | "" {
         const regExp = /^\[\d+\]/;
         const arr = regExp.exec(textState.text.slice(textState.index));
         if (arr) {
@@ -363,7 +360,7 @@ class Window_Base extends RmmzWindow {
         }
     }
 
-    processEscapeCharacter(code: "C" | "I" | "PX" | "PY" | "FS" | "{" | "}", textState: RMMZ.TextState): void {
+    processEscapeCharacter(code: "C" | "I" | "PX" | "PY" | "FS" | "{" | "}", textState: Window_Base.TextState): void {
         switch (code) {
             case "C":
                 this.processColorChange(this.obtainEscapeParam(textState) as number);
@@ -393,7 +390,7 @@ class Window_Base extends RmmzWindow {
         this.changeTextColor(ColorManager.textColor(colorIndex));
     }
 
-    processDrawIcon(iconIndex: number, textState: RMMZ.TextState): void {
+    processDrawIcon(iconIndex: number, textState: Window_Base.TextState): void {
         const deltaX = ImageManager.standardIconWidth - ImageManager.iconWidth;
         const deltaY = ImageManager.standardIconHeight - ImageManager.iconHeight;
         if (textState.drawing) {
@@ -416,7 +413,7 @@ class Window_Base extends RmmzWindow {
         }
     }
 
-    calcTextHeight(textState: RMMZ.TextState): number {
+    calcTextHeight(textState: Window_Base.TextState): number {
         const lineSpacing = this.lineHeight() - $gameSystem.mainFontSize();
         const lastFontSize = this.contents.fontSize;
         const lines = textState.text.slice(textState.index).split("\n");
@@ -581,6 +578,29 @@ class Window_Base extends RmmzWindow {
 
     playBuzzerSound(): void {
         SoundManager.playBuzzer();
+    }
+}
+
+declare namespace Window_Base {
+    export interface TextState {
+        text: string;
+        index: number;
+        x: number;
+        y: number;
+        width: number;
+        height: number;
+        startX: number;
+        startY: number;
+        rtl: boolean;
+        buffer: string;
+        drawing: boolean;
+        outputWidth: number;
+        outputHeight: number;
+    }
+
+    export interface TextSize {
+        width: number;
+        height: number;
     }
 }
 
@@ -1508,12 +1528,7 @@ class Window_Command extends Window_Selectable {
         return this._list[index].enabled;
     }
 
-    currentData(): {
-        name: string;
-        symbol: string;
-        enabled: boolean;
-        ext: number | null;
-    } | null {
+    currentData(): Window_Command.Command | null {
         return this.index() >= 0 ? this._list[this.index()] : null;
     }
 
@@ -1586,6 +1601,15 @@ class Window_Command extends Window_Selectable {
         this.clearCommandList();
         this.makeCommandList();
         super.refresh();
+    }
+}
+
+declare namespace Window_Command {
+    export interface Command {
+        name: string;
+        symbol: string;
+        enabled: boolean;
+        ext: number | null;
     }
 }
 
@@ -4898,21 +4922,7 @@ class Window_Message extends Window_Base {
     declare _positionType: RMMZ.TextWindowPositionType;
     declare _waitCount: number;
     declare _faceBitmap: Bitmap | null;
-    declare _textState: {
-        text: string;
-        index: number;
-        x: number;
-        y: number;
-        width: number;
-        height: number;
-        startX: number;
-        startY: number;
-        rtl: boolean;
-        buffer: string;
-        drawing: boolean;
-        outputWidth: number;
-        outputHeight: number;
-    } | null;
+    declare _textState: Window_Base.TextState | null;
     declare _goldWindow: Window_Gold | null;
     declare _nameBoxWindow: Window_NameBox | null;
     declare _choiceListWindow: Window_ChoiceList | null;
@@ -5023,7 +5033,7 @@ class Window_Message extends Window_Base {
         this._nameBoxWindow!.start();
     }
 
-    newLineX(textState: RMMZ.TextState): number {
+    newLineX(textState: Window_Base.TextState): number {
         const faceExists = $gameMessage.faceName() !== "";
         const faceWidth = ImageManager.standardFaceWidth;
         const spacing = 20;
@@ -5124,7 +5134,7 @@ class Window_Message extends Window_Base {
         }
     }
 
-    shouldBreakHere(textState: RMMZ.TextState): boolean {
+    shouldBreakHere(textState: Window_Base.TextState): boolean {
         if (this.canBreakHere(textState)) {
             if (!this._showFast && !this._lineShowFast) {
                 return true;
@@ -5136,7 +5146,7 @@ class Window_Message extends Window_Base {
         return false;
     }
 
-    canBreakHere(textState: RMMZ.TextState): boolean {
+    canBreakHere(textState: Window_Base.TextState): boolean {
         if (!this.isEndOfText(textState)) {
             const c = textState.text[textState.index];
             if (c.charCodeAt(0) >= 0xdc00 && c.charCodeAt(0) <= 0xdfff) {
@@ -5194,7 +5204,7 @@ class Window_Message extends Window_Base {
         }
     }
 
-    newPage(textState: RMMZ.TextState): void {
+    newPage(textState: Window_Base.TextState): void {
         this.contents.clear();
         this.resetFontSettings();
         this.clearFlags();
@@ -5223,14 +5233,14 @@ class Window_Message extends Window_Base {
         this.drawFace(faceName, faceIndex, x, 0, width, height);
     }
 
-    processControlCharacter(textState: RMMZ.TextState, c: string): void {
+    processControlCharacter(textState: Window_Base.TextState, c: string): void {
         super.processControlCharacter(textState, c);
         if (c === "\f") {
             this.processNewPage(textState);
         }
     }
 
-    processNewLine(textState: RMMZ.TextState): void {
+    processNewLine(textState: Window_Base.TextState): void {
         this._lineShowFast = false;
         super.processNewLine(textState);
         if (this.needsNewPage(textState)) {
@@ -5238,7 +5248,7 @@ class Window_Message extends Window_Base {
         }
     }
 
-    processNewPage(textState: RMMZ.TextState): void {
+    processNewPage(textState: Window_Base.TextState): void {
         if (textState.text[textState.index] === "\n") {
             textState.index++;
         }
@@ -5246,17 +5256,17 @@ class Window_Message extends Window_Base {
         this.startPause();
     }
 
-    isEndOfText(textState: RMMZ.TextState): boolean {
+    isEndOfText(textState: Window_Base.TextState): boolean {
         return textState.index >= textState.text.length;
     }
 
-    needsNewPage(textState: RMMZ.TextState): boolean {
+    needsNewPage(textState: Window_Base.TextState): boolean {
         return !this.isEndOfText(textState) && textState.y + textState.height > this.contents.height;
     }
 
     processEscapeCharacter(
         code: ("$" | "." | "|" | "!" | ">" | "<" | "^") | ("C" | "I" | "PX" | "PY" | "FS" | "{" | "}"),
-        textState: RMMZ.TextState,
+        textState: Window_Base.TextState,
     ): void {
         switch (code) {
             case "$":
@@ -5493,10 +5503,7 @@ class Window_MapName extends Window_Base {
  */
 class Window_BattleLog extends Window_Base {
     declare _lines: string[];
-    declare _methods: {
-        name: RMMZ.MethodName<Omit<Window_BattleLog, "_methods" | "push">>;
-        params: unknown[];
-    }[];
+    declare _methods: Window_BattleLog.Method[];
     declare _waitCount: number;
     declare _waitMode: RMMZ.WaitMode;
     declare _baseLineStack: number[];
@@ -5609,11 +5616,11 @@ class Window_BattleLog extends Window_Base {
         return Input.isLongPressed("ok") || Input.isPressed("shift") || TouchInput.isLongPressed();
     }
 
-    push<K extends RMMZ.MethodName<Omit<Window_BattleLog, "_methods" | "push">>>(
+    push<K extends Window_BattleLog.MethodName>(
         methodName: K,
         ...params: Window_BattleLog[K] extends (...args: infer P) => any ? P : never
     ): void;
-    push(methodName: RMMZ.MethodName<Omit<Window_BattleLog, "_methods" | "push">>): void {
+    push(methodName: Window_BattleLog.MethodName): void {
         const methodArgs = Array.prototype.slice.call(arguments, 1);
         this._methods.push({ name: methodName, params: methodArgs });
     }
@@ -6096,6 +6103,15 @@ class Window_BattleLog extends Window_Base {
         } else {
             return "";
         }
+    }
+}
+
+declare namespace Window_BattleLog {
+    export type MethodName = RMMZ.MethodName<Omit<Window_BattleLog, "_methods" | "push">>;
+
+    export interface Method {
+        name: MethodName;
+        params: unknown[];
     }
 }
 

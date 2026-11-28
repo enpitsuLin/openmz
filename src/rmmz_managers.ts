@@ -10,70 +10,9 @@ class DataManager {
 
     static _globalInfo: RMMZ.DataGlobalInfo | null = null;
 
-    static _errors: {
-        name: string;
-        src: string;
-        url: string;
-    }[] = [];
+    static _errors: DataManager.LoadFailure[] = [];
 
-    static _databaseFiles: readonly [
-        {
-            readonly name: "$dataActors";
-            readonly src: "Actors.json";
-        },
-        {
-            readonly name: "$dataClasses";
-            readonly src: "Classes.json";
-        },
-        {
-            readonly name: "$dataSkills";
-            readonly src: "Skills.json";
-        },
-        {
-            readonly name: "$dataItems";
-            readonly src: "Items.json";
-        },
-        {
-            readonly name: "$dataWeapons";
-            readonly src: "Weapons.json";
-        },
-        {
-            readonly name: "$dataArmors";
-            readonly src: "Armors.json";
-        },
-        {
-            readonly name: "$dataEnemies";
-            readonly src: "Enemies.json";
-        },
-        {
-            readonly name: "$dataTroops";
-            readonly src: "Troops.json";
-        },
-        {
-            readonly name: "$dataStates";
-            readonly src: "States.json";
-        },
-        {
-            readonly name: "$dataAnimations";
-            readonly src: "Animations.json";
-        },
-        {
-            readonly name: "$dataTilesets";
-            readonly src: "Tilesets.json";
-        },
-        {
-            readonly name: "$dataCommonEvents";
-            readonly src: "CommonEvents.json";
-        },
-        {
-            readonly name: "$dataSystem";
-            readonly src: "System.json";
-        },
-        {
-            readonly name: "$dataMapInfos";
-            readonly src: "MapInfos.json";
-        },
-    ] = [
+    static _databaseFiles = [
         { name: "$dataActors", src: "Actors.json" },
         { name: "$dataClasses", src: "Classes.json" },
         { name: "$dataSkills", src: "Skills.json" },
@@ -88,7 +27,7 @@ class DataManager {
         { name: "$dataCommonEvents", src: "CommonEvents.json" },
         { name: "$dataSystem", src: "System.json" },
         { name: "$dataMapInfos", src: "MapInfos.json" },
-    ];
+    ] as const;
 
     static loadGlobalInfo(): void {
         RmmzStorageManager.loadObject("global")
@@ -212,7 +151,7 @@ class DataManager {
         }
     }
 
-    static extractMetadata(data: { note: string; meta?: RMMZ.Meta }): void {
+    static extractMetadata(data: RMMZ.NotedData): void {
         const regExp = /<([^<>:]+)(:?)([^>]*)>/g;
         data.meta = {};
         for (;;) {
@@ -446,6 +385,14 @@ class DataManager {
 
     static correctDataErrors(): void {
         $gameParty.removeInvalidMembers();
+    }
+}
+
+declare namespace DataManager {
+    export interface LoadFailure {
+        name: string;
+        src: string;
+        url: string;
     }
 }
 
@@ -2127,13 +2074,13 @@ class SceneManager {
 
     static _nextScene: Scene_Base | null = null;
 
-    static _stack: (new () => Scene_Base)[] = [];
+    static _stack: SceneManager.SceneConstructor[] = [];
 
     static _exiting: boolean = false;
 
     static _previousScene: Scene_Base | null = null;
 
-    static _previousClass: (new () => Scene_Base) | null = null;
+    static _previousClass: SceneManager.SceneConstructor | null = null;
 
     static _backgroundBitmap: Bitmap | null = null;
 
@@ -2141,7 +2088,7 @@ class SceneManager {
 
     static _elapsedTime: number = 0;
 
-    static async run(sceneClass: new () => Scene_Base): Promise<void> {
+    static async run(sceneClass: SceneManager.SceneConstructor): Promise<void> {
         try {
             await this.initialize();
             this.goto(sceneClass);
@@ -2243,7 +2190,7 @@ class SceneManager {
         }
     }
 
-    static onError(event: Pick<ErrorEvent, "message"> & Partial<Pick<ErrorEvent, "filename" | "lineno">>): void {
+    static onError(event: SceneManager.ErrorEvent): void {
         console.error(event.message);
         console.error(event.filename, event.lineno);
         try {
@@ -2257,8 +2204,8 @@ class SceneManager {
 
     static onReject(event: PromiseRejectionEvent): void {
         // Catch uncaught exception in Promise
-        (event as PromiseRejectionEvent & { message: string }).message = event.reason;
-        this.onError(event as PromiseRejectionEvent & { message: string });
+        (event as SceneManager.RejectionEvent).message = event.reason;
+        this.onError(event as SceneManager.RejectionEvent);
     }
 
     static onUnload(): void {
@@ -2296,7 +2243,7 @@ class SceneManager {
         if (e instanceof Error) {
             this.catchNormalError(e);
         } else if (e instanceof Array && e[0] === "LoadError") {
-            this.catchLoadError(e as ["LoadError", string, () => void]);
+            this.catchLoadError(e as SceneManager.LoadError);
         } else {
             this.catchUnknownError(e);
         }
@@ -2309,7 +2256,7 @@ class SceneManager {
         console.error(e.stack);
     }
 
-    static catchLoadError(e: ["LoadError", string, () => void]): void {
+    static catchLoadError(e: SceneManager.LoadError): void {
         const url = e[1];
         const retry = e[2];
         Graphics.printError("Failed to load", url);
@@ -2395,7 +2342,7 @@ class SceneManager {
 
     static onSceneTerminate(): void {
         this._previousScene = this._scene;
-        this._previousClass = this._scene!.constructor as (new () => Scene_Base) | null;
+        this._previousClass = this._scene!.constructor as SceneManager.SceneConstructor | null;
         Graphics.setStage(null);
     }
 
@@ -2426,15 +2373,15 @@ class SceneManager {
         return this._scene && this._scene.isBusy();
     }
 
-    static isNextScene(sceneClass: new () => Scene_Base): boolean | null {
+    static isNextScene(sceneClass: SceneManager.SceneConstructor): boolean | null {
         return this._nextScene && this._nextScene.constructor === sceneClass;
     }
 
-    static isPreviousScene(sceneClass: new () => Scene_Base): boolean {
+    static isPreviousScene(sceneClass: SceneManager.SceneConstructor): boolean {
         return this._previousClass === sceneClass;
     }
 
-    static goto(sceneClass: (new () => Scene_Base) | null): void {
+    static goto(sceneClass: SceneManager.SceneConstructor | null): void {
         if (sceneClass) {
             this._nextScene = new sceneClass();
         }
@@ -2443,8 +2390,8 @@ class SceneManager {
         }
     }
 
-    static push(sceneClass: new () => Scene_Base): void {
-        this._stack.push(this._scene!.constructor as new () => Scene_Base);
+    static push(sceneClass: SceneManager.SceneConstructor): void {
+        this._stack.push(this._scene!.constructor as SceneManager.SceneConstructor);
         this.goto(sceneClass);
     }
 
@@ -2471,11 +2418,7 @@ class SceneManager {
 
     static prepareNextScene(..._extra: any[]): void;
     static prepareNextScene(): void {
-        (
-            this._nextScene as Scene_Base & {
-                prepare: (...args: any[]) => void;
-            }
-        ).prepare(...arguments);
+        (this._nextScene as SceneManager.PreparedScene).prepare(...arguments);
     }
 
     static snap(): Bitmap {
@@ -2499,6 +2442,23 @@ class SceneManager {
     }
 }
 
+declare namespace SceneManager {
+    export type LoadError = [kind: "LoadError", url: string, retry: () => void];
+
+    export type SceneConstructor = new () => Scene_Base;
+
+    export type ErrorEvent = Pick<globalThis.ErrorEvent, "message"> &
+        Partial<Pick<globalThis.ErrorEvent, "filename" | "lineno">>;
+
+    export interface RejectionEvent extends PromiseRejectionEvent {
+        message: string;
+    }
+
+    export interface PreparedScene extends Scene_Base {
+        prepare: (...args: any[]) => void;
+    }
+}
+
 /**
  * The static class that manages battle progress.
  */
@@ -2513,7 +2473,7 @@ class BattleManager {
     declare static _phase: string;
     declare static _inputting: boolean;
     declare static _battleTest: boolean;
-    declare static _eventCallback: (result: number) => void | null;
+    declare static _eventCallback: BattleManager.ResultCallback | null;
     declare static _preemptive: boolean;
     declare static _surprise: boolean;
     declare static _actionForcedBattler: RMMZ.ActionTarget | null;
@@ -2525,11 +2485,7 @@ class BattleManager {
     declare static _spriteset: Spriteset_Battle | null;
     declare static _escapeRatio: number;
     declare static _escaped: boolean;
-    declare static _rewards: {
-        gold: number;
-        exp: number;
-        items: RMMZ.DatabaseItem[];
-    };
+    declare static _rewards: BattleManager.Rewards;
     declare static _tpbNeedsPartyCommand: boolean;
 
     constructor() {
@@ -2551,7 +2507,7 @@ class BattleManager {
         this._canEscape = false;
         this._canLose = false;
         this._battleTest = false;
-        this._eventCallback = null!;
+        this._eventCallback = null;
         this._preemptive = false;
         this._surprise = false;
         this._currentActor = null;
@@ -2586,7 +2542,7 @@ class BattleManager {
         this._battleTest = battleTest;
     }
 
-    static setEventCallback(callback: (result: number) => void): void {
+    static setEventCallback(callback: BattleManager.ResultCallback): void {
         this._eventCallback = callback;
     }
 
@@ -3361,6 +3317,16 @@ class BattleManager {
     }
 }
 
+declare namespace BattleManager {
+    export type ResultCallback = (result: number) => void;
+
+    export interface Rewards {
+        gold: number;
+        exp: number;
+        items: RMMZ.DatabaseItem[];
+    }
+}
+
 /**
  * The static class that manages the plugins.
  */
@@ -3375,7 +3341,7 @@ class PluginManager {
 
     static _parameters: Record<string, Record<string, unknown>> = {};
 
-    static _commands: Record<string, (args: RMMZ.PluginParameters) => void> = {};
+    static _commands: Record<string, PluginManager.Command> = {};
 
     static setup(plugins: RMMZ.DataPlugin[]): void {
         for (const plugin of plugins) {
@@ -3398,9 +3364,7 @@ class PluginManager {
 
     static loadScript(filename: string): void {
         const url = this.makeUrl(filename);
-        const script = document.createElement("script") as HTMLScriptElement & {
-            _url: string;
-        };
+        const script = document.createElement("script") as Main.ScriptElement;
         script.type = "text/javascript";
         script.src = url;
         script.async = false;
@@ -3411,7 +3375,7 @@ class PluginManager {
     }
 
     static onError(e: Event | string): void {
-        this._errorUrls.push(((e as Event).target as HTMLScriptElement & { _url: string })._url);
+        this._errorUrls.push(((e as Event).target as Main.ScriptElement)._url);
     }
 
     static makeUrl(filename: string): string {
@@ -3432,7 +3396,7 @@ class PluginManager {
     static registerCommand<T extends RMMZ.PluginParameters>(
         pluginName: string,
         commandName: string,
-        func: (args: T) => void,
+        func: PluginManager.Command<T>,
     ): void {
         const key = pluginName + ":" + commandName;
         this._commands[key] = func as (...args: unknown[]) => void;
@@ -3445,4 +3409,8 @@ class PluginManager {
             func.bind(self)(args);
         }
     }
+}
+
+declare namespace PluginManager {
+    export type Command<T extends RMMZ.PluginParameters = RMMZ.PluginParameters> = (args: T) => void;
 }

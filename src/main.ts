@@ -1,7 +1,5 @@
 // main.ts v2.0.0
 
-type EngineScript = HTMLScriptElement & { _url: string };
-
 const scriptUrls: string[] = [
     "js/libs/pixi.js",
     "js/libs/pako.min.js",
@@ -73,7 +71,7 @@ class Main {
 
     loadMainScripts(): void {
         for (const url of scriptUrls) {
-            const script = document.createElement("script") as EngineScript;
+            const script = document.createElement("script") as Main.ScriptElement;
             script.type = "text/javascript";
             script.src = url;
             script.async = false;
@@ -95,7 +93,7 @@ class Main {
     }
 
     onScriptError(e: Event): void {
-        this.printError("Failed to load", (e.target as EngineScript)._url);
+        this.printError("Failed to load", (e.target as Main.ScriptElement)._url);
     }
 
     printError(name: string, message: string): void {
@@ -159,6 +157,12 @@ class Main {
 
     onEffekseerError(): void {
         this.printError("Failed to load", effekseerWasmUrl);
+    }
+}
+
+declare namespace Main {
+    export interface ScriptElement extends HTMLScriptElement {
+        _url: string;
     }
 }
 

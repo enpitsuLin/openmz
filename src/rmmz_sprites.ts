@@ -103,20 +103,18 @@ class Sprite_Clickable extends Sprite {
  * The sprite for displaying a button.
  */
 class Sprite_Button extends Sprite_Clickable {
-    declare _buttonType: "cancel" | "pageup" | "pagedown" | "down" | "up" | "down2" | "up2" | "ok" | "menu";
+    declare _buttonType: Sprite_Button.ButtonType;
     declare _clickHandler: (() => void) | null;
     declare _coldFrame: Rectangle | null;
     declare _hotFrame: Rectangle | null;
 
-    constructor(
-        ...args: [buttonType: "cancel" | "pageup" | "pagedown" | "down" | "up" | "down2" | "up2" | "ok" | "menu"]
-    ) {
+    constructor(...args: [buttonType: Sprite_Button.ButtonType]) {
         super(...args);
     }
 
-    initialize(buttonType: "cancel" | "pageup" | "pagedown" | "down" | "up" | "down2" | "up2" | "ok" | "menu"): void;
+    initialize(buttonType: Sprite_Button.ButtonType): void;
     initialize(...args: any[]): void;
-    initialize(buttonType: "cancel" | "pageup" | "pagedown" | "down" | "up" | "down2" | "up2" | "ok" | "menu"): void {
+    initialize(buttonType: Sprite_Button.ButtonType): void {
         super.initialize();
 
         this._buttonType = buttonType;
@@ -150,43 +148,7 @@ class Sprite_Button extends Sprite_Clickable {
         this.bitmap = ImageManager.loadSystem("ButtonSet");
     }
 
-    buttonData():
-        | {
-              x: number;
-              w: number;
-          }
-        | {
-              x: number;
-              w: number;
-          }
-        | {
-              x: number;
-              w: number;
-          }
-        | {
-              x: number;
-              w: number;
-          }
-        | {
-              x: number;
-              w: number;
-          }
-        | {
-              x: number;
-              w: number;
-          }
-        | {
-              x: number;
-              w: number;
-          }
-        | {
-              x: number;
-              w: number;
-          }
-        | {
-              x: number;
-              w: number;
-          } {
+    buttonData(): Sprite_Button.ButtonData {
         const buttonTable = {
             cancel: { x: 0, w: 2 },
             pageup: { x: 2, w: 1 },
@@ -245,6 +207,15 @@ class Sprite_Button extends Sprite_Clickable {
         } else {
             Input.virtualClick(this._buttonType);
         }
+    }
+}
+
+declare namespace Sprite_Button {
+    export type ButtonType = "cancel" | "pageup" | "pagedown" | "down" | "up" | "down2" | "up2" | "ok" | "menu";
+
+    export interface ButtonData {
+        x: number;
+        w: number;
     }
 }
 
@@ -716,7 +687,7 @@ class Sprite_Battler extends Sprite_Clickable {
  */
 class Sprite_Actor extends Sprite_Battler {
     declare _battlerName: string;
-    declare _motion: (typeof Sprite_Actor.MOTIONS)[RMMZ.BattlerMotionType] | null;
+    declare _motion: Sprite_Actor.Motion | null;
     declare _motionCount: number;
     declare _pattern: number;
     declare _mainSprite: Sprite;
@@ -729,80 +700,7 @@ class Sprite_Actor extends Sprite_Battler {
         super(...args!);
     }
 
-    static MOTIONS: {
-        walk: {
-            index: number;
-            loop: boolean;
-        };
-        wait: {
-            index: number;
-            loop: boolean;
-        };
-        chant: {
-            index: number;
-            loop: boolean;
-        };
-        guard: {
-            index: number;
-            loop: boolean;
-        };
-        damage: {
-            index: number;
-            loop: boolean;
-        };
-        evade: {
-            index: number;
-            loop: boolean;
-        };
-        thrust: {
-            index: number;
-            loop: boolean;
-        };
-        swing: {
-            index: number;
-            loop: boolean;
-        };
-        missile: {
-            index: number;
-            loop: boolean;
-        };
-        skill: {
-            index: number;
-            loop: boolean;
-        };
-        spell: {
-            index: number;
-            loop: boolean;
-        };
-        item: {
-            index: number;
-            loop: boolean;
-        };
-        escape: {
-            index: number;
-            loop: boolean;
-        };
-        victory: {
-            index: number;
-            loop: boolean;
-        };
-        dying: {
-            index: number;
-            loop: boolean;
-        };
-        abnormal: {
-            index: number;
-            loop: boolean;
-        };
-        sleep: {
-            index: number;
-            loop: boolean;
-        };
-        dead: {
-            index: number;
-            loop: boolean;
-        };
-    } = {
+    static MOTIONS: Record<RMMZ.BattlerMotionType, Sprite_Actor.Motion> = {
         walk: { index: 0, loop: true },
         wait: { index: 1, loop: true },
         chant: { index: 2, loop: true },
@@ -1071,6 +969,13 @@ class Sprite_Actor extends Sprite_Battler {
 
     damageOffsetY(): number {
         return super.damageOffsetY();
+    }
+}
+
+declare namespace Sprite_Actor {
+    export interface Motion {
+        index: number;
+        loop: boolean;
     }
 }
 
@@ -2838,9 +2743,7 @@ class Sprite_StateIcon extends Sprite {
         }
     }
 
-    shouldDisplay(): this is {
-        _battler: RMMZ.ActionTarget;
-    } {
+    shouldDisplay(): this is Pick<Sprite_Battler, "_battler"> {
         const battler = this._battler;
         return (battler && (battler.isActor() || battler.isAlive()))!;
     }
@@ -3500,7 +3403,7 @@ class Spriteset_Base extends Sprite {
     // prettier-ignore
 
     createAnimationSprite(
-        targets: RMMZ.AnimationTarget[], animation: RMMZ.DataAnimation | RMMZ.DataAnimationMV, mirror: boolean, delay: number
+        targets: RMMZ.AnimationTarget[], animation: RMMZ.AnimationData, mirror: boolean, delay: number
     ): void {
         const mv = this.isMVAnimation(animation);
         const sprite = new (mv ? Sprite_AnimationMV : Sprite_Animation)();
@@ -3516,7 +3419,7 @@ class Spriteset_Base extends Sprite {
         this._animationSprites.push(sprite);
     }
 
-    isMVAnimation(animation: RMMZ.DataAnimation | RMMZ.DataAnimationMV): animation is RMMZ.DataAnimationMV {
+    isMVAnimation(animation: RMMZ.AnimationData): animation is RMMZ.DataAnimationMV {
         return !!(animation as RMMZ.DataAnimationMV).frames;
     }
 
@@ -3535,7 +3438,7 @@ class Spriteset_Base extends Sprite {
         return this._animationSprites[this._animationSprites.length - 1];
     }
 
-    isAnimationForEach(animation: RMMZ.DataAnimation | RMMZ.DataAnimationMV): boolean {
+    isAnimationForEach(animation: RMMZ.AnimationData): boolean {
         const mv = this.isMVAnimation(animation);
         return mv ? animation.position !== 3 : animation.displayType === 0;
     }
@@ -3548,11 +3451,7 @@ class Spriteset_Base extends Sprite {
         return 12;
     }
 
-    animationShouldMirror(
-        target: RMMZ.AnimationTarget & {
-            isActor?: () => boolean;
-        },
-    ): boolean {
+    animationShouldMirror(target: RMMZ.AnimationTarget): boolean {
         return (target && target.isActor && target.isActor())!;
     }
 

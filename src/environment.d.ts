@@ -32,15 +32,6 @@ declare global {
         type StorageManager = RmmzStorageManager;
     }
 
-    namespace Graphics {
-        type FPSCounter = GraphicsFPSCounter;
-    }
-
-    namespace Tilemap {
-        type Layer = TilemapLayer;
-        type CombinedLayer = TilemapCombinedLayer;
-    }
-
     var PIXI: typeof PIXIMod;
 
     interface Array<T> {
