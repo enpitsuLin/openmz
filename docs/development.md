@@ -46,6 +46,8 @@ pnpm --filter openmz exec playwright install chromium
 
 ## CI 与发布流程
 
+在干净的工作区运行 `pnpm release`，选择并确认版本。核心和更新器会升到同一版本并生成一个提交。命令会为该提交创建 `v<版本>` 和 `plugin/openmz-updater@v<版本>` 两个标签，一次推送到 `origin` 以触发下方的发布工作流。
+
 - **持续集成（CI）**：推送或发起 PR 至 `main` 时触发 [CI 工作流](../.github/workflows/ci.yml)，并行执行 `lint`、`format:check`、`typecheck`、`test:unit`、`build` 以及 Playwright Chromium 插件兼容性测试。
 - **核心发布（CD）**：推送 `v*` 标签（或手动触发 [Release OpenMZ Core 工作流](../.github/workflows/release-core.yml)）后，GitHub Actions 执行 `pnpm --filter openmz run pack`，将核心压缩包与 `manifest.json` 上传至 GitHub Release。
 - **插件独立发布（CD）**：推送 `plugin/<插件目录>@v<版本>` 标签（例如 `plugin/openmz-updater@v1.0.0`，或手动触发 [Release Plugin 工作流](../.github/workflows/release-plugin.yml)）后，GitHub Actions 校验对应插件 `package.json` 版本并构建，将 `plugins/<插件目录>/dist/*.js` 发布为独立的 GitHub Release。

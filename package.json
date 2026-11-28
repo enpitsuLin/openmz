@@ -4,6 +4,7 @@
   "description": "OpenMZ monorepo containing the core engine, internal build/release tools, and official plugins.",
   "scripts": {
     "build": "pnpm -r --if-present run build",
+    "release": "node scripts/release.ts",
     "lint": "oxlint --deny-warnings",
     "lint:fix": "oxlint --fix --deny-warnings",
     "format": "oxfmt --write",
@@ -22,6 +23,7 @@
   "devDependencies": {
     "@types/node": "catalog:",
     "@types/nw.js": "catalog:",
+    "bumpp": "catalog:",
     "oxfmt": "catalog:",
     "oxlint": "catalog:",
     "typescript": "catalog:",

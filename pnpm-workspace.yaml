@@ -7,6 +7,7 @@ catalog:
   '@types/node': ^24.19.4
   '@types/nw.js': ^0.13.21
   '@vitest/browser-playwright': ^5.1.1
+  bumpp: ^12.3.0
   citty: ^0.2.2
   oxfmt: ^0.80.0
   oxlint: ^1.95.0
