@@ -31,21 +31,21 @@ OpenMZ 在构建产物中保留了 RPG Maker MZ 的全局原型结构与引擎�
 
 ### 速查表
 
-| 领域         | 原版 MZ (PixiJS 5)                             | OpenMZ (PixiJS 8)                                              | 引擎参考实现                                              |
-| ------------ | ---------------------------------------------- | -------------------------------------------------------------- | --------------------------------------------------------- |
-| 模糊滤镜     | `PIXI.filters.BlurFilter`                      | `PIXI.BlurFilter`                                              | —                                                         |
-| 自定义着色器 | `new PIXI.Filter(vert, frag, uniforms)`        | `new PIXI.Filter({ glProgram, resources })`                    | [`ColorFilter`](../packages/openmz/src/rmmz_core.ts#L4273) |
-| 离屏纹理创建 | `RenderTexture.create(w, h)`                   | `RenderTexture.create({ width, height })`                      | [`Bitmap.snap`](../packages/openmz/src/rmmz_core.ts#L1200) |
-| 离屏渲染与提取 | `renderer.render(stage, target)`             | `renderer.render({ container, target })` / `extract.canvas()`  | [`Bitmap.snap`](../packages/openmz/src/rmmz_core.ts#L1200) |
-| 混合模式     | 数字 `0–3` 或字符串                            | `PIXI.Sprite` 与 `TilingSprite` 需使用字符串；`Sprite` 兼容 `0–3` | [`Sprite#blendMode`](../packages/openmz/src/rmmz_core.ts#L1819) |
-| 逐帧渲染钩子 | 覆写子对象 `updateTransform()` / `render()`    | 挂载 `onRender`                                                | [`WindowLayer`](../packages/openmz/src/rmmz_core.ts#L3990) |
-| 窗口遮挡遮罩 | `Window.prototype.drawShape`                   | `openBounds()` 与矩形遮罩                                      | [`WindowLayer`](../packages/openmz/src/rmmz_core.ts#L3990) |
-| 瓦片地图批处理 | `Tilemap.Renderer` / `renderer.plugins.rpgtilemap` | 基于 `PIXI.Mesh` 的 `TilemapLayer`                           | [`TilemapLayer`](../packages/openmz/src/rmmz_core.ts#L2829) |
-| 位图底层纹理 | `bitmap.baseTexture`                           | `bitmap.textureSource`（刷新调用 `textureSource.update()`）    | [`Bitmap#textureSource`](../packages/openmz/src/rmmz_core.ts#L1242) |
-| 资源加载器   | `PIXI.Loader.shared.add(...)`                  | `await PIXI.Assets.load(url)`                                  | —                                                         |
-| 交互系统     | `renderer.plugins.interaction`                 | `renderer.events` 与显示对象事件（拖拽移出监听 `globalpointermove`） | —                                                   |
-| 应用初始化   | 同步 `new PIXI.Application(options)`           | `const app = new PIXI.Application(); await app.init(options)`  | [`Graphics._createPixiApp`](../packages/openmz/src/rmmz_core.ts#L952) |
-| 粒子容器     | `ParticleContainer.addChild(sprite)`           | 使用 `Particle` 与 `addParticle()`                             | —                                                         |
+| 领域           | 原版 MZ (PixiJS 5)                                 | OpenMZ (PixiJS 8)                                                    | 引擎参考实现                                                          |
+| -------------- | -------------------------------------------------- | -------------------------------------------------------------------- | --------------------------------------------------------------------- |
+| 模糊滤镜       | `PIXI.filters.BlurFilter`                          | `PIXI.BlurFilter`                                                    | —                                                                     |
+| 自定义着色器   | `new PIXI.Filter(vert, frag, uniforms)`            | `new PIXI.Filter({ glProgram, resources })`                          | [`ColorFilter`](../packages/openmz/src/rmmz_core.ts#L4273)            |
+| 离屏纹理创建   | `RenderTexture.create(w, h)`                       | `RenderTexture.create({ width, height })`                            | [`Bitmap.snap`](../packages/openmz/src/rmmz_core.ts#L1200)            |
+| 离屏渲染与提取 | `renderer.render(stage, target)`                   | `renderer.render({ container, target })` / `extract.canvas()`        | [`Bitmap.snap`](../packages/openmz/src/rmmz_core.ts#L1200)            |
+| 混合模式       | 数字 `0–3` 或字符串                                | `PIXI.Sprite` 与 `TilingSprite` 需使用字符串；`Sprite` 兼容 `0–3`    | [`Sprite#blendMode`](../packages/openmz/src/rmmz_core.ts#L1819)       |
+| 逐帧渲染钩子   | 覆写子对象 `updateTransform()` / `render()`        | 挂载 `onRender`                                                      | [`WindowLayer`](../packages/openmz/src/rmmz_core.ts#L3990)            |
+| 窗口遮挡遮罩   | `Window.prototype.drawShape`                       | `openBounds()` 与矩形遮罩                                            | [`WindowLayer`](../packages/openmz/src/rmmz_core.ts#L3990)            |
+| 瓦片地图批处理 | `Tilemap.Renderer` / `renderer.plugins.rpgtilemap` | 基于 `PIXI.Mesh` 的 `TilemapLayer`                                   | [`TilemapLayer`](../packages/openmz/src/rmmz_core.ts#L2829)           |
+| 位图底层纹理   | `bitmap.baseTexture`                               | `bitmap.textureSource`（刷新调用 `textureSource.update()`）          | [`Bitmap#textureSource`](../packages/openmz/src/rmmz_core.ts#L1242)   |
+| 资源加载器     | `PIXI.Loader.shared.add(...)`                      | `await PIXI.Assets.load(url)`                                        | —                                                                     |
+| 交互系统       | `renderer.plugins.interaction`                     | `renderer.events` 与显示对象事件（拖拽移出监听 `globalpointermove`） | —                                                                     |
+| 应用初始化     | 同步 `new PIXI.Application(options)`               | `const app = new PIXI.Application(); await app.init(options)`        | [`Graphics._createPixiApp`](../packages/openmz/src/rmmz_core.ts#L952) |
+| 粒子容器       | `ParticleContainer.addChild(sprite)`               | 使用 `Particle` 与 `addParticle()`                                   | —                                                                     |
 
 ### 1. 滤镜与着色器
 
@@ -59,12 +59,12 @@ const filter = new PIXI.Filter(vert, frag, { uTime: 0 });
 // PixiJS 8 (OpenMZ)
 const glProgram = PIXI.GlProgram.from({ vertex: vert, fragment: frag });
 const filter = new PIXI.Filter({
-    glProgram,
-    resources: {
-        customUniforms: {
-            uTime: { value: 0, type: "f32" },
-        },
+  glProgram,
+  resources: {
+    customUniforms: {
+      uTime: { value: 0, type: 'f32' },
     },
+  },
 });
 ```
 

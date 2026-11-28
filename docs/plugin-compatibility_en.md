@@ -31,21 +31,21 @@ Two categories of plugins require migration or dual-version handling:
 
 ### Quick Reference
 
-| Area                | Vanilla MZ (PixiJS 5)                          | OpenMZ (PixiJS 8)                                              | Engine Reference                                          |
-| ------------------- | ---------------------------------------------- | -------------------------------------------------------------- | --------------------------------------------------------- |
-| Blur filter         | `PIXI.filters.BlurFilter`                      | `PIXI.BlurFilter`                                              | —                                                         |
-| Custom shaders      | `new PIXI.Filter(vert, frag, uniforms)`        | `new PIXI.Filter({ glProgram, resources })`                    | [`ColorFilter`](../packages/openmz/src/rmmz_core.ts#L4273) |
-| Offscreen textures  | `RenderTexture.create(w, h)`                   | `RenderTexture.create({ width, height })`                      | [`Bitmap.snap`](../packages/openmz/src/rmmz_core.ts#L1200) |
-| Offscreen rendering | `renderer.render(stage, target)`               | `renderer.render({ container, target })` / `extract.canvas()`  | [`Bitmap.snap`](../packages/openmz/src/rmmz_core.ts#L1200) |
-| Blend modes         | Numeric `0–3` or string                        | String required for `PIXI.Sprite` & `TilingSprite`; `Sprite` accepts `0–3` | [`Sprite#blendMode`](../packages/openmz/src/rmmz_core.ts#L1819) |
-| Per-render hooks    | Override `updateTransform()` / `render()`      | Assign `onRender`                                              | [`WindowLayer`](../packages/openmz/src/rmmz_core.ts#L3990) |
-| Window masking      | `Window.prototype.drawShape`                   | `openBounds()` and rectangular masks                           | [`WindowLayer`](../packages/openmz/src/rmmz_core.ts#L3990) |
-| Tilemap batching    | `Tilemap.Renderer` / `renderer.plugins.rpgtilemap` | `PIXI.Mesh`-based `TilemapLayer`                           | [`TilemapLayer`](../packages/openmz/src/rmmz_core.ts#L2829) |
-| Bitmap texture      | `bitmap.baseTexture`                           | `bitmap.textureSource` (call `textureSource.update()` to flush) | [`Bitmap#textureSource`](../packages/openmz/src/rmmz_core.ts#L1242) |
-| Asset loading       | `PIXI.Loader.shared.add(...)`                  | `await PIXI.Assets.load(url)`                                  | —                                                         |
-| Interaction         | `renderer.plugins.interaction`                 | `renderer.events` & display object events (`globalpointermove` for drag) | —                                               |
-| App initialization  | Synchronous `new PIXI.Application(options)`    | `const app = new PIXI.Application(); await app.init(options)`  | [`Graphics._createPixiApp`](../packages/openmz/src/rmmz_core.ts#L952) |
-| Particle containers | `ParticleContainer.addChild(sprite)`           | Use `Particle` and `addParticle()`                             | —                                                         |
+| Area                | Vanilla MZ (PixiJS 5)                              | OpenMZ (PixiJS 8)                                                          | Engine Reference                                                      |
+| ------------------- | -------------------------------------------------- | -------------------------------------------------------------------------- | --------------------------------------------------------------------- |
+| Blur filter         | `PIXI.filters.BlurFilter`                          | `PIXI.BlurFilter`                                                          | —                                                                     |
+| Custom shaders      | `new PIXI.Filter(vert, frag, uniforms)`            | `new PIXI.Filter({ glProgram, resources })`                                | [`ColorFilter`](../packages/openmz/src/rmmz_core.ts#L4273)            |
+| Offscreen textures  | `RenderTexture.create(w, h)`                       | `RenderTexture.create({ width, height })`                                  | [`Bitmap.snap`](../packages/openmz/src/rmmz_core.ts#L1200)            |
+| Offscreen rendering | `renderer.render(stage, target)`                   | `renderer.render({ container, target })` / `extract.canvas()`              | [`Bitmap.snap`](../packages/openmz/src/rmmz_core.ts#L1200)            |
+| Blend modes         | Numeric `0–3` or string                            | String required for `PIXI.Sprite` & `TilingSprite`; `Sprite` accepts `0–3` | [`Sprite#blendMode`](../packages/openmz/src/rmmz_core.ts#L1819)       |
+| Per-render hooks    | Override `updateTransform()` / `render()`          | Assign `onRender`                                                          | [`WindowLayer`](../packages/openmz/src/rmmz_core.ts#L3990)            |
+| Window masking      | `Window.prototype.drawShape`                       | `openBounds()` and rectangular masks                                       | [`WindowLayer`](../packages/openmz/src/rmmz_core.ts#L3990)            |
+| Tilemap batching    | `Tilemap.Renderer` / `renderer.plugins.rpgtilemap` | `PIXI.Mesh`-based `TilemapLayer`                                           | [`TilemapLayer`](../packages/openmz/src/rmmz_core.ts#L2829)           |
+| Bitmap texture      | `bitmap.baseTexture`                               | `bitmap.textureSource` (call `textureSource.update()` to flush)            | [`Bitmap#textureSource`](../packages/openmz/src/rmmz_core.ts#L1242)   |
+| Asset loading       | `PIXI.Loader.shared.add(...)`                      | `await PIXI.Assets.load(url)`                                              | —                                                                     |
+| Interaction         | `renderer.plugins.interaction`                     | `renderer.events` & display object events (`globalpointermove` for drag)   | —                                                                     |
+| App initialization  | Synchronous `new PIXI.Application(options)`        | `const app = new PIXI.Application(); await app.init(options)`              | [`Graphics._createPixiApp`](../packages/openmz/src/rmmz_core.ts#L952) |
+| Particle containers | `ParticleContainer.addChild(sprite)`               | Use `Particle` and `addParticle()`                                         | —                                                                     |
 
 ### 1. Filters and Shaders
 
@@ -59,12 +59,12 @@ const filter = new PIXI.Filter(vert, frag, { uTime: 0 });
 // PixiJS 8 (OpenMZ)
 const glProgram = PIXI.GlProgram.from({ vertex: vert, fragment: frag });
 const filter = new PIXI.Filter({
-    glProgram,
-    resources: {
-        customUniforms: {
-            uTime: { value: 0, type: "f32" },
-        },
+  glProgram,
+  resources: {
+    customUniforms: {
+      uTime: { value: 0, type: 'f32' },
     },
+  },
 });
 ```
 
