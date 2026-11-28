@@ -1070,7 +1070,12 @@ Graphics.FPSCounter = GraphicsFPSCounter;
 class Point extends PIXI.Point {
     constructor(x?: number, y?: number) {
         super(x, y);
+        this.initialize!(x, y);
     }
+
+    initialize?(x?: number, y?: number): void;
+    initialize?(...args: any[]): void;
+    initialize?(): void {}
 }
 
 /**
@@ -1083,7 +1088,12 @@ class Point extends PIXI.Point {
 class Rectangle extends PIXI.Rectangle {
     constructor(x?: number, y?: number, width?: number, height?: number) {
         super(x, y, width, height);
+        this.initialize!(x, y, width, height);
     }
+
+    initialize?(x?: number, y?: number, width?: number, height?: number): void;
+    initialize?(...args: any[]): void;
+    initialize?(): void {}
 }
 
 /**
@@ -2059,9 +2069,14 @@ class Tilemap extends PIXI.Container {
     declare static Layer: typeof TilemapLayer;
     declare static CombinedLayer: typeof TilemapCombinedLayer;
 
-    constructor() {
+    constructor(...args: []) {
         super();
+        this.initialize(...args);
+    }
 
+    initialize(): void;
+    initialize(...args: any[]): void;
+    initialize(): void {
         this._width = Graphics.width;
         this._height = Graphics.height;
         this._margin = 20;
@@ -2844,7 +2859,12 @@ class TilemapLayer extends PIXI.Mesh<import("pixi.js").Geometry, import("pixi.js
             indexBuffer: indices,
         });
         super({ geometry, shader });
+        this.initialize(shader);
+    }
 
+    initialize(shader: import("pixi.js").Shader): void;
+    initialize(...args: any[]): void;
+    initialize(): void {
         this._elements = [];
         this._indexArray = new Uint16Array(0);
         this._vertexArray = new Float32Array(0);
@@ -2989,8 +3009,14 @@ class TilemapCombinedLayer extends PIXI.Container {
     declare z: number;
     declare children: TilemapLayer[];
 
-    constructor(shader: import("pixi.js").Shader) {
+    constructor(...args: [shader: import("pixi.js").Shader]) {
         super();
+        this.initialize(...args);
+    }
+
+    initialize(shader: import("pixi.js").Shader): void;
+    initialize(...args: any[]): void;
+    initialize(shader: import("pixi.js").Shader): void {
         for (let i = 0; i < 2; i++) {
             this.addChild(new Tilemap.Layer(shader));
         }
@@ -3178,9 +3204,14 @@ class ScreenSprite extends PIXI.Container {
     declare _green: number;
     declare _blue: number;
 
-    constructor() {
+    constructor(...args: []) {
         super();
+        this.initialize(...args);
+    }
 
+    initialize(): void;
+    initialize(...args: any[]): void;
+    initialize(): void {
         this._graphics = new PIXI.Graphics();
         this.addChild(this._graphics);
         this.opacity = 0;
@@ -3960,8 +3991,14 @@ class WindowLayer extends PIXI.Container {
 
     declare _windowLayout: any[];
 
-    constructor() {
+    constructor(...args: []) {
         super();
+        this.initialize(...args);
+    }
+
+    initialize(): void;
+    initialize(...args: any[]): void;
+    initialize(): void {
         this._windowLayout = [];
         this.onRender = this._updateWindowMasks;
     }
@@ -4079,9 +4116,14 @@ class Weather extends PIXI.Container {
     declare _snowBitmap: Bitmap;
     declare _dimmerSprite: ScreenSprite;
 
-    constructor() {
+    constructor(...args: []) {
         super();
+        this.initialize(...args);
+    }
 
+    initialize(): void;
+    initialize(...args: any[]): void;
+    initialize(): void {
         this._width = Graphics.width;
         this._height = Graphics.height;
         this._sprites = [];
@@ -4230,7 +4272,7 @@ declare namespace Weather {
 class ColorFilter extends PIXI.Filter {
     declare uniforms: any;
 
-    constructor() {
+    constructor(...args: []) {
         super({
             glProgram: PIXI.GlProgram.from({
                 vertex: PIXI.defaultFilterVert,
@@ -4245,6 +4287,12 @@ class ColorFilter extends PIXI.Filter {
                 },
             },
         });
+        this.initialize(...args);
+    }
+
+    initialize(): void;
+    initialize(...args: any[]): void;
+    initialize(): void {
         this.uniforms = this.resources.colorUniforms.uniforms;
     }
 

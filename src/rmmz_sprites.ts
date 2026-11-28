@@ -1279,8 +1279,14 @@ class Sprite_Animation extends PIXI.RenderContainer {
     declare _viewportSize: number;
     declare z: number;
 
-    constructor() {
+    constructor(...args: []) {
         super({});
+        this.initialize(...args);
+    }
+
+    initialize(): void;
+    initialize(...args: any[]): void;
+    initialize(): void {
         this.spriteId = Sprite._counter++;
         this.initMembers();
     }

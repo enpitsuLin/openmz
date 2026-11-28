@@ -97,6 +97,34 @@ type GameWindow = Window & {
   Scene_Base: { prototype: { initialize(): void } };
   Scene_Load: new () => FileScene;
   Sprite: { prototype: { initialize(bitmap: GameBitmap): void } };
+  Point: {
+    new (x?: number, y?: number): { x: number; y: number };
+    prototype: { initialize(x?: number, y?: number): void };
+  };
+  Rectangle: {
+    new (
+      x?: number,
+      y?: number,
+      width?: number,
+      height?: number,
+    ): {
+      x: number;
+      y: number;
+      width: number;
+      height: number;
+    };
+    prototype: { initialize(x?: number, y?: number, width?: number, height?: number): void };
+  };
+  Tilemap: {
+    prototype: { initialize(): void };
+    Layer: { prototype: { initialize(...args: unknown[]): void } };
+    CombinedLayer: { prototype: { initialize(...args: unknown[]): void } };
+  };
+  ScreenSprite: { prototype: { initialize(): void } };
+  WindowLayer: { prototype: { initialize(): void } };
+  Weather: { prototype: { initialize(): void } };
+  ColorFilter: { prototype: { initialize(): void } };
+  Sprite_Animation: { prototype: { initialize(): void } };
   Window_Base: abstract new (...args: never[]) => object;
   Game_Interpreter: new () => {
     setup(commands: ReturnType<typeof eventCommand>[]): void;
@@ -348,6 +376,45 @@ test.each(engines)(
     } finally {
       snapshot.destroy();
     }
+
+    for (const ctor of [
+      game.Point,
+      game.Rectangle,
+      game.Tilemap,
+      game.Tilemap.Layer,
+      game.Tilemap.CombinedLayer,
+      game.ScreenSprite,
+      game.WindowLayer,
+      game.Weather,
+      game.ColorFilter,
+      game.Sprite_Animation,
+    ]) {
+      expect(typeof ctor.prototype.initialize).toBe('function');
+    }
+
+    const LegacyPoint = function LegacyPoint(this: { x: number; y: number }, x: number, y: number) {
+      game.Point.prototype.initialize.call(this, x, y);
+    } as unknown as {
+      new (x: number, y: number): { x: number; y: number };
+      prototype: { x: number; y: number };
+    };
+    LegacyPoint.prototype = Object.create(game.Point.prototype);
+    LegacyPoint.prototype.constructor = LegacyPoint;
+    const legacyPoint = new LegacyPoint(12, 34);
+    expect(legacyPoint).toBeInstanceOf(game.Point);
+    expect([legacyPoint.x, legacyPoint.y]).toEqual([12, 34]);
+
+    const LegacyScreenSprite = function LegacyScreenSprite(this: { opacity: number }) {
+      game.ScreenSprite.prototype.initialize.call(this);
+    } as unknown as {
+      new (): { opacity: number; setWhite(): void };
+      prototype: { opacity: number };
+    };
+    LegacyScreenSprite.prototype = Object.create(game.ScreenSprite.prototype);
+    LegacyScreenSprite.prototype.constructor = LegacyScreenSprite;
+    const legacyScreen = new LegacyScreenSprite();
+    expect(legacyScreen).toBeInstanceOf(game.ScreenSprite);
+    expect(legacyScreen.opacity).toBe(0);
   },
   30_000,
 );

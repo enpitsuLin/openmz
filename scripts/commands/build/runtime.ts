@@ -71,8 +71,10 @@ export async function buildRuntime({ outDir = runtimeDir, version }: BuildRuntim
       } else {
         const sourcePath = join(engineDir, path.slice(3).replace(/\.js$/, '.ts'));
         let source = emitEngineSource(await readFile(sourcePath, 'utf8'));
-        if (path === 'js/rmmz_core.js') source = restorePixiInitializers(source);
-        if (path.startsWith('js/rmmz_')) source = transformClasses(source, path);
+        if (path.startsWith('js/rmmz_')) {
+          source = restorePixiInitializers(source, path);
+          source = transformClasses(source, path);
+        }
         content = source;
       }
       if (typeof content === 'string') {

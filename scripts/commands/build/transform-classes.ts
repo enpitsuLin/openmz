@@ -277,7 +277,7 @@ export function transformClasses(source: string, filename: string = '<source>') 
   return header + root.commitEdits(edits);
 }
 
-export function restorePixiInitializers(source: string) {
+export function restorePixiInitializers(source: string, filename: string = '<source>') {
   const root = parse(Lang.JavaScript, source).root();
   const edits: Edit[] = [];
   for (const node of root.findAll({ rule: classRule })) {
@@ -302,7 +302,7 @@ export function restorePixiInitializers(source: string) {
     let callee = call?.field('function');
     while (callee?.kind() === 'parenthesized_expression') callee = callee.children().find((child) => child.isNamed());
     if (!callee?.matches('this.initialize')) {
-      unsupported(constructor, 'Expected the Pixi constructor to end with this.initialize()', 'rmmz_core.js');
+      unsupported(constructor, 'Expected the Pixi constructor to end with this.initialize()', filename);
     }
     const superEdits = body.findAll({ rule: { pattern: 'super($$$ARGS)' } }).map((call) => {
       const args = call.field('arguments')!.text().slice(1, -1);
@@ -310,8 +310,33 @@ export function restorePixiInitializers(source: string) {
     });
     // Move parent construction into the hook so legacy plugin objects are initialized in place.
     const prefix = body.commitEdits([...superEdits, hook!.replace('')]).slice(1, -1);
+    const ctorParams = constructor.field('parameters')!;
+    const initParams = initialize.field('parameters')!;
+    const namedCtorParams = ctorParams.children().filter((child) => child.isNamed());
+    const namedInitParams = initParams.children().filter((child) => child.isNamed());
+    const isRestOnly = namedCtorParams.length === 1 && namedCtorParams[0].kind() === 'rest_pattern';
+    if (!isRestOnly) {
+      if (namedCtorParams.length > 0) {
+        if (namedInitParams.length === 0) {
+          edits.push(initParams.replace(ctorParams.text()));
+        } else {
+          const ctorNames = namedCtorParams.map((param) => param.text().trim());
+          const initNames = namedInitParams.map((param) => param.text().trim());
+          if (ctorNames.length !== initNames.length || ctorNames.some((name, index) => name !== initNames[index])) {
+            unsupported(
+              initialize,
+              'Expected initialize() parameters to be empty or match the Pixi constructor parameters',
+              filename,
+            );
+          }
+        }
+      }
+      edits.push(ctorParams.replace('(...args)'));
+      edits.push(body.replace('{\n        this.initialize(...args);\n    }'));
+    } else {
+      edits.push(body.replace(`{\n        ${hook!.text()}\n    }`));
+    }
     const initializeBody = initialize.field('body')!;
-    edits.push(body.replace(`{\n        ${hook!.text()}\n    }`));
     edits.push(initializeBody.replace(`{${prefix}${initializeBody.text().slice(1)}`));
   }
   return root.commitEdits(edits);

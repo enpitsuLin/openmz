@@ -283,6 +283,88 @@ test('initializes Pixi state exactly once through new and legacy initialize call
   assert.equal(legacy.bitmap, 'legacy');
 });
 
+test('moves named Pixi constructor parameters into initialize and forwards extra args', () => {
+  function PixiPoint(this: Record<string, any>, x: number = 0, y: number = 0) {
+    this.calls = (this.calls ?? 0) + 1;
+    this.x = x;
+    this.y = y;
+  }
+  const source = `
+    class Point extends PIXI.Point {
+      constructor(x, y) {
+        super(x, y);
+        this.initialize(x, y);
+      }
+      initialize() {}
+    }
+    class Point3D extends Point {
+      constructor(...args) { super(...args); }
+      initialize(x, y, z) { super.initialize(x, y); this.z = z; }
+    }
+    Object.assign(globalThis, { Point, Point3D });
+  `;
+  const { Point, Point3D } = load(restorePixiInitializers(source), {
+    PIXI: { Point: PixiPoint },
+  });
+  const point = new Point(3, 4);
+  assert.equal(point.calls, 1);
+  assert.equal(point.x, 3);
+  assert.equal(point.y, 4);
+
+  const point3d = new Point3D(5, 6, 7);
+  assert.equal(point3d.calls, 1);
+  assert.equal(point3d.x, 5);
+  assert.equal(point3d.y, 6);
+  assert.equal(point3d.z, 7);
+
+  const { LegacyPoint } = load(
+    `
+    function LegacyPoint(x, y) { Point.prototype.initialize.call(this, x, y); }
+    LegacyPoint.prototype = Object.create(Point.prototype);
+    LegacyPoint.prototype.constructor = LegacyPoint;
+    globalThis.LegacyPoint = LegacyPoint;
+  `,
+    { Point },
+    false,
+  );
+  const legacy = new LegacyPoint(8, 9);
+  assert.equal(legacy instanceof Point && legacy instanceof PixiPoint, true);
+  assert.equal(legacy.calls, 1);
+  assert.equal(legacy.x, 8);
+  assert.equal(legacy.y, 9);
+});
+
+test('preserves prototype.initialize on every instantiable vanilla MZ class', async () => {
+  const removedInPixi8 = new Set(['Tilemap.Renderer']);
+  const coreFiles = [
+    'rmmz_core.js',
+    'rmmz_managers.js',
+    'rmmz_objects.js',
+    'rmmz_scenes.js',
+    'rmmz_sprites.js',
+    'rmmz_windows.js',
+  ];
+  for (const file of coreFiles) {
+    const vanilla = await readFile(new URL(`../../vendor/js/${file}`, import.meta.url), 'utf8');
+    const built = await readFile(join(runtime.outDir, 'js', file), 'utf8');
+    const aliases = new Map<string, string>();
+    for (const match of built.matchAll(/^([A-Z][\w.]*) = (_openmz_[\w$]+);$/gm)) {
+      aliases.set(match[2], match[1]);
+    }
+    const builtInits = new Set<string>();
+    for (const match of built.matchAll(/^([A-Za-z_][\w.$]*)\.prototype\.initialize =/gm)) {
+      builtInits.add(aliases.get(match[1]) ?? match[1]);
+    }
+    const missing: string[] = [];
+    for (const match of vanilla.matchAll(/^([A-Z][\w.]*)\.prototype\.initialize =/gm)) {
+      const name = match[1];
+      if (removedInPixi8.has(name)) continue;
+      if (!builtInits.has(name)) missing.push(name);
+    }
+    assert.deepEqual(missing, [], `${file}: missing prototype.initialize`);
+  }
+});
+
 test('builds a complete prototype runtime without syntax downleveling or TypeScript helpers', async () => {
   assert(runtime.files.includes('js/libs/pixi.js'));
   assert(runtime.files.includes('js/libs/effekseer.wasm'));
