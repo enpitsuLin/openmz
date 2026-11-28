@@ -286,10 +286,15 @@ importers:
         specifier: 'catalog:'
         version: 1.65.1
 
+  packages/plugin-utils: {}
+
   packages/release-spec: {}
 
   plugins/openmz-pixi-3d:
     dependencies:
+      '@openmz-internal/plugin-utils':
+        specifier: workspace:*
+        version: link:../../packages/plugin-utils
       '@pixi/3d':
         specifier: 0.1.0
         version: 0.1.0(pixi.js@8.23.0)

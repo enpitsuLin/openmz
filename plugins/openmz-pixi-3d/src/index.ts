@@ -15,5 +15,7 @@
  * 需要使用 PixiJS 8.23.0 或更高版本的 OpenMZ，以及 WebGL2 渲染器。
  */
 
+import './preflight.ts';
+
 export * from '@pixi/3d';
 export * as extras from '@pixi/3d/extras';

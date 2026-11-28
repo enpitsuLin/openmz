@@ -6,10 +6,13 @@
   "type": "module",
   "scripts": {
     "build": "node scripts/build.ts",
+    "test": "vitest run",
+    "test:unit": "vitest run",
     "typecheck": "tsc --noEmit"
   },
   "license": "MIT",
   "dependencies": {
+    "@openmz-internal/plugin-utils": "workspace:*",
     "@pixi/3d": "0.1.0",
     "pixi.js": "catalog:"
   },
