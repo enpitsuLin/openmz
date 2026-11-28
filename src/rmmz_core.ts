@@ -25,7 +25,7 @@ Object.defineProperty(Array.prototype, "clone", {
  * @returns True if the array contains a given element.
  * @deprecated includes() should be used instead.
  */
-Array.prototype.contains = function (element: any): boolean {
+Array.prototype.contains = function <T>(this: T[], element: T): boolean {
     return this.includes(element);
 };
 
@@ -39,7 +39,7 @@ Object.defineProperty(Array.prototype, "contains", {
  * @param array - The array to compare to.
  * @returns True if the two arrays are the same.
  */
-Array.prototype.equals = function (array: any[]): boolean {
+Array.prototype.equals = function (array: readonly unknown[]): boolean {
     if (!array || this.length !== array.length) {
         return false;
     }
@@ -65,7 +65,7 @@ Object.defineProperty(Array.prototype, "equals", {
  * @param element - The element to remove.
  * @returns The array after remove.
  */
-Array.prototype.remove = function (element: any): any[] {
+Array.prototype.remove = function <T>(this: T[], element: T): T[] {
     for (;;) {
         const index = this.indexOf(element);
         if (index >= 0) {
@@ -138,8 +138,8 @@ String.prototype.contains = function (string: string): boolean {
  * @param args The objects to format.
  * @returns A formatted string.
  */
-String.prototype.format = function (...args: any[]): string {
-    return this.replace(/%([0-9]+)/g, (s, n) => args[Number(n) - 1]);
+String.prototype.format = function (...args: unknown[]): string {
+    return this.replace(/%([0-9]+)/g, (s, n) => args[Number(n) - 1] as string);
 };
 
 /**
@@ -778,7 +778,7 @@ is pressed.
         }
     }
 
-    static _makeErrorHtml(name?: string, message?: string, ..._extra: any[]): string;
+    static _makeErrorHtml(name?: string, message?: string, error?: unknown): string;
     static _makeErrorHtml(name?: string, message?: string /*, error*/): string {
         const nameDiv = document.createElement("div");
         const messageDiv = document.createElement("div");
@@ -995,7 +995,7 @@ class GraphicsFPSCounter {
     declare _labelDiv: HTMLDivElement;
     declare _numberDiv: HTMLDivElement;
 
-    constructor(...args: any[]) {
+    constructor(...args: []) {
         this.initialize(...args);
     }
 
@@ -1837,7 +1837,7 @@ class Sprite extends PIXI.Sprite {
     /**
      * Destroys the sprite.
      */
-    destroy(..._extra: any[]): void;
+    destroy(options?: import("pixi.js").DestroyOptions): void;
     destroy(): void {
         const options = { children: true, texture: true };
         super.destroy(options);
@@ -2052,7 +2052,7 @@ class Tilemap extends PIXI.Container {
     declare _bitmaps: Bitmap[];
     declare tileWidth: number;
     declare tileHeight: number;
-    declare flags: any[];
+    declare flags: number[];
     declare animationCount: number;
     declare horizontalWrap: boolean;
     declare verticalWrap: boolean;
@@ -2060,9 +2060,9 @@ class Tilemap extends PIXI.Container {
     declare _needsBitmapsUpdate: boolean;
     declare _needsRepaint: boolean;
     declare _lastAnimationFrame: number;
-    declare _lastStartX: any;
-    declare _lastStartY: any;
-    declare _tileAtlases: any[];
+    declare _lastStartX: number | undefined;
+    declare _lastStartY: number | undefined;
+    declare _tileAtlases: import("pixi.js").CanvasSource[];
     declare _tileShader: import("pixi.js").Shader;
     declare _lowerLayer: Tilemap.CombinedLayer;
     declare _upperLayer: Tilemap.CombinedLayer;
@@ -2283,7 +2283,7 @@ class Tilemap extends PIXI.Container {
                 });
             }
             const source = this._tileAtlases[i];
-            const context = source.resource.getContext("2d");
+            const context = source.resource.getContext("2d")!;
             context.clearRect(0, 0, 2048, 2048);
             for (let j = 0; j < bitmaps.length; j++) {
                 const bitmap = bitmaps[j];
@@ -2523,7 +2523,7 @@ class Tilemap extends PIXI.Container {
         return Tilemap.isTileA2(tileId) && this.flags[tileId] & 0x80;
     }
 
-    _isOverpassPosition(..._extra: any[]): boolean;
+    _isOverpassPosition(mx: number, my: number): boolean;
     _isOverpassPosition(/*mx, my*/): boolean {
         return false;
     }
@@ -3313,8 +3313,9 @@ class RmmzWindow extends PIXI.Container {
     declare pause: boolean;
     declare _clientArea: Sprite;
 
-    constructor(..._extra: any[]);
-    constructor(...args: []) {
+    constructor();
+    constructor(..._extra: unknown[]);
+    constructor(...args: unknown[]) {
         super();
         this.initialize(...args);
     }
@@ -3552,7 +3553,7 @@ class RmmzWindow extends PIXI.Container {
     /**
      * Destroys the window.
      */
-    destroy(..._extra: any[]): void;
+    destroy(options?: import("pixi.js").DestroyOptions): void;
     destroy(): void {
         const options = { children: true, texture: true };
         super.destroy(options);
@@ -3989,7 +3990,7 @@ class RmmzWindow extends PIXI.Container {
 class WindowLayer extends PIXI.Container {
     declare children: RmmzWindow[];
 
-    declare _windowLayout: any[];
+    declare _windowLayout: { window: RmmzWindow; bounds: import("pixi.js").Rectangle | null }[];
 
     constructor(...args: []) {
         super();
@@ -4270,7 +4271,12 @@ declare namespace Weather {
  * The color filter for WebGL.
  */
 class ColorFilter extends PIXI.Filter {
-    declare uniforms: any;
+    declare uniforms: {
+        hue: number;
+        colorTone: RMMZ.Color;
+        blendColor: RMMZ.Color;
+        brightness: number;
+    };
 
     constructor(...args: []) {
         super({
@@ -4428,7 +4434,9 @@ class ColorFilter extends PIXI.Filter {
  */
 class Stage extends PIXI.Container {
     declare children: RMMZ.UpdateableChild[];
-    constructor(...args: []) {
+    constructor();
+    constructor(..._extra: unknown[]);
+    constructor(...args: unknown[]) {
         super();
         this.initialize(...args);
     }
@@ -4461,11 +4469,11 @@ class WebAudio {
     declare static _masterVolume: number;
 
     declare _url: string;
-    declare _data: any;
+    declare _data: Uint8Array<ArrayBuffer> | null;
     declare _fetchedSize: number;
-    declare _fetchedData: any[];
-    declare _buffers: any[];
-    declare _sourceNodes: any[];
+    declare _fetchedData: Uint8Array[];
+    declare _buffers: AudioBuffer[];
+    declare _sourceNodes: AudioBufferSourceNode[];
     declare _gainNode: GainNode | null;
     declare _pannerNode: PannerNode | null;
     declare _totalTime: number;
@@ -4477,11 +4485,11 @@ class WebAudio {
     declare _loopLengthTime: number;
     declare _startTime: number;
     declare _volume: number;
-    declare _pitch: any;
+    declare _pitch: number;
     declare _pan: number;
     declare _endTimer: number | null;
-    declare _loadListeners: any[];
-    declare _stopListeners: any[];
+    declare _loadListeners: (() => void)[];
+    declare _stopListeners: (() => void)[];
     declare _lastUpdateTime: number;
     declare _isLoaded: boolean;
     declare _isError: boolean;
@@ -4751,7 +4759,7 @@ class WebAudio {
         this._loadListeners = [];
         if (this._stopListeners) {
             while (this._stopListeners.length > 0) {
-                const listner = this._stopListeners.shift();
+                const listner = this._stopListeners.shift()!;
                 listner();
             }
         }
@@ -4985,9 +4993,9 @@ class WebAudio {
 
     _readableBuffer(): ArrayBufferLike {
         if (Utils.hasEncryptedAudio()) {
-            return Utils.decryptArrayBuffer(this._data.buffer);
+            return Utils.decryptArrayBuffer(this._data!.buffer);
         } else {
-            return this._data.buffer;
+            return this._data!.buffer;
         }
     }
 
@@ -5080,10 +5088,10 @@ class WebAudio {
         for (let i = 0; i < index; i++) {
             chunkStart += this._buffers[i].duration;
         }
-        const chunkEnd = chunkStart + sourceNode.buffer.duration;
+        const chunkEnd = chunkStart + sourceNode.buffer!.duration;
         let when = 0;
         let offset = 0;
-        let duration = sourceNode.buffer.duration;
+        let duration = sourceNode.buffer!.duration;
         if (seekPos >= chunkStart && seekPos < chunkEnd - 0.01) {
             when = currentTime;
             offset = seekPos - chunkStart;
@@ -5115,11 +5123,11 @@ class WebAudio {
                 }
             }
         } else {
-            if (when >= currentTime && offset < sourceNode.buffer.duration) {
+            if (when >= currentTime && offset < sourceNode.buffer!.duration) {
                 sourceNode.start(when, offset);
             }
         }
-        chunkStart += sourceNode.buffer.duration;
+        chunkStart += sourceNode.buffer!.duration;
     }
 
     _stopSourceNode(): void {
@@ -5199,7 +5207,7 @@ class WebAudio {
 
     _onLoad(): void {
         while (this._loadListeners.length > 0) {
-            const listner = this._loadListeners.shift();
+            const listner = this._loadListeners.shift()!;
             listner();
         }
     }
@@ -6002,7 +6010,7 @@ class TouchInput {
         }
     }
 
-    static _onMiddleButtonDown(..._extra: any[]): void;
+    static _onMiddleButtonDown(event: MouseEvent): void;
     static _onMiddleButtonDown(/*event*/): void {
         //
     }
@@ -6158,7 +6166,7 @@ class JsonEx {
      * @param object - The object to be converted.
      * @returns The JSON string.
      */
-    static stringify(object: any): string {
+    static stringify(object: unknown): string {
         return JSON.stringify(this._encode(object, 0));
     }
 
@@ -6176,7 +6184,7 @@ class JsonEx {
      * @param object - The object to be copied.
      * @returns The copied object.
      */
-    static makeDeepCopy(object: any): any {
+    static makeDeepCopy<T>(object: T): T {
         return this.parse(this.stringify(object));
     }
 

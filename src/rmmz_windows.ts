@@ -8,8 +8,9 @@ class Window_Base extends RmmzWindow {
     declare _closing: boolean;
     declare _dimmerSprite: Sprite | null;
 
-    constructor(..._extra: any[]);
-    constructor(...args: [rect: Rectangle]) {
+    constructor(rect: Rectangle);
+    constructor(..._extra: unknown[]);
+    constructor(...args: unknown[]) {
         super(...args);
     }
 
@@ -622,7 +623,9 @@ class Window_Scrollable extends Window_Base {
     declare _scrollLastTouchY: number;
     declare _scrollLastCursorVisible: boolean;
 
-    constructor(...args: [rect: Rectangle]) {
+    constructor(rect: Rectangle);
+    constructor(..._extra: unknown[]);
+    constructor(...args: unknown[]) {
         super(...args);
     }
 
@@ -876,8 +879,9 @@ class Window_Selectable extends Window_Scrollable {
     declare _doubleTouch: boolean;
     declare _canRepeat: boolean;
 
-    constructor(..._extra: any[]);
-    constructor(...args: [rect: Rectangle]) {
+    constructor(rect: Rectangle);
+    constructor(..._extra: unknown[]);
+    constructor(...args: unknown[]) {
         super(...args);
     }
 
@@ -1480,10 +1484,11 @@ class Window_Selectable extends Window_Scrollable {
  * The superclass of windows for selecting a command.
  */
 class Window_Command extends Window_Selectable {
-    declare _list: any[];
+    declare _list: Window_Command.Command[];
 
-    constructor(..._extra: any[]);
-    constructor(...args: [rect: Rectangle]) {
+    constructor(rect: Rectangle);
+    constructor(..._extra: unknown[]);
+    constructor(...args: unknown[]) {
         super(...args);
     }
 
@@ -1617,13 +1622,13 @@ declare namespace Window_Command {
  * The command window for the horizontal selection format.
  */
 class Window_HorzCommand extends Window_Command {
-    constructor(...args: any[]) {
+    constructor(...args: [rect: Rectangle]) {
         super(...args);
     }
 
-    initialize(rect: any): void;
+    initialize(rect: Rectangle): void;
     initialize(...args: any[]): void;
-    initialize(rect: any): void {
+    initialize(rect: Rectangle): void {
         super.initialize(rect);
     }
 
@@ -1724,8 +1729,9 @@ class Window_Gold extends Window_Selectable {
 class Window_StatusBase extends Window_Selectable {
     declare _additionalSprites: Record<string, Sprite>;
 
-    constructor(..._extra: any[]);
-    constructor(...args: [rect: Rectangle]) {
+    constructor(rect: Rectangle);
+    constructor(..._extra: unknown[]);
+    constructor(...args: unknown[]) {
         super(...args);
     }
 
@@ -2155,7 +2161,7 @@ class Window_MenuActor extends Window_MenuStatus {
 class Window_ItemCategory extends Window_HorzCommand {
     declare _itemWindow: Window_ItemList;
 
-    constructor(...args: any[]) {
+    constructor(...args: [rect: Rectangle]) {
         super(...args);
     }
 
@@ -2216,13 +2222,13 @@ class Window_ItemList extends Window_Selectable {
     declare _category: string | null;
     declare _data: (RMMZ.InventoryItem | null)[];
 
-    constructor(...args: any[]) {
+    constructor(...args: [rect: Rectangle]) {
         super(...args);
     }
 
-    initialize(rect: any): void;
+    initialize(rect: Rectangle): void;
     initialize(...args: any[]): void;
-    initialize(rect: any): void {
+    initialize(rect: Rectangle): void {
         super.initialize(rect);
 
         this._category = "none";
@@ -2340,13 +2346,13 @@ class Window_SkillType extends Window_Command {
     declare _actor: Game_Actor | null;
     declare _skillWindow: Window_SkillList;
 
-    constructor(...args: any[]) {
+    constructor(...args: [rect: Rectangle]) {
         super(...args);
     }
 
-    initialize(rect: any): void;
+    initialize(rect: Rectangle): void;
     initialize(...args: any[]): void;
-    initialize(rect: any): void {
+    initialize(rect: Rectangle): void {
         super.initialize(rect);
 
         this._actor = null;
@@ -2397,13 +2403,13 @@ class Window_SkillType extends Window_Command {
 class Window_SkillStatus extends Window_StatusBase {
     declare _actor: Game_Actor | null;
 
-    constructor(...args: any[]) {
+    constructor(...args: [rect: Rectangle]) {
         super(...args);
     }
 
-    initialize(rect: any): void;
+    initialize(rect: Rectangle): void;
     initialize(...args: any[]): void;
-    initialize(rect: any): void {
+    initialize(rect: Rectangle): void {
         super.initialize(rect);
 
         this._actor = null;
@@ -2436,13 +2442,13 @@ class Window_SkillList extends Window_Selectable {
     declare _stypeId: RMMZ.SkillType;
     declare _data: RMMZ.DataSkill[];
 
-    constructor(...args: any[]) {
+    constructor(...args: [rect: Rectangle]) {
         super(...args);
     }
 
-    initialize(rect: any): void;
+    initialize(rect: Rectangle): void;
     initialize(...args: any[]): void;
-    initialize(rect: any): void {
+    initialize(rect: Rectangle): void {
         super.initialize(rect);
 
         this._actor = null;
@@ -2671,7 +2677,7 @@ class Window_EquipStatus extends Window_StatusBase {
  * The window for selecting a command on the equipment screen.
  */
 class Window_EquipCommand extends Window_HorzCommand {
-    constructor(...args: any[]) {
+    constructor(...args: [rect: Rectangle]) {
         super(...args);
     }
 
@@ -2792,7 +2798,7 @@ class Window_EquipItem extends Window_ItemList {
     declare _slotId: RMMZ.EquipmentSlotID;
     declare _statusWindow: Window_EquipStatus;
 
-    constructor(...args: any[]) {
+    constructor(...args: [rect: Rectangle]) {
         super(...args);
     }
 
@@ -2861,7 +2867,7 @@ class Window_EquipItem extends Window_ItemList {
         super.updateHelp();
         if (this._actor && this._statusWindow && this._slotId >= 0) {
             const actor = JsonEx.makeDeepCopy(this._actor);
-            actor.forceChangeEquip(this._slotId, this.item());
+            actor.forceChangeEquip(this._slotId, this.item() as RMMZ.DataEquipment | null);
             this._statusWindow.setTempActor(actor);
         }
     }
@@ -2973,13 +2979,13 @@ class Window_Status extends Window_StatusBase {
 class Window_StatusParams extends Window_StatusBase {
     declare _actor: Game_Actor | null;
 
-    constructor(...args: any[]) {
+    constructor(...args: [rect: Rectangle]) {
         super(...args);
     }
 
-    initialize(rect: any): void;
+    initialize(rect: Rectangle): void;
     initialize(...args: any[]): void;
-    initialize(rect: any): void {
+    initialize(rect: Rectangle): void {
         super.initialize(rect);
 
         this._actor = null;
@@ -3022,13 +3028,13 @@ class Window_StatusParams extends Window_StatusBase {
 class Window_StatusEquip extends Window_StatusBase {
     declare _actor: Game_Actor | null;
 
-    constructor(...args: any[]) {
+    constructor(...args: [rect: Rectangle]) {
         super(...args);
     }
 
-    initialize(rect: any): void;
+    initialize(rect: Rectangle): void;
     initialize(...args: any[]): void;
-    initialize(rect: any): void {
+    initialize(rect: Rectangle): void {
         super.initialize(rect);
 
         this._actor = null;
@@ -3070,13 +3076,13 @@ class Window_StatusEquip extends Window_StatusBase {
  */
 class Window_Options extends Window_Command {
     declare commandSymbol: (index: number) => keyof RMMZ.DataConfig;
-    constructor(...args: any[]) {
+    constructor(...args: [rect: Rectangle]) {
         super(...args);
     }
 
-    initialize(rect: any): void;
+    initialize(rect: Rectangle): void;
     initialize(...args: any[]): void;
-    initialize(rect: any): void {
+    initialize(rect: Rectangle): void {
         super.initialize(rect);
     }
 
@@ -3334,7 +3340,7 @@ class Window_SavefileList extends Window_Selectable {
 class Window_ShopCommand extends Window_HorzCommand {
     declare _purchaseOnly: boolean;
 
-    constructor(...args: any[]) {
+    constructor(...args: [rect: Rectangle]) {
         super(...args);
     }
 
@@ -3366,17 +3372,17 @@ class Window_ShopCommand extends Window_HorzCommand {
 class Window_ShopBuy extends Window_Selectable {
     declare _money: number;
     declare _shopGoods: RMMZ.ShopGoodsEntry[];
-    declare _data: any[];
-    declare _price: any[];
+    declare _data: RMMZ.InventoryItem[];
+    declare _price: number[];
     declare _statusWindow: Window_ShopStatus;
 
-    constructor(...args: any[]) {
+    constructor(...args: [rect: Rectangle]) {
         super(...args);
     }
 
-    initialize(rect: any): void;
+    initialize(rect: Rectangle): void;
     initialize(...args: any[]): void;
-    initialize(rect: any): void {
+    initialize(rect: Rectangle): void {
         super.initialize(rect);
 
         this._money = 0;
@@ -3481,7 +3487,7 @@ class Window_ShopBuy extends Window_Selectable {
  * The window for selecting an item to sell on the shop screen.
  */
 class Window_ShopSell extends Window_ItemList {
-    constructor(...args: any[]) {
+    constructor(...args: [rect: Rectangle]) {
         super(...args);
     }
 
@@ -3506,7 +3512,7 @@ class Window_ShopNumber extends Window_Selectable {
     declare _price: number;
     declare _number: number;
     declare _currencyUnit: string;
-    declare _buttons: any[];
+    declare _buttons: Sprite_Button[];
 
     constructor(...args: [rect: Rectangle]) {
         super(...args);
@@ -4045,7 +4051,7 @@ class Window_NameInput extends Window_Selectable {
     declare _editWindow: Window_NameEdit | null;
     declare _page: number;
 
-    constructor(...args: any[]) {
+    constructor(...args: [rect: Rectangle]) {
         super(...args);
     }
 
@@ -4121,9 +4127,9 @@ class Window_NameInput extends Window_Selectable {
               "５","６","７","８","９",  "（","）","＊","＋","－",
               "／","＝","＠","＜","＞",  "：","；","　","かな","決定" ];
 
-    initialize(rect: any): void;
+    initialize(rect: Rectangle): void;
     initialize(...args: any[]): void;
-    initialize(rect: any): void {
+    initialize(rect: Rectangle): void {
         super.initialize(rect);
 
         this._editWindow = null;
@@ -4593,7 +4599,7 @@ class Window_NumberInput extends Window_Selectable {
     declare _number: number;
     declare _maxDigits: number;
     declare _messageWindow: Window_Message;
-    declare _buttons: any[];
+    declare _buttons: Sprite_Button[];
 
     constructor(...args: []) {
         super(...args);
@@ -5979,7 +5985,7 @@ class Window_BattleLog extends Window_Base {
         }
     }
 
-    displayAffectedStatus(target: RMMZ.ActionTarget, ..._extra: any[]): void;
+    displayAffectedStatus(target: RMMZ.ActionTarget, ..._extra: unknown[]): void;
     displayAffectedStatus(target: RMMZ.ActionTarget): void {
         if (target.result().isStatusAffected()) {
             this.push("pushBaseLine");
@@ -6047,7 +6053,6 @@ class Window_BattleLog extends Window_Base {
         }
     }
 
-    makeHpDamageText(target: RMMZ.ActionTarget, ..._extra: any[]): string;
     makeHpDamageText(target: RMMZ.ActionTarget): string {
         const result = target.result();
         const damage = result.hpDamage;
@@ -6068,7 +6073,6 @@ class Window_BattleLog extends Window_Base {
         }
     }
 
-    makeMpDamageText(target: RMMZ.ActionTarget, ..._extra: any[]): string;
     makeMpDamageText(target: RMMZ.ActionTarget): string {
         const result = target.result();
         const damage = result.mpDamage;
@@ -6088,7 +6092,6 @@ class Window_BattleLog extends Window_Base {
         }
     }
 
-    makeTpDamageText(target: RMMZ.ActionTarget, ..._extra: any[]): string;
     makeTpDamageText(target: RMMZ.ActionTarget): string {
         const result = target.result();
         const damage = result.tpDamage;

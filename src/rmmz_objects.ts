@@ -15,7 +15,7 @@ class Game_Temp {
     declare _balloonQueue: RMMZ.BalloonRequest[];
     declare _lastActionData: Game_Temp.LastActionData;
 
-    constructor(...args: any[]) {
+    constructor(...args: []) {
         this.initialize(...args);
     }
 
@@ -214,7 +214,7 @@ class Game_System {
     declare _savedBgm: RMMZ.DataAudio | null;
     declare _walkingBgm: RMMZ.DataAudio | null;
 
-    constructor(...args: any[]) {
+    constructor(...args: []) {
         this.initialize(...args);
     }
 
@@ -471,7 +471,7 @@ class Game_Timer {
     declare _frames: number;
     declare _working: boolean;
 
-    constructor(...args: any[]) {
+    constructor(...args: []) {
         this.initialize(...args);
     }
 
@@ -522,8 +522,8 @@ class Game_Timer {
  * or selections, etc.
  */
 class Game_Message {
-    declare _texts: any[];
-    declare _choices: any[] | string[];
+    declare _texts: string[];
+    declare _choices: string[];
     declare _speakerName: string;
     declare _faceName: string;
     declare _faceIndex: number;
@@ -542,7 +542,7 @@ class Game_Message {
     declare _scrollNoFast: boolean;
     declare _choiceCallback: Game_Message.ChoiceCallback | null;
 
-    constructor(...args: any[]) {
+    constructor(...args: []) {
         this.initialize(...args);
     }
 
@@ -747,9 +747,9 @@ declare namespace Game_Message {
  * The game object class for switches.
  */
 class Game_Switches {
-    declare _data: any[];
+    declare _data: boolean[];
 
-    constructor(...args: any[]) {
+    constructor(...args: []) {
         this.initialize(...args);
     }
 
@@ -783,9 +783,9 @@ class Game_Switches {
  * The game object class for variables.
  */
 class Game_Variables {
-    declare _data: any[];
+    declare _data: number[];
 
-    constructor(...args: any[]) {
+    constructor(...args: []) {
         this.initialize(...args);
     }
 
@@ -824,7 +824,7 @@ class Game_Variables {
 class Game_SelfSwitches {
     declare _data: Record<string, boolean>;
 
-    constructor(...args: any[]) {
+    constructor(...args: []) {
         this.initialize(...args);
     }
 
@@ -861,7 +861,7 @@ class Game_SelfSwitches {
  * and flashes.
  */
 class Game_Screen {
-    declare _brightness: any;
+    declare _brightness: number;
     declare _fadeOutDuration: number;
     declare _fadeInDuration: number;
     declare _tone: number[];
@@ -876,16 +876,16 @@ class Game_Screen {
     declare _shake: number;
     declare _zoomX: number;
     declare _zoomY: number;
-    declare _zoomScale: any;
+    declare _zoomScale: number;
     declare _zoomScaleTarget: number;
     declare _zoomDuration: number;
     declare _weatherType: string;
-    declare _weatherPower: any;
+    declare _weatherPower: number;
     declare _weatherPowerTarget: number;
     declare _weatherDuration: number;
-    declare _pictures: any;
+    declare _pictures: (Game_Picture | null)[];
 
-    constructor(...args: any[]) {
+    constructor(...args: []) {
         this.initialize(...args);
     }
 
@@ -1218,17 +1218,17 @@ class Game_Screen {
 class Game_Picture {
     declare _name: string;
     declare _origin: number;
-    declare _x: any;
-    declare _y: any;
-    declare _scaleX: any;
-    declare _scaleY: any;
-    declare _opacity: any;
+    declare _x: number;
+    declare _y: number;
+    declare _scaleX: number;
+    declare _scaleY: number;
+    declare _opacity: number;
     declare _blendMode: number | RMMZ.BlendMode;
-    declare _targetX: any;
-    declare _targetY: any;
-    declare _targetScaleX: any;
-    declare _targetScaleY: any;
-    declare _targetOpacity: any;
+    declare _targetX: number;
+    declare _targetY: number;
+    declare _targetScaleX: number;
+    declare _targetScaleY: number;
+    declare _targetOpacity: number;
     declare _duration: number;
     declare _wholeDuration: number;
     declare _easingType: number;
@@ -1239,7 +1239,7 @@ class Game_Picture {
     declare _angle: number;
     declare _rotationSpeed: number;
 
-    constructor(...args: any[]) {
+    constructor(...args: []) {
         this.initialize(...args);
     }
 
@@ -1549,7 +1549,7 @@ class Game_Action {
     declare _subjectEnemyIndex: number;
     declare _forcing: boolean;
     declare _item: Game_Item<RMMZ.ActionItem>;
-    declare _targetIndex: any;
+    declare _targetIndex: number;
 
     constructor(...args: [subject: Game_Battler, forcing?: boolean]) {
         this.initialize(...args);
@@ -2482,11 +2482,11 @@ class Game_ActionResult {
     declare hpDamage: number;
     declare mpDamage: number;
     declare tpDamage: number;
-    declare addedStates: any[];
-    declare removedStates: any[];
-    declare addedBuffs: any[];
-    declare addedDebuffs: any[];
-    declare removedBuffs: any[];
+    declare addedStates: RMMZ.StateID[];
+    declare removedStates: RMMZ.StateID[];
+    declare addedBuffs: RMMZ.ParamID[];
+    declare addedDebuffs: RMMZ.ParamID[];
+    declare removedBuffs: RMMZ.ParamID[];
 
     constructor(...args: []) {
         this.initialize(...args);
@@ -2599,12 +2599,14 @@ class Game_BattlerBase {
     declare _tp: number;
     declare _hidden: boolean;
     declare _paramPlus: number[];
-    declare _states: any[];
+    declare _states: RMMZ.StateID[];
     declare _stateTurns: Record<string, number>;
     declare _buffs: number[];
     declare _buffTurns: number[];
 
-    constructor(...args: []) {
+    constructor();
+    constructor(..._extra: unknown[]);
+    constructor(...args: unknown[]) {
         this.initialize(...args);
     }
 
@@ -3456,8 +3458,9 @@ class Game_Battler extends Game_BattlerBase {
     declare _tpbTurnCount: number;
     declare _tpbTurnEnd: boolean;
 
-    constructor(..._extra: any[]);
-    constructor(...args: []) {
+    constructor();
+    constructor(..._extra: unknown[]);
+    constructor(...args: unknown[]) {
         super(...args);
     }
 
@@ -5369,7 +5372,7 @@ class Game_Enemy extends Game_Battler {
 class Game_Actors {
     declare _data: Game_Actor[];
 
-    constructor(...args: any[]) {
+    constructor(...args: []) {
         this.initialize(...args);
     }
 
@@ -5396,7 +5399,7 @@ class Game_Actors {
 class Game_Unit<T extends Game_Battler = Game_Battler> {
     declare _inBattle: boolean;
 
-    constructor(...args: any[]) {
+    constructor(...args: []) {
         this.initialize(...args);
     }
 
@@ -6018,7 +6021,7 @@ class Game_Troop extends Game_Unit<Game_Enemy> {
     declare _interpreter: Game_Interpreter;
     declare _troopId: number;
     declare _eventFlags: Record<string, boolean>;
-    declare _enemies: any[];
+    declare _enemies: Game_Enemy[];
     declare _turnCount: number;
     declare _namesCount: Record<string, number>;
 
@@ -7135,7 +7138,9 @@ class Game_CharacterBase {
     declare _jumpPeak: number;
     declare _movementSuccess: boolean;
 
-    constructor(...args: []) {
+    constructor();
+    constructor(..._extra: unknown[]);
+    constructor(...args: unknown[]) {
         this.initialize(...args);
     }
 
@@ -7714,8 +7719,9 @@ class Game_Character extends Game_CharacterBase {
     declare _originalMoveRouteIndex: number;
     declare _waitCount: number;
 
-    constructor(..._extra: any[]);
-    constructor(...args: []) {
+    constructor();
+    constructor(..._extra: unknown[]);
+    constructor(...args: unknown[]) {
         super(...args);
     }
 
@@ -11720,7 +11726,7 @@ class Game_Interpreter {
         return true;
     }
 
-    pluginCommand(..._extra: any[]): void;
+    pluginCommand(command?: string, args?: string[]): void;
     pluginCommand(): void {
         // deprecated
     }

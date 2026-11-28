@@ -44,25 +44,25 @@ declare global {
         /**
          * Checks whether the array contains a given element.
          *
-         * @param {any} element - The element to search for.
+         * @param element - The element to search for.
          * @returns {boolean} True if the array contains a given element.
          * @deprecated includes() should be used instead.
          */
-        contains: (element: any) => boolean;
+        contains: (element: T) => boolean;
         /**
          * Checks whether the two arrays are the same.
          *
          * @param {Array} array - The array to compare to.
          * @returns {boolean} True if the two arrays are the same.
          */
-        equals: (array: Array<any>) => boolean;
+        equals: (array: readonly unknown[]) => boolean;
         /**
          * Removes a given element from the array (in place).
          *
-         * @param {any} element - The element to remove.
+         * @param element - The element to remove.
          * @returns {Array} The array after remove.
          */
-        remove: (element: any) => Array<T>;
+        remove: (element: T) => Array<T>;
     }
 
     interface Math {
@@ -121,7 +121,7 @@ declare global {
          * @param args - The objects to format.
          * @returns {string} A formatted string.
          */
-        format: (...args: any[]) => string;
+        format: (...args: unknown[]) => string;
         /**
          * Makes a number string with leading zeros.
          *

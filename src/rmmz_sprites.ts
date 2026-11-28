@@ -7,7 +7,9 @@ class Sprite_Clickable extends Sprite {
     declare _pressed: boolean;
     declare _hovered: boolean;
 
-    constructor(...args: any[]) {
+    constructor();
+    constructor(..._extra: unknown[]);
+    constructor(...args: unknown[]) {
         super(...args);
     }
 
@@ -475,8 +477,9 @@ class Sprite_Battler extends Sprite_Clickable {
     declare _movementDuration: number;
     declare _selectionEffectCount: number;
 
-    constructor(..._extra: any[]);
-    constructor(...args: [battler: RMMZ.ActionTarget]) {
+    constructor(battler: RMMZ.ActionTarget);
+    constructor(..._extra: unknown[]);
+    constructor(...args: unknown[]) {
         super(...args);
     }
 
@@ -694,7 +697,7 @@ class Sprite_Actor extends Sprite_Battler {
     declare _shadowSprite: Sprite;
     declare _weaponSprite: Sprite_Weapon;
     declare _stateSprite: Sprite_StateOverlay;
-    declare _actor: any;
+    declare _actor: Game_Actor;
 
     constructor(...args: [battler?: Game_Actor]) {
         super(...args!);
@@ -815,7 +818,7 @@ class Sprite_Actor extends Sprite_Battler {
 
     setupMotion(): void {
         if (this._actor.isMotionRequested()) {
-            this.startMotion(this._actor.motionType());
+            this.startMotion(this._actor.motionType()!);
             this._actor.clearMotion();
         }
     }
@@ -992,13 +995,13 @@ class Sprite_Enemy extends Sprite_Battler {
     declare _shake: number;
     declare _stateIconSprite: Sprite_StateIcon;
 
-    constructor(...args: any[]) {
+    constructor(...args: [battler: Game_Enemy]) {
         super(...args);
     }
 
-    initialize(battler: any): void;
+    initialize(battler: Game_Enemy): void;
     initialize(...args: any[]): void;
-    initialize(battler: any): void {
+    initialize(battler: Game_Enemy): void {
         super.initialize(battler);
     }
 
@@ -2044,7 +2047,7 @@ class Sprite_Damage extends Sprite {
     declare _flashDuration: number;
     declare _colorType: number;
 
-    constructor(...args: any[]) {
+    constructor(...args: []) {
         super(...args);
     }
 
@@ -3263,8 +3266,9 @@ class Spriteset_Base extends Sprite {
     declare _timerSprite: Sprite_Timer;
     declare _overallColorFilter: ColorFilter;
 
-    constructor(..._extra: any[]);
-    constructor(...args: []) {
+    constructor();
+    constructor(..._extra: unknown[]);
+    constructor(...args: unknown[]) {
         super(...args);
     }
 
@@ -3491,14 +3495,14 @@ class Spriteset_Map extends Spriteset_Base {
     declare _parallax: TilingSprite;
     declare _effectsContainer: Tilemap;
     declare _tilemap: Tilemap;
-    declare _tileset: any;
-    declare _characterSprites: any[];
+    declare _tileset: RMMZ.DataTileset | null;
+    declare _characterSprites: Sprite_Character[];
     declare _shadowSprite: Sprite;
     declare _destinationSprite: Sprite_Destination;
     declare _weather: Weather;
     declare _parallaxName: string;
 
-    constructor(...args: any[]) {
+    constructor(...args: []) {
         super(...args);
     }
 
@@ -3723,9 +3727,9 @@ class Spriteset_Battle extends Spriteset_Base {
     declare _battleField: Sprite;
     declare _effectsContainer: Sprite;
     declare _enemySprites: Sprite_Enemy[];
-    declare _actorSprites: any[];
+    declare _actorSprites: Sprite_Actor[];
 
-    constructor(...args: any[]) {
+    constructor(...args: []) {
         super(...args);
     }
 
@@ -3845,7 +3849,7 @@ class Spriteset_Battle extends Spriteset_Base {
     }
 
     battlerSprites(): (Sprite_Actor | Sprite_Enemy)[] {
-        return this._enemySprites.concat(this._actorSprites);
+        return (this._enemySprites as (Sprite_Actor | Sprite_Enemy)[]).concat(this._actorSprites);
     }
 
     isEffecting(): boolean {

@@ -1057,7 +1057,7 @@ class EffectManager {
         this._cache = {};
     }
 
-    static onLoad(..._extra: any[]): void;
+    static onLoad(url: string): void;
     static onLoad(/*url*/): void {
         //
     }
@@ -2006,12 +2006,12 @@ class ColorManager {
         }
     }
 
-    static mpColor(..._extra: any[]): string;
+    static mpColor(actor?: Game_BattlerBase | null): string;
     static mpColor(/*actor*/): string {
         return this.normalColor();
     }
 
-    static tpColor(..._extra: any[]): string;
+    static tpColor(actor?: Game_BattlerBase | null): string;
     static tpColor(/*actor*/): string {
         return this.normalColor();
     }
@@ -2416,7 +2416,7 @@ class SceneManager {
         Graphics.stopGameLoop();
     }
 
-    static prepareNextScene(..._extra: any[]): void;
+    static prepareNextScene(...args: unknown[]): void;
     static prepareNextScene(): void {
         (this._nextScene as SceneManager.PreparedScene).prepare(...arguments);
     }
@@ -2455,7 +2455,7 @@ declare namespace SceneManager {
     }
 
     export interface PreparedScene extends Scene_Base {
-        prepare: (...args: any[]) => void;
+        prepare: (...args: unknown[]) => void;
     }
 }
 

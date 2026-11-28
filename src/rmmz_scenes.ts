@@ -13,8 +13,9 @@ class Scene_Base extends Stage {
     declare _windowLayer: WindowLayer;
     declare _colorFilter: ColorFilter;
 
-    constructor(..._extra: any[]);
-    constructor(...args: []) {
+    constructor();
+    constructor(..._extra: unknown[]);
+    constructor(...args: unknown[]) {
         super(...args);
     }
 
@@ -257,7 +258,7 @@ class Scene_Base extends Stage {
 class Scene_Boot extends Scene_Base {
     declare _databaseLoaded: boolean;
 
-    constructor(...args: any[]) {
+    constructor(...args: []) {
         super(...args);
     }
 
@@ -400,7 +401,7 @@ class Scene_Splash extends Scene_Base {
     declare _backSprite: Sprite;
     declare _waitCount: number;
 
-    constructor(...args: any[]) {
+    constructor(...args: []) {
         super(...args);
     }
 
@@ -494,7 +495,7 @@ class Scene_Title extends Scene_Base {
     declare _gameTitleSprite: Sprite;
     declare _commandWindow: Window_TitleCommand;
 
-    constructor(...args: any[]) {
+    constructor(...args: []) {
         super(...args);
     }
 
@@ -631,7 +632,7 @@ class Scene_Message extends Scene_Base {
     declare _numberInputWindow: Window_NumberInput;
     declare _eventItemWindow: Window_EventItem;
 
-    constructor(...args: any[]) {
+    constructor(...args: []) {
         super(...args);
     }
 
@@ -762,7 +763,7 @@ class Scene_Map extends Scene_Message {
     declare _mapNameWindow: Window_MapName;
     declare _menuButton: Sprite_Button;
 
-    constructor(...args: any[]) {
+    constructor(...args: []) {
         super(...args);
     }
 
@@ -1194,7 +1195,7 @@ class Scene_MenuBase extends Scene_Base {
     declare _pageupButton: Sprite_Button;
     declare _pagedownButton: Sprite_Button;
 
-    constructor(...args: any[]) {
+    constructor(...args: []) {
         super(...args);
     }
 
@@ -1365,7 +1366,7 @@ class Scene_Menu extends Scene_MenuBase {
     declare _goldWindow: Window_Gold;
     declare _statusWindow: Window_MenuStatus;
 
-    constructor(...args: any[]) {
+    constructor(...args: []) {
         super(...args);
     }
 
@@ -1527,7 +1528,7 @@ abstract class Scene_ItemBase extends Scene_MenuBase {
 
     declare _actorWindow: Window_MenuActor;
 
-    constructor(...args: any[]) {
+    constructor(...args: []) {
         super(...args);
     }
 
@@ -1676,7 +1677,7 @@ class Scene_Item extends Scene_ItemBase {
     declare _categoryWindow: Window_ItemCategory;
     declare _itemWindow: Window_ItemList;
 
-    constructor(...args: any[]) {
+    constructor(...args: []) {
         super(...args);
     }
 
@@ -1782,7 +1783,7 @@ class Scene_Skill extends Scene_ItemBase {
     declare _statusWindow: Window_SkillStatus;
     declare _itemWindow: Window_SkillList;
 
-    constructor(...args: any[]) {
+    constructor(...args: []) {
         super(...args);
     }
 
@@ -1918,7 +1919,7 @@ class Scene_Equip extends Scene_MenuBase {
     declare _slotWindow: Window_EquipSlot;
     declare _itemWindow: Window_EquipItem;
 
-    constructor(...args: any[]) {
+    constructor(...args: []) {
         super(...args);
     }
 
@@ -2106,7 +2107,7 @@ class Scene_Status extends Scene_MenuBase {
     declare _statusParamsWindow: Window_StatusParams;
     declare _statusEquipWindow: Window_StatusEquip;
 
-    constructor(...args: any[]) {
+    constructor(...args: []) {
         super(...args);
     }
 
@@ -2229,7 +2230,7 @@ class Scene_Status extends Scene_MenuBase {
 class Scene_Options extends Scene_MenuBase {
     declare _optionsWindow: Window_Options;
 
-    constructor(...args: any[]) {
+    constructor(...args: []) {
         super(...args);
     }
 
@@ -2281,7 +2282,7 @@ class Scene_Options extends Scene_MenuBase {
 class Scene_File extends Scene_MenuBase {
     declare _listWindow: Window_SavefileList;
 
-    constructor(...args: any[]) {
+    constructor(...args: []) {
         super(...args);
     }
 
@@ -2378,7 +2379,7 @@ class Scene_File extends Scene_MenuBase {
  * The scene class of the save screen.
  */
 class Scene_Save extends Scene_File {
-    constructor(...args: any[]) {
+    constructor(...args: []) {
         super(...args);
     }
 
@@ -2435,7 +2436,7 @@ class Scene_Save extends Scene_File {
 class Scene_Load extends Scene_File {
     declare _loadSuccess: boolean;
 
-    constructor(...args: any[]) {
+    constructor(...args: []) {
         super(...args);
     }
 
@@ -2513,7 +2514,7 @@ class Scene_Load extends Scene_File {
 class Scene_GameEnd extends Scene_MenuBase {
     declare _commandWindow: Window_GameEnd;
 
-    constructor(...args: any[]) {
+    constructor(...args: []) {
         super(...args);
     }
 
@@ -2577,7 +2578,7 @@ class Scene_Shop extends Scene_MenuBase {
     declare _categoryWindow: Window_ItemCategory;
     declare _sellWindow: Window_ShopSell;
 
-    constructor(...args: any[]) {
+    constructor(...args: []) {
         super(...args);
     }
 
@@ -2924,7 +2925,7 @@ class Scene_Name extends Scene_MenuBase {
     declare _editWindow: Window_NameEdit;
     declare _inputWindow: Window_NameInput;
 
-    constructor(...args: any[]) {
+    constructor(...args: []) {
         super(...args);
     }
 
@@ -2998,7 +2999,7 @@ class Scene_Debug extends Scene_MenuBase {
     declare _editWindow: Window_DebugEdit;
     declare _debugHelpWindow: Window_Base;
 
-    constructor(...args: any[]) {
+    constructor(...args: []) {
         super(...args);
     }
 
@@ -3111,7 +3112,7 @@ class Scene_Battle extends Scene_Message {
     declare _enemyWindow: Window_BattleEnemy;
     declare _cancelButton: Sprite_Button;
 
-    constructor(...args: any[]) {
+    constructor(...args: []) {
         super(...args);
     }
 
@@ -3684,7 +3685,7 @@ class Scene_Battle extends Scene_Message {
 class Scene_Gameover extends Scene_Base {
     declare _backSprite: Sprite;
 
-    constructor(...args: any[]) {
+    constructor(...args: []) {
         super(...args);
     }
 
